@@ -2,93 +2,25 @@
 This is a module to be used as a reference for building other modules
 """
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin, TransformerMixin
+from sklearn.base import BaseEstimator, ClassifierMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
-from sklearn.metrics import euclidean_distances
 
 
-class TemplateEstimator(BaseEstimator):
-    """ A template estimator to be used as a reference implementation .
+class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
+    """ L1-relevance Bounds Classifier
 
-    Parameters
-    ----------
-    demo_param : str, optional
-        A parameter used for demonstation of how to pass and store paramters.
     """
-    def __init__(self, demo_param='demo_param'):
-        self.demo_param = demo_param
 
-    def fit(self, X, y):
-        """A reference implementation of a fitting function
-
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-        y : array-like, shape = [n_samples] or [n_samples, n_outputs]
-            The target values (class labels in classification, real numbers in
-            regression).
-
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        X, y = check_X_y(X, y)
-        # Return the estimator
-        return self
-
-    def predict(self, X):
-        """ A reference implementation of a predicting function.
-
-        Parameters
-        ----------
-        X : array-like of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        y : array of shape = [n_samples]
-            Returns :math:`x^2` where :math:`x` is the first column of `X`.
-        """
-        X = check_array(X)
-        return X[:, 0]**2
-
-
-class TemplateClassifier(BaseEstimator, ClassifierMixin):
-    """ An example classifier which implements a 1-NN algorithm.
-
-    Parameters
-    ----------
-    demo_param : str, optional
-        A parameter used for demonstation of how to pass and store paramters.
-
-    Attributes
-    ----------
-    X_ : array, shape = [n_samples, n_features]
-        The input passed during :meth:`fit`
-    y_ : array, shape = [n_samples]
-        The labels passed during :meth:`fit`
-    """
-    def __init__(self, demo_param='demo'):
-        self.demo_param = demo_param
+    def __init__(self, C=None, random_state=None,shadow_features=True):
+        self.random_state = check_random_state(random_state)
+        self.C = C
+        self.shadow_f = shadow_features
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
-
-        Parameters
-        ----------
-        X : array-like, shape = [n_samples, n_features]
-            The training input samples.
-        y : array-like, shape = [n_samples]
-            The target values. An array of int.
-
-        Returns
-        -------
-        self : object
-            Returns self.
         """
+
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
         # Store the classes seen during fit
@@ -96,6 +28,12 @@ class TemplateClassifier(BaseEstimator, ClassifierMixin):
 
         self.X_ = X
         self.y_ = y
+
+        self.interval_,\
+            self._omegas,\
+            self._biase,\
+            self._shadowintervals = self._main_opt(x,y)
+
         # Return the classifier
         return self
 
@@ -119,72 +57,75 @@ class TemplateClassifier(BaseEstimator, ClassifierMixin):
         # Input validation
         X = check_array(X)
 
-        closest = np.argmin(euclidean_distances(X, self.X_), axis=1)
         return self.y_[closest]
 
+    def _main_opt(self, X, Y):
+        n,d = X 
+        rangevector = np.zeros((d, 2))
+        shadowrangevector = np.zeros((d, 2))
+        omegas = np.zeros((d, 2, d))
+        biase = np.zeros((d, 2))
 
-class TemplateTransformer(BaseEstimator, TransformerMixin):
-    """ An example transformer that returns the element-wise square root..
+        #######
+        kwargs = {"warm_start": True, "solver": "SCS", "gpu": False, "verbose": False, "parallel": True}
+        acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
 
-    Parameters
-    ----------
-    demo_param : str, optional
-        A parameter used for demonstation of how to pass and store paramters.
+        for di in range(self.d):
+            rangevector[di, 0], \
+            omegas[di, 0], \
+            biase[di, 0] = self.opt_min(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            rangevector[di, 1], \
+            omegas[di, 1], \
+            biase[di, 1] = self.opt_max(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            if shadowF:
+                # Shuffle values for single feature
+                Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n,1)),X,axis=1)
+                shadowrangevector[di, 0] = self.opt_min(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled,
+                                                        Y).bounds
+                shadowrangevector[di, 1] = self.opt_max(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled,
+                                                        Y).bounds
 
-    Attributes
-    ----------
-    input_shape : tuple
-        The shape the data passed to :meth:`fit`
-    """
-    def __init__(self, demo_param='demo'):
-        self.demo_param = demo_param
+        # Correction through shadow features
+        if shadowF:
+            rangevector -= shadowrangevector
+            rangevector[rangevector < 0] = 0
 
-    def fit(self, X, y=None):
-        """A reference implementation of a fitting function for a transformer.
+        # Scale to L1
+        if L1 > 0:
+            rangevector = rangevector / L1
+            # shadowrangevector = shadowrangevector / L1
+        # round mins to zero
+        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+        return rangevector, omegas, biase, shadowrangevector
 
-        Parameters
-        ----------
-        X : array-like or sparse matrix of shape = [n_samples, n_features]
-            The training input samples.
-        y : None
-            There is no need of a target in a transformer, yet the pipeline API
-            requires this parameter.
+    def _performSVM(self, X, Y):
+        if self.C is None:
+            # Hyperparameter Optimization over C, starting from minimal C
+            min_c = sklearn.svm.l1_min_c(X, Y)
+            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+        else:
+            # Fixed Hyperparameter
+            tuned_parameters = [{'C': [self.C]}]
 
-        Returns
-        -------
-        self : object
-            Returns self.
-        """
-        X = check_array(X)
+        gridsearch = GridSearchCV(
+                             svm.LinearSVC(penalty='l1',
+                             loss="squared_hinge",
+                             dual=False,
+                             random_state=self.randomstate),
+                           tuned_parameters,
+                           n_jobs=-1, cv=6, verbose=False)
+        gridsearch.fit(X, Y)
+        C = gridsearch.best_params_['C']
+        best_clf = clf.best_estimator_
+        beta = best_clf.coef_
+        bias = best_clf.intercept_[0]
+        L1 = np.linalg.norm(beta[0], ord=1)
 
-        self.input_shape_ = X.shape
+        Y_vector = np.array([Y[:], ] * 1)
+        # Hinge loss
+        # loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(beta, X1) - bias))
+        # Squared hinge loss
+        loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner(beta, X) - bias))[0]**2)
 
-        # Return the transformer
-        return self
-
-    def transform(self, X):
-        """ A reference implementation of a transform function.
-
-        Parameters
-        ----------
-        X : array-like of shape = [n_samples, n_features]
-            The input samples.
-
-        Returns
-        -------
-        X_transformed : array of int of shape = [n_samples, n_features]
-            The array containing the element-wise square roots of the values
-            in `X`
-        """
-        # Check is fit had been called
-        check_is_fitted(self, ['input_shape_'])
-
-        # Input validation
-        X = check_array(X)
-
-        # Check that the input is of the same shape as the one passed
-        # during fit.
-        if X.shape != self.input_shape_:
-            raise ValueError('Shape of input is different from what was seen'
-                             'in `fit`')
-        return np.sqrt(X)
+        self.beta = beta[0]
+        return L1, loss, C, clf
