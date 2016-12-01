@@ -22,11 +22,11 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
     """ L1-relevance Bounds Classifier
 
     """
-
-    def __init__(self, C=None, random_state=None,shadow_features=True):
-        self.random_state = check_random_state(random_state)
+    Opt_output = namedtuple("OptOutput", ["bounds", "omegas", "b"])
+    def __init__(self, C=None, random_state=None, shadow_features=True):
+        self.random_state = random_state
         self.C = C
-        self.shadow_f = shadow_features
+        self.shadow_features = shadow_features
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
@@ -41,7 +41,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         self.y_ = y
 
         # Use SVM to get optimal solution
-        self._performSVM(X, Y)
+        self._performSVM(X, y)
 
         # Main Optimization step
         self._main_opt(X, y)
@@ -72,7 +72,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         return self.y_[closest]
 
     def _main_opt(self, X, Y):
-        n, d = X.shape()
+        n, d = X.shape
         rangevector = np.zeros((d, 2))
         shadowrangevector = np.zeros((d, 2))
         omegas = np.zeros((d, 2, d))
@@ -80,7 +80,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
 
         svmloss = self._svm_loss
         L1 = self._svm_L1
-        C  = self.C
+        C = self.C
 
         """
         Solver Parameters
@@ -92,20 +92,53 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         for di in range(d):
             rangevector[di, 0], \
             omegas[di, 0], \
-            biase[di, 0] = self.opt_min(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            biase[di, 0] = self._opt_min(acceptableStati,
+                                         di,
+                                         d, 
+                                         n,
+                                         kwargs,
+                                         L1,
+                                         svmloss,
+                                         C,
+                                         X,
+                                         Y)
             rangevector[di, 1], \
             omegas[di, 1], \
-            biase[di, 1] = self.opt_max(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-            if self.shadow_f:
+            biase[di, 1] = self._opt_max(acceptableStati,
+                                         di,
+                                         d, 
+                                         n,
+                                         kwargs,
+                                         L1,
+                                         svmloss,
+                                         C,
+                                         X,
+                                         Y)
+            if self.shadow_features:
                 # Shuffle values for single feature
-                Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)),X,axis=1)
-                shadowrangevector[di, 0] = self._opt_min(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled,
-                                                        Y).bounds
-                shadowrangevector[di, 1] = self._opt_max(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled,
-                                                        Y).bounds
-
+                Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+                shadowrangevector[di, 0] = self._opt_min(acceptableStati,
+                                                            0,
+                                                            d+1,
+                                                            n,
+                                                            kwargs,
+                                                            L1,
+                                                            svmloss,
+                                                            C,
+                                                            Xshuffled,
+                                                            Y).bounds
+                shadowrangevector[di, 1] = self._opt_max(acceptableStati,
+                                                            0,
+                                                            d+1,
+                                                            n,
+                                                            kwargs,
+                                                            L1,
+                                                            svmloss,
+                                                            C,
+                                                            Xshuffled,
+                                                            Y).bounds
         # Correction through shadow features
-        if self.shadow_f:
+        if self.shadow_features:
             rangevector -= shadowrangevector
             rangevector[rangevector < 0] = 0
 
@@ -125,7 +158,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
     def _performSVM(self, X, Y):
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
-            min_c = sklearn.svm.l1_min_c(X, Y)
+            min_c = svm.l1_min_c(X, Y)
             tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
         else:
             # Fixed Hyperparameter
@@ -135,16 +168,16 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
                              svm.LinearSVC(penalty='l1',
                              loss="squared_hinge",
                              dual=False,
-                             random_state=self.randomstate),
+                             random_state=self.random_state),
                            tuned_parameters,
                            n_jobs=-1, cv=6, verbose=False)
         gridsearch.fit(X, Y)
         C = gridsearch.best_params_['C']
 
-        self._svm_clf=  = best_clf = clf.best_estimator_
+        self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_[0]
-        self._svm_L1 = np.linalg.norm(beta[0], ord=1)
+        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         Y_vector = np.array([Y[:], ] * 1)
         # Hinge loss
@@ -159,7 +192,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         M = 2 * L1
         xp = cvx.Variable(d)
         omega = cvx.Variable(d)
-        omegai = Parameter(d)
+        omegai = cvx.Parameter(d)
         b = cvx.Variable()
         eps = cvx.Variable(n)
 
@@ -215,13 +248,13 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
             # return softMarginLPOptimizer.Opt_output(0, 0, 0)
             raise NotFeasibleForParameters
         else:
-            return softMarginLPOptimizer.Opt_output(opt_value, weights, bias)
+            return RelevanceBoundsClassifier.Opt_output(opt_value, weights, bias)
 
     def _opt_min(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
         Y = np.array([Y, ] * 1)
         xp = cvx.Variable(d)
         omega = cvx.Variable(d)
-        omegai = Parameter(d)
+        omegai =  cvx.Parameter(d)
         b = cvx.Variable()
         eps = cvx.Variable(n)
 
@@ -246,7 +279,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         status = prob_min.status
 
         if status in acceptableStati:
-            return softMarginLPOptimizer.Opt_output(prob_min.value, omega.value.reshape(d), b.value)
+            return RelevanceBoundsClassifier.Opt_output(prob_min.value, omega.value.reshape(d), b.value)
         else:
             # return softMarginLPOptimizer.Opt_output(0, 0, 0)
             raise NotFeasibleForParameters
