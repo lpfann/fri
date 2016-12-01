@@ -2,7 +2,8 @@
 This is a module to be used as a reference for building other modules
 """
 import numpy as np
-from sklearn.base import BaseEstimator, ClassifierMixin
+from sklearn.base import BaseEstimator
+from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
 from sklearn.model_selection import GridSearchCV
@@ -18,7 +19,7 @@ class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
 
 
-class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
+class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
     """ L1-relevance Bounds Classifier
 
     """
@@ -46,30 +47,57 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
         # Main Optimization step
         self._main_opt(X, y)
 
+        # Classify features
+        self._get_relevance_mask()
+
         # Return the classifier
         return self
 
-    def predict(self, X):
-        """ A reference implementation of a prediction for a classifier.
+    # def predict(self, X):
+    #     """ A reference implementation of a prediction for a classifier.
 
-        Parameters
-        ----------
-        X : array-like of shape = [n_samples, n_features]
-            The input samples.
+    #     Parameters
+    #     ----------
+    #     X : array-like of shape = [n_samples, n_features]
+    #         The input samples.
 
-        Returns
-        -------
-        y : array of int of shape = [n_samples]
-            The label for each sample is the label of the closest sample
-            seen udring fit.
-        """
-        # Check is fit had been called
-        check_is_fitted(self, ['X_', 'y_'])
+    #     Returns
+    #     -------
+    #     y : array of int of shape = [n_samples]
+    #         The label for each sample is the label of the closest sample
+    #         seen udring fit.
+    #     """
+    #     # Check is fit had been called
+    #     check_is_fitted(self, ['X_', 'y_'])
 
-        # Input validation
-        X = check_array(X)
+    #     # Input validation
+    #     X = check_array(X)
 
-        return self.y_[closest]
+    #     return None
+
+    def _get_relevance_mask(self,
+                upper_epsilon = 0.0606,
+                lower_epsilon = 0.0323):
+        rangevector = self.interval_
+        prediction = np.zeros(rangevector.shape[0])
+        # Treshold for relevancy
+        #upper_epsilon = np.median(rangevector[:,1])
+        #lower_epsilon = np.median(rangevector[:,0])
+
+        # Weakly relevant ones have high upper bounds
+        prediction[rangevector[:, 1] > upper_epsilon] = 1
+        # Strongly relevant bigger than 0 + some epsilon
+        prediction[rangevector[:, 0] > lower_epsilon] = 2
+
+        allrel_prediction = prediction.copy()
+        allrel_prediction[allrel_prediction == 2] = 1
+
+        self.allrel_prediction_ = allrel_prediction
+
+        return allrel_prediction, prediction
+
+    def _get_support_mask(self):
+        return self.allrel_prediction_
 
     def _main_opt(self, X, Y):
         n, d = X.shape
@@ -80,7 +108,7 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
 
         svmloss = self._svm_loss
         L1 = self._svm_L1
-        C = self.C
+        C = self._hyper_C
 
         """
         Solver Parameters
@@ -170,9 +198,9 @@ class RelevanceBoundsClassifier(BaseEstimator, ClassifierMixin):
                              dual=False,
                              random_state=self.random_state),
                            tuned_parameters,
-                           n_jobs=-1, cv=6, verbose=False)
+                           n_jobs=-1, cv=3, verbose=False)
         gridsearch.fit(X, Y)
-        C = gridsearch.best_params_['C']
+        self._hyper_C = gridsearch.best_params_['C']
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
