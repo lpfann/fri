@@ -19,7 +19,7 @@ class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
 
 
-class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
+class RelevanceBoundsClassifier(BaseEstimator):
     """ L1-relevance Bounds Classifier
 
     """
