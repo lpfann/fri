@@ -1,0 +1,77 @@
+import numpy as np
+
+def genData(self,n_samples=100, n_features=2, n_redundant=0,strRel=1,
+     n_repeated=0,class_sep=0.2,flip_y=0,random_state=None):
+
+    randomstate  = check_random_state(random_state)
+    weakRel =  n_redundant
+    assert(n_redundant+n_repeated+strRel<= n_features )
+    X = np.zeros((n_samples,n_features))
+    n = n_samples
+    width = 10
+    
+    def dummyFeat(n,scale=2):
+        return  np.random.rand(n)*scale - scale/2
+
+    def repeatFeat(feats, i):
+        i_pick = np.random.choice(i)
+        return feats[:, i_pick]
+
+    def genStrongRelFeatures(n, strRel, width=10, epsilon=0.05):
+        Y = np.ones(n)
+        # Generate hyperplane consiting of strongly relevant features 
+        base = 0 # origin for now # TODO
+        n_vec = randomstate.uniform(0.2, 1, int(strRel)) * randomstate.choice([1, -1], int(strRel))
+        candidates = randomstate.uniform(-width, width, (n, int(strRel)))
+        distPlane = (np.inner(n_vec, candidates) - base)
+        # TODO fix this scaling issue
+        # epsilon = width*epsilon
+        #epsilon = 0.01
+        close_candiate_mask = np.abs(distPlane) < epsilon
+
+        
+        # reroll points which are too cloos to hyperplane
+        # makes classif. easier
+        while np.sum(close_candiate_mask) > 0:
+            candidates[close_candiate_mask] = \
+                randomstate.uniform(-width, width, (np.sum(close_candiate_mask), int(strRel)))
+            distPlane = (np.inner(n_vec, candidates) - base)
+            close_candiate_mask = np.abs(distPlane) < epsilon
+
+        Y[distPlane > epsilon] = 1
+        Y[distPlane < -epsilon] = -1   
+    
+        return candidates,Y
+
+    f_strong, Y = genStrongRelFeatures(n,strRel+weakRel/2,width=width, epsilon=class_sep)
+    
+    def combFeat(n,strRelFeat):
+        # Split each strongly relevant feature into linear combination of it
+        weakFeats = np.zeros((n,2))
+        for x in range(2):
+            cofact = 2 * randomstate.rand() - 1 
+            weakFeats[:,x] = cofact  * strRelFeat
+        return weakFeats
+
+    X[:,:strRel] = f_strong[:,:strRel]
+    holdout = f_strong[:,strRel:]
+
+    i = strRel
+
+    for x in range(len(holdout.T)):
+        X[:,i:i+2] = combFeat(n_samples,holdout[:,x])
+        i += 2  
+
+    for x in range(n_repeated):
+        X[:,i ] = repeatFeat(X[:,:i],i)
+        i += 1  
+            
+    for x in range(n_features-i):
+        X[:,i ] = dummyFeat(n_samples,width)
+        i += 1        
+    
+    if flip_y > 0:
+        n_flip = np.rint(flip_y * n_samples)
+        Y[randomstate.choice(n_samples,n_flip)] *= -1
+
+    return X, Y
