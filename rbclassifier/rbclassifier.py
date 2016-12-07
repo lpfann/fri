@@ -8,9 +8,11 @@ from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import shuffle, check_random_state
+from sklearn import preprocessing
 from sklearn import svm
 from collections import namedtuple
 import itertools
+from sklearn.exceptions import FitFailedWarning
 
 
 import cvxpy as cvx
@@ -19,7 +21,7 @@ class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
 
 
-class RelevanceBoundsClassifier(BaseEstimator):
+class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
     """ L1-relevance Bounds Classifier
 
     """
@@ -37,6 +39,12 @@ class RelevanceBoundsClassifier(BaseEstimator):
         X, y = check_X_y(X, y)
         # Store the classes seen during fit
         self.classes_ = unique_labels(y)
+
+        if len(self.classes_)>2:
+            raise ValueError("Only binary class data supported")
+        # Negative class is set to -1 for decision surface
+        y = preprocessing.LabelEncoder().fit_transform(y)
+        y[y==0] = -1
 
         self.X_ = X
         self.y_ = y
@@ -76,25 +84,27 @@ class RelevanceBoundsClassifier(BaseEstimator):
     #     return None
 
     def _get_relevance_mask(self,
-                upper_epsilon = 0.0606,
+                #upper_epsilon = 0.0606,
+                upper_epsilon = 0.1,
+
                 lower_epsilon = 0.0323):
         rangevector = self.interval_
-        prediction = np.zeros(rangevector.shape[0])
+        prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
         # Treshold for relevancy
         #upper_epsilon = np.median(rangevector[:,1])
         #lower_epsilon = np.median(rangevector[:,0])
 
         # Weakly relevant ones have high upper bounds
-        prediction[rangevector[:, 1] > upper_epsilon] = 1
+        prediction[rangevector[:, 1] > upper_epsilon] = True
         # Strongly relevant bigger than 0 + some epsilon
-        prediction[rangevector[:, 0] > lower_epsilon] = 2
+        prediction[rangevector[:, 0] > lower_epsilon] = True
 
-        allrel_prediction = prediction.copy()
-        allrel_prediction[allrel_prediction == 2] = 1
+        #allrel_prediction = prediction.copy()
+        #allrel_prediction[allrel_prediction == 2] = 1
 
-        self.allrel_prediction_ = allrel_prediction
+        self.allrel_prediction_ = prediction
 
-        return allrel_prediction, prediction
+        return prediction
 
     def _get_support_mask(self):
         return self.allrel_prediction_
@@ -113,7 +123,8 @@ class RelevanceBoundsClassifier(BaseEstimator):
         """
         Solver Parameters
         """
-        kwargs = {"warm_start": True, "solver": "SCS", "gpu": False, "verbose": False, "parallel": True}
+        #kwargs = {"warm_start": True, "solver": "SCS", "gpu": False, "verbose": False, "parallel": True}
+        kwargs = { "solver": "ECOS"}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
 
         # Optimize for every dimension
@@ -197,10 +208,13 @@ class RelevanceBoundsClassifier(BaseEstimator):
                              loss="squared_hinge",
                              dual=False,
                              random_state=self.random_state),
-                           tuned_parameters,
+                           tuned_parameters,scoring="f1",
                            n_jobs=-1, cv=3, verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
+        self._best_clf_score = gridsearch.best_score_
+        if self._best_clf_score < 0.7:
+            raise FitFailedWarning()
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_

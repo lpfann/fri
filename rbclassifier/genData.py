@@ -1,11 +1,22 @@
 import numpy as np
+from sklearn.utils import check_random_state
 
-def genData(self,n_samples=100, n_features=2, n_redundant=0,strRel=1,
+def genData(n_samples=100, n_features=2, n_redundant=0,strRel=1,
      n_repeated=0,class_sep=0.2,flip_y=0,random_state=None):
+    if not 0 < n_samples:
+        raise ValueError("We need at least one sample.")
+    if not 0 < n_features:
+        raise ValueError("We need at least one feature.")
+    if not 0 <= flip_y < 1:
+        raise ValueError("Flip percentage has to be between 0 and 1.")
+    if not n_redundant%2 == 0:
+        raise ValueError("Number of redundant features has to be even.")
+    if not n_redundant+n_repeated+strRel<= n_features:
+        raise ValueError("Inconsistent number of features")
 
     randomstate  = check_random_state(random_state)
     weakRel =  n_redundant
-    assert(n_redundant+n_repeated+strRel<= n_features )
+
     X = np.zeros((n_samples,n_features))
     n = n_samples
     width = 10
@@ -18,7 +29,7 @@ def genData(self,n_samples=100, n_features=2, n_redundant=0,strRel=1,
         return feats[:, i_pick]
 
     def genStrongRelFeatures(n, strRel, width=10, epsilon=0.05):
-        Y = np.ones(n)
+        Y = np.ones(n) 
         # Generate hyperplane consiting of strongly relevant features 
         base = 0 # origin for now # TODO
         n_vec = randomstate.uniform(0.2, 1, int(strRel)) * randomstate.choice([1, -1], int(strRel))
@@ -43,8 +54,6 @@ def genData(self,n_samples=100, n_features=2, n_redundant=0,strRel=1,
     
         return candidates,Y
 
-    f_strong, Y = genStrongRelFeatures(n,strRel+weakRel/2,width=width, epsilon=class_sep)
-    
     def combFeat(n,strRelFeat):
         # Split each strongly relevant feature into linear combination of it
         weakFeats = np.zeros((n,2))
@@ -52,19 +61,25 @@ def genData(self,n_samples=100, n_features=2, n_redundant=0,strRel=1,
             cofact = 2 * randomstate.rand() - 1 
             weakFeats[:,x] = cofact  * strRelFeat
         return weakFeats
+   
+    if strRel+weakRel/2 > 0:
+        f_strong, Y = genStrongRelFeatures(n,strRel+weakRel/2,width=width, epsilon=class_sep)
+        X[:,:strRel] = f_strong[:,:strRel]
+        holdout = f_strong[:,strRel:]
+        i = strRel
+        
+        for x in range(len(holdout.T)):
+            X[:,i:i+2] = combFeat(n_samples,holdout[:,x])
+            i += 2  
 
-    X[:,:strRel] = f_strong[:,:strRel]
-    holdout = f_strong[:,strRel:]
+        for x in range(n_repeated):
+            X[:,i ] = repeatFeat(X[:,:i],i)
+            i += 1  
+    else:
+        Y = randomstate.choice(2,size=n) 
+        i = 0
 
-    i = strRel
 
-    for x in range(len(holdout.T)):
-        X[:,i:i+2] = combFeat(n_samples,holdout[:,x])
-        i += 2  
-
-    for x in range(n_repeated):
-        X[:,i ] = repeatFeat(X[:,:i],i)
-        i += 1  
             
     for x in range(n_features-i):
         X[:,i ] = dummyFeat(n_samples,width)
