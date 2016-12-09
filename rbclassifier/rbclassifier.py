@@ -256,7 +256,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         prob_max1 = cvx.Problem(obj_max1, maxConst1)
 
         # Max 2 Problem
-        maxConst2 = [
+        maxConst2 = [   
             xp.T * omegai <= -(omega.T * omegai),
             xp.T * omegai <= (omega.T * omegai) + M
         ]
@@ -299,6 +299,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         omegai =  cvx.Parameter(d)
         b = cvx.Variable()
         eps = cvx.Variable(n)
+        
 
         constraints = [
             # absolute value
