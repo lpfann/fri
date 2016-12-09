@@ -13,7 +13,7 @@ from sklearn import svm
 from collections import namedtuple
 import itertools
 from sklearn.exceptions import FitFailedWarning
-
+from rbclassifier.bounds import LowerBound,UpperBound
 
 import cvxpy as cvx
 
@@ -129,53 +129,23 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
 
         # Optimize for every dimension
         for di in range(d):
-            rangevector[di, 0], \
-            omegas[di, 0], \
-            biase[di, 0] = self._opt_min(acceptableStati,
-                                         di,
-                                         d, 
-                                         n,
-                                         kwargs,
-                                         L1,
-                                         svmloss,
-                                         C,
-                                         X,
-                                         Y)
-            rangevector[di, 1], \
-            omegas[di, 1], \
-            biase[di, 1] = self._opt_max(acceptableStati,
-                                         di,
-                                         d, 
-                                         n,
-                                         kwargs,
-                                         L1,
-                                         svmloss,
-                                         C,
-                                         X,
-                                         Y)
+            lowerB = LowerBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            upperB = UpperBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            bounds = [lowerB, upperB]
+            for i in range(2):
+                rangevector[di, i] = bounds[i].value
+                omegas[di, i] = bounds[i].omega.value.reshape(d)
+                biase[di, i] =  bounds[i].b.value
+
             if self.shadow_features:
                 # Shuffle values for single feature
                 Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-                shadowrangevector[di, 0] = self._opt_min(acceptableStati,
-                                                            0,
-                                                            d+1,
-                                                            n,
-                                                            kwargs,
-                                                            L1,
-                                                            svmloss,
-                                                            C,
-                                                            Xshuffled,
-                                                            Y).bounds
-                shadowrangevector[di, 1] = self._opt_max(acceptableStati,
-                                                            0,
-                                                            d+1,
-                                                            n,
-                                                            kwargs,
-                                                            L1,
-                                                            svmloss,
-                                                            C,
-                                                            Xshuffled,
-                                                            Y).bounds
+                lowerB = LowerBound().solve(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y)
+                upperB = UpperBound().solve(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y)
+                bounds = [lowerB, upperB]
+                for i in range(2):
+                    shadowrangevector[di, i] = bounds[i].value
+
         # Correction through shadow features
         if self.shadow_features:
             rangevector -= shadowrangevector
@@ -229,100 +199,3 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
 
         self._svm_coef = self._svm_coef[0]
 
-    def _opt_max(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
-        Y = np.array([Y, ] * 1)
-        M = 2 * L1
-        xp = cvx.Variable(d)
-        omega = cvx.Variable(d)
-        omegai = cvx.Parameter(d)
-        b = cvx.Variable()
-        eps = cvx.Variable(n)
-
-        constraints2 = [
-            #cvx.abs(omega) <= xp,
-            xp >= 0,
-            cvx.mul_elemwise(Y.T, X * omega - b) >= 1 - eps,
-            eps >= 0,
-            cvx.norm(omega, 1) + C * cvx.sum_squares(eps) <= L1 + C * svmloss,
-        ]
-
-        # Max 1 Problem
-        maxConst1 = [
-            xp.T * omegai <= omega.T * omegai,
-            xp.T * omegai <= -(omega.T * omegai) + M
-        ]
-        maxConst1.extend(constraints2[:])
-        obj_max1 = cvx.Maximize(xp.T * omegai)
-        prob_max1 = cvx.Problem(obj_max1, maxConst1)
-
-        # Max 2 Problem
-        maxConst2 = [   
-            xp.T * omegai <= -(omega.T * omegai),
-            xp.T * omegai <= (omega.T * omegai) + M
-        ]
-        maxConst2.extend(constraints2[:])
-        obj_max2 = cvx.Maximize(xp.T * omegai)
-        prob_max2 = cvx.Problem(obj_max2, maxConst2)
-
-        dim = np.zeros(d)
-        dim[di] = 1
-        omegai.value = dim
-        valid = False
-        prob_max1.solve(**kwargs)
-        status = prob_max1.status
-        opt_value = 0
-        weights = None
-        bias = None
-        if status in acceptableStati:
-            opt_value = np.abs(prob_max1.value)
-            weights = omega.value.reshape(d)
-            bias = b.value
-            valid = True
-        prob_max2.solve(**kwargs)
-        status = prob_max2.status
-        if status in acceptableStati and np.abs(prob_max2.value) > np.abs(opt_value):
-            opt_value = np.abs(prob_max2.value)
-            weights = omega.value.reshape(d)
-            bias = b.value
-            valid = True
-
-        if not valid:
-            # return softMarginLPOptimizer.Opt_output(0, 0, 0)
-            raise NotFeasibleForParameters
-        else:
-            return RelevanceBoundsClassifier.Opt_output(opt_value, weights, bias)
-
-    def _opt_min(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
-        Y = np.array([Y, ] * 1)
-        xp = cvx.Variable(d)
-        omega = cvx.Variable(d)
-        omegai =  cvx.Parameter(d)
-        b = cvx.Variable()
-        eps = cvx.Variable(n)
-        
-
-        constraints = [
-            # absolute value
-            cvx.abs(omega) <= xp,
-            # points still correctly classified with soft margin
-            cvx.mul_elemwise(Y.T, X * omega - b) >= 1 - eps,
-            eps >= 0,
-            # L1 reg. and allow slack
-            cvx.norm(omega, 1) + C * cvx.sum_squares(eps) <= L1 + C * svmloss,
-        ]
-
-        # Min Problem
-        obj_min = cvx.Minimize(xp.T * omegai)
-        prob_min = cvx.Problem(obj_min, constraints)
-
-        dim = np.zeros(d)
-        dim[di] = 1
-        omegai.value = dim
-        prob_min.solve(**kwargs)
-        status = prob_min.status
-
-        if status in acceptableStati:
-            return RelevanceBoundsClassifier.Opt_output(prob_min.value, omega.value.reshape(d), b.value)
-        else:
-            # return softMarginLPOptimizer.Opt_output(0, 0, 0)
-            raise NotFeasibleForParameters
