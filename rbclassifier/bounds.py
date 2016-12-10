@@ -1,5 +1,6 @@
 from abc import ABCMeta, abstractmethod
 import rbclassifier.optproblems
+import numpy as np
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
@@ -23,9 +24,9 @@ class LowerBound(Bound):
         super()
 
     def solve(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
-        prob_instance =self.problem(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-        status  = prob_instance.solve(di)
-        
+        prob_instance = self.problem(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+        status = prob_instance.solve(di).problem.status
+
         if status in acceptableStati:
             return prob_instance
         else:
@@ -45,13 +46,13 @@ class UpperBound(Bound):
     def solve(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
         prob_instance1 = self.problem1(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
         prob_instance2 = self.problem2(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-
+        status = [None,None]
         status[0] = prob_instance1.solve(di)
         status[1] = prob_instance2.solve(di)
-        valid_problems = filter(lambda x: x.status in acceptableStati, status)
+        valid_problems = list(filter(lambda x: x.problem.status in acceptableStati, status))
         if len(valid_problems) == 0:
-            raise NotFeasibleForParameters
-        max_index = np.argmax([np.abs(x.value) for x in valid_problems])
+           raise NotFeasibleForParameters
+        max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
         best_problem = valid_problems[max_index]
 
         return best_problem

@@ -133,7 +133,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             upperB = UpperBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
             bounds = [lowerB, upperB]
             for i in range(2):
-                rangevector[di, i] = bounds[i].value
+                rangevector[di, i] = bounds[i].problem.value
                 omegas[di, i] = bounds[i].omega.value.reshape(d)
                 biase[di, i] =  bounds[i].b.value
 
@@ -144,7 +144,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
                 upperB = UpperBound().solve(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y)
                 bounds = [lowerB, upperB]
                 for i in range(2):
-                    shadowrangevector[di, i] = bounds[i].value
+                    shadowrangevector[di, i] = bounds[i].problem.value
 
         # Correction through shadow features
         if self.shadow_features:

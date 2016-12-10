@@ -42,7 +42,7 @@ class BaseProblem(object):
 
         self.problem = cvx.Problem(self._objective, self._constraints)
         self.problem.solve(**self.kwargs)
-        return self.problem
+        return self
 
 
 
