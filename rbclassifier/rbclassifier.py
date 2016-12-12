@@ -111,8 +111,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         return self.allrel_prediction_
 
 
-    def _opt_per_thread(self,bound):
-        return bound.solve()
+
 
     def _main_opt(self, X, Y):
         n, d = X.shape
@@ -137,10 +136,11 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         if self.shadow_features:
             work.extend([ShadowLowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
             work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
-     
         
-        with Pool() as p:
-            done = p.map(self._opt_per_thread, work)
+
+        
+        with Pool(2) as p:
+            done = p.map(opt_per_thread, work)
 
         for finished_bound in done:
             di = finished_bound.di
@@ -250,3 +250,5 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
 
         self._svm_coef = self._svm_coef[0]
 
+def opt_per_thread(bound):
+    return bound.solve()
