@@ -12,9 +12,11 @@ from sklearn import preprocessing
 from sklearn import svm
 from collections import namedtuple
 from sklearn.exceptions import FitFailedWarning
-from rbclassifier.bounds import LowerBound,UpperBound
+from rbclassifier.bounds import LowerBound,UpperBound, ShadowUpperBound, ShadowLowerBound
 from multiprocessing import Pool
 import cvxpy as cvx
+
+from multiprocessing import Process, Queue, current_process, freeze_support
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
@@ -108,10 +110,9 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
     def _get_support_mask(self):
         return self.allrel_prediction_
 
+
     def _opt_per_thread(self,bound):
-        lowerB = LowerBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-        upperB = UpperBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-        return [lowerB, upperB]
+        return bound.solve()
 
     def _main_opt(self, X, Y):
         n, d = X.shape
@@ -130,26 +131,71 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         #kwargs = {"warm_start": True, "solver": "SCS", "gpu": False, "verbose": False, "parallel": True}
         kwargs = { "solver": "ECOS"}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-       # with Pool() as p:
-        #    p.starmap(self._opt_per_thread,
-        # Optimize for every dimension
-        for di in range(d):
-            lowerB = LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
-            upperB = UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
-            bounds = [lowerB, upperB]
-            for i in range(2):
-                rangevector[di, i] = bounds[i].problem.value
-                omegas[di, i] = bounds[i].omega.value.reshape(d)
-                biase[di, i] =  bounds[i].b.value
 
-            if self.shadow_features:
-                # Shuffle values for single feature
-                Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-                lowerB = LowerBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y).solve()
-                upperB = UpperBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y).solve()
-                bounds = [lowerB, upperB]
-                for i in range(2):
-                    shadowrangevector[di, i] = bounds[i].problem.value
+        work = [LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
+        work.extend([UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+        if self.shadow_features:
+            work.extend([ShadowLowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+     
+        
+        with Pool() as p:
+            done = p.map(self._opt_per_thread, work)
+
+        for finished_bound in done:
+            di = finished_bound.di
+            i = finished_bound.type
+
+            if not hasattr(finished_bound,"isShadow"):
+                rangevector[di, i] = finished_bound.prob_instance.problem.value
+                omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
+                biase[di, i] =  finished_bound.prob_instance.b.value                
+            else:
+                shadowrangevector[di, i] = finished_bound.prob_instance.problem.value        
+
+        # done_queue = Queue()
+        # task_queue = Queue()
+        # # Submit tasks
+        # for task in TASKS1:
+        #     task_queue.put(task)
+
+        # # Start worker processes
+        # for i in range(NUMBER_OF_PROCESSES):
+        #     Process(target=RelevanceBoundsClassifier._opt_per_thread, args=(task_queue, done_queue)).start()
+
+        # # Get and print results
+        # for di in range(d):
+        #     finished_bound = done_queue.get()
+        #     i = finished_bound.is_upper_Bound
+        #     if not finished_bound.shadowF:
+        #         rangevector[di, i] = finished_bound.prob_instance.problem.value
+        #         omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
+        #         biase[di, i] =  finished_bound.prob_instance.b.value                
+        #     if finished_bound.shadowF:
+        #         shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
+
+        # # Tell child processes to stop
+        # for i in range(NUMBER_OF_PROCESSES):
+        #     task_queue.put('STOP')
+
+        # Optimize for every dimension
+        # for di in range(d):
+        #     lowerB = LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
+        #     upperB = UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
+        #     bounds = [lowerB, upperB]
+        #     for i in range(2):
+        #         rangevector[di, i] = bounds[i].prob_instance.problem.value
+        #         omegas[di, i] = bounds[i].prob_instance.omega.value.reshape(d)
+        #         biase[di, i] =  bounds[i].prob_instance.b.value
+
+        #     if self.shadow_features:
+        #         # Shuffle values for single feature
+        #         Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+        #         lowerB = LowerBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y,shadowF=True).solve()
+        #         upperB = UpperBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y,shadowF=True).solve()
+        #         bounds = [lowerB, upperB]
+        #         for i in range(2):
+        #             shadowrangevector[di, i] = bounds[i].prob_instance.problem.value
 
         # Correction through shadow features
         if self.shadow_features:
