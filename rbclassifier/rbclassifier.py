@@ -11,7 +11,6 @@ from sklearn.utils import shuffle, check_random_state
 from sklearn import preprocessing
 from sklearn import svm
 from collections import namedtuple
-import itertools
 from sklearn.exceptions import FitFailedWarning
 from rbclassifier.bounds import LowerBound,UpperBound
 
