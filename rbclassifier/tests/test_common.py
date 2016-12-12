@@ -88,6 +88,7 @@ def test_allRelevant():
     assert_true(np.all(rbc.interval_[0:2,0]>0))
     # All weakly relevant features should have a lower bound 0
     assert_false(np.any(rbc.interval_[2:4,0]>0))
+    
 
 def test_norelevant():
     generator = check_random_state(0)
@@ -98,6 +99,6 @@ def test_norelevant():
     X_orig = StandardScaler().fit(X_orig).transform(X_orig)
     # Test using the score function
     rbc = RelevanceBoundsClassifier(random_state=generator)
-    assert_raises(FitFailedWarning,rbc.fit,X_orig,y)
+    assert_raises(FitFailedWarning,rbc.fit,X_orig,y) # TODO: nicht immer exception
     # non-regression test for missing worst feature:
 
