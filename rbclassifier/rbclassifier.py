@@ -141,8 +141,8 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         
 
         
-        with Pool(2) as p:
-            done = p.map(self.opt_per_thread, work)
+        with Pool(4) as p:
+            done = p.map(self._opt_per_thread, work)
 
         for finished_bound in done:
             di = finished_bound.di
