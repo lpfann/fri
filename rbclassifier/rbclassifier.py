@@ -27,10 +27,11 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
 
     """
     Opt_output = namedtuple("OptOutput", ["bounds", "omegas", "b"])
-    def __init__(self, C=None, random_state=None, shadow_features=True):
+    def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False):
         self.random_state = random_state
         self.C = C
         self.shadow_features = shadow_features
+        self.parallel = parallel
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
@@ -140,9 +141,13 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
         
 
-        
-        with Pool(4) as p:
-            done = p.map(self._opt_per_thread, work)
+        if self.parallel:
+            with Pool() as p:
+                done = p.map(self._opt_per_thread, work)
+        else:
+            done = set()
+            for bound in work:
+                done.add(bound.solve())
 
         for finished_bound in done:
             di = finished_bound.di
