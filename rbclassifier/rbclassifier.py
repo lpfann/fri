@@ -13,7 +13,7 @@ from sklearn import svm
 from collections import namedtuple
 from sklearn.exceptions import FitFailedWarning
 from rbclassifier.bounds import LowerBound,UpperBound
-
+from multiprocessing import Pool
 import cvxpy as cvx
 
 class NotFeasibleForParameters(Exception):
@@ -108,6 +108,11 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
     def _get_support_mask(self):
         return self.allrel_prediction_
 
+    def _opt_per_thread(self,bound):
+        lowerB = LowerBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+        upperB = UpperBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+        return [lowerB, upperB]
+
     def _main_opt(self, X, Y):
         n, d = X.shape
         rangevector = np.zeros((d, 2))
@@ -125,11 +130,12 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         #kwargs = {"warm_start": True, "solver": "SCS", "gpu": False, "verbose": False, "parallel": True}
         kwargs = { "solver": "ECOS"}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-
+       # with Pool() as p:
+        #    p.starmap(self._opt_per_thread,
         # Optimize for every dimension
         for di in range(d):
-            lowerB = LowerBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
-            upperB = UpperBound().solve(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
+            lowerB = LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
+            upperB = UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y).solve()
             bounds = [lowerB, upperB]
             for i in range(2):
                 rangevector[di, i] = bounds[i].problem.value
@@ -139,8 +145,8 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             if self.shadow_features:
                 # Shuffle values for single feature
                 Xshuffled = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-                lowerB = LowerBound().solve(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y)
-                upperB = UpperBound().solve(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y)
+                lowerB = LowerBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y).solve()
+                upperB = UpperBound(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, Xshuffled, Y).solve()
                 bounds = [lowerB, upperB]
                 for i in range(2):
                     shadowrangevector[di, i] = bounds[i].problem.value

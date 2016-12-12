@@ -34,8 +34,7 @@ class BaseProblem(object):
                                 cvx.norm(self.omega, 1) + self.C * cvx.sum_squares(self.eps) <= self.L1 + self.C * self.svmloss
             ]
 
-    def solve(self, di):
-        self.di = di
+    def solve(self):
         self.dim = np.zeros(self.d)
         self.dim[self.di] = 1
         self.omegai.value = self.dim
