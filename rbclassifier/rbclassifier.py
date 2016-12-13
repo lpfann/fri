@@ -140,14 +140,16 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             work.extend([ShadowLowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
             work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
         
-
+        def pmap(*args):
+                with Pool() as p:
+                    return p.map(*args)    
+        
         if self.parallel:
-            with Pool() as p:
-                done = p.map(self._opt_per_thread, work)
+            newmap = pmap
         else:
-            done = set()
-            for bound in work:
-                done.add(bound.solve())
+            newmap = map
+
+        done = newmap(self._opt_per_thread, work)
 
         for finished_bound in done:
             di = finished_bound.di
