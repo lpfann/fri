@@ -8,22 +8,26 @@ class BaseProblem(object):
     __metaclass__ = ABCMeta
 
     def __init__(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
-        self.acceptableStati = acceptableStati
-        self.di = di
+        # General data
         self.d = d
         self.n = n
-        self.kwargs = kwargs
         self.L1 = L1
         self.svmloss = svmloss
         self.C = C
         self.X = X
         self.Y = np.array([Y, ] * 1)
         self.M = 2 * L1
-        self.xp = cvx.Variable(d)
-        self.omega = cvx.Variable(d)
-        self.omegai = cvx.Parameter(d)
-        self.b = cvx.Variable()
-        self.eps = cvx.Variable(n)
+        # Dimension specific data
+        self.di = di
+        # Solver parameters
+        self.acceptableStati = acceptableStati
+        self.kwargs = kwargs
+        # Solver Variables
+        self.xp = cvx.Variable(d)       # x' , our opt. value
+        self.omega = cvx.Variable(d)    # complete linear weight vector
+        self.b = cvx.Variable()         # shift
+        self.eps = cvx.Variable(n)      # slack variables
+
         self.problem = None
 
         self._constraints =  [  
@@ -35,9 +39,6 @@ class BaseProblem(object):
             ]
 
     def solve(self):
-        self.dim = np.zeros(self.d)
-        self.dim[self.di] = 1
-        self.omegai.value = self.dim
 
         self.problem = cvx.Problem(self._objective, self._constraints)
         self.problem.solve(**self.kwargs)
@@ -56,7 +57,7 @@ class MinProblem(BaseProblem):
             cvx.abs(self.omega) <= self.xp,
         ])
 
-        self._objective = cvx.Minimize(self.xp.T * self.omegai)
+        self._objective = cvx.Minimize(self.xp[self.di])
 
 
 class MaxProblemBase(BaseProblem):
@@ -67,8 +68,8 @@ class MaxProblemBase(BaseProblem):
         super().__init__(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
 
         self._constraints.extend([
-            #cvx.abs(omega) <= xp,
-            self.xp >= 0,
+            cvx.abs(self.omega) <= self.xp,
+            #self.xp[self.di] >= 0,
         ])
 
 
@@ -79,11 +80,11 @@ class MaxProblem1(MaxProblemBase):
         super().__init__(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
 
         self._constraints.extend( [
-           self.xp.T * self.omegai <= self.omega.T * self.omegai,
-            self.xp.T * self.omegai <= -(self.omega.T * self.omegai) + self.M
+           self.xp[self.di] <= self.omega[self.di],
+            self.xp[self.di] <= -(self.omega[self.di]) + self.M
         ])
 
-        self._objective = cvx.Maximize(self.xp.T * self.omegai)
+        self._objective = cvx.Maximize(self.xp[self.di])
 
 
 class MaxProblem2(MaxProblemBase):
@@ -93,10 +94,10 @@ class MaxProblem2(MaxProblemBase):
         super().__init__(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y)
 
         self._constraints.extend( [  
-            self.xp.T * self.omegai <= -(self.omega.T * self.omegai),
-            self.xp.T * self.omegai <= (self.omega.T * self.omegai) + self.M
+            self.xp[self.di] <= -(self.omega[self.di]),
+            self.xp[self.di] <= (self.omega[self.di]) + self.M
         ])
 
-        self._objective = cvx.Maximize(self.xp.T * self.omegai)
+        self._objective = cvx.Maximize(self.xp[self.di])
 
 
