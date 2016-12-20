@@ -1,14 +1,17 @@
 """
 This is a module to be used as a reference for building other modules
 """
+from abc import abstractmethod
+from multiprocessing.pool import Pool
+
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
 from sklearn.utils.multiclass import unique_labels
 from sklearn.model_selection import GridSearchCV
-from sklearn.utils import shuffle, check_random_state
-from sklearn import preprocessing
+from sklearn.utils import shuffle, check_random_state, check_X_y
+from sklearn import preprocessing, svm
 from sklearn import svm
 from collections import namedtuple
 from sklearn.exceptions import FitFailedWarning
@@ -22,12 +25,10 @@ class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
 
 
-class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
-    """ L1-relevance Bounds Classifier
-
-    """
-    Opt_output = namedtuple("OptOutput", ["bounds", "omegas", "b"])
+class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
+    @abstractmethod
     def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False):
+
         self.random_state = random_state
         self.C = C
         self.shadow_features = shadow_features
@@ -52,7 +53,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         self.y_ = y
 
         # Use SVM to get optimal solution
-        self._performSVM(X, y)
+        self._initEstimator(X, y)
 
         # Main Optimization step
         self._main_opt(X, y)
@@ -62,28 +63,6 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
 
         # Return the classifier
         return self
-
-    # def predict(self, X):
-    #     """ A reference implementation of a prediction for a classifier.
-
-    #     Parameters
-    #     ----------
-    #     X : array-like of shape = [n_samples, n_features]
-    #         The input samples.
-
-    #     Returns
-    #     -------
-    #     y : array of int of shape = [n_samples]
-    #         The label for each sample is the label of the closest sample
-    #         seen udring fit.
-    #     """
-    #     # Check is fit had been called
-    #     check_is_fitted(self, ['X_', 'y_'])
-
-    #     # Input validation
-    #     X = check_array(X)
-
-    #     return None
 
     def _get_relevance_mask(self,
                 #upper_epsilon = 0.0606,
@@ -114,7 +93,6 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
     def _opt_per_thread(self,bound):
         return bound.solve()
 
-
     def _main_opt(self, X, Y):
         n, d = X.shape
         rangevector = np.zeros((d, 2))
@@ -139,11 +117,11 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         if self.shadow_features:
             work.extend([ShadowLowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
             work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
-        
+
         def pmap(*args):
                 with Pool() as p:
-                    return p.map(*args)    
-        
+                    return p.map(*args)
+
         if self.parallel:
             newmap = pmap
         else:
@@ -158,9 +136,9 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             if not hasattr(finished_bound,"isShadow"):
                 rangevector[di, i] = finished_bound.prob_instance.problem.value
                 omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
-                biase[di, i] =  finished_bound.prob_instance.b.value                
+                biase[di, i] =  finished_bound.prob_instance.b.value
             else:
-                shadowrangevector[di, i] = finished_bound.prob_instance.problem.value        
+                shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
 
 
         # Correction through shadow features
@@ -172,7 +150,7 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         if L1 > 0:
             rangevector = rangevector / L1
             # shadowrangevector = shadowrangevector / L1
-        
+
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
@@ -181,7 +159,21 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         self._biase = biase
         self._shadowintervals = shadowrangevector
 
-    def _performSVM(self, X, Y):
+    @abstractmethod
+    def _initEstimator(self, X, Y):
+        pass
+
+
+class RelevanceBoundsClassifier( RelevanceBoundsBase):
+    """ L1-relevance Bounds Classifier
+
+    """
+    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
+        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+
+    def _initEstimator(self, X, Y):
+        estimator = svm.LinearSVC(penalty='l1', loss="squared_hinge", dual=False,
+                                  random_state=self.random_state)
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
             min_c = svm.l1_min_c(X, Y)
@@ -190,13 +182,12 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
 
-        gridsearch = GridSearchCV(
-                             svm.LinearSVC(penalty='l1',
-                             loss="squared_hinge",
-                             dual=False,
-                             random_state=self.random_state),
-                           tuned_parameters,scoring="f1",
-                           n_jobs=-1, cv=3, verbose=False)
+        gridsearch = GridSearchCV(estimator,
+                                    tuned_parameters,
+                                    scoring="f1",
+                                    n_jobs=-1,
+                                    cv=3,
+                                    verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
@@ -213,6 +204,46 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         # loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(beta, X1) - bias))
         # Squared hinge loss
         self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner( self._svm_coef, X) - self._svm_bias))[0]**2)
+
+        self._svm_coef = self._svm_coef[0]
+
+
+class RelevanceBoundsRegressor( RelevanceBoundsBase):
+    """ L1-relevance Bounds Regressor
+
+    """
+    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
+        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+
+    def _initEstimator(self, X, Y):
+        estimator = svm.LinearSVR(loss="l2", dual=False,
+                                       random_state=self.random_state)
+        if self.C is None:
+            # Hyperparameter Optimization over C, starting from minimal C
+            min_c = svm.l1_min_c(X, Y)
+            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+        else:
+            # Fixed Hyperparameter
+            tuned_parameters = [{'C': [self.C]}]
+
+        gridsearch = GridSearchCV(estimator,
+                                  tuned_parameters,
+                                  scoring=None,
+                                  n_jobs=-1,
+                                  cv=3,
+                                  verbose=False)
+        gridsearch.fit(X, Y)
+        self._hyper_C = gridsearch.best_params_['C']
+        self._best_clf_score = gridsearch.best_score_
+        if self._best_clf_score < 0.7:
+            raise FitFailedWarning()
+
+        self._svm_clf = best_clf = gridsearch.best_estimator_
+        self._svm_coef = best_clf.coef_
+        self._svm_bias = best_clf.intercept_[0]
+        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
+
+        self._svm_loss = np.linalg.norm(best_clf.predict(X))
 
         self._svm_coef = self._svm_coef[0]
 
