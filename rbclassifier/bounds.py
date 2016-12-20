@@ -26,9 +26,9 @@ class LowerBound(Bound):
     def __init__(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y,regression=False):
         super().__init__(di,acceptableStati, X,Y)
         if regression:
-            prob = rbclassifier.optproblems.MinProblem
+            prob = rbclassifier.optproblems.MinProblemClassification
         else:
-            prob = rbclassifier.optproblems.MinProblem
+            prob = rbclassifier.optproblems.MinProblemClassification
         self.prob_instance = prob(acceptableStati, di, d, n, kwargs, L1, svmloss, C, self.X, self.Y)
         self.type = 0
 

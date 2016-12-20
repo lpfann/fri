@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 import cvxpy as cvx
 import numpy as np
 
-class BaseProblem(object):
+class BaseClassificationProblem(object):
     """Base class for all common optimization problems."""
 
     __metaclass__ = ABCMeta
@@ -46,7 +46,7 @@ class BaseProblem(object):
 
 
 
-class MinProblem(BaseProblem):
+class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
 
     def __init__(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
@@ -60,7 +60,7 @@ class MinProblem(BaseProblem):
         self._objective = cvx.Minimize(self.xp[self.di])
 
 
-class MaxProblemBase(BaseProblem):
+class MaxProblemBaseClassification(BaseClassificationProblem):
     """Class for maximization."""
 
 
@@ -73,7 +73,7 @@ class MaxProblemBase(BaseProblem):
         ])
 
 
-class MaxProblem1(MaxProblemBase):
+class MaxProblem1(MaxProblemBaseClassification):
     """Class for maximization."""
 
     def __init__(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
@@ -87,7 +87,7 @@ class MaxProblem1(MaxProblemBase):
         self._objective = cvx.Maximize(self.xp[self.di])
 
 
-class MaxProblem2(MaxProblemBase):
+class MaxProblem2(MaxProblemBaseClassification):
     """Class for maximization."""
 
     def __init__(self, acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y):
