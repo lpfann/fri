@@ -15,7 +15,7 @@ from sklearn import preprocessing, svm
 from sklearn import svm
 from collections import namedtuple
 from sklearn.exceptions import FitFailedWarning
-from rbclassifier.bounds import LowerBound,UpperBound, ShadowUpperBound, ShadowLowerBound
+import rbclassifier.bounds
 from multiprocessing import Pool
 import cvxpy as cvx
 
@@ -99,12 +99,11 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         kwargs = { "solver": "GUROBI"}
         #kwargs = {}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-
-        work = [LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
-        work.extend([UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+        work = [self.LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
+        work.extend([self.UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
         if self.shadow_features:
-            work.extend([ShadowLowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
-            work.extend([ShadowUpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([self.LowerBoundS(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([self.UpperBoundS(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -158,6 +157,10 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     """
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+        self.LowerBound = rbclassifier.bounds.LowerBound
+        self.UpperBound = rbclassifier.bounds.UpperBound
+        self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
+        self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVC(penalty='l1', loss="squared_hinge", dual=False,
@@ -171,11 +174,11 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
             tuned_parameters = [{'C': [self.C]}]
 
         gridsearch = GridSearchCV(estimator,
-                                    tuned_parameters,
-                                    scoring="f1",
-                                    n_jobs=-1,
-                                    cv=3,
-                                    verbose=False)
+                                  tuned_parameters,
+                                  scoring="f1",
+                                  n_jobs=-1,
+                                  cv=3,
+                                  verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
@@ -218,6 +221,10 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
     """
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+        self.LowerBound = rbclassifier.bounds.LowerBound
+        self.UpperBound = rbclassifier.bounds.UpperBound
+        self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
+        self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVR(loss="l2", dual=False,
