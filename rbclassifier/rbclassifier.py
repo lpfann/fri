@@ -34,20 +34,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.shadow_features = shadow_features
         self.parallel = parallel
 
+    @abstractmethod
     def fit(self, X, y):
-        """A reference implementation of a fitting function for a classifier.
-        """
-
-        # Check that X and y have correct shape
-        X, y = check_X_y(X, y)
-        # Store the classes seen during fit
-        self.classes_ = unique_labels(y)
-
-        if len(self.classes_)>2:
-            raise ValueError("Only binary class data supported")
-        # Negative class is set to -1 for decision surface
-        y = preprocessing.LabelEncoder().fit_transform(y)
-        y[y==0] = -1
 
         self.X_ = X
         self.y_ = y
@@ -207,6 +195,22 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         self._svm_coef = self._svm_coef[0]
 
+    def fit(self,X,y):
+        """A reference implementation of a fitting function for a classifier.
+                """
+
+        # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
+        # Store the classes seen during fit
+        self.classes_ = unique_labels(y)
+
+        if len(self.classes_) > 2:
+            raise ValueError("Only binary class data supported")
+        # Negative class is set to -1 for decision surface
+        y = preprocessing.LabelEncoder().fit_transform(y)
+        y[y == 0] = -1
+
+        super().fit(X,y)
 
 class RelevanceBoundsRegressor( RelevanceBoundsBase):
     """ L1-relevance Bounds Regressor
@@ -247,3 +251,11 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
 
         self._svm_coef = self._svm_coef[0]
 
+    def fit(self, X, y):
+        """A reference implementation of a fitting function for a regressor.
+                """
+
+        # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
+
+        super().fit(X, y)
