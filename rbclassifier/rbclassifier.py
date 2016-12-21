@@ -99,11 +99,11 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         kwargs = { "solver": "GUROBI"}
         #kwargs = {}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-        work = [self.LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
-        work.extend([self.UpperBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
+        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
         if self.shadow_features:
-            work.extend([self.LowerBoundS(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
-            work.extend([self.UpperBoundS(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:

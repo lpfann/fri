@@ -1,4 +1,7 @@
 from abc import ABCMeta, abstractmethod
+
+from cvxpy import OPTIMAL,OPTIMAL_INACCURATE
+
 import rbclassifier.optproblems
 import numpy as np
 
@@ -9,11 +12,11 @@ class Bound(object):
     __metaclass__ = ABCMeta
 
     """Class for lower and upper relevance bounds"""
-    def __init__(self,di,acceptableStati,X,Y):
+    def __init__(self,di,X,Y):
         self.X = X
         self.Y = Y
         self.di = di
-        self.acceptableStati = acceptableStati
+        self.acceptableStati = [OPTIMAL, OPTIMAL_INACCURATE]
 
     @abstractmethod
     def solve(self):
@@ -23,13 +26,13 @@ class Bound(object):
 class LowerBound(Bound):
     """Class for lower bounds """
 
-    def __init__(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y,regression=False):
-        super().__init__(di,acceptableStati, X,Y)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+        super().__init__(di, X,Y)
         if regression:
             prob = rbclassifier.optproblems.MinProblemClassification
         else:
             prob = rbclassifier.optproblems.MinProblemClassification
-        self.prob_instance = prob(acceptableStati, di, d, n, kwargs, L1, svmloss, C, self.X, self.Y)
+        self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
         self.type = 0
 
     def solve(self):
@@ -43,17 +46,16 @@ class LowerBound(Bound):
 class UpperBound(Bound):
     """Class for Upper bounds """
 
-    
-    def __init__(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y,regression=False):
-        super().__init__(di,acceptableStati, X,Y)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+        super().__init__(di, X,Y)
         if regression:
             prob1 = rbclassifier.optproblems.MaxProblem1
             prob2 = rbclassifier.optproblems.MaxProblem2
         else:
             prob1 = rbclassifier.optproblems.MaxProblem1
             prob2 = rbclassifier.optproblems.MaxProblem2
-        self.prob_instance1 = prob1(acceptableStati, di, d, n, kwargs, L1, svmloss, C, self.X, self.Y)
-        self.prob_instance2 = prob2(acceptableStati, di, d, n, kwargs, L1, svmloss, C, self.X, self.Y)
+        self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+        self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
         self.type = 1
         
     def solve(self):
@@ -71,9 +73,9 @@ class UpperBound(Bound):
 
 class ShadowLowerBound(LowerBound):
     """Class for lower bounds """
-    def __init__(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y,regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
         X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-        super().__init__(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, X, Y,regression=regression)
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression)
         self.isShadow = True
         self.di = di
 
@@ -81,9 +83,9 @@ class ShadowUpperBound(UpperBound):
     """Class for Upper bounds """
     
     
-    def __init__(self,acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y,regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
         X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-        super().__init__(acceptableStati, 0, d+1, n, kwargs, L1, svmloss, C, X, Y,regression=regression)
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression)
         self.isShadow = True
         self.di = di
 
