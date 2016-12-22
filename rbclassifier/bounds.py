@@ -29,7 +29,7 @@ class LowerBound(Bound):
     def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
         super().__init__(di, X,Y)
         if regression:
-            prob = rbclassifier.optproblems.MinProblemClassification
+            prob = rbclassifier.optproblems.MinProblemRegression
         else:
             prob = rbclassifier.optproblems.MinProblemClassification
         self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
@@ -49,8 +49,8 @@ class UpperBound(Bound):
     def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
         super().__init__(di, X,Y)
         if regression:
-            prob1 = rbclassifier.optproblems.MaxProblem1
-            prob2 = rbclassifier.optproblems.MaxProblem2
+            prob1 = rbclassifier.optproblems.MaxProblem1Regression
+            prob2 = rbclassifier.optproblems.MaxProblem2Regression
         else:
             prob1 = rbclassifier.optproblems.MaxProblem1
             prob2 = rbclassifier.optproblems.MaxProblem2

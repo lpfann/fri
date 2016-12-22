@@ -230,12 +230,10 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
-        estimator = svm.LinearSVR(loss="l2", dual=False,
+        estimator = svm.LinearSVR(loss="squared_epsilon_insensitive", dual=False,
                                        random_state=self.random_state)
         if self.C is None:
-            # Hyperparameter Optimization over C, starting from minimal C
-            min_c = svm.l1_min_c(X, Y)
-            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            tuned_parameters = [{'C': 2 * np.logspace(-3, 3)}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -255,7 +253,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_[0]
-        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
+        self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
 
         self._svm_loss = np.linalg.norm(best_clf.predict(X))
 

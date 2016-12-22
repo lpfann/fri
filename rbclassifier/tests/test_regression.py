@@ -1,11 +1,12 @@
 import unittest
 
+import rbclassifier.rbclassifier
+from rbclassifier.rbclassifier import RelevanceBoundsRegressor
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import RandomizedLasso
 from sklearn.utils.estimator_checks import check_estimator
-import rbclassifier
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import ignore_warnings
 from sklearn.utils.testing import assert_greater, assert_equal, assert_true,assert_false
@@ -15,7 +16,7 @@ from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 
 class TestRegression(unittest.TestCase):
-    def simpleRegression(self):
+    def test_simpleRegression(self):
 
         generator = check_random_state(0)
         data = rbclassifier.genData.genRegressionData(n_samples=100, n_features=2, n_redundant=0,strRel=2,
@@ -28,7 +29,7 @@ class TestRegression(unittest.TestCase):
         y = list(y)
 
         # Test using the score function
-        rbc = rbclassifier.RelevanceBoundsRegressor(random_state=generator, shadow_features=False)
+        rbc = RelevanceBoundsRegressor(random_state=generator, shadow_features=False)
         rbc.fit(X, y)
 
         assert_equal(len(rbc.allrel_prediction_), X.shape[1])
