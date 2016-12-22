@@ -53,7 +53,6 @@ class BaseClassificationProblem(BaseProblem):
             cvx.norm(self.omega, 1) + self.C * cvx.sum_squares(self.eps) <= self.L1 + self.C * self.svmloss
         ]
 
-
 class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
 
@@ -68,7 +67,7 @@ class MinProblemClassification(BaseClassificationProblem):
         self._objective = cvx.Minimize(self.xp[self.di])
 
 
-class MaxProblemBaseClassification(BaseClassificationProblem):
+class MaxProblem1(BaseClassificationProblem):
     """Class for maximization."""
 
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1, svmloss=1, L1=1):
@@ -76,17 +75,6 @@ class MaxProblemBaseClassification(BaseClassificationProblem):
 
         self._constraints.extend([
             cvx.abs(self.omega) <= self.xp,
-            # self.xp[self.di] >= 0,
-        ])
-
-
-class MaxProblem1(MaxProblemBaseClassification):
-    """Class for maximization."""
-
-    def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1, svmloss=1, L1=1):
-        super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
-
-        self._constraints.extend([
             self.xp[self.di] <= self.omega[self.di],
             self.xp[self.di] <= -(self.omega[self.di]) + self.M
         ])
@@ -94,15 +82,49 @@ class MaxProblem1(MaxProblemBaseClassification):
         self._objective = cvx.Maximize(self.xp[self.di])
 
 
-class MaxProblem2(MaxProblemBaseClassification):
+class MaxProblem2(BaseClassificationProblem):
     """Class for maximization."""
 
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1, svmloss=1, L1=1):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
+            cvx.abs(self.omega) <= self.xp,
             self.xp[self.di] <= -(self.omega[self.di]),
             self.xp[self.di] <= (self.omega[self.di]) + self.M
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
+
+'''
+#############
+            ##### REGRESSION
+#############
+'''
+
+class BaseRegressionProblem(BaseProblem):
+
+    __metaclass__ = ABCMeta
+
+    def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1,epsilon=0.1, svrloss=1, L1=1):
+        super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y)
+        # General data
+        self.svrloss = svrloss
+        self.epsilon = epsilon
+        self.L1 = L1
+        self.C = C
+        self.M = 2 * L1
+        # Solver parameters
+        self.kwargs = kwargs
+        # Solver Variables
+        self.xp = cvx.Variable(d)  # x' , our opt. value
+        self.omega = cvx.Variable(d)  # complete linear weight vector
+        self.b = cvx.Variable()  # shift
+        self.posSlack = cvx.Variable(n)  # slack variables
+        self.negSlack = cvx.Variable(n)  # slack variables
+
+
+        self._constraints = [
+
+        ]
+
