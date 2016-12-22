@@ -108,7 +108,9 @@ class BaseRegressionProblem(BaseProblem):
 
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1,epsilon=0.1, svrloss=1, L1=1):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y)
+
         # General data
+        self.Y = Y # other format then with classification
         self.svrloss = svrloss
         self.epsilon = epsilon
         self.L1 = L1
@@ -125,6 +127,56 @@ class BaseRegressionProblem(BaseProblem):
 
 
         self._constraints = [
-
+            self.posSlack >= 0,
+            self.negSlack >= 0,
+            cvx.norm(self.omega, 1) + self.C * cvx.sum_squares(self.posSlack + self.negSlack) <= self.L1 + self.C * self.svrloss
         ]
+        for i in range(n):
+            self._constraints.append(self.Y[i] - (self.X * self.omega - self.b) <= self.epsilon + self.posSlack)
+            self._constraints.append((self.X * self.omega + self.b)- self.Y[i] <= self.epsilon + self.negSlack)
 
+
+class MinProblemRegression(BaseRegressionProblem):
+    """Class for minimization."""
+
+    def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1,epsilon=0.1, svmloss=1, L1=1):
+        super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, epsilon=epsilon, svrloss=svmloss, L1=L1)
+
+        self._constraints.extend(
+            [
+                # TODO Check correctness
+                cvx.abs(self.omega) <= self.xp,
+
+            ])
+
+        self._objective = cvx.Minimize(self.xp[self.di])
+
+
+class MaxProblem1Regression(BaseRegressionProblem):
+    """Class for maximization."""
+
+    def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1,epsilon=0.1, svmloss=1, L1=1):
+        super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, epsilon=epsilon, svrloss=svmloss, L1=L1)
+
+        self._constraints.extend([
+            cvx.abs(self.omega) <= self.xp,
+            self.xp[self.di] <= self.omega[self.di],
+            self.xp[self.di] <= -(self.omega[self.di]) + self.M
+        ])
+
+        self._objective = cvx.Maximize(self.xp[self.di])
+
+
+class MaxProblem2Regression(BaseRegressionProblem):
+    """Class for maximization."""
+
+    def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1,epsilon=0.1, svmloss=1, L1=1):
+        super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, epsilon=epsilon, svrloss=svmloss, L1=L1)
+
+        self._constraints.extend([
+            cvx.abs(self.omega) <= self.xp,
+            self.xp[self.di] <= -(self.omega[self.di]),
+            self.xp[self.di] <= (self.omega[self.di]) + self.M
+        ])
+
+        self._objective = cvx.Maximize(self.xp[self.di])
