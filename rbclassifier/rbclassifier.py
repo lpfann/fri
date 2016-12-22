@@ -33,6 +33,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.C = C
         self.shadow_features = shadow_features
         self.parallel = parallel
+        self.isRegression = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -99,11 +100,11 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         kwargs = { "solver": "GUROBI"}
         #kwargs = {}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
-        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)]
+        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
         if self.shadow_features:
-            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
-            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)])
+            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
+            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -157,6 +158,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     """
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+        self.isRegression = False
         self.LowerBound = rbclassifier.bounds.LowerBound
         self.UpperBound = rbclassifier.bounds.UpperBound
         self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
@@ -221,6 +223,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
     """
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+        self.isRegression = True
         self.LowerBound = rbclassifier.bounds.LowerBound
         self.UpperBound = rbclassifier.bounds.UpperBound
         self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
