@@ -130,8 +130,8 @@ class RelevanceBoundsClassifier(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         #kwargs = {"warm_start": False, "solver": "SCS", "gpu": True, "verbose": False, "parallel": False}
-        #kwargs = { "solver": "ECOS"}
-        kwargs = {}
+        kwargs = { "solver": "GUROBI"}
+        #kwargs = {}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
 
         work = [LowerBound(acceptableStati, di, d, n, kwargs, L1, svmloss, C, X, Y) for di in range(d)]
