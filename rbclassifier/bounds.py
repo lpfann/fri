@@ -62,6 +62,8 @@ class UpperBound(Bound):
         status = [None,None]
         status[0] = self.prob_instance1.solve()
         status[1] = self.prob_instance2.solve()
+        status =list(filter(lambda x: x is not None, status))
+
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
            raise NotFeasibleForParameters

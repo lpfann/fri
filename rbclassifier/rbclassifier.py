@@ -97,8 +97,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         #kwargs = {"warm_start": False, "solver": "SCS", "gpu": True, "verbose": False, "parallel": False}
-        kwargs = { "solver": "GUROBI"}
-        #kwargs = {}
+        #kwargs = { "solver": "GUROBI","verbose":True}
+        kwargs = {}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)]
         work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])

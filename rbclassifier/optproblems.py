@@ -21,7 +21,10 @@ class BaseProblem(object):
 
     def solve(self):
         self.problem = cvx.Problem(self._objective, self._constraints)
-        self.problem.solve(**self.kwargs)
+        try:
+            self.problem.solve(**self.kwargs)
+        except:
+            return None
         return self
 
 
