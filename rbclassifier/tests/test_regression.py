@@ -44,26 +44,6 @@ class TestRegression(unittest.TestCase):
         # All strongly relevant features have a lower bound > 0
         assert_true(np.all(rbc.interval_[0:2,0]>0))
 
-    def test_genData(self):
-        n = 100
-        d = 10
-        strRel = 2
 
-        generator = check_random_state(1337)
-        X,Y = rbclassifier.genData.genRegressionData(n_samples=n, n_features=d, n_redundant=0,strRel=strRel,
-                        n_repeated=0, random_state=generator)
-
-        assert_true(X.shape == (n,d))
-
-
-        X,Y = rbclassifier.genData.genRegressionData(n_samples=n, n_features=d, n_redundant=2,strRel=strRel,
-                        n_repeated=1, random_state=generator)
-
-        assert_true(X.shape == (n,d))
-
-        X,Y = rbclassifier.genData.genRegressionData(n_samples=n, n_features=d, n_redundant=2,strRel=0,
-                        n_repeated=1, random_state=generator)
-
-        assert_true(X.shape == (n,d))
 if __name__ == '__main__':
     unittest.main()
