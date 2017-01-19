@@ -34,6 +34,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = None
+        self._hyper_epsilon = None
+        self._hyper_C = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -98,13 +100,13 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         """
         #kwargs = {"warm_start": False, "solver": "SCS", "gpu": True, "verbose": False, "parallel": False}
         #kwargs = { "solver": "GUROBI","verbose":True}
-        kwargs = {}
+        kwargs = {"verbose":False}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
-        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)]
-        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
+        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
+        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
         if self.shadow_features:
-            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
-            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression) for di in range(d)])
+            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
+            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -128,7 +130,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
             else:
                 shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
 
-
+        rangevector = np.abs(rangevector)
+        
         # Correction through shadow features
         if self.shadow_features:
             rangevector -= shadowrangevector
@@ -230,13 +233,12 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
-        estimator = svm.LinearSVR(loss="squared_epsilon_insensitive", dual=False,
-                                       random_state=self.random_state)
+        estimator = svm.SVR(kernel="linear")
         if self.C is None:
-            tuned_parameters = [{'C': 2 * np.logspace(-3, 3)}]
+            tuned_parameters = [{'C':  np.linspace(0.001, 100,num=20),'epsilon':np.linspace(0.001, 2, num=10)}]
         else:
             # Fixed Hyperparameter
-            tuned_parameters = [{'C': [self.C]}]
+            tuned_parameters = [{'C': [self.C],'epsilon':[0.1]}]
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
@@ -246,6 +248,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
+        self._hyper_epsilon = gridsearch.best_params_['epsilon']
         self._best_clf_score = gridsearch.best_score_
         if self._best_clf_score < 0.7:
             raise FitFailedWarning()
@@ -254,8 +257,8 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_[0]
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
-
-        self._svm_loss = np.linalg.norm(best_clf.predict(X))
+        prediction = best_clf.predict(X)
+        self._svm_loss = np.sum(np.abs(Y - prediction))
 
         self._svm_coef = self._svm_coef[0]
 
