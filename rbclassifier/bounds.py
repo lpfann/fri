@@ -26,13 +26,16 @@ class Bound(object):
 class LowerBound(Bound):
     """Class for lower bounds """
 
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None):
         super().__init__(di, X,Y)
         if regression:
             prob = rbclassifier.optproblems.MinProblemRegression
+            self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
+
         else:
             prob = rbclassifier.optproblems.MinProblemClassification
-        self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+            self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+
         self.type = 0
 
     def solve(self):
@@ -46,16 +49,19 @@ class LowerBound(Bound):
 class UpperBound(Bound):
     """Class for Upper bounds """
 
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
         super().__init__(di, X,Y)
         if regression:
             prob1 = rbclassifier.optproblems.MaxProblem1Regression
             prob2 = rbclassifier.optproblems.MaxProblem2Regression
+            self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
+            self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
         else:
             prob1 = rbclassifier.optproblems.MaxProblem1
             prob2 = rbclassifier.optproblems.MaxProblem2
-        self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
-        self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+            self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+            self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
+
         self.type = 1
         
     def solve(self):
@@ -75,9 +81,9 @@ class UpperBound(Bound):
 
 class ShadowLowerBound(LowerBound):
     """Class for lower bounds """
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
         X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression)
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
         self.isShadow = True
         self.di = di
 
@@ -85,9 +91,9 @@ class ShadowUpperBound(UpperBound):
     """Class for Upper bounds """
     
     
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False):
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
         X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression)
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
         self.isShadow = True
         self.di = di
 
