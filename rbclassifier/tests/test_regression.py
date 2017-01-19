@@ -46,11 +46,11 @@ def test_simpleRegression(data,randomstate):
     X, y, strong, weak = data
 
     # Test using the score function
-    rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False,C=1)
+    rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False, C=1)
     try:
         rbc.fit(X, y)
-    except FitFailedWarning:
-        print(rbc._best_clf_score)
+    except FitFailedWarning or NotFeasibleForParameters:
+        print(rbc._best_clf_score,rbc._hyper_C,rbc._hyper_epsilon)
         assert False
 
     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -63,7 +63,15 @@ def test_simpleRegression(data,randomstate):
     # All strongly relevant features have a lower bound > 0
     assert np.all(rbc.interval_[0:strong,0] > 0)
     assert np.all(rbc.interval_[strong:weak,0] == 0)
-# 
+    # Upper bound checks
+    assert np.all(rbc.interval_[0:strong,1] > 0)
+    assert np.all(rbc.interval_[0:strong,1] > rbc.interval_[0:strong,0])
+
+    # Test prediction
+    truth = np.zeros(X.shape[1],dtype=bool)
+    truth[:strong+weak] = 1
+    assert np.all(rbc.allrel_prediction_ == truth)
+#
 # def test_simple(randomstate):
 #     generator = randomstate
 #     data = rbclassifier.genData.genRegressionData(n_samples=300, n_features=1, n_redundant=0, strRel=1,
