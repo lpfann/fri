@@ -44,7 +44,7 @@ def test_simpleRegression(data,randomstate):
     X, y, strong, weak = data
 
     # Test using the score function
-    rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False, C=1)
+    rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False,C=1,epsilon=0.1)
     try:
         rbc.fit(X, y)
     except FitFailedWarning or NotFeasibleForParameters:

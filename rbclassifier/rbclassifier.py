@@ -130,8 +130,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
             else:
                 shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
 
-        rangevector = np.abs(rangevector)
-        
+        #rangevector = np.abs(rangevector)
+
         # Correction through shadow features
         if self.shadow_features:
             rangevector -= shadowrangevector
@@ -224,9 +224,10 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
     """ L1-relevance Bounds Regressor
 
     """
-    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
-        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+    def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False):
+        super().__init__(C=C,random_state=random_state, shadow_features=shadow_features,parallel=parallel)
         self.isRegression = True
+        self.epsilon = epsilon
         self.LowerBound = rbclassifier.bounds.LowerBound
         self.UpperBound = rbclassifier.bounds.UpperBound
         self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
@@ -234,11 +235,12 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
 
     def _initEstimator(self, X, Y):
         estimator = svm.SVR(kernel="linear")
+
+        tuned_parameters = {'C': [self.C],'epsilon':[self.epsilon]}
         if self.C is None:
-            tuned_parameters = [{'C':  np.linspace(0.001, 100,num=20),'epsilon':np.linspace(0.001, 2, num=10)}]
-        else:
-            # Fixed Hyperparameter
-            tuned_parameters = [{'C': [self.C],'epsilon':[0.1]}]
+            tuned_parameters["C"] =  np.linspace(0.001, 100,num=10)
+        if self.epsilon is None:
+            tuned_parameters["epsilon"] = np.linspace(0.001, 2, num=10)
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
