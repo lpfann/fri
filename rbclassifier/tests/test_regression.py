@@ -18,8 +18,6 @@ from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 from  sklearn.exceptions import FitFailedWarning
 
-from beeprint import pp
-
 @pytest.fixture(scope="module")
 def randomstate():
    return check_random_state(1337)
