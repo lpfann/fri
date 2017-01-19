@@ -6,4 +6,5 @@ mkdir -p $TEST_DIR
 
 cd $TEST_DIR
 
-pytest
+
+py.test --cov-report term-missing --cov app -v
