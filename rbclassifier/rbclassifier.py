@@ -99,7 +99,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         #kwargs = {"warm_start": False, "solver": "SCS", "gpu": True, "verbose": False, "parallel": False}
-        #kwargs = { "solver": "GUROBI","verbose":True}
+        #kwargs = { "solver": "GUROBI","verbose":False}
         kwargs = {"verbose":False}
         acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
@@ -182,7 +182,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
                                   tuned_parameters,
                                   scoring="f1",
                                   n_jobs=-1,
-                                  cv=3,
+                                  cv=5,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
@@ -197,9 +197,12 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         Y_vector = np.array([Y[:], ] * 1)
         # Hinge loss
-        # loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(beta, X1) - bias))
+        #loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(self._svm_coef, X) - self._svm_bias))
         # Squared hinge loss
-        self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner( self._svm_coef, X) - self._svm_bias))[0]**2)
+        #self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner( self._svm_coef, X) - self._svm_bias))[0]**2)
+        
+        prediction = best_clf.decision_function(X)
+        self._svm_loss = np.sum(np.maximum(0, 1- Y_vector*prediction))
 
         self._svm_coef = self._svm_coef[0]
 

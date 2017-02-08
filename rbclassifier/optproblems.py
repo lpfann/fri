@@ -53,7 +53,7 @@ class BaseClassificationProblem(BaseProblem):
             cvx.mul_elemwise(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
             self.eps >= 0,
             # L1 reg. and allow slack
-            cvx.norm(self.omega, 1) + self.C * cvx.sum_squares(self.eps) <= self.L1 + self.C * self.svmloss
+            cvx.norm(self.omega, 1) + self.C * cvx.sum_entries(self.eps) <= self.L1 + self.C * self.svmloss
         ]
 
 class MinProblemClassification(BaseClassificationProblem):
@@ -64,7 +64,7 @@ class MinProblemClassification(BaseClassificationProblem):
 
         self._constraints.extend(
             [
-                cvx.abs(self.omega) <= self.xp,
+                cvx.abs(self.omega[self.di]) <= self.xp[self.di],
             ])
 
         self._objective = cvx.Minimize(self.xp[self.di])
@@ -77,7 +77,7 @@ class MaxProblem1(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            cvx.abs(self.omega) <= self.xp,
+            #cvx.abs(self.omega) <= self.xp,
             self.xp[self.di] <= self.omega[self.di],
             self.xp[self.di] <= -(self.omega[self.di]) + self.M
         ])
@@ -92,7 +92,7 @@ class MaxProblem2(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            cvx.abs(self.omega) <= self.xp,
+            #cvx.abs(self.omega) <= self.xp,
             self.xp[self.di] <= -(self.omega[self.di]),
             self.xp[self.di] <= (self.omega[self.di]) + self.M
         ])
