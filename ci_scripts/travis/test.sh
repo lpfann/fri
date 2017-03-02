@@ -7,4 +7,4 @@ mkdir -p $TEST_DIR
 cd $TEST_DIR
 
 
-py.test
+pytest
