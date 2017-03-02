@@ -65,3 +65,11 @@ docs/_build/
 # PyBuilder
 target/
 .idea/
+
+.ipynb_checkpoints
+
+
+
+*.sublime-project
+
+*.sublime-workspace
