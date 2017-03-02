@@ -81,8 +81,12 @@ class UpperBound(Bound):
 
 class ShadowLowerBound(LowerBound):
     """Class for lower bounds """
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
-        X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None,random_state=None):
+        if not random_state:
+            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+        else:
+            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+
         super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
         self.isShadow = True
         self.di = di
@@ -91,8 +95,11 @@ class ShadowUpperBound(UpperBound):
     """Class for Upper bounds """
     
     
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
-        X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None,random_state=None):
+        if not random_state:
+            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+        else:
+            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
         super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
         self.isShadow = True
         self.di = di

@@ -105,8 +105,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
         work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
         if self.shadow_features:
-            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
-            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
+            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
+            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -131,8 +131,10 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
 
         #rangevector = np.abs(rangevector)
-
+        self.unmod_interval_ = rangevector.copy()
+        
         # Correction through shadow features
+
         if self.shadow_features:
             rangevector -= shadowrangevector
             rangevector[rangevector < 0] = 0
@@ -200,7 +202,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         #loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(self._svm_coef, X) - self._svm_bias))
         # Squared hinge loss
         #self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner( self._svm_coef, X) - self._svm_bias))[0]**2)
-        
+       
         prediction = best_clf.decision_function(X)
         self._svm_loss = np.sum(np.maximum(0, 1- Y_vector*prediction))
 

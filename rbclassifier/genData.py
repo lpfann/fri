@@ -23,10 +23,10 @@ def genData(n_samples=100, n_features=2, n_redundant=0,strRel=1,
     width = 10
 
     def dummyFeat(n,scale=2):
-        return  np.random.rand(n)*scale - scale/2
+        return  randomstate.rand(n)*scale - scale/2
 
     def repeatFeat(feats, i):
-        i_pick = np.random.choice(i)
+        i_pick = randomstate.choice(i)
         return feats[:, i_pick]
 
     def genStrongRelFeatures(n, strRel, width=10, epsilon=0.05):
@@ -112,10 +112,10 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     width = 10
 
     def dummyFeat(n, scale=width):
-        return np.random.rand(int(n)) * scale - scale / 2
+        return randomstate.rand(int(n)) * scale - scale / 2
 
     def repeatFeat(feats, i):
-        i_pick = np.random.choice(int(i))
+        i_pick = randomstate.choice(int(i))
         return feats[:, i_pick]
 
     def genStrongRelFeatures(n, strRel, width=1):

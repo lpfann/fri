@@ -23,7 +23,7 @@ def test_strongRelevant():
     y = list(y)   # regression test: list should be supported
 
     # Test using the score function
-    rbc = RelevanceBoundsClassifier(random_state=generator,shadow_features=False)
+    rbc = RelevanceBoundsClassifier(random_state=generator)
     rbc.fit(X, y)
     # non-regression test for missing worst feature:
     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
