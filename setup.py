@@ -19,8 +19,8 @@ except ImportError:
     sys.exit(1)
 
 setup(name='rbclassifier',
-      version='0.1',
-      description='L1 relevance bounds feature classifier',
+      version='0.9',
+      description='Feature relevance interval method',
       author='Lukas Pfannschmidt',
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,
