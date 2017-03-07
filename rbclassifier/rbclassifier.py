@@ -101,7 +101,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         #kwargs = {"warm_start": False, "solver": "SCS", "gpu": True, "verbose": False, "parallel": False}
         #kwargs = { "solver": "GUROBI","verbose":False}
         kwargs = {"verbose":False}
-        acceptableStati = [cvx.OPTIMAL, cvx.OPTIMAL_INACCURATE]
+
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
         work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
         if self.shadow_features:
@@ -198,10 +198,6 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         Y_vector = np.array([Y[:], ] * 1)
-        # Hinge loss
-        #loss = np.sum(np.maximum(0, 1 - Y_vector * np.inner(self._svm_coef, X) - self._svm_bias))
-        # Squared hinge loss
-        #self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * (np.inner( self._svm_coef, X) - self._svm_bias))[0]**2)
        
         prediction = best_clf.decision_function(X)
         self._svm_loss = np.sum(np.maximum(0, 1- Y_vector*prediction))

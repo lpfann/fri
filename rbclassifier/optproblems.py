@@ -77,7 +77,6 @@ class MaxProblem1(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            #cvx.abs(self.omega) <= self.xp,
             self.xp[self.di] <= self.omega[self.di],
             self.xp[self.di] <= -(self.omega[self.di]) + self.M
         ])
@@ -92,7 +91,6 @@ class MaxProblem2(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            #cvx.abs(self.omega) <= self.xp,
             self.xp[self.di] <= -(self.omega[self.di]),
             self.xp[self.di] <= (self.omega[self.di]) + self.M
         ])
@@ -126,16 +124,12 @@ class BaseRegressionProblem(BaseProblem):
         self.omega = cvx.Variable(d)  # complete linear weight vector
         self.b = cvx.Variable()  # shift
         self.slack = cvx.Variable(n)  # slack variables
-        #self.negSlack = cvx.Variable(n)  # slack variables
 
         self._constraints = [
             cvx.norm(self.omega, 1)   + C * cvx.sum_entries(self.slack) <= self.L1 + C*self.svrloss,
             cvx.abs(self.Y - (self.X * self.omega + self.b )) <= self.epsilon + self.slack,
             self.slack >= 0,
         ]
-        # for i in range(n):
-        #      self._constraints.append((self.Y[i] - self.X[i].T * self.omega) - self.b <= self.epsilon)
-        #      self._constraints.append((self.X[i].T * self.omega - self.Y[i])+ self.b <= self.epsilon)
 
 
 class MinProblemRegression(BaseRegressionProblem):
@@ -161,9 +155,6 @@ class MaxProblem1Regression(BaseRegressionProblem):
         self._constraints.extend([
             self.xp[self.di] <= self.omega[self.di],
             self.xp[self.di] <= -(self.omega[self.di]) + self.M
-            #self.omega - self.xp <= 0,
-            #-self.omega - self.xp <= 0,
-            #self.xp[self.di] + self.omega[self.di] <= 0,
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
@@ -179,10 +170,6 @@ class MaxProblem2Regression(BaseRegressionProblem):
         self._constraints.extend([
            self.xp[self.di] <= -(self.omega[self.di]),
            self.xp[self.di] <= (self.omega[self.di]) + self.M
-             #self.omega - self.xp    <= 0,
-             #-self.omega - self.xp    <= 0,
-             #self.xp[self.di]    - self.omega[self.di] <= 0,
-
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
