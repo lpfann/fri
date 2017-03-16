@@ -170,7 +170,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
-        estimator = svm.LinearSVC(penalty='l1', loss="squared_hinge", dual=False,
+        estimator = svm.LinearSVC(penalty='l2', loss="squared_hinge", dual=False,
                                   random_state=self.random_state)
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C

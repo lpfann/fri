@@ -47,7 +47,7 @@ class BaseClassificationProblem(BaseProblem):
         self.omega = cvx.Variable(d)  # complete linear weight vector
         self.b = cvx.Variable()  # shift
         self.eps = cvx.Variable(n)  # slack variables
-
+        
         self._constraints = [
             # points still correctly classified with soft margin
             cvx.mul_elemwise(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
