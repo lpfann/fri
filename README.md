@@ -1,4 +1,4 @@
-#Feature relevance intervals
+# Feature relevance intervals
 
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
 [![Coverage Status](https://coveralls.io/repos/github/lpfann/fri/badge.svg?branch=master)](https://coveralls.io/github/lpfann/fri?branch=master)
