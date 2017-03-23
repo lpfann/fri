@@ -2,24 +2,20 @@
 This is a module to be used as a reference for building other modules
 """
 from abc import abstractmethod
-from multiprocessing.pool import Pool
+from multiprocessing import Pool
 
 import numpy as np
-from sklearn.base import BaseEstimator
-from sklearn.feature_selection.base import SelectorMixin
-from sklearn.utils.validation import check_X_y, check_array, check_is_fitted
-from sklearn.utils.multiclass import unique_labels
-from sklearn.model_selection import GridSearchCV
-from sklearn.utils import shuffle, check_random_state, check_X_y
-from sklearn import preprocessing, svm
+from sklearn import preprocessing
 from sklearn import svm
-from collections import namedtuple
+from sklearn.base import BaseEstimator
 from sklearn.exceptions import FitFailedWarning
-import rbclassifier.bounds
-from multiprocessing import Pool
-import cvxpy as cvx
+from sklearn.feature_selection.base import SelectorMixin
+from sklearn.model_selection import GridSearchCV
+from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import unique_labels
 
-from multiprocessing import Process, Queue, current_process, freeze_support
+import rbclassifier.bounds
+
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
