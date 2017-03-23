@@ -18,13 +18,43 @@ import rbclassifier.bounds
 
 
 class NotFeasibleForParameters(Exception):
-    """SVM cannot separate points with this parameters"""
+    """SVM cannot separate points with this parameters
+    """
 
 
 class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
+    """Base class for interaction with program
+    
+    Attributes
+    ----------
+    allrel_prediction_ : array of booleans
+        Truth value for each feature if it is relevant (weakly OR strongly)
+    C : float , optional
+        Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
+    interval_ : array of [float,float]
+        Feature relevance intervals
+    parallel : boolean, optional
+        Enables parallel computation of feature intervals
+    random_state : object
+        Set seed for random number generation.
+    shadow_features : boolean, optional
+        Enables noise reduction using feature permutation results.
+    """
     @abstractmethod
     def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False):
-
+        """Summary
+        
+        Parameters
+        ----------
+        C : float , optional
+            Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
+        random_state : object
+            Set seed for random number generation.
+        shadow_features : boolean, optional
+            Enables noise reduction using feature permutation results.
+        parallel : boolean, optional
+            Enables parallel computation of feature intervals
+        """
         self.random_state = random_state
         self.C = C
         self.shadow_features = shadow_features
@@ -35,7 +65,20 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def fit(self, X, y):
-
+        """Summary
+        
+        Parameters
+        ----------
+        X : array_like
+            Data matrix
+        y : array_like
+            Response variable
+        
+        Returns
+        -------
+        RelevanceBoundsBase
+            Instance
+        """
         self.X_ = X
         self.y_ = y
 
@@ -52,35 +95,62 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         return self
 
     def _get_relevance_mask(self,
-                #upper_epsilon = 0.0606,
                 upper_epsilon = 0.1,
-
                 lower_epsilon = 0.0323):
+        """Determines relevancy using feature relevance interval values
+        
+        Parameters
+        ----------
+        upper_epsilon : float, optional
+            Threshold for upper bound of feature relevance interval
+        lower_epsilon : float, optional
+            Threshold for lower bound of feature relevance interval
+        
+        Returns
+        -------
+        boolean array
+            Relevancy prediction for each feature
+        """
         rangevector = self.interval_
         prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
-        # Treshold for relevancy
-        #upper_epsilon = np.median(rangevector[:,1])
-        #lower_epsilon = np.median(rangevector[:,0])
 
         # Weakly relevant ones have high upper bounds
         prediction[rangevector[:, 1] > upper_epsilon] = True
         # Strongly relevant bigger than 0 + some epsilon
         prediction[rangevector[:, 0] > lower_epsilon] = True
 
-        #allrel_prediction = prediction.copy()
-        #allrel_prediction[allrel_prediction == 2] = 1
-
         self.allrel_prediction_ = prediction
 
         return prediction
 
     def _get_support_mask(self):
+        """Method for SelectorMixin
+        
+        Returns
+        -------
+        boolean array
+            
+        """
         return self.allrel_prediction_
 
     def _opt_per_thread(self,bound):
+        """
+        Worker thread method for parallel computation
+        """
         return bound.solve()
 
     def _main_opt(self, X, Y):
+        """ Main calculation function. 
+            Creates LP for each bound and distributes them depending on parallel flag.
+        
+        Parameters
+        ----------
+        X : array_like
+            standardized data matrix
+        Y : array_like
+            response vector
+        
+        """
         n, d = X.shape
         rangevector = np.zeros((d, 2))
         shadowrangevector = np.zeros((d, 2))
@@ -98,6 +168,9 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         #kwargs = { "solver": "GUROBI","verbose":False}
         kwargs = {"verbose":False}
 
+        """
+        Create tasks for
+        """
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
         work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
         if self.shadow_features:
@@ -154,10 +227,35 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
 
 class RelevanceBoundsClassifier( RelevanceBoundsBase):
-    """ L1-relevance Bounds Classifier
-
+    """L1-relevance Bounds Classifier
+    
+    Attributes
+    ----------
+    LowerBound : LowerBound
+        Class for lower bound
+    LowerBoundS : ShadowLowerBound
+        Class for lower bound noise reduction (shadow)
+    UpperBound : UpperBound
+        Class for upper Bound 
+    UpperBoundS : ShadowUpperBound
+        Class for upper bound noise reduction (shadow)
+    
     """
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
+        """Initialize a solver for classification data
+        
+        
+        Parameters
+        ----------
+        C : float , optional
+            Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
+        random_state : object
+            Set seed for random number generation.
+        shadow_features : boolean, optional
+            Enables noise reduction using feature permutation results.
+        parallel : boolean, optional
+            Enables parallel computation of feature intervals
+        """
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
         self.isRegression = False
         self.LowerBound = rbclassifier.bounds.LowerBound
@@ -202,7 +300,19 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
     def fit(self,X,y):
         """A reference implementation of a fitting function for a classifier.
-                """
+        
+        Parameters
+        ----------
+        X : array_like
+            standardized data matrix
+        y : array_like
+            label vector
+        
+        Raises
+        ------
+        ValueError
+            Only binary classification.
+        """
 
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
@@ -218,8 +328,21 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         super().fit(X,y)
 
 class RelevanceBoundsRegressor( RelevanceBoundsBase):
-    """ L1-relevance Bounds Regressor
-
+    """L1-relevance Bounds Regressor
+    
+    Attributes
+    ----------
+    epsilon : float, optional
+        epsilon margin, default is using value provided by gridsearch
+    LowerBound : LowerBound
+        Class for lower bound
+    LowerBoundS : ShadowLowerBound
+        Class for lower bound noise reduction (shadow)
+    UpperBound : UpperBound
+        Class for upper Bound 
+    UpperBoundS : ShadowUpperBound
+        Class for upper bound noise reduction (shadow)
+    
     """
     def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False):
         super().__init__(C=C,random_state=random_state, shadow_features=shadow_features,parallel=parallel)
@@ -262,8 +385,16 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self._svm_coef = self._svm_coef[0]
 
     def fit(self, X, y):
-        """A reference implementation of a fitting function for a regressor.
-                """
+        """ Fit model to data and provide feature relevance intervals
+
+        Parameters
+        ----------
+        X : array_like
+            standardized data matrix
+        y : array_like
+            response vector
+        
+        """
 
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
