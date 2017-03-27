@@ -288,7 +288,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        self._svm_bias = best_clf.intercept_[0]
+        self._svm_bias = -best_clf.intercept_[0]
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         Y_vector = np.array([Y[:], ] * 1)
@@ -377,7 +377,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        self._svm_bias = best_clf.intercept_[0]
+        self._svm_bias = -best_clf.intercept_[0]
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
         prediction = best_clf.predict(X)
         self._svm_loss = np.sum(np.abs(Y - prediction))
