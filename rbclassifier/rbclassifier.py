@@ -41,7 +41,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         Enables noise reduction using feature permutation results.
     """
     @abstractmethod
-    def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False):
+    def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Summary
         
         Parameters
@@ -62,6 +62,10 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.isRegression = None
         self._hyper_epsilon = None
         self._hyper_C = None
+        if not n_resampling:
+            self.n_resampling = 3
+        else:
+            self.n_resampling = n_resampling
 
     @abstractmethod
     def fit(self, X, y):
@@ -174,8 +178,9 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
         work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
         if self.shadow_features:
-            work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
-            work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
+            for nr in range(self.n_resampling):
+                work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
+                work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -197,7 +202,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
                 biase[di, i] =  finished_bound.prob_instance.b.value
             else:
-                shadowrangevector[di, i] = finished_bound.prob_instance.problem.value
+                shadowrangevector[di, i] += finished_bound.prob_instance.problem.value / self.n_resampling
 
         #rangevector = np.abs(rangevector)
         self.unmod_interval_ = rangevector.copy()
@@ -213,7 +218,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
             rangevector = rangevector / L1
             # shadowrangevector = shadowrangevector / L1
 
-        # round mins to zero
+        # orund mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         self.interval_ = rangevector
@@ -241,7 +246,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         Class for upper bound noise reduction (shadow)
     
     """
-    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False):
+    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
         """Initialize a solver for classification data
         
         
@@ -256,7 +261,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel,n_resampling=n_resampling)
         self.isRegression = False
         self.LowerBound = rbclassifier.bounds.LowerBound
         self.UpperBound = rbclassifier.bounds.UpperBound
@@ -278,7 +283,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
                                   tuned_parameters,
                                   scoring="f1",
                                   n_jobs=-1,
-                                  cv=5,
+                                  cv=7,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
@@ -344,8 +349,8 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         Class for upper bound noise reduction (shadow)
     
     """
-    def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False):
-        super().__init__(C=C,random_state=random_state, shadow_features=shadow_features,parallel=parallel)
+    def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
+        super().__init__(C=C,random_state=random_state, shadow_features=shadow_features,parallel=parallel,n_resampling=n_resampling)
         self.isRegression = True
         self.epsilon = epsilon
         self.LowerBound = rbclassifier.bounds.LowerBound
