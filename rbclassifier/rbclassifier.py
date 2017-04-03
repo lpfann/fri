@@ -202,7 +202,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
                 biase[di, i] =  finished_bound.prob_instance.b.value
             else:
-                shadowrangevector[di, i] += finished_bound.prob_instance.problem.value / self.n_resampling
+                shadowrangevector[di, i] += finished_bound.prob_instance.problem.value / self.n_resampling # Get the mean of all shadow samples
 
         #rangevector = np.abs(rangevector)
         self.unmod_interval_ = rangevector.copy()
