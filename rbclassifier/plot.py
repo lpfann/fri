@@ -27,7 +27,7 @@ def plotIntervals(ranges):
 	upper_vals = ranges[:,1]
 	lower_vals = ranges[:,0]
 
-	ax.bar(ind, upper_vals, width,bottom=lower_vals,tick_label=ind,align="center" , edgecolor="black",linewidth=1.3)
+	ax.bar(ind, upper_vals - lower_vals, width,bottom=lower_vals,tick_label=ind,align="center" , edgecolor="black",linewidth=1.3)
 	# loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
 	# ax.xaxis.set_major_locator(loc)
 	# ax.set_ylim([0,1])
