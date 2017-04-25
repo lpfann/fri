@@ -11,8 +11,9 @@ from sklearn.base import BaseEstimator
 from sklearn.exceptions import FitFailedWarning
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV
-from sklearn.utils import check_X_y
+from sklearn.utils import check_X_y ,check_random_state
 from sklearn.utils.multiclass import unique_labels
+
 
 import rbclassifier.bounds
 
@@ -55,7 +56,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        self.random_state = random_state
+        
+        self.random_state = check_random_state(random_state)
         self.C = C
         self.shadow_features = shadow_features
         self.parallel = parallel
@@ -282,7 +284,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
                                   scoring="f1",
-                                  n_jobs=-1,
+                                  n_jobs=-1 if self.parallel else 1,
                                   cv=7,
                                   verbose=False)
         gridsearch.fit(X, Y)
