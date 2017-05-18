@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import versioneer
 from setuptools import setup, find_packages
 
 with open('requirements.txt') as f:
@@ -19,7 +20,8 @@ except ImportError:
     sys.exit(1)
 
 setup(name='rbclassifier',
-      version='0.9',
+      version=versioneer.get_version(),
+      cmdclass=versioneer.get_cmdclass(),
       description='Feature relevance interval method',
       author='Lukas Pfannschmidt',
       packages=find_packages(),

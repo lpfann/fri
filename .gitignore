@@ -73,3 +73,5 @@ target/
 *.sublime-project
 
 *.sublime-workspace
+
+/.gitattributes
