@@ -373,7 +373,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
                                   tuned_parameters,
                                   scoring=None,
                                   n_jobs=-1,
-                                  cv=3,
+                                  cv=7,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
