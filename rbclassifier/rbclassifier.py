@@ -204,7 +204,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
                 biase[di, i] =  finished_bound.prob_instance.b.value
             else:
-                shadowrangevector[di, i] += finished_bound.prob_instance.problem.value / self.n_resampling # Get the mean of all shadow samples
+                shadowrangevector[di, i] += (finished_bound.prob_instance.problem.value / self.n_resampling) # Get the mean of all shadow samples
 
         #rangevector = np.abs(rangevector)
         self.unmod_interval_ = rangevector.copy()
@@ -280,12 +280,18 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
+        
+        n = len(X)
+        if n <= 20:
+            cv = 3
+        else:
+            cv = 7
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
                                   scoring="f1",
                                   n_jobs=-1 if self.parallel else 1,
-                                  cv=7,
+                                  cv=cv,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
