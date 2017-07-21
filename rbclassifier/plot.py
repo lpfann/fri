@@ -24,7 +24,10 @@ def plotIntervals(ranges,ticklables=None):
     if  ticklables is None:
         ticks = np.arange(N)+1
     else:
-        ticks = ticklables
+        ticks = list(ticklables)
+        for i in range(N):
+            ticks[i] += " - {}".format(i+1)
+
     
     ind = np.arange(N)+1
     width = 0.6
