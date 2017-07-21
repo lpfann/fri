@@ -220,7 +220,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
             rangevector = rangevector / L1
             # shadowrangevector = shadowrangevector / L1
 
-        # orund mins to zero
+        # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         self.interval_ = rangevector
@@ -289,7 +289,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="f1",
+                                  scoring=None,
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=False)

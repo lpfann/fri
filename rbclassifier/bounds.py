@@ -100,6 +100,7 @@ class ShadowUpperBound(UpperBound):
             X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
         else:
             X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+            
         super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
         self.isShadow = True
         self.di = di
