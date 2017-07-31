@@ -92,7 +92,7 @@ def test_allRelevant():
 
 def test_norelevant():
     generator = check_random_state(0)
-    data = genData.genData(n_samples=100, n_features=5, n_redundant=0,strRel=0,
+    data = genData.genData(n_samples=100, n_features=10, n_redundant=0, strRel=0,
                     n_repeated=0, class_sep=1, flip_y=0, random_state=generator)
 
     X_orig, y = data

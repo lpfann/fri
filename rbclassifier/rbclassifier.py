@@ -90,6 +90,9 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
+        
+        if self._best_clf_score < 0.6:
+             raise FitFailedWarning()
 
         # Main Optimization step
         self._main_opt(X, y)
@@ -289,15 +292,13 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring=None,
+                                  scoring="f1",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
-        if self._best_clf_score < 0.7:
-            raise FitFailedWarning()
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
@@ -385,8 +386,6 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         self._hyper_C = gridsearch.best_params_['C']
         self._hyper_epsilon = gridsearch.best_params_['epsilon']
         self._best_clf_score = gridsearch.best_score_
-        if self._best_clf_score < 0.7:
-            raise FitFailedWarning()
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
