@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
 
 This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publication[1].
-
+![Example output of method](fri/examples/example_plot.png)
 
 ## Installation
 Before installing the module you will need `numpy` and `scipy`.
