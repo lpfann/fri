@@ -62,12 +62,9 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = isRegression
+        self.n_resampling = n_resampling
         self._hyper_epsilon = None
         self._hyper_C = None
-        if not n_resampling:
-            self.n_resampling = 3
-        else:
-            self.n_resampling = n_resampling
 
     @abstractmethod
     def fit(self, X, y):
@@ -255,7 +252,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     UpperBound = rbclassifier.bounds.UpperBound
     LowerBoundS = rbclassifier.bounds.ShadowLowerBound
     UpperBoundS = rbclassifier.bounds.ShadowUpperBound
-    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
+    def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Initialize a solver for classification data
         
         
@@ -362,7 +359,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
     LowerBoundS = rbclassifier.bounds.ShadowLowerBound
     UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
-    def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
+    def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel, n_resampling=n_resampling, isRegression=True)
         self.epsilon = epsilon
 
