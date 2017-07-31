@@ -42,7 +42,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         Enables noise reduction using feature permutation results.
     """
     @abstractmethod
-    def __init__(self, C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
+    def __init__(self,isRegression, C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Summary
         
         Parameters
@@ -56,12 +56,12 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        
+
         self.random_state = check_random_state(random_state)
         self.C = C
         self.shadow_features = shadow_features
         self.parallel = parallel
-        self.isRegression = None
+        self.isRegression = isRegression
         self._hyper_epsilon = None
         self._hyper_C = None
         if not n_resampling:
@@ -90,7 +90,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
-        
+
         if self._best_clf_score < 0.6:
              raise FitFailedWarning()
 
@@ -211,7 +211,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
         #rangevector = np.abs(rangevector)
         self.unmod_interval_ = rangevector.copy()
-        
+
         # Correction through shadow features
 
         if self.shadow_features:
@@ -251,6 +251,10 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         Class for upper bound noise reduction (shadow)
     
     """
+    LowerBound = rbclassifier.bounds.LowerBound
+    UpperBound = rbclassifier.bounds.UpperBound
+    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
+    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
         """Initialize a solver for classification data
         
@@ -266,12 +270,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel,n_resampling=n_resampling)
-        self.isRegression = False
-        self.LowerBound = rbclassifier.bounds.LowerBound
-        self.UpperBound = rbclassifier.bounds.UpperBound
-        self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-        self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features,parallel=parallel,n_resampling=n_resampling, isRegression=False)
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVC(penalty='l2', loss="squared_hinge", dual=False,
@@ -283,7 +282,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
-        
+
         n = len(X)
         if n <= 20:
             cv = 3
@@ -306,7 +305,7 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         Y_vector = np.array([Y[:], ] * 1)
-       
+
         prediction = best_clf.decision_function(X)
         self._svm_loss = np.sum(np.maximum(0, 1- Y_vector*prediction))
 
@@ -343,29 +342,29 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
 class RelevanceBoundsRegressor( RelevanceBoundsBase):
     """L1-relevance Bounds Regressor
-    
-    Attributes
-    ----------
-    epsilon : float, optional
-        epsilon margin, default is using value provided by gridsearch
-    LowerBound : LowerBound
-        Class for lower bound
-    LowerBoundS : ShadowLowerBound
-        Class for lower bound noise reduction (shadow)
-    UpperBound : UpperBound
-        Class for upper Bound 
-    UpperBoundS : ShadowUpperBound
-        Class for upper bound noise reduction (shadow)
-    
-    """
+
+        Attributes
+        ----------
+        epsilon : float, optional
+            epsilon margin, default is using value provided by gridsearch
+        LowerBound : LowerBound
+            Class for lower bound
+        LowerBoundS : ShadowLowerBound
+            Class for lower bound noise reduction (shadow)
+        UpperBound : UpperBound
+            Class for upper Bound
+        UpperBoundS : ShadowUpperBound
+            Class for upper bound noise reduction (shadow)
+
+        """
+    LowerBound = rbclassifier.bounds.LowerBound
+    UpperBound = rbclassifier.bounds.UpperBound
+    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
+    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+
     def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=None):
-        super().__init__(C=C,random_state=random_state, shadow_features=shadow_features,parallel=parallel,n_resampling=n_resampling)
-        self.isRegression = True
+        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel, n_resampling=n_resampling, isRegression=True)
         self.epsilon = epsilon
-        self.LowerBound = rbclassifier.bounds.LowerBound
-        self.UpperBound = rbclassifier.bounds.UpperBound
-        self.LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-        self.UpperBoundS = rbclassifier.bounds.ShadowUpperBound
 
     def _initEstimator(self, X, Y):
         estimator = svm.SVR(kernel="linear")
