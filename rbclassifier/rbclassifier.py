@@ -128,6 +128,15 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
         return prediction
 
+    def n_features_(self):
+        """
+
+        Returns the number of selected features.
+        -------
+
+        """
+        return sum(self.allrel_prediction_)
+
     def _get_support_mask(self):
         """Method for SelectorMixin
         
