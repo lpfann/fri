@@ -8,7 +8,6 @@ import numpy as np
 from sklearn import preprocessing
 from sklearn import svm
 from sklearn.base import BaseEstimator
-from sklearn.exceptions import FitFailedWarning
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_X_y ,check_random_state
@@ -89,7 +88,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self._initEstimator(X, y)
 
         if self._best_clf_score < 0.6:
-             raise FitFailedWarning()
+             print("WARNING: Bad Model performance!")
 
         # Main Optimization step
         self._main_opt(X, y)

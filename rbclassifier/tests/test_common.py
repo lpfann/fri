@@ -90,7 +90,7 @@ def test_allRelevant():
     assert_false(np.any(rbc.interval_[2:4,0]>0))
     
 
-def test_norelevant():
+def test_norelevant(capsys):
     generator = check_random_state(0)
     data = genData.genData(n_samples=100, n_features=10, n_redundant=0, strRel=0,
                     n_repeated=0, class_sep=1, flip_y=0, random_state=generator)
@@ -99,6 +99,9 @@ def test_norelevant():
     X_orig = StandardScaler().fit(X_orig).transform(X_orig)
     # Test using the score function
     rbc = RelevanceBoundsClassifier(random_state=generator)
-    assert_raises(FitFailedWarning,rbc.fit,X_orig,y) # TODO: nicht immer exception
-    # non-regression test for missing worst feature:
+    #assert_raises(FitFailedWarning,rbc.fit,X_orig,y)
+    rbc.fit(X_orig, y)
+    assert rbc._best_clf_score < 0.6
+    out, err = capsys.readouterr()
+    assert out == "WARNING: Bad Model performance!\n"
 
