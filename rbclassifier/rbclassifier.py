@@ -10,7 +10,7 @@ from sklearn import svm
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV
-from sklearn.utils import check_X_y ,check_random_state
+from sklearn.utils import check_X_y, check_random_state, resample
 from sklearn.utils.multiclass import unique_labels
 
 
@@ -24,7 +24,7 @@ class NotFeasibleForParameters(Exception):
 
 class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     """Base class for interaction with program
-    
+
     Attributes
     ----------
     allrel_prediction_ : array of booleans
@@ -43,7 +43,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     @abstractmethod
     def __init__(self,isRegression, C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Summary
-        
+
         Parameters
         ----------
         C : float , optional
@@ -70,14 +70,14 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     @abstractmethod
     def fit(self, X, y):
         """Summary
-        
+
         Parameters
         ----------
         X : array_like
             Data matrix
         y : array_like
             Response variable
-        
+
         Returns
         -------
         RelevanceBoundsBase
@@ -110,14 +110,14 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 upper_epsilon = 0.1,
                 lower_epsilon = 0.0323):
         """Determines relevancy using feature relevance interval values
-        
+
         Parameters
         ----------
         upper_epsilon : float, optional
             Threshold for upper bound of feature relevance interval
         lower_epsilon : float, optional
             Threshold for lower bound of feature relevance interval
-        
+
         Returns
         -------
         boolean array
@@ -146,11 +146,11 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
     def _get_support_mask(self):
         """Method for SelectorMixin
-        
+
         Returns
         -------
         boolean array
-            
+
         """
         return self.allrel_prediction_
 
@@ -161,16 +161,16 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         return bound.solve()
 
     def _main_opt(self, X, Y,svmloss, L1, C,_hyper_epsilon,random_state,isRegression):
-        """ Main calculation function. 
+        """ Main calculation function.
             Creates LP for each bound and distributes them depending on parallel flag.
-        
+
         Parameters
         ----------
         X : array_like
             standardized data matrix
         Y : array_like
             response vector
-        
+
         """
         n, d = X.shape
         rangevector = np.zeros((d, 2))
@@ -237,14 +237,13 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         return rangevector, omegas, biase, shadowrangevector
 
 
-    @abstractmethod
     def _initEstimator(self, X, Y):
         pass
 
 
 class RelevanceBoundsClassifier( RelevanceBoundsBase):
     """L1-relevance Bounds Classifier
-    
+
     Attributes
     ----------
     LowerBound : LowerBound
@@ -252,10 +251,10 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     LowerBoundS : ShadowLowerBound
         Class for lower bound noise reduction (shadow)
     UpperBound : UpperBound
-        Class for upper Bound 
+        Class for upper Bound
     UpperBoundS : ShadowUpperBound
         Class for upper bound noise reduction (shadow)
-    
+
     """
     LowerBound = rbclassifier.bounds.LowerBound
     UpperBound = rbclassifier.bounds.UpperBound
@@ -263,8 +262,8 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     UpperBoundS = rbclassifier.bounds.ShadowUpperBound
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Initialize a solver for classification data
-        
-        
+
+
         Parameters
         ----------
         C : float , optional
@@ -319,14 +318,14 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
     def fit(self,X,y):
         """A reference implementation of a fitting function for a classifier.
-        
+
         Parameters
         ----------
         X : array_like
             standardized data matrix
         y : array_like
             label vector
-        
+
         Raises
         ------
         ValueError
@@ -410,7 +409,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
             standardized data matrix
         y : array_like
             response vector
-        
+
         """
 
         # Check that X and y have correct shape
@@ -418,5 +417,48 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
 
         super().fit(X, y)
 
-class EnsembleFRI():
-    pass
+
+class EnsembleFRI(RelevanceBoundsBase):
+    def __init__(self, model, n_bootstraps=10, random_state=None):
+        self.random_state = random_state
+        self.n_bootstraps = n_bootstraps
+        self.model = model
+
+        if isinstance(model,RelevanceBoundsClassifier):
+            isRegression = False
+        else:
+            isRegression = True
+
+        super().__init__(isRegression)
+
+    def fit(self,X,y):
+        n, d = X.shape
+        rangevector = np.zeros((d, 2))
+        shadowrangevector = np.zeros((d, 2))
+        omegas = np.zeros((d, 2, d))
+        biase = np.zeros((d, 2))
+
+        # Run single models and save interval result
+        for i in range(self.n_bootstraps):
+            # Get bootstrap set
+            X_bs,y_bs = resample(X, y,replace=True, n_samples=None, random_state=self.random_state)
+
+            self.model.fit(X_bs,y_bs)
+
+            rangevector += self.model.interval_
+            omegas += self.model._omegas
+            biase += self.model._biase
+            if self.model.shadow_features:
+                shadowrangevector += self.model._shadowintervals
+
+        # Get average
+        self.interval_ = rangevector / self.n_bootstraps
+        self._omegas = omegas / self.n_bootstraps
+        self._biase = biase / self.n_bootstraps
+        if self.model.shadow_features:
+            self._shadowintervals = shadowrangevector / self.n_bootstraps
+
+        # Classify features
+        self._get_relevance_mask()
+
+        return self
