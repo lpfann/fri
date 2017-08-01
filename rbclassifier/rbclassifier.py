@@ -64,6 +64,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         self.n_resampling = n_resampling
         self._hyper_epsilon = None
         self._hyper_C = None
+        self._svm_L1 = None
+        self._svm_loss = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -91,7 +93,12 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
              print("WARNING: Bad Model performance!")
 
         # Main Optimization step
-        self._main_opt(X, y)
+        results = self._main_opt(X, y,self._svm_loss,self._svm_L1,self._hyper_C,self._hyper_epsilon,self.random_state,self.isRegression)
+
+        self.interval_ = results[0]
+        self._omegas = results[1]
+        self._biase = results[2]
+        self._shadowintervals = results[3]
 
         # Classify features
         self._get_relevance_mask()
@@ -153,7 +160,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y):
+    def _main_opt(self, X, Y,svmloss, L1, C,_hyper_epsilon,random_state,isRegression):
         """ Main calculation function. 
             Creates LP for each bound and distributes them depending on parallel flag.
         
@@ -171,10 +178,6 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         omegas = np.zeros((d, 2, d))
         biase = np.zeros((d, 2))
 
-        svmloss = self._svm_loss
-        L1 = self._svm_L1
-        C = self._hyper_C
-
         """
         Solver Parameters
         """
@@ -183,14 +186,14 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         kwargs = {"verbose":False}
 
         """
-        Create tasks for
+        Create tasks for worker(s)
         """
-        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)]
-        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon) for di in range(d)])
+        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=_hyper_epsilon) for di in range(d)]
+        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=_hyper_epsilon) for di in range(d)])
         if self.shadow_features:
             for nr in range(self.n_resampling):
-                work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
-                work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=self.isRegression,epsilon=self._hyper_epsilon,random_state=self.random_state) for di in range(d)])
+                work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=isRegression,epsilon=_hyper_epsilon,random_state=random_state) for di in range(d)])
+                work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y,regression=isRegression,epsilon=_hyper_epsilon,random_state=random_state) for di in range(d)])
 
         def pmap(*args):
                 with Pool() as p:
@@ -231,10 +234,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
-        self.interval_ = rangevector
-        self._omegas = omegas
-        self._biase = biase
-        self._shadowintervals = shadowrangevector
+        return rangevector, omegas, biase, shadowrangevector
+
 
     @abstractmethod
     def _initEstimator(self, X, Y):
@@ -416,3 +417,6 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         X, y = check_X_y(X, y)
 
         super().fit(X, y)
+
+class EnsembleFRI():
+    pass
