@@ -1,23 +1,24 @@
 language: python
-
 cache:
   apt: true
-  # We use three different cache directory
-  # to work around a Travis bug with multi-platform cache
   directories:
-  - $HOME/.cache/pip
-  - $HOME/download
+  - "$HOME/.cache/pip"
+  - "$HOME/download"
 env:
   global:
-    # Directory where tests are run from
-    - TEST_DIR=/tmp/test_dir/
-    - MODULE=rbclassifier
+  - TEST_DIR=/tmp/test_dir/
+  - MODULE=rbclassifier
   matrix:
-#    - DISTRIB="conda" PYTHON_VERSION="2.7"
-#      NUMPY_VERSION="1.6.2" SCIPY_VERSION="0.11.0" CYTHON_VERSION="0.21"
-    - DISTRIB="conda" PYTHON_VERSION="3.5" COVERAGE="true"
-      NUMPY_VERSION="1.10.4" SCIPY_VERSION="0.17.0" CYTHON_VERSION="0.23.4"
-
+  - DISTRIB="conda" PYTHON_VERSION="3.5" COVERAGE="true" NUMPY_VERSION="1.10.4" SCIPY_VERSION="0.17.0"
+    CYTHON_VERSION="0.23.4"
 install: source ci_scripts/travis/install.sh
 script: pytest
 after_success: source ci_scripts/travis/success.sh
+deploy:
+  provider: pypi
+  user: lpfann
+  password:
+    secure: Zl/BYkII3DOqcMIBKhkZ6EFl8ClQEqCgvQM4MUSyfoICLaPbuyKEQy7pLdmdrPlOIzoe7crpnTRzP0PYBk20hwjSE5xAxSwMBI5rgzRBwhk+18E9ZF4Rn5pO/HO1eihyZXFbUDDMxXrcE7zzHIWiQFTCTBwFkobOA+qVpom8ZJ5I/+832Bnp5DpWTqULHQwuMkBS5vpzmg9l1CGJqN45ef6Yzy78chxBP3t4GGWbAym29TQKYTDFrF5XdBQkqzrXENQ2IzGKs4Uk4zGazQv/yDYRQuRm7ALr34nsIYllLPWlxsgXtuz0/ewHcn0T9tRFukfSm9krx+LUrRq7vH4510c8qfS6mjFcpaMgzG/T1wVBwj2tEOObGdxrwzEMaO/sxQR25QeaKsgRkm0vsforbPtmwhWtjpd0badloFA1NiwpDlXYyLYX+U+/hZK5yNFwNXp1rdVZDkPg9E5meKNh1fqpVme1nzpj7jJPLHf6Jp7KM5whG73LIOMFm0zd39y+H5B486I95wqXOf0sRPbifooOvUNp7AJAUIILUvyEHcMl3yG7REIrS3w7Sy4cDL4JBGxXokEpOUuvhRzRRdJyOvYoKLNws1dDR5wkAoGdCxLQdPAta/W8Es8WWsU+M6kSl+al5P+Iy6rb7PxyhY6qJOnJrhwaUDrtELulYgKt9FI=
+  on:
+    tags: true
+    branch: master
