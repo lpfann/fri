@@ -424,7 +424,7 @@ class EnsembleFRI(RelevanceBoundsBase):
         self.n_bootstraps = n_bootstraps
         self.model = model
 
-        if isinstance(model,RelevanceBoundsClassifier):
+        if isinstance(self.model,RelevanceBoundsClassifier):
             isRegression = False
         else:
             isRegression = True
@@ -432,6 +432,12 @@ class EnsembleFRI(RelevanceBoundsBase):
         super().__init__(isRegression)
 
     def fit(self,X,y):
+        
+        if isinstance(self.model,RelevanceBoundsClassifier):
+            self.isRegression = False
+        else:
+            self.isRegression = True
+
         n, d = X.shape
         rangevector = np.zeros((d, 2))
         shadowrangevector = np.zeros((d, 2))
