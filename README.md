@@ -4,6 +4,7 @@
 
 This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publication[1].
 
+![Example output of method for biomedical dataset](/examples/example_plot.png?raw=true)
 
 ## Installation
 Before installing the module you will need `numpy` and `scipy`.
