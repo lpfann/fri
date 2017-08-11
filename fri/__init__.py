@@ -1,9 +1,9 @@
-from .rbclassifier import (RelevanceBoundsClassifier)
-from . import rbclassifier
+from .fri import (FRIClassification)
+from . import fri
 from . import optproblems
 from . import genData
 from . import bounds
-__all__ = ['RelevanceBoundsClassifier', 'rbclassifier']
+__all__ = ['FRIClassification', 'FRIRegression','fri.py']
 
 from ._version import get_versions
 __version__ = get_versions()['version']

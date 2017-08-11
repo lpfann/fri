@@ -1,5 +1,5 @@
 from sklearn.utils.estimator_checks import check_estimator
-from rbclassifier import (RelevanceBoundsClassifier,genData)
+from fri import (FRIClassification, genData)
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import ignore_warnings
 from sklearn.utils.testing import assert_greater, assert_equal, assert_true,assert_false
@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 #def test_estimator():
-#    return check_estimator(RelevanceBoundsClassifier)
+#    return check_estimator(FRIClassification)
 
 
 def test_strongRelevant():
@@ -23,7 +23,7 @@ def test_strongRelevant():
     y = list(y)   # regression test: list should be supported
 
     # Test using the score function
-    rbc = RelevanceBoundsClassifier(random_state=generator)
+    rbc = FRIClassification(random_state=generator)
     rbc.fit(X, y)
     # non-regression test for missing worst feature:
     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -48,7 +48,7 @@ def test_weakRelevant():
     y = list(y)   # regression test: list should be supported
 
     # Test using the score function
-    rbc = RelevanceBoundsClassifier(random_state=generator)
+    rbc = FRIClassification(random_state=generator)
     rbc.fit(X, y)
     # non-regression test for missing worst feature:
     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -73,7 +73,7 @@ def test_allRelevant():
     y = list(y)   # regression test: list should be supported
 
     # Test using the score function
-    rbc = RelevanceBoundsClassifier(random_state=generator)
+    rbc = FRIClassification(random_state=generator)
     rbc.fit(X, y)
     # non-regression test for missing worst feature:
     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -98,7 +98,7 @@ def test_norelevant(capsys):
     X_orig, y = data
     X_orig = StandardScaler().fit(X_orig).transform(X_orig)
     # Test using the score function
-    rbc = RelevanceBoundsClassifier(random_state=generator)
+    rbc = FRIClassification(random_state=generator)
     #assert_raises(FitFailedWarning,rbc.fit,X_orig,y)
     rbc.fit(X_orig, y)
     assert rbc._best_clf_score < 0.6

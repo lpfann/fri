@@ -19,7 +19,7 @@ except ImportError:
     print('scipy is required during installation')
     sys.exit(1)
 
-setup(name='rbclassifier',
+setup(name='fri',
       version=versioneer.get_version(),
       cmdclass=versioneer.get_cmdclass(),
       description='Feature relevance interval method',

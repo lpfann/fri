@@ -17,7 +17,7 @@ $ python setup.py install
 ```
 or 
 ```shell
-pip install rbclassifier
+pip install fri
 ```
 
 ## Usage
@@ -27,11 +27,11 @@ A simple example can be found in the `examples` folder in form of a 'jupyter not
 In general, the library follows the sklearn API format.
 The two important classes exposed to the user are
 ``` 
-RelevanceBoundsClassifier
+FRIClassification
 ```
 and
 ```
-RelevanceBoundsRegressor
+FRIRegression
 ```
 depending on your data type.
 
@@ -90,7 +90,7 @@ __epsilon__ : float, optional
 
 ```python
 # ## Classification data
-from rbclassifier.genData import genData
+from fri.genData import genData
 X,y = genData(n_samples=100, n_features=6,strRel=2, n_redundant=2,
                     n_repeated=0, flip_y=0)
 
@@ -101,8 +101,8 @@ from sklearn.preprocessing import StandardScaler
 X_scaled = StandardScaler().fit_transform(X)
 
 # New object for Classification Data
-from rbclassifier.rbclassifier import RelevanceBoundsClassifier
-fri = RelevanceBoundsClassifier()
+from fri.fri import FRIClassification
+fri = FRIClassification()
 
 # Fit to data
 fri.fit(X_scaled,y)
@@ -111,7 +111,7 @@ fri.fit(X_scaled,y)
 print(fri.interval_)
 
 # ### Plot results
-from rbclassifier import plot
+from fri import plot
 plot.plotIntervals(fri.interval_)
 
 # ### Print internal Parameters

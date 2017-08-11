@@ -1,3 +1,3 @@
 include requirements.txt
 include versioneer.py
-include rbclassifier/_version.py
+include fri/_version.py

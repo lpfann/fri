@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = ""
-    cfg.parentdir_prefix = "rbclassifier-"
-    cfg.versionfile_source = "rbclassifier/_version.py"
+    cfg.parentdir_prefix = "fri-"
+    cfg.versionfile_source = "fri/_version.py"
     cfg.verbose = False
     return cfg
 

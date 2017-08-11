@@ -2,8 +2,8 @@ import unittest
 
 import pytest
 
-import rbclassifier.rbclassifier
-from rbclassifier.rbclassifier import RelevanceBoundsRegressor
+import fri.fri
+from fri.fri import FRIRegression
 from sklearn.feature_selection import SelectFromModel
 from sklearn.linear_model import Lasso
 from sklearn.linear_model import LogisticRegression
@@ -29,8 +29,8 @@ def data(request,randomstate):
     strong = request.param[0]
     weak = request.param[1]
     generator = randomstate
-    data = rbclassifier.genData.genRegressionData(n_samples=1000, n_features=4, n_redundant=weak, strRel=strong,
-                                                  n_repeated=0, random_state=generator)
+    data = fri.genData.genRegressionData(n_samples=1000, n_features=4, n_redundant=weak, strRel=strong,
+                                         n_repeated=0, random_state=generator)
 
     X_orig, y = data
     X_orig = StandardScaler().fit(X_orig).transform(X_orig)
@@ -44,7 +44,7 @@ def test_simpleRegression(data,randomstate):
     X, y, strong, weak = data
 
     # Test using the score function
-    rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False,C=1,epsilon=0.1)
+    rbc = FRIRegression(random_state=randomstate, shadow_features=False, C=1, epsilon=0.1)
     try:
         rbc.fit(X, y)
     except FitFailedWarning or NotFeasibleForParameters:
@@ -72,7 +72,7 @@ def test_simpleRegression(data,randomstate):
 #
 # def test_simple(randomstate):
 #     generator = randomstate
-#     data = rbclassifier.genData.genRegressionData(n_samples=300, n_features=1, n_redundant=0, strRel=1,
+#     data = fri.genData.genRegressionData(n_samples=300, n_features=1, n_redundant=0, strRel=1,
 #                                                   n_repeated=0, random_state=generator)
 #
 #     X_orig, y = data
@@ -81,7 +81,7 @@ def test_simpleRegression(data,randomstate):
 #
 #
 #     # Test using the score function
-#     rbc = RelevanceBoundsRegressor(random_state=randomstate, shadow_features=False)
+#     rbc = FRIRegression(random_state=randomstate, shadow_features=False)
 #     try:
 #         rbc.fit(X, y)
 #     except FitFailedWarning:
@@ -101,7 +101,7 @@ def test_simpleRegression(data,randomstate):
 #     strong = 2
 #     weak = 0
 #     generator = check_random_state(0)
-#     data = rbclassifier.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
+#     data = fri.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
 #                                                   n_repeated=0, random_state=generator)
 #
 #     X_orig, y = data
@@ -111,7 +111,7 @@ def test_simpleRegression(data,randomstate):
 #     # y = list(y)
 #
 #     # Test using the score function
-#     rbc = RelevanceBoundsRegressor( random_state=generator, shadow_features=False)
+#     rbc = FRIRegression( random_state=generator, shadow_features=False)
 #     rbc.fit(X, y)
 #
 #     assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -131,7 +131,7 @@ def test_simpleRegression(data,randomstate):
 #         strong = 0
 #         weak = 2
 #         generator = check_random_state(0)
-#         data = rbclassifier.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak,strRel=strong,
+#         data = fri.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak,strRel=strong,
 #                         n_repeated=0, random_state=generator)
 #
 #         X_orig, y = data
@@ -141,7 +141,7 @@ def test_simpleRegression(data,randomstate):
 #         # y = list(y)
 #
 #         # Test using the score function
-#         rbc = RelevanceBoundsRegressor(random_state=generator, shadow_features=False)
+#         rbc = FRIRegression(random_state=generator, shadow_features=False)
 #         rbc.fit(X, y)
 #
 #         assert_equal(len(rbc.allrel_prediction_), X.shape[1])
@@ -161,7 +161,7 @@ def test_simpleRegression(data,randomstate):
 #     strong = 1
 #     weak = 2
 #     generator = check_random_state(0)
-#     data = rbclassifier.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
+#     data = fri.genData.genRegressionData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
 #                                                   n_repeated=0, random_state=generator)
 #
 #     X_orig, y = data
@@ -171,7 +171,7 @@ def test_simpleRegression(data,randomstate):
 #     # y = list(y)
 #
 #     # Test using the score function
-#     rbc = RelevanceBoundsRegressor(C=1, random_state=generator, shadow_features=False)
+#     rbc = FRIRegression(C=1, random_state=generator, shadow_features=False)
 #     rbc.fit(X, y)
 #
 #     assert_equal(len(rbc.allrel_prediction_), X.shape[1])

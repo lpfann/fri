@@ -1,4 +1,4 @@
-from rbclassifier.genData import genData
+from fri.genData import genData
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import ignore_warnings
 from sklearn.utils.testing import assert_greater, assert_equal, assert_true

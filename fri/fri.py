@@ -14,7 +14,7 @@ from sklearn.utils import check_X_y ,check_random_state
 from sklearn.utils.multiclass import unique_labels
 
 
-import rbclassifier.bounds
+import fri.bounds
 
 
 class NotFeasibleForParameters(Exception):
@@ -22,7 +22,7 @@ class NotFeasibleForParameters(Exception):
     """
 
 
-class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
+class FRIBase(BaseEstimator, SelectorMixin):
     """Base class for interaction with program
     
     Attributes
@@ -78,7 +78,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         
         Returns
         -------
-        RelevanceBoundsBase
+        FRIBase
             Instance
         """
         self.X_ = X
@@ -241,8 +241,8 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         pass
 
 
-class RelevanceBoundsClassifier( RelevanceBoundsBase):
-    """L1-relevance Bounds Classifier
+class FRIClassification(FRIBase):
+    """Class for Classification data
     
     Attributes
     ----------
@@ -256,10 +256,10 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
         Class for upper bound noise reduction (shadow)
     
     """
-    LowerBound = rbclassifier.bounds.LowerBound
-    UpperBound = rbclassifier.bounds.UpperBound
-    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+    LowerBound = fri.bounds.LowerBound
+    UpperBound = fri.bounds.UpperBound
+    LowerBoundS = fri.bounds.ShadowLowerBound
+    UpperBoundS = fri.bounds.ShadowUpperBound
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Initialize a solver for classification data
         
@@ -345,8 +345,8 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         super().fit(X,y)
 
-class RelevanceBoundsRegressor( RelevanceBoundsBase):
-    """L1-relevance Bounds Regressor
+class FRIRegression(FRIBase):
+    """Class for regression data
 
         Attributes
         ----------
@@ -362,10 +362,10 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
             Class for upper bound noise reduction (shadow)
 
         """
-    LowerBound = rbclassifier.bounds.LowerBound
-    UpperBound = rbclassifier.bounds.UpperBound
-    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+    LowerBound = fri.bounds.LowerBound
+    UpperBound = fri.bounds.UpperBound
+    LowerBoundS = fri.bounds.ShadowLowerBound
+    UpperBoundS = fri.bounds.ShadowUpperBound
 
     def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel, n_resampling=n_resampling, isRegression=True)

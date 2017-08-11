@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 
 from cvxpy import OPTIMAL,OPTIMAL_INACCURATE
 
-import rbclassifier.optproblems
+import fri.optproblems
 import numpy as np
 
 class NotFeasibleForParameters(Exception):
@@ -29,11 +29,11 @@ class LowerBound(Bound):
     def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None):
         super().__init__(di, X,Y)
         if regression:
-            prob = rbclassifier.optproblems.MinProblemRegression
+            prob = fri.optproblems.MinProblemRegression
             self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
 
         else:
-            prob = rbclassifier.optproblems.MinProblemClassification
+            prob = fri.optproblems.MinProblemClassification
             self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
 
         self.type = 0
@@ -52,13 +52,13 @@ class UpperBound(Bound):
     def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
         super().__init__(di, X,Y)
         if regression:
-            prob1 = rbclassifier.optproblems.MaxProblem1Regression
-            prob2 = rbclassifier.optproblems.MaxProblem2Regression
+            prob1 = fri.optproblems.MaxProblem1Regression
+            prob2 = fri.optproblems.MaxProblem2Regression
             self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
             self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
         else:
-            prob1 = rbclassifier.optproblems.MaxProblem1
-            prob2 = rbclassifier.optproblems.MaxProblem2
+            prob1 = fri.optproblems.MaxProblem1
+            prob2 = fri.optproblems.MaxProblem2
             self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
             self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
 
