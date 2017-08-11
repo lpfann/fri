@@ -79,7 +79,7 @@ plot_gallery = True
 master_doc = 'index'
 
 # General information about the project.
-project = u'rbclassifier'
+project = u'fri'
 copyright = u'2017, Lukas Pfannschmidt'
 
 # The version info for the project you're documenting, acts as replacement for

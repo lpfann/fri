@@ -14,7 +14,7 @@ from sklearn.utils import check_X_y, check_random_state, resample
 from sklearn.utils.multiclass import unique_labels
 
 
-import rbclassifier.bounds
+import fri.bounds
 
 
 class NotFeasibleForParameters(Exception):
@@ -22,9 +22,9 @@ class NotFeasibleForParameters(Exception):
     """
 
 
-class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
+class FRIBase(BaseEstimator, SelectorMixin):
     """Base class for interaction with program
-
+    
     Attributes
     ----------
     allrel_prediction_ : array of booleans
@@ -43,7 +43,7 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     @abstractmethod
     def __init__(self,isRegression, C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Summary
-
+        
         Parameters
         ----------
         C : float , optional
@@ -70,17 +70,17 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     @abstractmethod
     def fit(self, X, y):
         """Summary
-
+        
         Parameters
         ----------
         X : array_like
             Data matrix
         y : array_like
             Response variable
-
+        
         Returns
         -------
-        RelevanceBoundsBase
+        FRIBase
             Instance
         """
         self.X_ = X
@@ -110,14 +110,14 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
                 upper_epsilon = 0.1,
                 lower_epsilon = 0.0323):
         """Determines relevancy using feature relevance interval values
-
+        
         Parameters
         ----------
         upper_epsilon : float, optional
             Threshold for upper bound of feature relevance interval
         lower_epsilon : float, optional
             Threshold for lower bound of feature relevance interval
-
+        
         Returns
         -------
         boolean array
@@ -146,11 +146,11 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
 
     def _get_support_mask(self):
         """Method for SelectorMixin
-
+        
         Returns
         -------
         boolean array
-
+            
         """
         return self.allrel_prediction_
 
@@ -163,14 +163,14 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
     def _main_opt(self, X, Y,svmloss, L1, C,_hyper_epsilon,random_state,isRegression):
         """ Main calculation function.
             Creates LP for each bound and distributes them depending on parallel flag.
-
+        
         Parameters
         ----------
         X : array_like
             standardized data matrix
         Y : array_like
             response vector
-
+        
         """
         n, d = X.shape
         rangevector = np.zeros((d, 2))
@@ -241,9 +241,9 @@ class RelevanceBoundsBase(BaseEstimator, SelectorMixin):
         pass
 
 
-class RelevanceBoundsClassifier( RelevanceBoundsBase):
-    """L1-relevance Bounds Classifier
-
+class FRIClassification(FRIBase):
+    """Class for Classification data
+    
     Attributes
     ----------
     LowerBound : LowerBound
@@ -251,19 +251,19 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
     LowerBoundS : ShadowLowerBound
         Class for lower bound noise reduction (shadow)
     UpperBound : UpperBound
-        Class for upper Bound
+        Class for upper Bound 
     UpperBoundS : ShadowUpperBound
         Class for upper bound noise reduction (shadow)
-
+    
     """
-    LowerBound = rbclassifier.bounds.LowerBound
-    UpperBound = rbclassifier.bounds.UpperBound
-    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+    LowerBound = fri.bounds.LowerBound
+    UpperBound = fri.bounds.UpperBound
+    LowerBoundS = fri.bounds.ShadowLowerBound
+    UpperBoundS = fri.bounds.ShadowUpperBound
     def __init__(self,C=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         """Initialize a solver for classification data
-
-
+        
+        
         Parameters
         ----------
         C : float , optional
@@ -318,14 +318,14 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
     def fit(self,X,y):
         """A reference implementation of a fitting function for a classifier.
-
+        
         Parameters
         ----------
         X : array_like
             standardized data matrix
         y : array_like
             label vector
-
+        
         Raises
         ------
         ValueError
@@ -345,8 +345,8 @@ class RelevanceBoundsClassifier( RelevanceBoundsBase):
 
         super().fit(X,y)
 
-class RelevanceBoundsRegressor( RelevanceBoundsBase):
-    """L1-relevance Bounds Regressor
+class FRIRegression(FRIBase):
+    """Class for regression data
 
         Attributes
         ----------
@@ -362,10 +362,10 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
             Class for upper bound noise reduction (shadow)
 
         """
-    LowerBound = rbclassifier.bounds.LowerBound
-    UpperBound = rbclassifier.bounds.UpperBound
-    LowerBoundS = rbclassifier.bounds.ShadowLowerBound
-    UpperBoundS = rbclassifier.bounds.ShadowUpperBound
+    LowerBound = fri.bounds.LowerBound
+    UpperBound = fri.bounds.UpperBound
+    LowerBoundS = fri.bounds.ShadowLowerBound
+    UpperBoundS = fri.bounds.ShadowUpperBound
 
     def __init__(self,C=None,epsilon=None, random_state=None, shadow_features=True,parallel=False,n_resampling=3):
         super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel, n_resampling=n_resampling, isRegression=True)
@@ -409,7 +409,7 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
             standardized data matrix
         y : array_like
             response vector
-
+        
         """
 
         # Check that X and y have correct shape
@@ -418,13 +418,13 @@ class RelevanceBoundsRegressor( RelevanceBoundsBase):
         super().fit(X, y)
 
 
-class EnsembleFRI(RelevanceBoundsBase):
+class EnsembleFRI(FRIBase):
     def __init__(self, model, n_bootstraps=10, random_state=None):
         self.random_state = random_state
         self.n_bootstraps = n_bootstraps
         self.model = model
 
-        if isinstance(self.model,RelevanceBoundsClassifier):
+        if isinstance(self.model,FRIClassification):
             isRegression = False
         else:
             isRegression = True
@@ -432,8 +432,8 @@ class EnsembleFRI(RelevanceBoundsBase):
         super().__init__(isRegression)
 
     def fit(self,X,y):
-        
-        if isinstance(self.model,RelevanceBoundsClassifier):
+
+        if isinstance(self.model,FRIClassification):
             self.isRegression = False
         else:
             self.isRegression = True

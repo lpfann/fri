@@ -1,7 +1,7 @@
 from nose.tools import assert_true
 from sklearn.model_selection import train_test_split
 
-from rbclassifier import rbclassifier,genData
+from fri import fri,genData
 from sklearn.utils import check_random_state
 from sklearn import linear_model
 
