@@ -89,8 +89,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
 
-        if self._best_clf_score < 0.6:
-             print("WARNING: Bad Model performance!")
+        if self._best_clf_score < 0.7:
+             print("WARNING: Weak Model performance!")
 
         # Main Optimization step
         results = self._main_opt(X, y,self._svm_loss,self._svm_L1,self._hyper_C,self._hyper_epsilon,self.random_state,self.isRegression)
@@ -296,7 +296,7 @@ class FRIClassification(FRIBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="f1",
+                                  scoring="average_precision",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=False)

@@ -101,7 +101,6 @@ def test_norelevant(capsys):
     rbc = FRIClassification(random_state=generator)
     #assert_raises(FitFailedWarning,rbc.fit,X_orig,y)
     rbc.fit(X_orig, y)
-    assert rbc._best_clf_score < 0.6
     out, err = capsys.readouterr()
-    assert out == "WARNING: Bad Model performance!\n"
+    assert out == "WARNING: Weak Model performance!\n"
 
