@@ -12,7 +12,7 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_X_y, check_random_state, resample
 from sklearn.utils.multiclass import unique_labels
-
+from sklearn.exceptions import NotFittedError
 
 import fri.bounds
 
@@ -240,6 +240,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def _initEstimator(self, X, Y):
         pass
 
+    def score(self,X,y):
+        if self._svm_clf:
+            return self._svm_clf.score(X,y)
+        else:
+            raise NotFittedError()
 
 class FRIClassification(FRIBase):
     """Class for Classification data
@@ -344,6 +349,7 @@ class FRIClassification(FRIBase):
         y[y == 0] = -1
 
         super().fit(X,y)
+
 
 class FRIRegression(FRIBase):
     """Class for regression data
@@ -468,3 +474,6 @@ class EnsembleFRI(FRIBase):
         self._get_relevance_mask()
 
         return self
+
+    def score(self,X,y):
+        return self.model.score(X,y)
