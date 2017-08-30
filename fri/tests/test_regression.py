@@ -16,7 +16,6 @@ from numpy.testing import assert_array_almost_equal, assert_array_equal,assert_r
 import numpy as np
 from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
-from  sklearn.exceptions import FitFailedWarning
 
 @pytest.fixture(scope="module")
 def randomstate():
@@ -47,7 +46,7 @@ def test_simpleRegression(data,randomstate):
     rbc = FRIRegression(random_state=randomstate, shadow_features=False, C=1, epsilon=0.1)
     try:
         rbc.fit(X, y)
-    except FitFailedWarning or NotFeasibleForParameters:
+    except FitFailedWarning:
         print(rbc._best_clf_score,rbc._hyper_C,rbc._hyper_epsilon)
         assert False
 
