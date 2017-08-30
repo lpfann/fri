@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import numpy as np
 from sklearn import preprocessing
 from sklearn import svm
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, clone
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_X_y, check_random_state, resample
@@ -425,18 +425,32 @@ class FRIRegression(FRIBase):
 
 
 class EnsembleFRI(FRIBase):
-    def __init__(self, model, n_bootstraps=10, random_state=None):
+    def __init__(self, model, n_bootstraps=10, random_state=None,n_jobs=1):
         self.random_state = random_state
         self.n_bootstraps = n_bootstraps
         self.model = model
+        self.n_jobs = n_jobs
 
         if isinstance(self.model,FRIClassification):
             isRegression = False
         else:
             isRegression = True
 
+
         super().__init__(isRegression)
 
+    def _fit_one_bootstrap(self,i):
+        model = clone(self.model)
+        X, y = self.X, self.y
+        # Get bootstrap set
+        X_bs,y_bs = resample(X, y,replace=True, n_samples=None, random_state=self.random_state)
+
+        model.fit(X_bs,y_bs)
+        if self.model.shadow_features:
+            return model.interval_, model._omegas, model._biase, model._shadowintervals
+        else:
+            return model.interval_, model._omegas, model._biase
+        
     def fit(self,X,y):
 
         if isinstance(self.model,FRIClassification):
@@ -444,31 +458,33 @@ class EnsembleFRI(FRIBase):
         else:
             self.isRegression = True
 
-        n, d = X.shape
-        rangevector = np.zeros((d, 2))
-        shadowrangevector = np.zeros((d, 2))
-        omegas = np.zeros((d, 2, d))
-        biase = np.zeros((d, 2))
+        if self.n_jobs>1:
+            def pmap(*args):
+                with Pool(self.n_jobs) as p:
+                    return p.map(*args)
+            nmap = pmap
+        else:
+            nmap = map
 
-        # Run single models and save interval result
-        for i in range(self.n_bootstraps):
-            # Get bootstrap set
-            X_bs,y_bs = resample(X, y,replace=True, n_samples=None, random_state=self.random_state)
+        # n, d = X.shape
+        # rangevector = np.zeros((d, 2))
+        # shadowrangevector = np.zeros((d, 2))
+        # omegas = np.zeros((d, 2, d))
+        # biase = np.zeros((d, 2))
+        self.X, self.y = X, y
+        results = list(nmap(self._fit_one_bootstrap,range(self.n_bootstraps)))
 
-            self.model.fit(X_bs,y_bs)
-
-            rangevector += self.model.interval_
-            omegas += self.model._omegas
-            biase += self.model._biase
-            if self.model.shadow_features:
-                shadowrangevector += self.model._shadowintervals
+        if self.model.shadow_features:
+            rangevector, omegas, biase, shadowrangevector = zip(*results)            
+        else:
+            rangevector, omegas, biase = zip(*results)
 
         # Get average
-        self.interval_ = rangevector / self.n_bootstraps
-        self._omegas = omegas / self.n_bootstraps
-        self._biase = biase / self.n_bootstraps
+        self.interval_ = np.mean(rangevector,axis=0)
+        self._omegas = np.mean(omegas,axis=0) 
+        self._biase = np.mean(biase,axis=0)
         if self.model.shadow_features:
-            self._shadowintervals = shadowrangevector / self.n_bootstraps
+            self._shadowintervals = np.mean(shadowrangevector,axis=0)
 
         # Classify features
         self._get_relevance_mask()
