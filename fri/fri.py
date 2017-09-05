@@ -191,16 +191,30 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         Create tasks for worker(s)
         """
-        work = [self.LowerBound(di, d, n, kwargs, L1, svmloss, C, X, Y, regression=self.isRegression,
-                                epsilon=_hyper_epsilon) for di in range(d)]
-        work.extend([self.UpperBound(di, d, n, kwargs, L1, svmloss, C, X, Y, regression=self.isRegression,
-                                     epsilon=_hyper_epsilon) for di in range(d)])
+        work = [self.LowerBound(di, d, n, kwargs,
+                                L1, svmloss, C, X, Y,
+                                regression=self.isRegression,
+                                epsilon=_hyper_epsilon)
+                for di in range(d)]
+        work.extend([self.UpperBound(di, d, n, kwargs,
+                                     L1, svmloss, C, X, Y,
+                                     regression=self.isRegression,
+                                     epsilon=_hyper_epsilon)
+                     for di in range(d)])
         if self.shadow_features:
             for nr in range(self.n_resampling):
-                work.extend([self.LowerBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y, regression=isRegression,
-                                              epsilon=_hyper_epsilon, random_state=random_state) for di in range(d)])
-                work.extend([self.UpperBoundS(di, d, n, kwargs, L1, svmloss, C, X, Y, regression=isRegression,
-                                              epsilon=_hyper_epsilon, random_state=random_state) for di in range(d)])
+                work.extend([self.LowerBoundS(di, d, n, kwargs,
+                                              L1, svmloss, C, X, Y,
+                                              regression=isRegression,
+                                              epsilon=_hyper_epsilon,
+                                              random_state=random_state)
+                             for di in range(d)])
+                work.extend([self.UpperBoundS(di, d, n, kwargs,
+                                              L1, svmloss, C, X, Y,
+                                              regression=isRegression,
+                                              epsilon=_hyper_epsilon,
+                                              random_state=random_state)
+                             for di in range(d)])
 
         def pmap(*args):
             with Pool() as p:
@@ -216,13 +230,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for finished_bound in done:
             di = finished_bound.di
             i = finished_bound.type
-
+            prob_i = finished_bound.prob_instance
             if not hasattr(finished_bound, "isShadow"):
-                rangevector[di, i] = finished_bound.prob_instance.problem.value
-                omegas[di, i] = finished_bound.prob_instance.omega.value.reshape(d)
-                biase[di, i] = finished_bound.prob_instance.b.value
+                rangevector[di, i] = prob_i.problem.value
+                omegas[di, i] = prob_i.omega.value.reshape(d)
+                biase[di, i] = prob_i.b.value
             else:
-                shadowrangevector[di, i] += (finished_bound.prob_instance.problem.value / self.n_resampling)  # Get the mean of all shadow samples
+                # Get the mean of all shadow samples
+                shadowrangevector[di, i] += (prob_i.problem.value / self.n_resampling)
 
         # rangevector = np.abs(rangevector)
         self.unmod_interval_ = rangevector.copy()
@@ -255,7 +270,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 class FRIClassification(FRIBase):
     """Class for Classification data
-    
     Attributes
     ----------
     LowerBound : LowerBound
@@ -263,24 +277,23 @@ class FRIClassification(FRIBase):
     LowerBoundS : ShadowLowerBound
         Class for lower bound noise reduction (shadow)
     UpperBound : UpperBound
-        Class for upper Bound 
+        Class for upper Bound
     UpperBoundS : ShadowUpperBound
         Class for upper bound noise reduction (shadow)
-    
     """
     LowerBound = fri.bounds.LowerBound
     UpperBound = fri.bounds.UpperBound
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self, C=None, random_state=None, shadow_features=True, parallel=False, n_resampling=3):
+    def __init__(self, C=None, random_state=None, shadow_features=True,
+                 parallel=False, n_resampling=3):
         """Initialize a solver for classification data
-        
-        
         Parameters
         ----------
         C : float , optional
-            Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
+            Regularization parameter, default obtains the hyperparameter
+            through gridsearch optimizing accuracy
         random_state : object
             Set seed for random number generation.
         shadow_features : boolean, optional
@@ -288,11 +301,14 @@ class FRIClassification(FRIBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel,
+        super().__init__(C=C, random_state=random_state,
+                         shadow_features=shadow_features, parallel=parallel,
                          n_resampling=n_resampling, isRegression=False)
 
     def _initEstimator(self, X, Y):
-        estimator = svm.LinearSVC(penalty='l2', loss="squared_hinge", dual=False,
+        estimator = svm.LinearSVC(penalty='l2',
+                                  loss="squared_hinge",
+                                  dual=False,
                                   random_state=self.random_state)
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
@@ -332,14 +348,12 @@ class FRIClassification(FRIBase):
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
-        
         Parameters
         ----------
         X : array_like
             standardized data matrix
         y : array_like
             label vector
-        
         Raises
         ------
         ValueError
@@ -382,8 +396,10 @@ class FRIRegression(FRIBase):
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self, C=None, epsilon=None, random_state=None, shadow_features=True, parallel=False, n_resampling=3):
-        super().__init__(C=C, random_state=random_state, shadow_features=shadow_features, parallel=parallel,
+    def __init__(self, C=None, epsilon=None, random_state=None,
+                 shadow_features=True, parallel=False, n_resampling=3):
+        super().__init__(C=C, random_state=random_state,
+                         shadow_features=shadow_features, parallel=parallel,
                          n_resampling=n_resampling, isRegression=True)
         self.epsilon = epsilon
 
@@ -425,7 +441,6 @@ class FRIRegression(FRIBase):
             standardized data matrix
         y : array_like
             response vector
-        
         """
 
         # Check that X and y have correct shape
@@ -448,17 +463,18 @@ class EnsembleFRI(FRIBase):
 
         super().__init__(isRegression)
 
-    def _fit_one_bootstrap(self,i):
-        model = clone(self.model)
+    def _fit_one_bootstrap(self, i):
+        m = clone(self.model)
         X, y = self.X, self.y
         # Get bootstrap set
-        X_bs, y_bs = resample(X, y, replace=True, n_samples=None, random_state=self.random_state)
+        X_bs, y_bs = resample(X, y, replace=True,
+                              n_samples=None, random_state=self.random_state)
 
-        model.fit(X_bs, y_bs)
+        m.fit(X_bs, y_bs)
         if self.model.shadow_features:
-            return model.interval_, model._omegas, model._biase, model._shadowintervals
+            return m.interval_, m._omegas, m._biase, m._shadowintervals
         else:
-            return model.interval_, model._omegas, model._biase
+            return m.interval_, m._omegas, m._biase
 
     def fit(self, X, y):
 
