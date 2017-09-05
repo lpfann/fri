@@ -10,11 +10,13 @@ from sklearn import svm
 from sklearn.base import BaseEstimator, clone
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_X_y, check_random_state, resample
 from sklearn.utils.multiclass import unique_labels
 
 import fri.bounds
+import copy
+import math
 
 
 class NotFeasibleForParameters(Exception):
@@ -70,6 +72,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._hyper_C = None
         self._svm_L1 = None
         self._svm_loss = None
+        self._ensemble = None
+        self.allrel_prediction_ = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -104,11 +108,54 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._biase = results[2]
         self._shadowintervals = results[3]
 
-        # Classify features
-        self._get_relevance_mask()
+        if not self._ensemble:
+            self._get_relevance_mask()
 
         # Return the classifier
         return self
+
+    def _feature_elimination(self, X, y, estimator, intervals, minsize=1):
+        # copy array to allow deletion
+        intervals = copy.copy(intervals)
+        # invert for sorting in descending order
+        #intervals = -intervals
+
+        low_bounds = intervals[:, 0]
+        up_bounds = intervals[:, 1]
+        # sort features by bounds
+        # lower bounds are more important, used as primary sort key
+        sorted_bounds = list(np.lexsort((up_bounds, low_bounds)))
+
+        fs = np.zeros(intervals.shape[0], dtype=np.bool)
+        fs[np.where(np.any(intervals > 0, 1))] = 1
+        fs = np.where(fs)[0]
+        fs = list(fs)
+        # skip features with bounds==0
+        bounds = intervals[intervals[:, 1].argsort(kind="mergesort")]
+        bounds = bounds[bounds[:, 0].argsort(kind="mergesort")]
+
+        skip = np.argmax(np.any(bounds > 0, 1))
+        sorted_bounds = sorted_bounds[skip:]
+
+        memory = []
+        # iterate over all features who have low_bound >0 starting by lowest
+        while len(fs) >= minsize:
+            # for i in range(X.shape[1] - minsize - (skip + 1)):
+            # 10cv for each subset
+            cv_score = cross_validate(estimator, X[:, fs],
+                                      y=y, cv=10,
+                                      scoring=None)["test_score"]
+            mean_score = cv_score.mean()
+            #print(fs, sorted_bounds, skip, mean_score)
+            memory.append((mean_score, fs[:]))
+            fs.remove(sorted_bounds.pop(0))
+        if len(memory) < 1:
+            return fs
+        # Return only best scoring feature subset
+        #memory = sorted(memory, key=lambda m: len(m[1]))
+        best_fs = max(memory, key=lambda m: m[0])
+        #print("bests fs socer {}, best fs {}".format(*best_fs))
+        return best_fs[1]
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
@@ -125,17 +172,23 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-        rangevector = self.interval_
-        prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
+        # rangevector = self.interval_
+        # prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
 
-        # Weakly relevant ones have high upper bounds
-        prediction[rangevector[:, 1] > upper_epsilon] = True
-        # Strongly relevant bigger than 0 + some epsilon
-        prediction[rangevector[:, 0] > lower_epsilon] = True
+        # # Weakly relevant ones have high upper bounds
+        # prediction[rangevector[:, 1] > upper_epsilon] = True
+        # # Strongly relevant bigger than 0 + some epsilon
+        # prediction[rangevector[:, 0] > lower_epsilon] = True
 
-        self.allrel_prediction_ = prediction
-
-        return prediction
+        #self.allrel_prediction_ = prediction
+        if not self.allrel_prediction_:
+            # Classify features
+            best_fs = self._feature_elimination(
+                self.X_, self.y_, self._svm_clf, self.interval_)
+            prediction = np.zeros(self.interval_.shape[0], dtype=np.bool)
+            prediction[best_fs] = True
+            self.allrel_prediction_ = prediction
+        return self.allrel_prediction_
 
     def n_features_(self):
         """
@@ -312,8 +365,9 @@ class FRIClassification(FRIBase):
                                   random_state=self.random_state)
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
-            min_c = svm.l1_min_c(X, Y)
-            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            #min_c = svm.l1_min_c(X, Y)
+            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            tuned_parameters = [{'C': np.logspace(-6, 4, 11)}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -461,14 +515,19 @@ class EnsembleFRI(FRIBase):
         else:
             isRegression = True
 
+        model._ensemble = True
+
         super().__init__(isRegression)
 
     def _fit_one_bootstrap(self, i):
         m = clone(self.model)
-        X, y = self.X, self.y
+        m._ensemble = True
+        X, y = self.X_, self.y_
+        n = X.shape[0]
+        n_samples = math.ceil(0.7 * n)
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
-                              n_samples=None, random_state=self.random_state)
+                              n_samples=n_samples, random_state=self.random_state)
 
         m.fit(X_bs, y_bs)
         if self.model.shadow_features:
@@ -492,12 +551,7 @@ class EnsembleFRI(FRIBase):
         else:
             nmap = map
 
-        # n, d = X.shape
-        # rangevector = np.zeros((d, 2))
-        # shadowrangevector = np.zeros((d, 2))
-        # omegas = np.zeros((d, 2, d))
-        # biase = np.zeros((d, 2))
-        self.X, self.y = X, y
+        self.X_, self.y_ = X, y
         results = list(nmap(self._fit_one_bootstrap, range(self.n_bootstraps)))
 
         if self.model.shadow_features:
@@ -512,8 +566,9 @@ class EnsembleFRI(FRIBase):
         self._biase = np.mean(biase, axis=0)
 
         # Classify features
+        self.model._initEstimator(X, y)
+        self._svm_clf = self.model._svm_clf
         self._get_relevance_mask()
-
         return self
 
     def score(self, X, y):
