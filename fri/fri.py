@@ -365,9 +365,9 @@ class FRIClassification(FRIBase):
                                   random_state=self.random_state)
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
-            #min_c = svm.l1_min_c(X, Y)
-            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
-            tuned_parameters = [{'C': np.logspace(-6, 4, 11)}]
+            min_c = svm.l1_min_c(X, Y)
+            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            #tuned_parameters = [{'C': np.logspace(-6, 4, 11)}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
