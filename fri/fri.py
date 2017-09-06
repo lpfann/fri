@@ -117,23 +117,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def _feature_elimination(self, X, y, estimator, intervals, minsize=1):
         # copy array to allow deletion
         intervals = copy.copy(intervals)
-        # invert for sorting in descending order
-        #intervals = -intervals
+        assert intervals.shape[1] == 2
 
+        # sort features by bounds
         low_bounds = intervals[:, 0]
         up_bounds = intervals[:, 1]
-        # sort features by bounds
         # lower bounds are more important, used as primary sort key
         sorted_bounds = list(np.lexsort((up_bounds, low_bounds)))
 
         fs = np.zeros(intervals.shape[0], dtype=np.bool)
-        fs[np.where(np.any(intervals > 0, 1))] = 1
+        elem_big_zero = np.where(np.any(intervals > 0, 1))[0]
+        if sum(elem_big_zero) < 1:
+            # All bounds zero, no relevant feature or error...
+            return fs
+        fs[elem_big_zero] = 1
         fs = np.where(fs)[0]
-        fs = list(fs)
-        # skip features with bounds==0
+        fs = fs.tolist()
+
+        #skip features with bounds==0
         bounds = intervals[intervals[:, 1].argsort(kind="mergesort")]
         bounds = bounds[bounds[:, 0].argsort(kind="mergesort")]
-
         skip = np.argmax(np.any(bounds > 0, 1))
         sorted_bounds = sorted_bounds[skip:]
 
@@ -142,11 +145,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         while len(fs) >= minsize:
             # for i in range(X.shape[1] - minsize - (skip + 1)):
             # 10cv for each subset
+            print(fs, sorted_bounds, skip)
             cv_score = cross_validate(estimator, X[:, fs],
                                       y=y, cv=10,
                                       scoring=None)["test_score"]
             mean_score = cv_score.mean()
-            #print(fs, sorted_bounds, skip, mean_score)
+            print(fs, sorted_bounds, skip, mean_score)
             memory.append((mean_score, fs[:]))
             fs.remove(sorted_bounds.pop(0))
         if len(memory) < 1:
@@ -181,7 +185,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # prediction[rangevector[:, 0] > lower_epsilon] = True
 
         #self.allrel_prediction_ = prediction
-        if not self.allrel_prediction_:
+        if self.allrel_prediction_ is None:
             # Classify features
             best_fs = self._feature_elimination(
                 self.X_, self.y_, self._svm_clf, self.interval_)
@@ -524,7 +528,7 @@ class EnsembleFRI(FRIBase):
         m._ensemble = True
         X, y = self.X_, self.y_
         n = X.shape[0]
-        n_samples = math.ceil(0.7 * n)
+        n_samples = math.ceil(1* n)
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
                               n_samples=n_samples, random_state=self.random_state)
