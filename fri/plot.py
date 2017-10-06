@@ -16,7 +16,7 @@ bmap = sns.color_palette("Set2", 5)
 sns.set(style='ticks', palette='Set2')
 sns.despine()
 
-def plotIntervals(ranges,ticklables=None):
+def plotIntervals(ranges,ticklables=None,invert=False):
     fig = plt.figure(figsize=(13, 6))
     ax = fig.add_subplot(111)
 
@@ -43,5 +43,6 @@ def plotIntervals(ranges,ticklables=None):
     #ax.set_xlim([0,33])
     plt.ylabel('relevance',fontsize=19)
     plt.xlabel('feature',fontsize=19)
-
+    if invert:
+        plt.gca().invert_xaxis()
     return fig
