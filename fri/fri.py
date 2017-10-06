@@ -145,12 +145,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         while len(fs) >= minsize:
             # for i in range(X.shape[1] - minsize - (skip + 1)):
             # 10cv for each subset
-            print(fs, sorted_bounds, skip)
+            #print(fs, sorted_bounds, skip)
             cv_score = cross_validate(estimator, X[:, fs],
                                       y=y, cv=10,
                                       scoring=None)["test_score"]
             mean_score = cv_score.mean()
-            print(fs, sorted_bounds, skip, mean_score)
+            #print(fs, sorted_bounds, skip, mean_score)
             memory.append((mean_score, fs[:]))
             fs.remove(sorted_bounds.pop(0))
         if len(memory) < 1:
