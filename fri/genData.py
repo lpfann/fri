@@ -15,6 +15,7 @@ def genData(n_samples=100, n_features=2, n_redundant=0,strRel=1,
     if not n_redundant+n_repeated+strRel<= n_features:
         raise ValueError("Inconsistent number of features")
 
+    print("Generating dataset with d={},n={},strongly={},weakly={}".format(n_features,n_samples,strRel,n_redundant))
     randomstate  = check_random_state(random_state)
     weakRel =  n_redundant
 
