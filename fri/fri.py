@@ -114,7 +114,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self._get_relevance_mask()
         
         self.feature_clusters = self.community_detection()
-        
+
         # Return the classifier
         return self
 
@@ -172,22 +172,28 @@ class FRIBase(BaseEstimator, SelectorMixin):
         svm_solution = self._svm_coef
         abs_svm_sol = np.abs(svm_solution)
 
+        om = self._omegas
+        mins = om[:,0,:]
+        maxs = om[:,1,:]
+        abs_mins = np.abs(mins)
+        abs_maxs = np.abs(maxs)
+
         # Aggregate min and max solution values to obtain the absolute variation
-        lower_variation = abs_svm_sol - minspd.abs()
-        upper_variation = maxspd.abs() - abs_svm_sol
-        variation = lower_variation.abs() + upper_variation.abs()
+        lower_variation = abs_svm_sol - abs_mins
+        upper_variation = abs_maxs - abs_svm_sol
+        variation = np.abs(lower_variation) + np.abs(upper_variation)
 
         # add up lower triangular matrix to upper one
         collapsed_variation = np.triu(variation)+np.tril(variation).T
         np.fill_diagonal(collapsed_variation, 0)
-        collapsed_variation = pd.DataFrame(collapsed_variation)
+        #collapsed_variation = pd.DataFrame(collapsed_variation)
 
         # Create distance matrix
-        dist_mat = np.triu(variation).T + variation
+        dist_mat = np.triu(collapsed_variation).T + collapsed_variation
         # normalize
-        dist_mat = 1- dist_mat/dist_mat.values.max()
+        dist_mat = 1- dist_mat/np.max(dist_mat)
         # get numpy array
-        dist_mat = dist_mat.values[:]
+        #dist_mat = dist_mat.values[:]
         # feature with itself has no distance
         np.fill_diagonal(dist_mat,0)
 
@@ -201,7 +207,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         RATIO = cutoff_threshold
         threshold = RATIO * np.max(link[:,2]) # max of branch lengths (distances)
 
-        feature_clustering = fcluster(z,threshold,criterion="distance")
+        feature_clustering = fcluster(link,threshold,criterion="distance")
 
         return feature_clustering
 
