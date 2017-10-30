@@ -43,17 +43,17 @@ class BaseClassificationProblem(BaseProblem):
         # Solver parameters
         self.kwargs = kwargs
         # Solver Variables
-        self.xp = cvx.Variable(d)  # x' , our opt. value
-        self.omega = cvx.Variable(d)  # complete linear weight vector
+        self.xp = cvx.Variable(shape=(d,1))  # x' , our opt. value
+        self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
-        self.eps = cvx.Variable(n)  # slack variables
+        self.eps = cvx.Variable(shape=(n,1))  # slack variables
         
         self._constraints = [
             # points still correctly classified with soft margin
-            cvx.mul_elemwise(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
+            cvx.multiply(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
             self.eps >= 0,
             # L1 reg. and allow slack
-            cvx.norm(self.omega, 1) + self.C * cvx.sum_entries(self.eps) <= self.L1 + self.C * self.svmloss
+            cvx.norm(self.omega, 1) + self.C * cvx.sum(self.eps) <= self.L1 + self.C * self.svmloss
         ]
 
 class MinProblemClassification(BaseClassificationProblem):
@@ -111,7 +111,8 @@ class BaseRegressionProblem(BaseProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y)
 
         # General data
-        self.Y = Y # other format then with classification
+        #self.Y = Y # other format then with classification
+        self.Y = Y.reshape((-1,1))
         self.svrloss = svrloss
         self.epsilon = epsilon
         self.L1 = L1
@@ -120,13 +121,13 @@ class BaseRegressionProblem(BaseProblem):
         # Solver parameters
         self.kwargs = kwargs
         # Solver Variables
-        self.xp = cvx.Variable(d)  # x' , our opt. value
-        self.omega = cvx.Variable(d)  # complete linear weight vector
+        self.xp = cvx.Variable(shape=(d,1))  # x' , our opt. value
+        self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
-        self.slack = cvx.Variable(n)  # slack variables
+        self.slack = cvx.Variable(shape=(n,1))  # slack variables
 
         self._constraints = [
-            cvx.norm(self.omega, 1)   + C * cvx.sum_entries(self.slack) <= self.L1 + C*self.svrloss,
+            cvx.norm(self.omega, 1)   + C * cvx.sum(self.slack) <= self.L1 + C*self.svrloss,
             cvx.abs(self.Y - (self.X * self.omega + self.b )) <= self.epsilon + self.slack,
             self.slack >= 0,
         ]
