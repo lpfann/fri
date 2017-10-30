@@ -59,7 +59,7 @@ def regressionmodel(request,randomstate):
                 ids=["Classification","EnsembleClassification"])
 def classmodel(request,randomstate):
     if request.param[1] is None:
-        model = request.param[0](random_state=randomstate,shadow_features=True)
+        model = request.param[0](random_state=randomstate)
     else:
         model = request.param[0](request.param[1](random_state=randomstate),random_state=randomstate )
     return model
