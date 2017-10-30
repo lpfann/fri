@@ -47,7 +47,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def __init__(self, isRegression, C=None, random_state=None,
-                 shadow_features=True, parallel=False, n_resampling=3):
+                 shadow_features=True, parallel=False, n_resampling=3,feat_elim=False):
         """Summary
         Parameters
         ----------
@@ -70,12 +70,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.parallel = parallel
         self.isRegression = isRegression
         self.n_resampling = n_resampling
+        self.feat_elim = feat_elim
         self._hyper_epsilon = None
         self._hyper_C = None
         self._svm_L1 = None
         self._svm_loss = None
         self._ensemble = None
         self.allrel_prediction_ = None
+
 
     @abstractmethod
     def fit(self, X, y):
@@ -226,22 +228,25 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-        # rangevector = self.interval_
-        # prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
+        if not self.feat_elim:
+            rangevector = self.interval_
+            prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
 
-        # # Weakly relevant ones have high upper bounds
-        # prediction[rangevector[:, 1] > upper_epsilon] = True
-        # # Strongly relevant bigger than 0 + some epsilon
-        # prediction[rangevector[:, 0] > lower_epsilon] = True
+            # Weakly relevant ones have high upper bounds
+            prediction[rangevector[:, 1] > upper_epsilon] = True
+            # Strongly relevant bigger than 0 + some epsilon
+            prediction[rangevector[:, 0] > lower_epsilon] = True
 
-        #self.allrel_prediction_ = prediction
-        if self.allrel_prediction_ is None:
-            # Classify features
-            best_fs = self._feature_elimination(
-                self.X_, self.y_, self._svm_clf, self.interval_)
-            prediction = np.zeros(self.interval_.shape[0], dtype=np.bool)
-            prediction[best_fs] = True
             self.allrel_prediction_ = prediction
+        else:
+            if self.allrel_prediction_ is None:
+                # Classify features
+                best_fs = self._feature_elimination(
+                    self.X_, self.y_, self._svm_clf, self.interval_)
+                prediction = np.zeros(self.interval_.shape[0], dtype=np.bool)
+                prediction[best_fs] = True
+                self.allrel_prediction_ = prediction
+
         return self.allrel_prediction_
 
     def n_features_(self):
@@ -516,15 +521,21 @@ class FRIRegression(FRIBase):
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
-            tuned_parameters["C"] = np.linspace(0.001, 100, num=10)
+            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
         if self.epsilon is None:
-            tuned_parameters["epsilon"] = np.linspace(0.001, 2, num=10)
+            tuned_parameters["epsilon"] =  [0.0001, 0.001, 0.01, 0.1, 1, 2, 5]
+
+        n = len(X)
+        if n <= 20:
+            cv = 3
+        else:
+            cv = 7
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring=None,
-                                  n_jobs=-1,
-                                  cv=7,
+                                  scoring="r2",
+                                  n_jobs=-1 if self.parallel else 1,
+                                  cv=cv,
                                   verbose=False)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
