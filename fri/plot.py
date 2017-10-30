@@ -30,13 +30,15 @@ def plotIntervals(ranges,ticklables=None,invert=False):
     width = 0.6
     upper_vals = ranges[:,1]
     lower_vals = ranges[:,0]
-
-    ax.bar(ind, upper_vals - lower_vals, width,bottom=lower_vals,tick_label=ticks,align="center" , edgecolor="black",linewidth=1.3)
+    height = upper_vals - lower_vals
+    # Minimal height to make very small intervals visible
+    height[height < 0.01] = 0.02
+    ax.bar(ind, height, width,bottom=lower_vals,tick_label=ticks,align="center" , edgecolor="none",linewidth=1.3)
     
     plt.xticks(ind,ticks, rotation='vertical')
     # loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
     # ax.xaxis.set_major_locator(loc)
-    # ax.set_ylim([0,1])
+    ax.set_ylim([0,1])
     #ax.set_xlim([0,33])
     plt.ylabel('relevance',fontsize=19)
     plt.xlabel('feature',fontsize=19)
