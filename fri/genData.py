@@ -95,7 +95,7 @@ def genData(n_samples=100, n_features=2, n_redundant=0,strRel=1,
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, strRel: int = 1,
-                      n_repeated: int = 0, random_state: object = None) -> object:
+                      n_repeated: int = 0, noise: float = 1, random_state: object = None) -> object:
     if not 0 < n_samples:
         raise ValueError("We need at least one sample.")
     if not 0 < n_features:
@@ -110,7 +110,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
 
     X = np.zeros((int(n_samples), int(n_features)))
     n = n_samples
-    width = 10
+    width = noise
 
     def dummyFeat(n, scale=width):
         return randomstate.rand(int(n)) * scale - scale / 2
