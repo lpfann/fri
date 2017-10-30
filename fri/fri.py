@@ -585,7 +585,7 @@ class EnsembleFRI(FRIBase):
         m._ensemble = True
         X, y = self.X_, self.y_
         n = X.shape[0]
-        n_samples = math.ceil(1* n)
+        n_samples = math.ceil(1 * n)
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
                               n_samples=n_samples, random_state=self.random_state)
@@ -620,7 +620,6 @@ class EnsembleFRI(FRIBase):
             self._shadowintervals = np.mean(shadowrangevector, axis=0)
         else:
             rangevector, omegas, biase = zip(*results)
-
         # Get average
         self.interval_ = np.mean(rangevector, axis=0)
         self._omegas = np.mean(omegas, axis=0)
