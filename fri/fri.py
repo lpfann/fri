@@ -47,7 +47,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def __init__(self, isRegression, C=None, random_state=None,
-                 shadow_features=True, parallel=False, n_resampling=3,feat_elim=False):
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False):
         """Summary
         Parameters
         ----------
@@ -115,7 +115,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if not self._ensemble:
             self._get_relevance_mask()
         
-        self.feature_clusters = self.community_detection()
+        if X.shape[1] > 1:
+            self.feature_clusters = self.community_detection()
 
         # Return the classifier
         return self
@@ -344,7 +345,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             i = finished_bound.type
             prob_i = finished_bound.prob_instance
             if not hasattr(finished_bound, "isShadow"):
-                rangevector[di, i] = prob_i.problem.value
+                rangevector[di, i] = np.abs(prob_i.problem.value)
                 omegas[di, i] = prob_i.omega.value.reshape(d)
                 biase[di, i] = prob_i.b.value
             else:
@@ -398,8 +399,7 @@ class FRIClassification(FRIBase):
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self, C=None, random_state=None, shadow_features=True,
-                 parallel=False, n_resampling=3):
+    def __init__(self,**kwargs):
         """Initialize a solver for classification data
         Parameters
         ----------
@@ -413,9 +413,7 @@ class FRIClassification(FRIBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(C=C, random_state=random_state,
-                         shadow_features=shadow_features, parallel=parallel,
-                         n_resampling=n_resampling, isRegression=False)
+        super().__init__(isRegression=False,**kwargs)
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVC(penalty='l2',
@@ -509,11 +507,8 @@ class FRIRegression(FRIBase):
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self, C=None, epsilon=None, random_state=None,
-                 shadow_features=True, parallel=False, n_resampling=3):
-        super().__init__(C=C, random_state=random_state,
-                         shadow_features=shadow_features, parallel=parallel,
-                         n_resampling=n_resampling, isRegression=True)
+    def __init__(self, epsilon=None, **kwargs):
+        super().__init__(isRegression=True, **kwargs)
         self.epsilon = epsilon
 
     def _initEstimator(self, X, Y):
@@ -581,6 +576,7 @@ class EnsembleFRI(FRIBase):
             isRegression = True
 
         model._ensemble = True
+        model.random_state = random_state
 
         super().__init__(isRegression)
 
