@@ -399,7 +399,8 @@ class FRIClassification(FRIBase):
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self,**kwargs):
+    def __init__(self, C=None, random_state=None,
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs):
         """Initialize a solver for classification data
         Parameters
         ----------
@@ -413,7 +414,8 @@ class FRIClassification(FRIBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(isRegression=False,**kwargs)
+        super().__init__(isRegression=False,C=None, random_state=None,
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVC(penalty='l2',
@@ -507,8 +509,10 @@ class FRIRegression(FRIBase):
     LowerBoundS = fri.bounds.ShadowLowerBound
     UpperBoundS = fri.bounds.ShadowUpperBound
 
-    def __init__(self, epsilon=None, **kwargs):
-        super().__init__(isRegression=True, **kwargs)
+    def __init__(self, epsilon=None, C=None, random_state=None,
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs):
+        super().__init__(isRegression=True,C=None, random_state=None,
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, **kwargs)
         self.epsilon = epsilon
 
     def _initEstimator(self, X, Y):
@@ -565,10 +569,11 @@ class FRIRegression(FRIBase):
 
 class EnsembleFRI(FRIBase):
     def __init__(self, model, n_bootstraps=10, random_state=None, n_jobs=1):
-        self.random_state = random_state
+        self.random_state = check_random_state(random_state)
         self.n_bootstraps = n_bootstraps
         self.model = model
         self.n_jobs = n_jobs
+        self.bs_seed = self.random_state.randint(10000000) # Seed for bootstraps rngs, constant for multiprocessing
 
         if isinstance(self.model, FRIClassification):
             isRegression = False
@@ -576,20 +581,22 @@ class EnsembleFRI(FRIBase):
             isRegression = True
 
         model._ensemble = True
-        model.random_state = random_state
-
-        super().__init__(isRegression)
+        model.random_state = self.random_state
+        super().__init__(isRegression, random_state=self.random_state)
 
     def _fit_one_bootstrap(self, i):
         m = clone(self.model)
         m._ensemble = True
+
         X, y = self.X_, self.y_
         n = X.shape[0]
-        n_samples = math.ceil(1 * n)
+        n_samples = math.ceil(0.8 * n)
+
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
-                              n_samples=n_samples, random_state=self.random_state)
+                              n_samples=n_samples, random_state=self.bs_seed+i)
 
+        print(y_bs)
         m.fit(X_bs, y_bs)
         if self.model.shadow_features:
             return m.interval_, m._omegas, m._biase, m._shadowintervals
