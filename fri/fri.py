@@ -414,8 +414,8 @@ class FRIClassification(FRIBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(isRegression=False,C=None, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs)
+        super().__init__(isRegression=False,C=C, random_state=random_state,
+                 shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
         estimator = svm.LinearSVC(penalty='l2',
@@ -510,13 +510,18 @@ class FRIRegression(FRIBase):
     UpperBoundS = fri.bounds.ShadowUpperBound
 
     def __init__(self, epsilon=None, C=None, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs):
-        super().__init__(isRegression=True,C=None, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, **kwargs)
+                 shadow_features=False, parallel=False, feat_elim=False,**kwargs):
+        super().__init__(isRegression=True,C=C, random_state=random_state,
+                 shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
         self.epsilon = epsilon
 
     def _initEstimator(self, X, Y):
-        estimator = svm.SVR(kernel="linear")
+        #estimator = svm.SVR(kernel="linear",shrinking=False)
+        
+        estimator = svm.LinearSVR(
+                                  loss="squared_epsilon_insensitive",
+                                  dual=False,
+                                  random_state=self.random_state)
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
@@ -535,7 +540,7 @@ class FRIRegression(FRIBase):
                                   scoring="r2",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
-                                  verbose=False)
+                                  verbose=0)
         gridsearch.fit(X, Y)
         self._hyper_C = gridsearch.best_params_['C']
         self._hyper_epsilon = gridsearch.best_params_['epsilon']
@@ -548,11 +553,11 @@ class FRIRegression(FRIBase):
         prediction = best_clf.predict(X)
         self._svm_loss = np.sum(np.abs(Y - prediction))
 
+
         self._svm_coef = self._svm_coef[0]
 
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
-
         Parameters
         ----------
         X : array_like
@@ -596,7 +601,6 @@ class EnsembleFRI(FRIBase):
         X_bs, y_bs = resample(X, y, replace=True,
                               n_samples=n_samples, random_state=self.bs_seed+i)
 
-        print(y_bs)
         m.fit(X_bs, y_bs)
         if self.model.shadow_features:
             return m.interval_, m._omegas, m._biase, m._shadowintervals
