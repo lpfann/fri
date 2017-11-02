@@ -1,5 +1,5 @@
 numpy
 scipy
 scikit-learn>=0.18
-cvxpy
+cvxpy>=1.0
 pytest
