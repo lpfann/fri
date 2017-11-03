@@ -38,7 +38,7 @@ def plotIntervals(ranges,ticklables=None,invert=False):
     plt.xticks(ind,ticks, rotation='vertical')
     # loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
     # ax.xaxis.set_major_locator(loc)
-    ax.set_ylim([0,1])
+    #ax.set_ylim([0,1])
     #ax.set_xlim([0,33])
     plt.ylabel('relevance',fontsize=19)
     plt.xlabel('feature',fontsize=19)
@@ -55,7 +55,7 @@ def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55):
     ax2 = fig.add_subplot(211)
     d = dendrogram(
         z,
-        color_threshold = threshold,
+        color_threshold=threshold,
         leaf_rotation=0.,  # rotates the x axis labels
         leaf_font_size=12.,  # font size for the x axis labels
         ax=ax2
@@ -66,7 +66,8 @@ def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55):
     
     ax = fig.add_subplot(212)
     N = len(ranges)
-    ticks = rearranged_index
+    ticks = np.array(rearranged_index)
+    ticks +=1 # Index starting at 1
     ind = np.arange(N)+1
     width = 0.6
     upper_vals = ranges[:,1]
