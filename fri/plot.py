@@ -33,7 +33,7 @@ def plotIntervals(ranges,ticklabels=None,invert=False):
     height = upper_vals - lower_vals
     # Minimal height to make very small intervals visible
     height[height < 0.01] = 0.02
-    ax.bar(ind, height, width,bottom=lower_vals,tick_label=ticks,align="center" , edgecolor="none",linewidth=1.3)
+    bars = ax.bar(ind, height, width,bottom=lower_vals,tick_label=ticks,align="center" , edgecolor="none",linewidth=1.3)
     
     plt.xticks(ind,ticks, rotation='vertical')
     # loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
@@ -75,7 +75,7 @@ def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55,ticklabels=No
     width = 0.6
     upper_vals = ranges[:,1]
     lower_vals = ranges[:,0]
-    ax.bar(ind, upper_vals - lower_vals, width,bottom=lower_vals,tick_label=ticks,align="center" ,linewidth=1.3)
+    bars = ax.bar(ind, upper_vals - lower_vals, width,bottom=lower_vals,tick_label=ticks,align="center" ,linewidth=1.3)
 
     plt.ylabel('relevance',fontsize=19)
     plt.xlabel('feature',fontsize=19)
