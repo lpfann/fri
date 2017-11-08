@@ -13,15 +13,15 @@ bmap = sns.color_palette("Set2", 5)
 sns.set(style='ticks', palette='Set2')
 sns.despine()
 
-def plotIntervals(ranges,ticklables=None,invert=False):
+def plotIntervals(ranges,ticklabels=None,invert=False):
     fig = plt.figure(figsize=(13, 6))
     ax = fig.add_subplot(111)
 
     N = len(ranges)
-    if  ticklables is None:
+    if  ticklabels is None:
         ticks = np.arange(N)+1
     else:
-        ticks = list(ticklables)
+        ticks = list(ticklabels)
         for i in range(N):
             ticks[i] += " - {}".format(i+1)
 
@@ -46,9 +46,8 @@ def plotIntervals(ranges,ticklables=None,invert=False):
         plt.gca().invert_xaxis()
     return fig
 
-def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55):
+def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55,ticklabels=None):
     z = linkage
-    
     fig = plt.figure(figsize=(13, 6))
 
     # Top dendrogram plot
@@ -66,8 +65,12 @@ def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55):
     
     ax = fig.add_subplot(212)
     N = len(ranges)
-    ticks = np.array(rearranged_index)
-    ticks +=1 # Index starting at 1
+    if  ticklabels is None:
+        ticks = np.array(rearranged_index)
+        ticks +=1 # Index starting at 1
+    else:
+        ticks = list(ticklabels[rearranged_index])
+    
     ind = np.arange(N)+1
     width = 0.6
     upper_vals = ranges[:,1]
@@ -76,6 +79,7 @@ def plot_dendrogram_and_intervals(intervals,linkage,threshold=0.55):
 
     plt.ylabel('relevance',fontsize=19)
     plt.xlabel('feature',fontsize=19)
+    plt.xticks(ind,ticks, rotation='vertical')
     ax.margins(x=0)
     ax2.set_xticks([])
     ax2.margins(x=0)
