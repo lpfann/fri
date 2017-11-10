@@ -1,7 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib
+import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram
 
 font = {'family' : 'normal',
@@ -14,9 +14,9 @@ sns.set(style='ticks', palette='Set2')
 sns.despine()
 
 def plotIntervals(ranges,ticklabels=None,invert=False):
-    fig = plt.figure(figsize=(13, 6))
-    ax = fig.add_subplot(111)
-
+    #fig = plt.figure(figsize=(13, 6))
+    #ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     N = len(ranges)
     if  ticklabels is None:
         ticks = np.arange(N)+1

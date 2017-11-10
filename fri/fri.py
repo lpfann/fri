@@ -77,7 +77,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._svm_loss = None
         self._ensemble = None
         self.allrel_prediction_ = None
-
+        self.feature_clusters_ = None
+        self.linkage_ = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -114,9 +115,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         if not self._ensemble:
             self._get_relevance_mask()
+            if X.shape[1] > 1:
+                self.feature_clusters_, self.linkage_ = self.community_detection()
         
-        if X.shape[1] > 1:
-            self.feature_clusters = self.community_detection()
 
         # Return the classifier
         return self
@@ -212,7 +213,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         feature_clustering = fcluster(link,threshold,criterion="distance")
 
-        return feature_clustering
+        return feature_clustering, link
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
@@ -640,6 +641,7 @@ class EnsembleFRI(FRIBase):
         self.model._initEstimator(X, y)
         self._svm_clf = self.model._svm_clf
         self._get_relevance_mask()
+
         return self
 
     def score(self, X, y):
