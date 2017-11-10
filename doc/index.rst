@@ -16,7 +16,6 @@ contains a single estimator with unit tests.
        
        api
        auto_examples/index
-       ...
 
 See the `README <https://github.com/vighneshbirodkar/project-template/blob/master/README.md>`_
 for more information.
