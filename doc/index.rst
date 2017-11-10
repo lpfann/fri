@@ -3,18 +3,17 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to sklearn-template's documentation!
-============================================
+Welcome to the implementation of the feature relevance interval method (FRI)
+==============================================================================
 
-This project is a reference implementation to anyone who wishes to develop
-scikit-learn compatible classes. It comes with a `template` module which
-contains a single estimator with unit tests.
-
+This project contains the implementation of the method and various extensions for the use in biomedical research settings.
+Provided in this doc are docstrings for the API methods and some simple examples on synthetic data sets.
 
     .. toctree::
        :maxdepth: 2
        
-       api
+       model
+       datagen
        auto_examples/index
 
 See the `README <https://github.com/vighneshbirodkar/project-template/blob/master/README.md>`_
