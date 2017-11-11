@@ -3,7 +3,6 @@ from sklearn.utils import check_random_state
 from sklearn.utils.testing import ignore_warnings
 from sklearn.utils.testing import assert_greater, assert_equal, assert_true
 from numpy.testing import assert_array_almost_equal, assert_array_equal,assert_raises
-import numpy as np
 
 generator = check_random_state(0)
 n = 10
