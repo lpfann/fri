@@ -14,7 +14,7 @@ machine:
     EMAIL: "lpfannschmidt@techfak.uni-bielefeld.de"
   python:
     version: 3.6.2
-    
+
 dependencies:
 
   # Various dependencies
@@ -56,3 +56,4 @@ general:
   branches:
     ignore:
        - gh-pages
+       - dev
