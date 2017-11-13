@@ -12,7 +12,9 @@ machine:
 
     # The email is to be used for commits in the Github Page
     EMAIL: "lpfannschmidt@techfak.uni-bielefeld.de"
-
+  python:
+    version: 3.6.2
+    
 dependencies:
 
   # Various dependencies
