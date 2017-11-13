@@ -77,3 +77,7 @@ target/
 /.gitattributes
 
 /dev/
+
+/misc_dev/
+
+/src/
