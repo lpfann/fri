@@ -6,18 +6,18 @@ import numpy as np
 from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def randomstate():
    return check_random_state(1337)
 
-@pytest.fixture(scope="module",
+@pytest.fixture(scope="function",
                 params=[(1,0),(2,0),(0,2),(1,2)],
                 ids=["1strong","2strong","weak","allrele"])
 def regressiondata(request,randomstate):
     strong = request.param[0]
     weak = request.param[1]
     generator = randomstate
-    data = genRegressionData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
+    data = genRegressionData(n_samples=200, n_features=4, n_redundant=weak, strRel=strong,
                                          n_repeated=0, random_state=generator)
 
     X_orig, y = data
@@ -27,14 +27,14 @@ def regressiondata(request,randomstate):
     # y = list(y)
     return X,y,strong,weak
 
-@pytest.fixture(scope="module",
+@pytest.fixture(scope="function",
                 params=[(1,0),(2,0),(0,2),(1,2)],
                 ids=["1strong","2strong","weak","allrele"])
 def classdata(request,randomstate):
     strong = request.param[0]
     weak = request.param[1]
     generator = randomstate
-    data = genData(n_samples=100, n_features=4, n_redundant=weak, strRel=strong,
+    data = genData(n_samples=200, n_features=4, n_redundant=weak, strRel=strong,
                                          n_repeated=0, random_state=generator)
 
     X_orig, y = data
@@ -44,7 +44,7 @@ def classdata(request,randomstate):
     # y = list(y)
     return X,y,strong,weak
 
-@pytest.fixture(scope='module', params=[(FRIRegression,None),
+@pytest.fixture(scope='function', params=[(FRIRegression,None),
                                           (EnsembleFRI,FRIRegression)],
                 ids=["Regression","EnsembleRegression"])
 def regressionmodel(request,randomstate):
@@ -54,7 +54,7 @@ def regressionmodel(request,randomstate):
         model = request.param[0](request.param[1](random_state=randomstate),random_state=randomstate )
     return model
 
-@pytest.fixture(scope='module', params=[(FRIClassification,None),
+@pytest.fixture(scope='function', params=[(FRIClassification,None),
                                           (EnsembleFRI,FRIClassification)],
                 ids=["Classification","EnsembleClassification"])
 def classmodel(request,randomstate):
@@ -109,7 +109,7 @@ def test_classification(classdata,randomstate,classmodel):
     assert len(fri.interval_) == X.shape[1]
 
     print(fri._best_clf_score)
-
+    print("Intervals",fri.interval_)
     # All strongly relevant features have a lower bound > 0
     assert np.all(fri.interval_[0:strong,0] > 0)
     assert np.all(fri.interval_[strong:weak,0] == 0)
@@ -126,7 +126,7 @@ def test_classification(classdata,randomstate,classmodel):
 
 def test_multiprocessing():
     generator = check_random_state(0)
-    data = genData(n_samples=100, n_features=4, n_redundant=2,strRel=2,
+    data = genData(n_samples=200, n_features=4, n_redundant=2,strRel=2,
                     n_repeated=0, class_sep=1, flip_y=0, random_state=generator)
 
     X_orig, y = data

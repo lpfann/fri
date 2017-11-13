@@ -42,7 +42,7 @@ def _checkParam(n_samples: int=100, n_features: int=2,
             raise ValueError("Sum of partition values should yield number of redundant features.")
     print("Generating dataset with d={},n={},strongly={},weakly={}, partition of weakly={}".format(n_features,n_samples,strRel,n_redundant,partition))
 
-def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, n_features: int=2,
+def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, n_features: int=2,  
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0,
                           noise: float = 1,partition=None,**kwargs):
@@ -126,7 +126,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     Examples
     ---------
     >>> X,y = genClassificationData(n_samples=200)
-    Generating dataset with d=2,n=200,strongly=1,weakly=0
+    Generating dataset with d=2,n=200,strongly=1,weakly=0, partition of weakly=None
     >>> X.shape
     (200, 2)
     >>> y.shape
