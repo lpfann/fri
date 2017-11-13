@@ -27,7 +27,7 @@ setup(name='fri',
       packages=find_packages(),
       install_requires=INSTALL_REQUIRES,
       dependency_links=[
-                        "git+https://github.com/cvxgrp/cvxpy.git@1.0#egg=cvxpy"
+                        "git+https://github.com/cvxgrp/cvxpy.git@1.0#egg=cvxpy-1.0"
                        ],
       author_email='lpfannschmidt@techfak.uni-bielefeld.de',
       )
