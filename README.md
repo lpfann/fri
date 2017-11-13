@@ -1,6 +1,7 @@
 # Feature relevance intervals
 
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
+[![CircleCI](https://circleci.com/gh/lpfann/fri/tree/master.svg?style=svg)](https://circleci.com/gh/lpfann/fri/tree/master)
 
 This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publication[1].
 
@@ -21,8 +22,7 @@ pip install fri
 ```
 
 ## Usage
-
-A simple example can be found in the `examples` folder in form of a 'jupyter notebook'.
+Examples and API descriptions can be found [here](https://lpfann.github.io/fri/).
 
 In general, the library follows the sklearn API format.
 The two important classes exposed to the user are
