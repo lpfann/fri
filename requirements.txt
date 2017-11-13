@@ -1,6 +1,5 @@
 numpy
 scipy
 scikit-learn>=0.18
-git+https://github.com/cvxgrp/cvxpy.git@1.0
-#cvxpy>=1.0
+cvxpy>=1.0
 pytest
