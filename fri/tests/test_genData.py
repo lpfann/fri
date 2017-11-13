@@ -47,9 +47,6 @@ def test_wrong_values():
     m_args["n_features"] = 2 # less total features then specified
     assert_raises(ValueError,genData,**m_args)
 
-    m_args = dict(args)
-    m_args["n_redundant"] = 1
-    assert_raises(ValueError,genData,**m_args)
 
 def test_noise_features():
 

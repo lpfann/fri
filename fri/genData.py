@@ -2,13 +2,14 @@ import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.datasets import make_regression
 
-def _combFeat(n,strRelFeat,randomstate):
+def _combFeat(n, size, strRelFeat,randomstate):
         # Split each strongly relevant feature into linear combination of it
-        weakFeats = np.zeros((n,2))
-        for x in range(2):
+        weakFeats = np.zeros((n,size))
+        for x in range(size):
             cofact = 2 * randomstate.rand() - 1
             weakFeats[:,x] = cofact  * strRelFeat
         return weakFeats
+
 def _dummyFeat(n,randomstate,scale=2):
         return  randomstate.rand(n)*scale - scale/2
 
@@ -25,33 +26,37 @@ def genData(**args):
 def _checkParam(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0, class_sep: float=0.2,
-                          flip_y: float=0,noise: float = 1, **kwargs):
+                          flip_y: float=0,noise: float = 1, partition=None,**kwargs):
     if not 0 < n_samples:
         raise ValueError("We need at least one sample.")
     if not 0 < n_features:
         raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
-    if not n_redundant%2 == 0:
-        raise ValueError("Number of redundant features has to be even.")
     if not n_redundant+n_repeated+strRel<= n_features:
         raise ValueError("Inconsistent number of features")
     if strRel + n_redundant < 1:
         raise ValueError("No informative features.")
-    print("Generating dataset with d={},n={},strongly={},weakly={}".format(n_features,n_samples,strRel,n_redundant))
+    if partition is not None:
+        if sum(partition) != n_redundant:
+            raise ValueError("Sum of partition values should yield number of redundant features.")
+    print("Generating dataset with d={},n={},strongly={},weakly={}, partition of weakly={}".format(n_features,n_samples,strRel,n_redundant,partition))
 
 def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0,
-                          noise: float = 1,**kwargs):
+                          noise: float = 1,partition=None,**kwargs):
         X = np.zeros((int(n_samples), int(n_features)))
         X[:, :strRel] = X_informative[:, :strRel]
         holdout = X_informative[:, strRel:]
         i = strRel
-
+        
+        pi = 0
         for x in range(len(holdout.T)):
-            X[:, i:i + 2] = _combFeat(n_samples, holdout[:, x], random_state)
-            i += 2
+            size = partition[pi]
+            X[:, i:i + size] = _combFeat(n_samples, size, holdout[:, x], random_state)
+            i += size
+            pi +=1
 
         for x in range(n_repeated):
             X[:, i] = _repeatFeat(X[:, :i], i, random_state)
@@ -62,10 +67,26 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, 
 
         return X
 
+def _partition_min_max(n, k, l, m):
+    '''n is the integer to partition, k is the length of partitions, 
+    l is the min partition element size, m is the max partition element size '''
+    # Source: https://stackoverflow.com/a/43015372
+
+    if k < 1:
+        raise StopIteration
+    if k == 1:
+        if n <= m and n>=l :
+            yield (n,)
+        raise StopIteration
+    for i in range(l,m+1):
+        for result in _partition_min_max(n-i,k-1,i,m):                
+            yield result+(i,)
+
 def genClassificationData(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0, class_sep: float=0.2,
-                          flip_y: float=0, random_state: object=None):
+                          flip_y: float=0, random_state: object=None,
+                          partition=None):
     """Generate synthetic classification data
     
     Parameters
@@ -114,7 +135,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    def genStrongRelFeatures(n, strRel,random_state, width=10, epsilon=0.05,):
+    def genStrongRelFeatures(n, strRel,random_state, width=10, epsilon=0.05):
         Y = np.ones(n)
         # Generate hyperplane consiting of strongly relevant features
         base = 0 # origin for now # TODO
@@ -135,14 +156,22 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
         return candidates, Y
 
     X = np.zeros((n_samples,n_features))
-    X_informative, Y = genStrongRelFeatures(n_samples,strRel+n_redundant/2,random_state,epsilon=class_sep)
+
+    # Find partitions which defíne the weakly relevant subsets
+    if partition is None:
+        # Legacy behaviour yielding subsets of size 2
+        partition =  int(n_redundant / 2) * [2]
+    part_size = len(partition)    
+
+    X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
     X = _fillVariableSpace(**locals())
  
     return X, Y
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, strRel: int = 1,
-                      n_repeated: int = 0, noise: float = 1, random_state: object = None) -> object:
+                      n_repeated: int = 0, noise: float = 1, random_state: object = None,
+                      partition = None) -> object:
     """Generate synthetic regression data
     
     Parameters
@@ -180,8 +209,13 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
 
     X = np.zeros((int(n_samples), int(n_features)))
 
+    # Find partitions which defíne the weakly relevant subsets
+    if partition is None:
+        # Legacy behaviour yielding subsets of size 2
+        partition =  int(n_redundant / 2) * [2]
+    part_size = len(partition) 
 
-    X_informative, Y = make_regression(n_features=int(strRel + n_redundant / 2),
+    X_informative, Y = make_regression(n_features=int(strRel + part_size),
                                         n_samples=int(n_samples),
                                         noise=noise,
                                         n_informative=int(strRel),
