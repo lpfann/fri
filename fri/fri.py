@@ -94,6 +94,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         FRIBase
             Instance
         """
+        
+        y = np.asarray(y)
+
         self.X_ = X
         self.y_ = y
 
@@ -623,7 +626,7 @@ class EnsembleFRI(FRIBase):
             nmap = pmap
         else:
             nmap = map
-
+        y = np.asarray(y)
         self.X_, self.y_ = X, y
         results = list(nmap(self._fit_one_bootstrap, range(self.n_bootstraps)))
 
