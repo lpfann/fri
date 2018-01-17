@@ -165,7 +165,11 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
 
     X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
     X = _fillVariableSpace(**locals())
- 
+
+    if flip_y > 0:
+        n_flip = int(flip_y * n_samples)
+        Y[random_state.choice(n_samples,n_flip)] *= -1
+
     return X, Y
 
 
