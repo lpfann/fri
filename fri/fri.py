@@ -19,7 +19,7 @@ from scipy.cluster.hierarchy import fcluster,linkage
 import fri.bounds
 import copy
 import math
-
+from fri.utility import L1HingeHyperplane
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters
@@ -422,15 +422,16 @@ class FRIClassification(FRIBase):
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
-        estimator = svm.LinearSVC(penalty='l2',
-                                  loss="squared_hinge",
-                                  dual=False,
-                                  random_state=self.random_state)
+        # estimator = svm.LinearSVC(penalty='l1',
+        #                           loss="hinge",
+        #                           dual=False,
+        #                           random_state=self.random_state)
+        estimator = L1HingeHyperplane()
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
             min_c = svm.l1_min_c(X, Y)
-            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
-            #tuned_parameters = [{'C': np.logspace(-6, 4, 11)}]
+            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            tuned_parameters = [{'C': [0.01,0.1,1,10]}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -448,19 +449,20 @@ class FRIClassification(FRIBase):
                                   cv=cv,
                                   verbose=False)
         gridsearch.fit(X, Y)
+
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        self._svm_bias = -best_clf.intercept_[0]
-        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
+        self._svm_bias = best_clf.intercept_ # TODO: wieso minus
+        self._svm_L1 = np.linalg.norm(self._svm_coef.flatten(), ord=1)
 
-        Y_vector = np.array([Y[:], ] * 1)
+        #Y_vector = np.array([Y[:], ] * 1)
 
-        prediction = best_clf.decision_function(X)
-        self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
-
+        #prediction = best_clf.decision_function(X)
+        #self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
+        self._svm_loss = np.abs(self._svm_clf.slack).sum()
         self._svm_coef = self._svm_coef[0]
 
     def fit(self, X, y):
@@ -559,7 +561,6 @@ class FRIRegression(FRIBase):
 
 
         self._svm_coef = self._svm_coef[0]
-
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
         Parameters

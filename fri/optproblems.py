@@ -39,7 +39,6 @@ class BaseClassificationProblem(BaseProblem):
         self.L1 = L1
         self.svmloss = svmloss
         self.C = C
-        self.M = 2 * L1
         # Solver parameters
         self.kwargs = kwargs
         # Solver Variables
@@ -53,7 +52,8 @@ class BaseClassificationProblem(BaseProblem):
             cvx.multiply(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
             self.eps >= 0,
             # L1 reg. and allow slack
-            cvx.norm(self.omega, 1) + self.C * cvx.sum(self.eps) <= self.L1 + self.C * self.svmloss
+            cvx.norm(self.omega, 1) <= self.L1,
+            cvx.sum(self.eps) <= self.svmloss
         ]
 
 class MinProblemClassification(BaseClassificationProblem):
@@ -78,7 +78,6 @@ class MaxProblem1(BaseClassificationProblem):
 
         self._constraints.extend([
             self.xp[self.di] <= self.omega[self.di],
-            self.xp[self.di] <= -(self.omega[self.di]) + self.M
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
@@ -92,7 +91,6 @@ class MaxProblem2(BaseClassificationProblem):
 
         self._constraints.extend([
             self.xp[self.di] <= -(self.omega[self.di]),
-            self.xp[self.di] <= (self.omega[self.di]) + self.M
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
