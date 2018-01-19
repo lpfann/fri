@@ -45,12 +45,11 @@ class BaseClassificationProblem(BaseProblem):
         self.xp = cvx.Variable(shape=(d,1))  # x' , our opt. value
         self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
-        self.eps = cvx.Variable(shape=(n,1))  # slack variables
+        self.eps = cvx.Variable(shape=(n,1),nonneg=True)  # slack variables
         
         self._constraints = [
             # points still correctly classified with soft margin
             cvx.multiply(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
-            self.eps >= 0,
             # L1 reg. and allow slack
             cvx.norm(self.omega, 1) <= self.L1,
             cvx.sum(self.eps) <= self.svmloss
