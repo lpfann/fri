@@ -12,6 +12,8 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         self.C = C
 
     def fit(self, X, y):
+        self.classes_ = np.unique(y)
+        
         (n, d) = X.shape
         w = cvx.Variable(d)
         xi = cvx.Variable(n)
@@ -24,16 +26,11 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
-        try:
-            problem.solve(solver="ECOS")
-        except SolverError as e:
-            self.coef_ = np.zeros((1,d))     
-            self.intercept_ = 0
-            self.slack = np.zeros((n))
-        else:
-            # Prepare output and convert from matrices to flattened arrays.
-            self.coef_ = np.array(w.value)[np.newaxis]
-            self.intercept_ = b.value
-            self.slack = np.asarray(xi.value).flatten()
+        problem.solve(solver="ECOS")
+
+        # Prepare output and convert from matrices to flattened arrays.
+        self.coef_ = np.array(w.value)[np.newaxis]
+        self.intercept_ = b.value
+        self.slack = np.asarray(xi.value).flatten()
         return self
 

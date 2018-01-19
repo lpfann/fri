@@ -362,12 +362,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Correction through shadow features
 
         if self.shadow_features:
-            rangevector -= shadowrangevector
+            shadow_variance = shadowrangevector[:,1] - shadowrangevector[:,0]
+            rangevector[:,0] -= shadow_variance
+            rangevector[:,1] -= shadow_variance
             rangevector[rangevector < 0] = 0
 
         # Scale to L1
-        if L1 > 0:
-            rangevector = rangevector / L1
+        #if L1 > 0:
+            #rangevector = rangevector / L1
             # shadowrangevector = shadowrangevector / L1
 
         # round mins to zero
@@ -422,16 +424,19 @@ class FRIClassification(FRIBase):
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
-        # estimator = svm.LinearSVC(penalty='l1',
-        #                           loss="hinge",
-        #                           dual=False,
-        #                           random_state=self.random_state)
-        estimator = L1HingeHyperplane()
+        legacy = True
+        if legacy:
+            estimator = svm.LinearSVC(penalty='l1',
+                                      loss="squared_hinge",
+                                      dual=False,
+                                      random_state=self.random_state)
+        else:
+            estimator = L1HingeHyperplane()
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
             min_c = svm.l1_min_c(X, Y)
             #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
-            tuned_parameters = [{'C': [0.01,0.1,1,10]}]
+            tuned_parameters = [{'C': [0.001, 0.01, 0.1, 1, 10, 100]}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -444,7 +449,7 @@ class FRIClassification(FRIBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="average_precision",
+                                  scoring="accuracy",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=False)
@@ -455,15 +460,16 @@ class FRIClassification(FRIBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        self._svm_bias = best_clf.intercept_ # TODO: wieso minus
+        self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef.flatten(), ord=1)
 
-        #Y_vector = np.array([Y[:], ] * 1)
-
-        #prediction = best_clf.decision_function(X)
-        #self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
-        self._svm_loss = np.abs(self._svm_clf.slack).sum()
-        self._svm_coef = self._svm_coef[0]
+        if legacy:
+            prediction = best_clf.decision_function(X)
+            Y_vector = np.array([Y[:], ] * 1)
+            self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
+        else:
+            self._svm_loss = np.abs(self._svm_clf.slack).sum()
+            self._svm_coef = self._svm_coef[0]
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
