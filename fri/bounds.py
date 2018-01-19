@@ -44,6 +44,7 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
+            print("DEBUG: Lower Bound - current_feature={}".format(self.di))
             raise NotFeasibleForParameters
 
 class UpperBound(Bound):
@@ -72,7 +73,8 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
-           raise NotFeasibleForParameters
+            print("DEBUG: Upper Bound - current_feature={}".format(self.di))
+            raise NotFeasibleForParameters
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
         best_problem = valid_problems[max_index]
         self.prob_instance = best_problem
