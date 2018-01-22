@@ -63,7 +63,7 @@ class MinProblemClassification(BaseClassificationProblem):
 
         self._constraints.extend(
             [
-                cvx.abs(self.omega[self.di]) <= self.xp[self.di],
+                cvx.abs(self.omega[self.di]) <= self.xp[self.di]
             ])
 
         self._objective = cvx.Minimize(self.xp[self.di])
@@ -76,7 +76,7 @@ class MaxProblem1(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            self.xp[self.di] <= self.omega[self.di],
+            self.xp[self.di] <= self.omega[self.di]
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
@@ -89,7 +89,7 @@ class MaxProblem2(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            self.xp[self.di] <= -(self.omega[self.di]),
+            self.xp[self.di] <= -(self.omega[self.di])
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
@@ -114,19 +114,19 @@ class BaseRegressionProblem(BaseProblem):
         self.epsilon = epsilon
         self.L1 = L1
         self.C = C
-        self.M = 2 * L1
+
         # Solver parameters
         self.kwargs = kwargs
         # Solver Variables
         self.xp = cvx.Variable(shape=(d,1))  # x' , our opt. value
         self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
-        self.slack = cvx.Variable(shape=(n,1))  # slack variables
+        self.slack = cvx.Variable(shape=(n,1),nonneg=True)  # slack variables
 
         self._constraints = [
-            cvx.norm(self.omega, 1)   + C * cvx.sum(self.slack) <= self.L1 + C*self.svrloss,
-            cvx.abs(self.Y - (self.X * self.omega + self.b )) <= self.epsilon + self.slack,
-            self.slack >= 0,
+            cvx.norm(self.omega, 1) <= self.L1,
+            cvx.sum(self.slack) <= self.svrloss,
+            cvx.abs(self.Y - (self.X * self.omega + self.b )) <= self.epsilon + self.slack
         ]
 
 
@@ -151,8 +151,7 @@ class MaxProblem1Regression(BaseRegressionProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, epsilon=epsilon, svrloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            self.xp[self.di] <= self.omega[self.di],
-            self.xp[self.di] <= -(self.omega[self.di]) + self.M
+            self.xp[self.di] <= self.omega[self.di]
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
@@ -166,8 +165,7 @@ class MaxProblem2Regression(BaseRegressionProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, epsilon=epsilon, svrloss=svmloss, L1=L1)
 
         self._constraints.extend([
-           self.xp[self.di] <= -(self.omega[self.di]),
-           self.xp[self.di] <= (self.omega[self.di]) + self.M
+           self.xp[self.di] <= -(self.omega[self.di])
         ])
 
         self._objective = cvx.Maximize(self.xp[self.di])
