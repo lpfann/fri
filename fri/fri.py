@@ -19,7 +19,7 @@ from scipy.cluster.hierarchy import fcluster,linkage
 import fri.bounds
 import copy
 import math
-from fri.utility import L1HingeHyperplane
+from fri.utility import L1HingeHyperplane, L1EpsilonRegressor
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters
@@ -299,8 +299,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         '''
-        kwargs = {"warm_start": False, "solver": "SCS",
-                  "gpu": True, "verbose": False, "parallel": False}
 
         '''
         kwargs = {"verbose": False}
@@ -529,11 +527,14 @@ class FRIRegression(FRIBase):
 
     def _initEstimator(self, X, Y):
         #estimator = svm.SVR(kernel="linear",shrinking=False)
-        
-        estimator = svm.LinearSVR(
-                                  loss="squared_epsilon_insensitive",
-                                  dual=False,
-                                  random_state=self.random_state)
+        legacy = False
+        if legacy:
+            estimator = svm.LinearSVR(
+                                      loss="squared_epsilon_insensitive",
+                                      dual=False,
+                                      random_state=self.random_state)
+        else:
+            estimator = L1EpsilonRegressor()
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
@@ -560,13 +561,16 @@ class FRIRegression(FRIBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        self._svm_bias = -best_clf.intercept_[0]
+        self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
-        prediction = best_clf.predict(X)
-        self._svm_loss = np.sum(np.abs(Y - prediction))
 
+        if legacy:
+            prediction = best_clf.predict(X)
+            self._svm_loss = np.sum(np.abs(Y - prediction))
+        else:
+            self._svm_loss = np.abs(self._svm_clf.slack).sum()
+            self._svm_coef = self._svm_coef[0]
 
-        self._svm_coef = self._svm_coef[0]
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
         Parameters
