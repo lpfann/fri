@@ -11,7 +11,7 @@ def _combFeat(n, size, strRelFeat,randomstate):
         return weakFeats
 
 def _dummyFeat(n,randomstate,scale=2):
-        return  randomstate.rand(n)*scale - scale/2
+        return  randomstate.rand(n) * scale - scale / 2
 
 def _repeatFeat(feats, i,randomstate):
         i_pick = randomstate.choice(i)
@@ -62,7 +62,7 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, 
             X[:, i] = _repeatFeat(X[:, :i], i, random_state)
             i += 1    
         for x in range(n_features - i):
-            X[:, i] = _dummyFeat(n_samples, random_state, noise)
+            X[:, i] = _dummyFeat(n_samples, random_state)
             i += 1
 
         return X
@@ -164,7 +164,11 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     part_size = len(partition)    
 
     X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
-    X = _fillVariableSpace(**locals())
+    
+    X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
+                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_repeated = n_repeated,
+                          noise = noise, partition = partition)
 
     if flip_y > 0:
         n_flip = int(flip_y * n_samples)
@@ -218,14 +222,17 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
         # Legacy behaviour yielding subsets of size 2
         partition =  int(n_redundant / 2) * [2]
     part_size = len(partition) 
-
+    print(part_size)
     X_informative, Y = make_regression(n_features=int(strRel + part_size),
                                         n_samples=int(n_samples),
                                         noise=noise,
                                         n_informative=int(strRel),
                                         random_state=random_state,
                                         shuffle=False)
-
-    X = _fillVariableSpace(**locals())
+    strRel 
+    X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
+                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_repeated = n_repeated,
+                          noise = noise, partition = partition)
 
     return X, Y
