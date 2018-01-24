@@ -167,8 +167,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
                           n_redundant = n_redundant, strRel = int(strRel + part_size),
-                          n_repeated = n_repeated,
-                          noise = noise, partition = partition)
+                          n_repeated = n_repeated, partition = partition)
 
     if flip_y > 0:
         n_flip = int(flip_y * n_samples)
