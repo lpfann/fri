@@ -166,7 +166,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
     
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
-                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_redundant = n_redundant, strRel = strRel,
                           n_repeated = n_repeated, partition = partition)
 
     if flip_y > 0:
@@ -230,7 +230,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
                                         shuffle=False)
     strRel 
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
-                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_redundant = n_redundant, strRel = strRel,
                           n_repeated = n_repeated,
                           noise = noise, partition = partition)
 
