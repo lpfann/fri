@@ -1,10 +1,13 @@
 import pytest
-from fri.genData import genData, genClassificationData
+from fri.genData import genData, genClassificationData, genRegressionData
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import ignore_warnings
 from sklearn.utils.testing import assert_greater, assert_equal, assert_true
 from numpy.testing import assert_array_almost_equal, assert_array_equal,assert_raises
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn import linear_model
+from sklearn.preprocessing import StandardScaler
 
 @pytest.fixture(scope="function")
 def randomstate():
@@ -54,27 +57,38 @@ def test_wrong_values(wrong_param):
 @pytest.mark.parametrize('repeated', [0,1,2,5])
 @pytest.mark.parametrize('flip_y', [0,0.1,1])
 @pytest.mark.parametrize('class_sep', [0,0.5,10])
-def test_all_feature_types(strong, weak, repeated, flip_y, class_sep):
+@pytest.mark.parametrize('noise', [0,0.5,1,10])
+@pytest.mark.parametrize('problem', ["regression","classification"])
+def test_all_feature_types(problem,strong, weak, repeated, flip_y, class_sep, noise):
+
     n_samples = 10
     n_features = 100
+    args = {"n_samples" : n_samples, "n_features" : n_features, 
+            "strRel" : strong, "n_redundant" : weak, "n_repeated" : repeated}
+    
+    if problem == "regression":
+        args["noise"] = noise
+        gen = genRegressionData
+    else:
+        args["flip_y"] = flip_y
+        args["class_sep"] = class_sep
+        gen = genClassificationData
+        if flip_y == 1:
+                with pytest.raises(ValueError):
+                    X, y = gen(**args)
+                return
+        if class_sep == 10:
+                with pytest.raises(ValueError):
+                    X, y = gen(**args)
+                return  
 
     if strong == 0 and weak <2:
             with pytest.raises(ValueError):
-                X, y = genClassificationData(n_samples = n_samples, n_features = n_features, strRel = strong, n_redundant = weak,
-                            flip_y = flip_y, class_sep = class_sep, n_repeated = repeated)
+                X, y = gen(**args)
             return  
-    if flip_y == 1:
-            with pytest.raises(ValueError):
-                X, y = genClassificationData(n_samples = n_samples, n_features = n_features, strRel = strong, n_redundant = weak,
-                            flip_y = flip_y, class_sep = class_sep, n_repeated = repeated)
-            return
-    if class_sep == 10:
-            with pytest.raises(ValueError):
-                X, y = genClassificationData(n_samples = n_samples, n_features = n_features, strRel = strong, n_redundant = weak,
-                            flip_y = flip_y, class_sep = class_sep, n_repeated = repeated)
-            return  
-    X, y = genClassificationData(n_samples = n_samples, n_features = n_features, strRel = strong, n_redundant = weak,
-                            flip_y = flip_y, class_sep = class_sep, n_repeated = repeated)
+
+    X, y = gen(**args)
+
     # Equal length
     assert_equal(len(X),len(y))
     # Correct parameters
@@ -83,10 +97,45 @@ def test_all_feature_types(strong, weak, repeated, flip_y, class_sep):
 
 def test_class_balance(randomstate):
 
-    X,y = genData(n_samples= 100, random_state=randomstate)
+    X,y = genClassificationData(n_samples= 100, random_state=randomstate)
 
     import collections
     c = collections.Counter(y)
     first_class = c[-1] 
     second_class = c[1] 
     assert np.abs(first_class - second_class) <= 1
+
+
+def test_data_truth():
+    n = 200
+    d = 10
+    strRel = 5
+
+    generator = check_random_state(1337)
+    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, strRel=strRel,
+                                                  n_repeated=0, random_state=generator)
+    X = StandardScaler().fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=generator)
+    reg = linear_model.LinearRegression(normalize=True)
+    reg.fit(X_train, y_train)
+
+    testscore = reg.score(X_test,y_test)
+    assert testscore > 0.98
+
+    
+def test_data_noise():
+    n = 200
+    d = 10
+    strRel = 5
+
+    generator = check_random_state(1337)
+    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, strRel=strRel,
+                                                  n_repeated=0, random_state=generator,noise=100)
+    X = StandardScaler().fit_transform(X)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=generator)
+    reg = linear_model.LinearRegression(normalize=True)
+    reg.fit(X_train, y_train)
+
+    testscore = reg.score(X_test,y_test)
+    assert testscore < 0.55
+
