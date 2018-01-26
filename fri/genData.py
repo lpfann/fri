@@ -44,6 +44,8 @@ def _checkParam(n_samples: int=100, n_features: int=2,
     if partition is not None:
         if sum(partition) != n_redundant:
             raise ValueError("Sum of partition values should yield number of redundant features.")
+        if 0 in partition or 1 in partition:
+            raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
     print("Generating dataset with d={},n={},strongly={},weakly={}, partition of weakly={}".format(n_features,n_samples,strRel,n_redundant,partition))
 
 def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, n_features: int=2,  
@@ -174,10 +176,13 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     X = np.zeros((n_samples,n_features))
 
     # Find partitions which defíne the weakly relevant subsets
-    if partition is None:
-        # Legacy behaviour yielding subsets of size 2
-        partition =  int(n_redundant / 2) * [2]
-    part_size = len(partition)    
+    if partition is None and n_redundant > 0:
+        partition =  [n_redundant]
+        part_size = 1    
+    elif partition is not None:
+        part_size = len(partition)
+    else:
+        part_size = 0
 
     X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
     
@@ -193,7 +198,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, strRel: int = 1,
-                      n_repeated: int = 0, noise: float = 1, random_state: object = None,
+                      n_repeated: int = 0, noise: float = 0, random_state: object = None,
                       partition = None) -> object:
     """Generate synthetic regression data
     
@@ -233,18 +238,21 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     X = np.zeros((int(n_samples), int(n_features)))
 
     # Find partitions which defíne the weakly relevant subsets
-    if partition is None:
-        # Legacy behaviour yielding subsets of size 2
-        partition =  int(n_redundant / 2) * [2]
-    part_size = len(partition) 
-    print(part_size)
+    if partition is None and n_redundant > 0:
+        partition =  [n_redundant]
+        part_size = 1    
+    elif partition is not None:
+        part_size = len(partition)
+    else:
+        part_size = 0
+
     X_informative, Y = make_regression(n_features=int(strRel + part_size),
                                         n_samples=int(n_samples),
                                         noise=noise,
-                                        n_informative=int(strRel),
+                                        n_informative=int(strRel + part_size),
                                         random_state=random_state,
                                         shuffle=False)
-    strRel 
+
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
                           n_redundant = n_redundant, strRel = strRel,
                           n_repeated = n_repeated,
