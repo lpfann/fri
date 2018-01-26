@@ -6,9 +6,19 @@ import numpy as np
 from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 
+
 @pytest.fixture(scope="function")
 def randomstate():
    return check_random_state(1337)
+
+def check_interval(interval,n_strong):
+        # All strongly relevant features have a lower bound > 0
+        assert np.all(interval[0:n_strong,0] > 0)
+        np.testing.assert_allclose(interval[n_strong:, 0], 0,atol=1e-03) # TODO: decrease tolerance
+        
+        # Upper bound checks 
+        assert np.all(interval[0:n_strong,1] > 0)
+        assert np.all(interval[0:n_strong,1] > interval[0:n_strong,0])
 
 
 @pytest.mark.parametrize('problem', ["regression","classification"])
@@ -52,18 +62,14 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
             assert False
 
         interval = fri.interval_
-        
+
         assert len(fri.allrel_prediction_) == X.shape[1]
         assert len(interval) == X.shape[1]
 
-        
-        # All strongly relevant features have a lower bound > 0
-        assert np.all(interval[0:n_strong,0] > 0)
-        assert np.all(interval[n_strong:n_weak,0] == 0)
-        
-        # Upper bound checks
-        assert np.all(interval[0:n_strong,1] > 0)
-        assert np.all(interval[0:n_strong,1] > interval[0:n_strong,0])
+        check_interval(interval, n_strong)
+
+
+
 
 def test_multiprocessing(randomstate):
 
@@ -83,8 +89,4 @@ def test_multiprocessing(randomstate):
     assert len(fri.allrel_prediction_) == X.shape[1]
     assert len(fri.interval_) == X.shape[1]
 
-    # All strongly relevant features have a lower bound > 0
-    assert np.all(fri.interval_[0:2,0]>0)
-    # All weakly relevant features should have a lower bound 0
-    assert np.any(fri.interval_[2:4,0]>0) == False
-    
+    check_interval(fri.interval_, 2)

@@ -614,9 +614,11 @@ class EnsembleFRI(FRIBase):
 
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
-                              n_samples=n_samples, random_state=self.bs_seed+i)
+                              n_samples = n_samples,
+                              random_state = self.bs_seed + i)
 
         m.fit(X_bs, y_bs)
+
         if self.model.shadow_features:
             return m.interval_, m._omegas, m._biase, m._shadowintervals
         else:
@@ -629,23 +631,31 @@ class EnsembleFRI(FRIBase):
         else:
             self.isRegression = True
 
+        # Switch for parallel processing, defines map function
         if self.n_jobs > 1:
             def pmap(*args):
                 with Pool(self.n_jobs) as p:
                     return p.map(*args)
-
             nmap = pmap
         else:
             nmap = map
+
+        # Save data for worker functions
         y = np.asarray(y)
         self.X_, self.y_ = X, y
+
+        # run bootstrap iterations
         results = list(nmap(self._fit_one_bootstrap, range(self.n_bootstraps)))
 
+        # Claim result data from workers depending
         if self.model.shadow_features:
             rangevector, omegas, biase, shadowrangevector = zip(*results)
             self._shadowintervals = np.mean(shadowrangevector, axis=0)
         else:
             rangevector, omegas, biase = zip(*results)
+
+        self.rcum = rangevector #  TODO: Temp remove later
+        # Aggregation step - we use a simple average
         # Get average
         self.interval_ = np.mean(rangevector, axis=0)
         self._omegas = np.mean(omegas, axis=0)
