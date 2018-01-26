@@ -27,16 +27,20 @@ def _checkParam(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0, class_sep: float=0.2,
                           flip_y: float=0,noise: float = 1, partition=None,**kwargs):
-    if not 0 < n_samples:
-        raise ValueError("We need at least one sample.")
+    if not 1 < n_samples:
+        raise ValueError("We need at least 2 samples.")
     if not 0 < n_features:
         raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
+    if not 0 <= class_sep < 1:
+        raise ValueError("Class Separatino has to be between 0 and 1.")
     if not n_redundant+n_repeated+strRel<= n_features:
         raise ValueError("Inconsistent number of features")
     if strRel + n_redundant < 1:
         raise ValueError("No informative features.")
+    if strRel == 0 and n_redundant < 2:
+        raise ValueError("Redundant features have per definition more than one member.")
     if partition is not None:
         if sum(partition) != n_redundant:
             raise ValueError("Sum of partition values should yield number of redundant features.")
@@ -135,7 +139,8 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    def genStrongRelFeatures(n, strRel,random_state, width=10, epsilon=0.05):
+    def genStrongRelFeatures(n, strRel,random_state, epsilon=0.05):
+        width = 10
         Y = np.ones(n)
         # Generate hyperplane consiting of strongly relevant features
         base = 0 # origin for now # TODO
@@ -153,6 +158,17 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
         Y[distPlane > epsilon] = 1
         Y[distPlane < -epsilon] = -1
 
+        v = n_vec/np.linalg.norm(n_vec)
+        while np.sum(Y == 1) != np.sum(Y == -1):
+            i = random_state.choice(n)
+            pick = candidates[i]
+            pick = pick - 2*v*np.inner(pick,v)
+            candidates[i] = pick
+
+            distPlane = (np.inner(n_vec, candidates) - base)
+            Y[distPlane > epsilon] = 1
+            Y[distPlane < -epsilon] = -1
+        
         return candidates, Y
 
     X = np.zeros((n_samples,n_features))
@@ -166,7 +182,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
     
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
-                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_redundant = n_redundant, strRel = strRel,
                           n_repeated = n_repeated, partition = partition)
 
     if flip_y > 0:
@@ -230,7 +246,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
                                         shuffle=False)
     strRel 
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
-                          n_redundant = n_redundant, strRel = int(strRel + part_size),
+                          n_redundant = n_redundant, strRel = strRel,
                           n_repeated = n_repeated,
                           noise = noise, partition = partition)
 
