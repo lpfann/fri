@@ -9,7 +9,6 @@ class BaseProblem(object):
         self.d = d
         self.n = n
         self.X = X
-        self.Y = np.array([Y, ] * 1)
         # Dimension specific data
         self.di = di
         # Solver parameters
@@ -21,10 +20,9 @@ class BaseProblem(object):
 
     def solve(self):
         self.problem = cvx.Problem(self._objective, self._constraints)
-        try:
-            self.problem.solve(**self.kwargs)
-        except:
-            return None
+        
+        self.problem.solve(**self.kwargs)
+
         return self
 
 
@@ -35,24 +33,22 @@ class BaseClassificationProblem(BaseProblem):
 
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1, svmloss=1, L1=1):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y)
-        # General data
-        self.L1 = L1
-        self.svmloss = svmloss
-        self.C = C
         # Solver parameters
         self.kwargs = kwargs
+        Y_array = np.array([Y, ] * 1).T
+
         # Solver Variables
-        self.xp = cvx.Variable(shape=(d,1))  # x' , our opt. value
+        self.xp = cvx.Variable()  # x' , our opt. value
         self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
-        self.eps = cvx.Variable(shape=(n,1),nonneg=True)  # slack variables
-        
+
+        point_distances = cvx.multiply(Y_array, X * self.omega + self.b)
+        loss = cvx.sum(cvx.pos(1 - point_distances))
+        weight_norm = cvx.norm(self.omega, 1)
+
         self._constraints = [
-            # points still correctly classified with soft margin
-            cvx.multiply(self.Y.T, self.X * self.omega - self.b) >= 1 - self.eps,
-            # L1 reg. and allow slack
-            cvx.norm(self.omega, 1) <= self.L1,
-            cvx.sum(self.eps) <= self.svmloss
+            weight_norm <= L1,
+            loss <= svmloss
         ]
 
 class MinProblemClassification(BaseClassificationProblem):
@@ -63,10 +59,10 @@ class MinProblemClassification(BaseClassificationProblem):
 
         self._constraints.extend(
             [
-                cvx.abs(self.omega[self.di]) <= self.xp[self.di]
+                cvx.abs(self.omega[di]) <= self.xp
             ])
 
-        self._objective = cvx.Minimize(self.xp[self.di])
+        self._objective = cvx.Minimize(self.xp)
 
 
 class MaxProblem1(BaseClassificationProblem):
@@ -76,10 +72,10 @@ class MaxProblem1(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            self.xp[self.di] <= self.omega[self.di]
+            self.xp <= self.omega[self.di]
         ])
 
-        self._objective = cvx.Maximize(self.xp[self.di])
+        self._objective = cvx.Maximize(self.xp)
 
 
 class MaxProblem2(BaseClassificationProblem):
@@ -89,10 +85,10 @@ class MaxProblem2(BaseClassificationProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
         self._constraints.extend([
-            self.xp[self.di] <= -(self.omega[self.di])
+            self.xp <= -(self.omega[self.di])
         ])
 
-        self._objective = cvx.Maximize(self.xp[self.di])
+        self._objective = cvx.Maximize(self.xp)
 
 '''
 #############
