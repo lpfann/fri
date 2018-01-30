@@ -71,7 +71,8 @@ class MaxProblem1(BaseClassificationProblem):
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None, C=1, svmloss=1, L1=1):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y, C=C, svmloss=svmloss, L1=L1)
 
-        self._constraints.extend([
+        self._constraints.extend(
+            [
             self.xp <= self.omega[self.di]
         ])
 
