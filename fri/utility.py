@@ -13,21 +13,20 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
 
     def fit(self, X, y):
         self.classes_ = np.unique(y)
-        
         (n, d) = X.shape
+
         w = cvx.Variable(d)
-        xi = cvx.Variable(n)
+        xi = cvx.Variable(n,nonneg=True)
         b = cvx.Variable()
 
         # Prepare problem.
         objective = cvx.Minimize(cvx.norm(w, 1) + self.C * cvx.sum(xi))
         constraints = [
-            cvx.multiply(y.T, X * w - b) >= 1 - xi,
-            xi >= 0
+            cvx.multiply(y.T, X * w - b) >= 1 - xi
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
-        problem.solve(solver="ECOS")
+        problem.solve(solver="ECOS") # TODO: ecos oder cvxopt klappen, qsopt ist aber auto default
 
         # Prepare output and convert from matrices to flattened arrays.
         self.coef_ = np.array(w.value)[np.newaxis]
@@ -48,21 +47,19 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         
         (n, d) = X.shape
         w = cvx.Variable(d)
-        xi = cvx.Variable(n)
+        xi = cvx.Variable(n, nonneg=True)
         b = cvx.Variable()
         
         # Prepare problem.
         objective = cvx.Minimize(cvx.norm(w, 1) + self.C * cvx.sum(xi))
         constraints = [
-            cvx.abs(y - (X * w + b )) <= self.epsilon + xi,
-            xi >= 0
+            cvx.abs(y - (X * w + b )) <= self.epsilon + xi
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS")
 
-        # Prepare output and convert from matrices to flattened arrays.
-        self.coef_ = np.array(w.value)[np.newaxis]
+        self.coef_ = np.array(w.value)[np.newaxis][0]
         self.intercept_ = b.value
         self.slack = np.asarray(xi.value).flatten()
 
