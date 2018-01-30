@@ -102,12 +102,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
-        debug = False
+        debug = True
         if debug:
             print("loss",self._svm_loss)
             print("L1",self._svm_L1)
             print("C",self._hyper_C)
             print("score",self._best_clf_score)
+            print("coef:\n{}".format(self._svm_coef.T))
 
         if self._best_clf_score < 0.7:
             print("WARNING: Weak Model performance! score = {}".format(self._best_clf_score))
@@ -465,7 +466,6 @@ class FRIClassification(FRIBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
-        print(best_clf.coef_)
         self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
 
@@ -574,14 +574,13 @@ class FRIRegression(FRIBase):
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
+
         if legacy:
             prediction = best_clf.predict(X)
             self._svm_loss = np.sum(np.abs(Y - prediction))
         else:
             self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
-        print("loss",self._svm_loss)
-        print("L1",self._svm_L1)
 
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
