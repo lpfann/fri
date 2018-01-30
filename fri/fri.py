@@ -102,9 +102,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
+        debug = False
+        if debug:
+            print("loss",self._svm_loss)
+            print("L1",self._svm_L1)
+            print("C",self._hyper_C)
+            print("score",self._best_clf_score)
 
         if self._best_clf_score < 0.7:
-            print("WARNING: Weak Model performance!")
+            print("WARNING: Weak Model performance! score = {}".format(self._best_clf_score))
 
         # Main Optimization step
         results = self._main_opt(X, y, self._svm_loss, self._svm_L1,
@@ -220,7 +226,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
-                            lower_epsilon=0.0323):
+                            lower_epsilon=0.0323
+                            ):
         """Determines relevancy using feature relevance interval values
         Parameters
         ----------
@@ -366,8 +373,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
             rangevector[rangevector < 0] = 0
 
         # Scale to L1
-        #if L1 > 0:
-            #rangevector = rangevector / L1
+        if L1 > 0:
+            rangevector = rangevector / L1
             # shadowrangevector = shadowrangevector / L1
 
         # round mins to zero
@@ -422,7 +429,7 @@ class FRIClassification(FRIBase):
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
-        legacy = True
+        legacy = False
         if legacy:
             estimator = svm.LinearSVC(penalty='l1',
                                       loss="squared_hinge",
@@ -433,8 +440,8 @@ class FRIClassification(FRIBase):
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
             min_c = svm.l1_min_c(X, Y)
-            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
-            tuned_parameters = [{'C': [0.001, 0.01, 0.1, 1, 10, 100]}]
+            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            #tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100,1000]}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -447,7 +454,7 @@ class FRIClassification(FRIBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="accuracy",
+                                  scoring="average_precision",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=False)
@@ -458,8 +465,9 @@ class FRIClassification(FRIBase):
 
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
+        print(best_clf.coef_)
         self._svm_bias = best_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef.flatten(), ord=1)
+        self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
 
         if legacy:
             prediction = best_clf.decision_function(X)
@@ -467,7 +475,7 @@ class FRIClassification(FRIBase):
             self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
         else:
             self._svm_loss = np.abs(self._svm_clf.slack).sum()
-            self._svm_coef = self._svm_coef[0]
+
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
@@ -538,9 +546,11 @@ class FRIRegression(FRIBase):
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
-            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+            #tuned_parameters["C"] = [0.001, 0.001, 0.01, 0.1, 1, 10, 100]
+            tuned_parameters["C"] = np.logspace(-10, 10, num=20)
         if self.epsilon is None:
-            tuned_parameters["epsilon"] =  [0.0001, 0.001, 0.01, 0.1, 1, 2, 5]
+            tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+        print("parameters:",tuned_parameters)
 
         n = len(X)
         if n <= 20:
@@ -550,11 +560,12 @@ class FRIRegression(FRIBase):
 
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="r2",
+                                  scoring=None,
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   verbose=0)
         gridsearch.fit(X, Y)
+        
         self._hyper_C = gridsearch.best_params_['C']
         self._hyper_epsilon = gridsearch.best_params_['epsilon']
         self._best_clf_score = gridsearch.best_score_
@@ -563,13 +574,14 @@ class FRIRegression(FRIBase):
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
-
         if legacy:
             prediction = best_clf.predict(X)
             self._svm_loss = np.sum(np.abs(Y - prediction))
         else:
             self._svm_loss = np.abs(self._svm_clf.slack).sum()
-            self._svm_coef = self._svm_coef[0]
+
+        print("loss",self._svm_loss)
+        print("L1",self._svm_L1)
 
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
