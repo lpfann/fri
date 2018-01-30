@@ -68,9 +68,6 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
         check_interval(interval, n_strong)
 
-
-
-
 def test_multiprocessing(randomstate):
 
     data = genData(n_samples=200, n_features=4, n_redundant=2,strRel=2,

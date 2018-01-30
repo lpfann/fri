@@ -39,7 +39,7 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
     """
     Determine a L1 regularized regression hyperplane with linear loss function
     """
-    def __init__(self, C = 1, epsilon = 0):
+    def __init__(self, C = 1, epsilon = 1):
         self.C = C
         self.epsilon = epsilon
         
@@ -49,11 +49,13 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         w = cvx.Variable(d)
         xi = cvx.Variable(n, nonneg=True)
         b = cvx.Variable()
-        
+
         # Prepare problem.
         objective = cvx.Minimize(cvx.norm(w, 1) + self.C * cvx.sum(xi))
         constraints = [
+
             cvx.abs(y - (X * w + b )) <= self.epsilon + xi
+
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)

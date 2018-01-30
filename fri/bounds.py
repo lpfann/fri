@@ -44,7 +44,7 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
-            print("DEBUG: Lower Bound - current_feature={}".format(self.di))
+            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.di,status))
             raise NotFeasibleForParameters
 
 class UpperBound(Bound):
