@@ -14,7 +14,7 @@ def randomstate():
 def check_interval(interval,n_strong):
         # All strongly relevant features have a lower bound > 0
         assert np.all(interval[0:n_strong,0] > 0)
-        np.testing.assert_allclose(interval[n_strong:, 0], 0,atol=1e-03) # TODO: decrease tolerance
+        np.testing.assert_allclose(interval[n_strong:, 0], 0,atol=1e-02)
         
         # Upper bound checks 
         assert np.all(interval[0:n_strong,1] > 0)
@@ -30,7 +30,7 @@ def check_interval(interval,n_strong):
 @pytest.mark.parametrize('n_weak', [0,2,3])
 def test_model(problem, model, n_strong, n_weak, randomstate):
     
-    n_samples = 150
+    n_samples = 500
     n_features = 10
 
     if problem is "regression":
@@ -70,7 +70,7 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
 def test_multiprocessing(randomstate):
 
-    data = genData(n_samples=200, n_features=4, n_redundant=2,strRel=2,
+    data = genData(n_samples=500, n_features=4, n_redundant=2,strRel=2,
                     n_repeated=0, flip_y=0, random_state=randomstate)
 
     X_orig, y = data

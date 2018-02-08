@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.utils import check_random_state
 from sklearn.datasets import make_regression
+from sklearn.datasets.samples_generator import make_blobs
 
 def _combFeat(n, size, strRelFeat,randomstate):
         # Split each strongly relevant feature into linear combination of it
@@ -10,8 +11,8 @@ def _combFeat(n, size, strRelFeat,randomstate):
             weakFeats[:,x] = cofact  * strRelFeat
         return weakFeats
 
-def _dummyFeat(n,randomstate,scale=2):
-        return  randomstate.rand(n) * scale - scale / 2
+def _dummyFeat(n,randomstate):
+        return  randomstate.randn(n)
 
 def _repeatFeat(feats, i,randomstate):
         i_pick = randomstate.choice(i)
@@ -25,7 +26,7 @@ def genData(**args):
 
 def _checkParam(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
-                          n_repeated: int=0, class_sep: float=0.2,
+                          n_repeated: int=0,
                           flip_y: float=0,noise: float = 1, partition=None,**kwargs):
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
@@ -33,8 +34,6 @@ def _checkParam(n_samples: int=100, n_features: int=2,
         raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
-    if not 0 <= class_sep < 1:
-        raise ValueError("Class Separatino has to be between 0 and 1.")
     if not n_redundant+n_repeated+strRel<= n_features:
         raise ValueError("Inconsistent number of features")
     if strRel + n_redundant < 1:
@@ -90,7 +89,7 @@ def _partition_min_max(n, k, l, m):
 
 def genClassificationData(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
-                          n_repeated: int=0, class_sep: float=0.2,
+                          n_repeated: int=0,
                           flip_y: float=0, random_state: object=None,
                           partition=None):
     """Generate synthetic classification data
@@ -107,8 +106,6 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
         Number of features which are mandatory for the underlying model (strongly relevant)
     n_repeated : int, optional
         Number of features which are clones of existing ones. 
-    class_sep : float, optional
-        Size of region between classes.
     flip_y : float, optional
         Ratio of samples randomly switched to wrong class.
     random_state : object, optional
@@ -141,37 +138,19 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    def genStrongRelFeatures(n, strRel,random_state, epsilon=0.05):
-        width = 10
-        Y = np.ones(n)
-        # Generate hyperplane consiting of strongly relevant features
-        base = 0 # origin for now # TODO
-        n_vec = random_state.uniform(0.2, 1, int(strRel)) * random_state.choice([1, -1], int(strRel))
-        candidates = random_state.uniform(-width, width, (n, int(strRel)))
-        distPlane = (np.inner(n_vec, candidates) - base)
-        # reroll points which are too cloos to hyperplane
-        close_candiate_mask = np.abs(distPlane) < epsilon
-        while np.sum(close_candiate_mask) > 0:
-            candidates[close_candiate_mask] = \
-                random_state.uniform(-width, width, (np.sum(close_candiate_mask), int(strRel)))
-            distPlane = (np.inner(n_vec, candidates) - base)
-            close_candiate_mask = np.abs(distPlane) < epsilon
+    def genStrongRelFeatures(n, strRel,random_state):
 
-        Y[distPlane > epsilon] = 1
-        Y[distPlane < -epsilon] = -1
+        width = 2
+        stddev = 1.8
+        centers = np.zeros((2,strRel))
+        centers[0] = width
+        centers[1] = -width
 
-        v = n_vec/np.linalg.norm(n_vec)
-        while np.sum(Y == 1) != np.sum(Y == -1):
-            i = random_state.choice(n)
-            pick = candidates[i]
-            pick = pick - 2*v*np.inner(pick,v)
-            candidates[i] = pick
-
-            distPlane = (np.inner(n_vec, candidates) - base)
-            Y[distPlane > epsilon] = 1
-            Y[distPlane < -epsilon] = -1
+        X, y = make_blobs(n_samples=n, centers=centers, cluster_std=stddev, n_features=strRel, random_state=random_state)
         
-        return candidates, Y
+        y[y == 0] = -1
+
+        return X, y
 
     X = np.zeros((n_samples,n_features))
 
@@ -184,7 +163,7 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
     else:
         part_size = 0
 
-    X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state, epsilon=class_sep)
+    X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state)
     
     X = _fillVariableSpace(X_informative, random_state, n_samples = n_samples, n_features = n_features,  
                           n_redundant = n_redundant, strRel = strRel,
