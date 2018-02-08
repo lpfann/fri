@@ -20,8 +20,17 @@ class BaseProblem(object):
 
     def solve(self):
         self.problem = cvx.Problem(self._objective, self._constraints)
-        
-        self.problem.solve(**self.kwargs)
+        try:
+             self.problem.solve(**self.kwargs)
+        except cvx.error.SolverError:
+            try:
+                print("SolverError! Trying CVXOPT Solver")
+                self.problem.solve(solver="CVXOPT",**self.kwargs)
+            except cvx.error.SolverError:
+                print("SolverError! Trying CVXOPT Solver with ROBUST_KKTSOLVER ")
+                self.problem.solve(solver="CVXOPT",kktsolver="ROBUST_KKTSOLVER",**self.kwargs)
+            else:
+                return None
 
         return self
 
