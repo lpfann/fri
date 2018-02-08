@@ -441,8 +441,8 @@ class FRIClassification(FRIBase):
         if self.C is None:
             # Hyperparameter Optimization over C, starting from minimal C
             min_c = svm.l1_min_c(X, Y)
-            tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
-            #tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100,1000]}]
+            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
+            tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1]}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -546,8 +546,8 @@ class FRIRegression(FRIBase):
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
-            #tuned_parameters["C"] = [0.001, 0.001, 0.01, 0.1, 1, 10, 100]
-            tuned_parameters["C"] = np.logspace(-10, 10, num=20)
+            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1]
+            #tuned_parameters["C"] = np.logspace(-10, 10, num=20)
         if self.epsilon is None:
             tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
         print("parameters:",tuned_parameters)
