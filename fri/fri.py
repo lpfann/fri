@@ -467,7 +467,7 @@ class FRIClassification(FRIBase):
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
+        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         if legacy:
             prediction = best_clf.decision_function(X)
@@ -573,7 +573,7 @@ class FRIRegression(FRIBase):
         self._svm_clf = best_clf = gridsearch.best_estimator_
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef, ord=1)
+        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
 
         if legacy:
             prediction = best_clf.predict(X)
