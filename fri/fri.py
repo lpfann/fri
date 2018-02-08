@@ -430,18 +430,10 @@ class FRIClassification(FRIBase):
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
 
     def _initEstimator(self, X, Y):
-        legacy = False
-        if legacy:
-            estimator = svm.LinearSVC(penalty='l1',
-                                      loss="squared_hinge",
-                                      dual=False,
-                                      random_state=self.random_state)
-        else:
-            estimator = L1HingeHyperplane()
+
+        estimator = L1HingeHyperplane()
+
         if self.C is None:
-            # Hyperparameter Optimization over C, starting from minimal C
-            min_c = svm.l1_min_c(X, Y)
-            #tuned_parameters = [{'C': min_c * np.logspace(1, 4)}]
             tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1]}]
         else:
             # Fixed Hyperparameter
@@ -452,7 +444,6 @@ class FRIClassification(FRIBase):
             cv = 3
         else:
             cv = 7
-
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
                                   scoring="average_precision",
@@ -468,13 +459,7 @@ class FRIClassification(FRIBase):
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
-
-        if legacy:
-            prediction = best_clf.decision_function(X)
-            Y_vector = np.array([Y[:], ] * 1)
-            self._svm_loss = np.sum(np.maximum(0, 1 - Y_vector * prediction))
-        else:
-            self._svm_loss = np.abs(self._svm_clf.slack).sum()
+        self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
 
     def fit(self, X, y):
@@ -534,23 +519,13 @@ class FRIRegression(FRIBase):
         self.epsilon = epsilon
 
     def _initEstimator(self, X, Y):
-        #estimator = svm.SVR(kernel="linear",shrinking=False)
-        legacy = False
-        if legacy:
-            estimator = svm.LinearSVR(
-                                      loss="squared_epsilon_insensitive",
-                                      dual=False,
-                                      random_state=self.random_state)
-        else:
-            estimator = L1EpsilonRegressor()
+        estimator = L1EpsilonRegressor()
 
         tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
         if self.C is None:
             tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1]
-            #tuned_parameters["C"] = np.logspace(-10, 10, num=20)
         if self.epsilon is None:
             tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-        print("parameters:",tuned_parameters)
 
         n = len(X)
         if n <= 20:
@@ -574,12 +549,7 @@ class FRIRegression(FRIBase):
         self._svm_coef = best_clf.coef_
         self._svm_bias = best_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
-
-        if legacy:
-            prediction = best_clf.predict(X)
-            self._svm_loss = np.sum(np.abs(Y - prediction))
-        else:
-            self._svm_loss = np.abs(self._svm_clf.slack).sum()
+        self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
 
     def fit(self, X, y):
@@ -665,7 +635,6 @@ class EnsembleFRI(FRIBase):
         else:
             rangevector, omegas, biase = zip(*results)
 
-        self.rcum = rangevector #  TODO: Temp remove later
         # Aggregation step - we use a simple average
         # Get average
         self.interval_ = np.mean(rangevector, axis=0)
