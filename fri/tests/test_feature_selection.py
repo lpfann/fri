@@ -35,10 +35,10 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state = randomstate, C = 1, epsilon = 0)
+        fri = FRIRegression(random_state = randomstate)
     else:
         gen = genData
-        fri = FRIClassification(random_state = randomstate, C = 1)
+        fri = FRIClassification(random_state = randomstate)
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
