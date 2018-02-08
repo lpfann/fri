@@ -35,21 +35,26 @@ class BaseClassificationProblem(BaseProblem):
         super().__init__(di=di, d=d, n=n, kwargs=kwargs, X=X, Y=Y)
         # Solver parameters
         self.kwargs = kwargs
-        Y_array = np.array([Y, ] * 1).T
 
         # Solver Variables
         self.xp = cvx.Variable()  # x' , our opt. value
-        self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
+        self.omega = cvx.Variable(d)  # complete linear weight vector
         self.b = cvx.Variable()  # shift
 
-        point_distances = cvx.multiply(Y_array, X * self.omega + self.b)
+        point_distances = cvx.multiply(Y, X * self.omega + self.b)
         loss = cvx.sum(cvx.pos(1 - point_distances))
         weight_norm = cvx.norm(self.omega, 1)
 
         self._constraints = [
-            weight_norm <= L1,
-            loss <= svmloss
+            weight_norm <= L1
         ]
+
+        # Only add loss term when loss >>  zero 
+        if svmloss > 0.01:
+            self._constraints.extend(
+                [
+                    loss <= svmloss
+                ])
 
 class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
