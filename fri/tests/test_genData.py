@@ -22,10 +22,9 @@ def test_legacy_method(randomstate):
     d = 4
     strRel = 2
     weakRel  = 2
-    class_sep = 0.2
     flip_y = 0
     args = {"n_samples":n, "n_features":d, "n_redundant":weakRel,"strRel":strRel,
-    "n_repeated":0, "class_sep":class_sep, "flip_y":flip_y, "random_state":generator}
+    "n_repeated":0, "flip_y":flip_y, "random_state":generator}
     X,y = genData(**args)
     # Equal length
     assert_equal(len(X),len(y))
@@ -58,10 +57,9 @@ def test_wrong_values(wrong_param):
 @pytest.mark.parametrize("weak", [0,1,2,20])
 @pytest.mark.parametrize('repeated', [0,1,2,5])
 @pytest.mark.parametrize('flip_y', [0,0.1,1])
-@pytest.mark.parametrize('class_sep', [0,0.5,10])
 @pytest.mark.parametrize('noise', [0,0.5,1,10])
 @pytest.mark.parametrize('problem', ["regression","classification"])
-def test_all_feature_types(problem,strong, weak, repeated, flip_y, class_sep, noise):
+def test_all_feature_types(problem,strong, weak, repeated, flip_y, noise):
 
     n_samples = 10
     n_features = 100
@@ -73,16 +71,11 @@ def test_all_feature_types(problem,strong, weak, repeated, flip_y, class_sep, no
         gen = genRegressionData
     else:
         args["flip_y"] = flip_y
-        args["class_sep"] = class_sep
         gen = genClassificationData
         if flip_y == 1:
                 with pytest.raises(ValueError):
                     X, y = gen(**args)
                 return
-        if class_sep == 10:
-                with pytest.raises(ValueError):
-                    X, y = gen(**args)
-                return  
 
     if strong == 0 and weak <2:
             with pytest.raises(ValueError):
