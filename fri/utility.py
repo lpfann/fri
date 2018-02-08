@@ -61,7 +61,7 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS")
 
-        self.coef_ = np.array(w.value)[np.newaxis][0]
+        self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = b.value
         self.slack = np.asarray(xi.value).flatten()
 
