@@ -26,7 +26,7 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
-        problem.solve(solver="ECOS") # TODO: ecos oder cvxopt klappen, qsopt ist aber auto default
+        problem.solve()
 
         # Prepare output and convert from matrices to flattened arrays.
         self.coef_ = np.array(w.value)[np.newaxis]
@@ -59,7 +59,7 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
-        problem.solve(solver="ECOS")
+        problem.solve()
 
         self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = b.value
