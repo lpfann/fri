@@ -20,6 +20,7 @@ import fri.bounds
 import copy
 import math
 from fri.utility import L1HingeHyperplane, L1EpsilonRegressor
+import warnings
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters
@@ -434,7 +435,7 @@ class FRIClassification(FRIBase):
         estimator = L1HingeHyperplane()
 
         if self.C is None:
-            tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1]}]
+            tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]}]
         else:
             # Fixed Hyperparameter
             tuned_parameters = [{'C': [self.C]}]
@@ -446,11 +447,16 @@ class FRIClassification(FRIBase):
             cv = 7
         gridsearch = GridSearchCV(estimator,
                                   tuned_parameters,
-                                  scoring="average_precision",
+                                  scoring="precision",
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
+                                  error_score=0,
                                   verbose=False)
-        gridsearch.fit(X, Y)
+        
+        # Ignore warnings for extremely bad parameters (when precision=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            gridsearch.fit(X, Y)
 
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
@@ -538,8 +544,12 @@ class FRIRegression(FRIBase):
                                   scoring=None,
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
+                                  error_score=0,
                                   verbose=0)
-        gridsearch.fit(X, Y)
+        # Ignore warnings for extremely bad parameters (when precision=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            gridsearch.fit(X, Y)
         
         self._hyper_C = gridsearch.best_params_['C']
         self._hyper_epsilon = gridsearch.best_params_['epsilon']
