@@ -22,15 +22,9 @@ class BaseProblem(object):
         self.problem = cvx.Problem(self._objective, self._constraints)
         try:
              self.problem.solve(**self.kwargs)
-        except cvx.error.SolverError:
-            try:
-                print("SolverError! Trying CVXOPT Solver")
-                self.problem.solve(solver="CVXOPT",**self.kwargs)
-            except cvx.error.SolverError:
-                print("SolverError! Trying CVXOPT Solver with ROBUST_KKTSOLVER ")
-                self.problem.solve(solver="CVXOPT",kktsolver="ROBUST_KKTSOLVER",**self.kwargs)
-            else:
-                return None
+        except Exception as e:
+            print(e)
+            return None
 
         return self
 
@@ -46,7 +40,7 @@ class BaseClassificationProblem(BaseProblem):
         self.kwargs = kwargs
 
         # Solver Variables
-        self.xp = cvx.Variable()  # x' , our opt. value
+        self.xp = cvx.Variable(nonneg=True)  # x' , our opt. value
         self.omega = cvx.Variable(d)  # complete linear weight vector
         self.b = cvx.Variable()  # shift
 
@@ -58,12 +52,12 @@ class BaseClassificationProblem(BaseProblem):
             weight_norm <= L1
         ]
 
-        # Only add loss term when loss >>  zero 
-        if svmloss > 0.01:
-            self._constraints.extend(
-                [
-                    loss <= svmloss
-                ])
+        svmloss = max(0.01, svmloss)
+        self._constraints.extend(
+            [
+                loss <= svmloss
+            ])
+
 
 class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
@@ -122,7 +116,8 @@ class BaseRegressionProblem(BaseProblem):
         # General data
         #self.Y = Y # other format then with classification
         self.Y = Y.reshape((-1,1))
-        self.svrloss = svrloss
+
+        self.svrloss = max(0.01, svrloss)
         self.epsilon = epsilon
         self.L1 = L1
         self.C = C
