@@ -385,7 +385,52 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return rangevector, omegas, biase, shadowrangevector
 
     def _initEstimator(self, X, Y):
-        pass
+        tuned_parameters = {}
+
+        if self.C is None:
+            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+        else:
+            tuned_parameters["C"] = [self.C]
+
+        if self.isRegression:
+            model = L1EpsilonRegressor
+            scoring = None # None uses default scorer
+            if self.epsilon is None:
+                tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+            else:
+                tuned_parameters["epsilon"] = [self.epsilon]
+        else:
+            model = L1HingeHyperplane
+            scoring = "precision"
+
+        if len(X) <= 20:
+            cv = 3
+        else:
+            cv = 7
+
+        gridsearch = GridSearchCV(model(),
+                                  tuned_parameters,
+                                  scoring=scoring,
+                                  n_jobs=-1 if self.parallel else 1,
+                                  cv=cv,
+                                  error_score=0,
+                                  verbose=False)
+
+        # Ignore warnings for extremely bad parameters (when precision=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            gridsearch.fit(X, Y)
+
+        self._hyper_C = gridsearch.best_params_['C']
+        if self.isRegression:
+            self._hyper_epsilon = gridsearch.best_params_['epsilon']
+        self._best_clf_score = gridsearch.best_score_
+
+        self._svm_clf = gridsearch.best_estimator_
+        self._svm_coef = self._svm_clf.coef_
+        self._svm_bias = self._svm_clf.intercept_
+        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
+        self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
     def score(self, X, y):
         if self._svm_clf:
@@ -429,43 +474,6 @@ class FRIClassification(FRIBase):
         """
         super().__init__(isRegression=False,C=C, random_state=random_state,
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
-
-    def _initEstimator(self, X, Y):
-
-        estimator = L1HingeHyperplane()
-
-        if self.C is None:
-            tuned_parameters = [{'C': [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]}]
-        else:
-            # Fixed Hyperparameter
-            tuned_parameters = [{'C': [self.C]}]
-
-        n = len(X)
-        if n <= 20:
-            cv = 3
-        else:
-            cv = 7
-        gridsearch = GridSearchCV(estimator,
-                                  tuned_parameters,
-                                  scoring="precision",
-                                  n_jobs=-1 if self.parallel else 1,
-                                  cv=cv,
-                                  error_score=0,
-                                  verbose=False)
-        
-        # Ignore warnings for extremely bad parameters (when precision=0)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            gridsearch.fit(X, Y)
-
-        self._hyper_C = gridsearch.best_params_['C']
-        self._best_clf_score = gridsearch.best_score_
-        self._svm_clf = gridsearch.best_estimator_
-
-        self._svm_coef = self._svm_clf.coef_
-        self._svm_bias = self._svm_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
-        self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
 
     def fit(self, X, y):
@@ -523,43 +531,6 @@ class FRIRegression(FRIBase):
         super().__init__(isRegression=True,C=C, random_state=random_state,
                  shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
         self.epsilon = epsilon
-
-    def _initEstimator(self, X, Y):
-        estimator = L1EpsilonRegressor()
-
-        tuned_parameters = {'C': [self.C], 'epsilon': [self.epsilon]}
-        if self.C is None:
-            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1]
-        if self.epsilon is None:
-            tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-
-        n = len(X)
-        if n <= 20:
-            cv = 3
-        else:
-            cv = 7
-
-        gridsearch = GridSearchCV(estimator,
-                                  tuned_parameters,
-                                  scoring=None,
-                                  n_jobs=-1 if self.parallel else 1,
-                                  cv=cv,
-                                  error_score=0,
-                                  verbose=0)
-        # Ignore warnings for extremely bad parameters (when precision=0)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            gridsearch.fit(X, Y)
-        
-        self._hyper_C = gridsearch.best_params_['C']
-        self._hyper_epsilon = gridsearch.best_params_['epsilon']
-        self._best_clf_score = gridsearch.best_score_
-
-        self._svm_clf = best_clf = gridsearch.best_estimator_
-        self._svm_coef = best_clf.coef_
-        self._svm_bias = best_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
-        self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
 
     def fit(self, X, y):
