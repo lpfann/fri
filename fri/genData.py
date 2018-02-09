@@ -140,8 +140,8 @@ def genClassificationData(n_samples: int=100, n_features: int=2,
 
     def genStrongRelFeatures(n, strRel,random_state):
 
-        width = 2
-        stddev = 1.8
+        width = 10
+        stddev = 1
         centers = np.zeros((2,strRel))
         centers[0] = width
         centers[1] = -width
