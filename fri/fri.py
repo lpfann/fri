@@ -310,7 +310,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         '''
 
         '''
-        kwargs = {"verbose": False}
+        kwargs = {"verbose": False,"solver":"ECOS","max_iters":1000}
 
         """
         Create tasks for worker(s)
@@ -460,10 +460,10 @@ class FRIClassification(FRIBase):
 
         self._hyper_C = gridsearch.best_params_['C']
         self._best_clf_score = gridsearch.best_score_
+        self._svm_clf = gridsearch.best_estimator_
 
-        self._svm_clf = best_clf = gridsearch.best_estimator_
-        self._svm_coef = best_clf.coef_
-        self._svm_bias = best_clf.intercept_
+        self._svm_coef = self._svm_clf.coef_
+        self._svm_bias = self._svm_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
         self._svm_loss = np.abs(self._svm_clf.slack).sum()
 
