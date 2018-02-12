@@ -72,21 +72,6 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int=100, 
 
         return X
 
-def _partition_min_max(n, k, l, m):
-    '''n is the integer to partition, k is the length of partitions, 
-    l is the min partition element size, m is the max partition element size '''
-    # Source: https://stackoverflow.com/a/43015372
-
-    if k < 1:
-        raise StopIteration
-    if k == 1:
-        if n <= m and n>=l :
-            yield (n,)
-        raise StopIteration
-    for i in range(l,m+1):
-        for result in _partition_min_max(n-i,k-1,i,m):                
-            yield result+(i,)
-
 def genClassificationData(n_samples: int=100, n_features: int=2,
                           n_redundant: int=0, strRel: int=1,
                           n_repeated: int=0,

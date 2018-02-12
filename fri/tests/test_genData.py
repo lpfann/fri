@@ -48,6 +48,9 @@ def test_shape(n_samples,n_dim):
     {"n_features" : 0},
     {"n_samples" : -1},
     {"n_features" : -1},
+    {"n_features" : 2,"strRel" : 3},
+    {"n_features" : 2,"n_redundant" : 3},
+    {"n_features" : 2,"n_repeated" : 3},
     ])
 def test_wrong_values(wrong_param):
     with pytest.raises(ValueError) as exc:
