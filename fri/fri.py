@@ -6,7 +6,6 @@ from multiprocessing import Pool
 
 import numpy as np
 from sklearn import preprocessing
-from sklearn import svm
 from sklearn.base import BaseEstimator, clone
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
@@ -19,7 +18,7 @@ from scipy.cluster.hierarchy import fcluster,linkage
 import fri.bounds
 import copy
 import math
-from fri.utility import L1HingeHyperplane, L1EpsilonRegressor
+from fri.l1models import L1HingeHyperplane, L1EpsilonRegressor
 import warnings
 
 class NotFeasibleForParameters(Exception):

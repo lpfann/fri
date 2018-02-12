@@ -1,8 +1,11 @@
+""" 
+    Class housing all initialisation models used in fri
+    We use the models paramaters to calculate the loss and L1 bounds.
+"""
 import numpy as np
 import cvxpy as cvx
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-from cvxpy.error import SolverError
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
