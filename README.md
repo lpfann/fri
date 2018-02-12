@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
 [![CircleCI](https://circleci.com/gh/lpfann/fri/tree/master.svg?style=svg)](https://circleci.com/gh/lpfann/fri/tree/master)
+[![Coverage Status](https://coveralls.io/repos/github/lpfann/fri/badge.svg)](https://coveralls.io/github/lpfann/fri)
 
 This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publication[1].
 
