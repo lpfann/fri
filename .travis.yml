@@ -15,6 +15,9 @@ install:
 # Run test
 script:
   - pytest -v --cov=fri
+  
+after_success:
+  - coveralls
 
 deploy:
   provider: pypi
