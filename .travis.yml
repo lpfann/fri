@@ -1,9 +1,13 @@
 language: python
 
+env:
+  global:
+    - DISPLAY=:99.0
+
 cache:
   directories:
     - $HOME/miniconda3
-    
+
 # Setup anaconda
 before_install:
   - . ./ci_scripts/install_miniconda.sh
