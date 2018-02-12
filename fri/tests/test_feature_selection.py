@@ -31,8 +31,8 @@ def check_interval(interval,n_strong):
 @pytest.mark.parametrize('n_weak', [0,2,3])
 def test_model(problem, model, n_strong, n_weak, randomstate):
     
-    n_samples = 500
-    n_features = 10
+    n_samples = 300
+    n_features = 8
 
     if problem is "regression":
         gen = genRegressionData
