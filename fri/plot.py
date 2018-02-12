@@ -1,8 +1,8 @@
 import numpy as np
-import seaborn as sns
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
+import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
 
 font = {'family' : 'normal',
