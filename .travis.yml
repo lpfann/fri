@@ -11,11 +11,12 @@ before_install:
 install:
   - . ./ci_scripts/create_testenv.sh
   - pip install coveralls
+  - pip install pytest-xdist
 
 # Run test
 script:
-  - pytest -v --cov=fri
-  
+  - pytest -v --cov=fri -n auto
+
 after_success:
   - coveralls
 
