@@ -66,6 +66,8 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
         check_interval(interval, n_strong)
 
+        assert fri.score(X[:30], y[:30]) >= 0.8
+
 def test_multiprocessing(randomstate):
 
     data = genData(n_samples=500, n_features=10, n_redundant=2,strRel=2, random_state=randomstate)
@@ -73,10 +75,12 @@ def test_multiprocessing(randomstate):
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
-    # Test using the score function
     fri = FRIClassification(random_state=randomstate, parallel=True)
     fri.fit(X, y)
+    check_interval(fri.interval_, 2)
 
+    efri = EnsembleFRI(FRIClassification(), random_state=randomstate, n_jobs=2)
+    efri.fit(X, y)
     check_interval(fri.interval_, 2)
 
 @pytest.mark.parametrize('problem', ["regression","classification"])
@@ -100,3 +104,16 @@ def test_random_data(randomstate, problem, hyperParam):
     # Test with expectation to get warning
     with pytest.raises(FitFailedWarning):
         fri.fit(X, y)
+
+def test_nonbinaryclasses(randomstate):
+    n = 90
+    d = 2
+    X = randomstate.rand(n,d)
+    firstclass = [1]*30    
+    secondclass = [2]*30    
+    thirdclass = [3]*30    
+    y = np.array([firstclass,secondclass,thirdclass]).ravel()
+
+    fri = FRIClassification()
+    with pytest.raises(ValueError):
+        fri.fit(X,y)
