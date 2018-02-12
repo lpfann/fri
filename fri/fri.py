@@ -7,7 +7,7 @@ from multiprocessing import Pool
 import numpy as np
 from sklearn import preprocessing
 from sklearn.base import BaseEstimator, clone
-from sklearn.exceptions import NotFittedError
+from sklearn.exceptions import NotFittedError, FitFailedWarning
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_X_y, check_random_state, resample
@@ -110,7 +110,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("score",self._best_clf_score)
             print("coef:\n{}".format(self._svm_coef.T))
 
-        if self._best_clf_score < 0.7:
+        if self._best_clf_score < 0.6:
+            print("Error: Weak Model performance! score = {}".format(self._best_clf_score))
+            raise FitFailedWarning
+        if self._best_clf_score < 0.75:
             print("WARNING: Weak Model performance! score = {}".format(self._best_clf_score))
 
         # Main Optimization step
