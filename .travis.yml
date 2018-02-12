@@ -1,9 +1,5 @@
 language: python
 
-env:
-  global:
-    - DISPLAY=:99.0
-
 cache:
   directories:
     - $HOME/miniconda3
