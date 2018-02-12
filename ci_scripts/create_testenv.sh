@@ -22,5 +22,5 @@ then
 fi
 
 
-conda install --yes numpy scipy pytest pytest-cov coverage scikit-learn pandas seaborn matplotlib
+conda install --yes numpy scipy pytest pytest-cov coverage scikit-learn pandas seaborn matplotlib nose
 python setup.py install
