@@ -16,7 +16,7 @@ Provided in this doc are docstrings for the API methods and some simple examples
        datagen
        auto_examples/index
 
-See the `README <https://github.com/vighneshbirodkar/project-template/blob/master/README.md>`_
+See the `README <https://github.com/lpfann/fri/blob/dev/README.md>`_
 for more information.
 
 
