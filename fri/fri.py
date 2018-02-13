@@ -1,10 +1,15 @@
 """
 This is a module to be used as a reference for building other modules
 """
+import copy
+import math
+import warnings
 from abc import abstractmethod
 from multiprocessing import Pool
 
 import numpy as np
+from scipy.cluster.hierarchy import fcluster, linkage
+from scipy.spatial.distance import squareform
 from sklearn import preprocessing
 from sklearn.base import BaseEstimator, clone
 from sklearn.exceptions import NotFittedError, FitFailedWarning
@@ -12,14 +17,10 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_X_y, check_random_state, resample
 from sklearn.utils.multiclass import unique_labels
-from scipy.spatial.distance import squareform
-from scipy.cluster.hierarchy import fcluster,linkage
-        
+
 import fri.bounds
-import copy
-import math
 from fri.l1models import L1HingeHyperplane, L1EpsilonRegressor
-import warnings
+
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters
@@ -94,7 +95,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         FRIBase
             Instance
         """
-        
+
         y = np.asarray(y)
 
         self.X_ = X
@@ -104,10 +105,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._initEstimator(X, y)
         debug = True
         if debug:
-            print("loss",self._svm_loss)
-            print("L1",self._svm_L1)
-            print("C",self._hyper_C)
-            print("score",self._best_clf_score)
+            print("loss", self._svm_loss)
+            print("L1", self._svm_L1)
+            print("C", self._hyper_C)
+            print("score", self._best_clf_score)
             print("coef:\n{}".format(self._svm_coef.T))
 
         if self._best_clf_score < 0.6:
@@ -130,7 +131,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self._get_relevance_mask()
             if X.shape[1] > 1:
                 self.feature_clusters_, self.linkage_ = self.community_detection()
-        
 
         # Return the classifier
         return self
@@ -155,7 +155,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         fs = np.where(fs)[0]
         fs = fs.tolist()
 
-        #skip features with bounds==0
+        # skip features with bounds==0
         bounds = intervals[intervals[:, 1].argsort(kind="mergesort")]
         bounds = bounds[bounds[:, 0].argsort(kind="mergesort")]
         skip = np.argmax(np.any(bounds > 0, 1))
@@ -166,23 +166,23 @@ class FRIBase(BaseEstimator, SelectorMixin):
         while len(fs) >= minsize:
             # for i in range(X.shape[1] - minsize - (skip + 1)):
             # 10cv for each subset
-            #print(fs, sorted_bounds, skip)
+            # print(fs, sorted_bounds, skip)
             cv_score = cross_validate(estimator, X[:, fs],
                                       y=y, cv=10,
                                       scoring=None)["test_score"]
             mean_score = cv_score.mean()
-            #print(fs, sorted_bounds, skip, mean_score)
+            # print(fs, sorted_bounds, skip, mean_score)
             memory.append((mean_score, fs[:]))
             fs.remove(sorted_bounds.pop(0))
         if len(memory) < 1:
             return fs
         # Return only best scoring feature subset
-        #memory = sorted(memory, key=lambda m: len(m[1]))
+        # memory = sorted(memory, key=lambda m: len(m[1]))
         best_fs = max(memory, key=lambda m: m[0])
-        #print("bests fs socer {}, best fs {}".format(*best_fs))
+        # print("bests fs socer {}, best fs {}".format(*best_fs))
         return best_fs[1]
 
-    def community_detection(self,cutoff_threshold=0.55):
+    def community_detection(self, cutoff_threshold=0.55):
         '''
         Finding communities of features using pairwise differences of solutions aquired in the main LP step.
         '''
@@ -190,8 +190,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         abs_svm_sol = np.abs(svm_solution)
 
         om = self._omegas
-        mins = om[:,0,:]
-        maxs = om[:,1,:]
+        mins = om[:, 0, :]
+        maxs = om[:, 1, :]
         abs_mins = np.abs(mins)
         abs_maxs = np.abs(maxs)
 
@@ -201,18 +201,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
         variation = np.abs(lower_variation) + np.abs(upper_variation)
 
         # add up lower triangular matrix to upper one
-        collapsed_variation = np.triu(variation)+np.tril(variation).T
+        collapsed_variation = np.triu(variation) + np.tril(variation).T
         np.fill_diagonal(collapsed_variation, 0)
-        #collapsed_variation = pd.DataFrame(collapsed_variation)
+        # collapsed_variation = pd.DataFrame(collapsed_variation)
 
         # Create distance matrix
         dist_mat = np.triu(collapsed_variation).T + collapsed_variation
         # normalize
-        dist_mat = 1- dist_mat/np.max(dist_mat)
+        dist_mat = 1 - dist_mat / np.max(dist_mat)
         # get numpy array
-        #dist_mat = dist_mat.values[:]
+        # dist_mat = dist_mat.values[:]
         # feature with itself has no distance
-        np.fill_diagonal(dist_mat,0)
+        np.fill_diagonal(dist_mat, 0)
 
         # convert to squareform for scipy compat.
         dist_mat_square = squareform(dist_mat)
@@ -222,9 +222,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
         RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:,2]) # max of branch lengths (distances)
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
 
-        feature_clustering = fcluster(link,threshold,criterion="distance")
+        feature_clustering = fcluster(link, threshold, criterion="distance")
 
         return feature_clustering, link
 
@@ -312,7 +312,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         '''
 
         '''
-        kwargs = {"verbose": False,"solver":"ECOS","max_iters":1000}
+        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
 
         """
         Create tasks for worker(s)
@@ -371,9 +371,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Correction through shadow features
 
         if self.shadow_features:
-            shadow_variance = shadowrangevector[:,1] - shadowrangevector[:,0]
-            rangevector[:,0] -= shadow_variance
-            rangevector[:,1] -= shadow_variance
+            shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
+            rangevector[:, 0] -= shadow_variance
+            rangevector[:, 1] -= shadow_variance
             rangevector[rangevector < 0] = 0
 
         # Scale to L1
@@ -396,9 +396,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         if self.isRegression:
             model = L1EpsilonRegressor
-            scoring = None # None uses default scorer
+            scoring = None  # None uses default scorer
             if self.epsilon is None:
-                tuned_parameters["epsilon"] =  [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+                tuned_parameters["epsilon"] = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
             else:
                 tuned_parameters["epsilon"] = [self.epsilon]
         else:
@@ -460,7 +460,7 @@ class FRIClassification(FRIBase):
     UpperBoundS = fri.bounds.ShadowUpperBound
 
     def __init__(self, C=None, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False,**kwargs):
+                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, **kwargs):
         """Initialize a solver for classification data
         Parameters
         ----------
@@ -474,9 +474,8 @@ class FRIClassification(FRIBase):
         parallel : boolean, optional
             Enables parallel computation of feature intervals
         """
-        super().__init__(isRegression=False,C=C, random_state=random_state,
-                 shadow_features=shadow_features, parallel=parallel, feat_elim=False,**kwargs)
-
+        super().__init__(isRegression=False, C=C, random_state=random_state,
+                         shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
@@ -529,11 +528,10 @@ class FRIRegression(FRIBase):
     UpperBoundS = fri.bounds.ShadowUpperBound
 
     def __init__(self, epsilon=None, C=None, random_state=None,
-                 shadow_features=False, parallel=False, feat_elim=False,**kwargs):
-        super().__init__(isRegression=True,C=C, random_state=random_state,
-                 shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
+                 shadow_features=False, parallel=False, feat_elim=False, **kwargs):
+        super().__init__(isRegression=True, C=C, random_state=random_state,
+                         shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
         self.epsilon = epsilon
-
 
     def fit(self, X, y):
         """ Fit model to data and provide feature relevance intervals
@@ -557,7 +555,7 @@ class EnsembleFRI(FRIBase):
         self.n_bootstraps = n_bootstraps
         self.model = model
         self.n_jobs = n_jobs
-        self.bs_seed = self.random_state.randint(10000000) # Seed for bootstraps rngs, constant for multiprocessing
+        self.bs_seed = self.random_state.randint(10000000)  # Seed for bootstraps rngs, constant for multiprocessing
 
         if isinstance(self.model, FRIClassification):
             isRegression = False
@@ -578,8 +576,8 @@ class EnsembleFRI(FRIBase):
 
         # Get bootstrap set
         X_bs, y_bs = resample(X, y, replace=True,
-                              n_samples = n_samples,
-                              random_state = self.bs_seed + i)
+                              n_samples=n_samples,
+                              random_state=self.bs_seed + i)
 
         m.fit(X_bs, y_bs)
 
@@ -600,6 +598,7 @@ class EnsembleFRI(FRIBase):
             def pmap(*args):
                 with Pool(self.n_jobs) as p:
                     return p.map(*args)
+
             nmap = pmap
         else:
             nmap = map

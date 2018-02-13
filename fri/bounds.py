@@ -1,18 +1,21 @@
 from abc import ABCMeta, abstractmethod
 
-from cvxpy import OPTIMAL,OPTIMAL_INACCURATE
+import numpy as np
 
 import fri.optproblems
-import numpy as np
+from cvxpy import OPTIMAL, OPTIMAL_INACCURATE
+
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
+
 
 class Bound(object):
     __metaclass__ = ABCMeta
 
     """Class for lower and upper relevance bounds"""
-    def __init__(self,di,X,Y):
+
+    def __init__(self, di, X, Y):
         self.X = X
         self.Y = Y
         self.di = di
@@ -27,10 +30,11 @@ class LowerBound(Bound):
     """Class for lower bounds """
 
     def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None):
-        super().__init__(di, X,Y)
+        super().__init__(di, X, Y)
         if regression:
             prob = fri.optproblems.MinProblemRegression
-            self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
+            self.prob_instance = prob(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,
+                                      epsilon=epsilon)
 
         else:
             prob = fri.optproblems.MinProblemClassification
@@ -44,19 +48,22 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
-            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.di,status))
+            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.di, status))
             raise NotFeasibleForParameters
+
 
 class UpperBound(Bound):
     """Class for Upper bounds """
 
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None):
-        super().__init__(di, X,Y)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None):
+        super().__init__(di, X, Y)
         if regression:
             prob1 = fri.optproblems.MaxProblem1Regression
             prob2 = fri.optproblems.MaxProblem2Regression
-            self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
-            self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,epsilon=epsilon)
+            self.prob_instance1 = prob1(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,
+                                        epsilon=epsilon)
+            self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1,
+                                        epsilon=epsilon)
         else:
             prob1 = fri.optproblems.MaxProblem1
             prob2 = fri.optproblems.MaxProblem2
@@ -64,9 +71,9 @@ class UpperBound(Bound):
             self.prob_instance2 = prob2(di=di, d=d, n=n, kwargs=kwargs, X=self.X, Y=self.Y, C=C, svmloss=svmloss, L1=L1)
 
         self.type = 1
-        
+
     def solve(self):
-        status = [None,None]
+        status = [None, None]
         status[0] = self.prob_instance1.solve()
         status[1] = self.prob_instance2.solve()
         status = list(filter(lambda x: x is not None, status))
@@ -85,27 +92,27 @@ class UpperBound(Bound):
 
 class ShadowLowerBound(LowerBound):
     """Class for lower bounds """
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None,random_state=None):
-        if not random_state:
-            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-        else:
-            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
 
-        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None, random_state=None):
+        if not random_state:
+            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X, axis=1)
+        else:
+            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X, axis=1)
+
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression, epsilon=epsilon)
         self.isShadow = True
         self.di = di
+
 
 class ShadowUpperBound(UpperBound):
     """Class for Upper bounds """
-    
-    
-    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False,epsilon=None,random_state=None):
+
+    def __init__(self, di, d, n, kwargs, L1, svmloss, C, X, Y, regression=False, epsilon=None, random_state=None):
         if not random_state:
-            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
+            X = np.append(np.random.permutation(X[:, di]).reshape((n, 1)), X, axis=1)
         else:
-            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X ,axis=1)
-            
-        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression,epsilon=epsilon)
+            X = np.append(random_state.permutation(X[:, di]).reshape((n, 1)), X, axis=1)
+
+        super().__init__(0, d + 1, n, kwargs, L1, svmloss, C, X, Y, regression=regression, epsilon=epsilon)
         self.isShadow = True
         self.di = di
-
