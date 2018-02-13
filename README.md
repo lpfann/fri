@@ -19,17 +19,17 @@ $ python setup.py install
 ```
 or if you just want to use the stable version without cloning use
 ```shell
-pip install fri
+$ pip install fri
 ```
 ## Testing
 To test if the library was installed correctly you can use the `pytest` command to run all included tests.
 
 ```shell
-pip install pytest
+$ pip install pytest
 ```
 then run in the root directory:
 ```shell
-pytest
+$ pytest
 ```
 
 ## Usage
