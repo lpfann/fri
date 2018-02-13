@@ -14,12 +14,11 @@ X,y = genRegressionData(n_samples=100, n_features=6,strRel=2, n_redundant=2,
 from sklearn.preprocessing import StandardScaler
 X_scaled = StandardScaler().fit_transform(X)
 
-
-from fri.fri import FRIRegression
+from fri import plot, FRIRegression
 fri = FRIRegression()
 
 fri.fit(X_scaled,y)
 
-from fri import plot
+
 plot.plotIntervals(fri.interval_)
 

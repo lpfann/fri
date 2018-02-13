@@ -4,7 +4,7 @@ from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
-from fri.fri import FRIRegression, FRIClassification, EnsembleFRI
+from fri import FRIClassification, FRIRegression, EnsembleFRI
 from fri.genData import genData, genRegressionData, genClassificationData
 
 

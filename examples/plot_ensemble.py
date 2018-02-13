@@ -14,13 +14,12 @@ X,y = genData(n_samples=100, n_features=6,strRel=2, n_redundant=2,
 from sklearn.preprocessing import StandardScaler
 X_scaled = StandardScaler().fit_transform(X)
 
-
-from fri.fri import EnsembleFRI,FRIClassification
+from fri import plot, FRIClassification, EnsembleFRI
 model = FRIClassification()
 fri = EnsembleFRI(model)
 
 fri.fit(X_scaled,y)
 
-from fri import plot
+
 plot.plotIntervals(fri.interval_)
 

@@ -1,14 +1,13 @@
 import pytest
 from fri.genData import genData, genClassificationData, genRegressionData
 from sklearn.utils import check_random_state
-from sklearn.utils.testing import assert_greater, assert_equal, assert_true
-from numpy.testing import assert_array_almost_equal, assert_array_equal, assert_raises
+from sklearn.utils.testing import  assert_equal
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn import linear_model
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVR
-from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.metrics import r2_score
 
 
 @pytest.fixture(scope="function")
