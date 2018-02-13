@@ -1,2 +1,3 @@
 [run]
+source = fri
 omit = fri/_version.py
