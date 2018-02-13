@@ -39,6 +39,7 @@ except:
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
@@ -48,6 +49,9 @@ extensions = [
     'sphinx_gallery.gen_gallery'
 
 ]
+
+# generate autosummary even if no references
+autosummary_generate = True
 
 # pngmath / imgmath compatibility layer for different sphinx versions
 import sphinx
@@ -61,7 +65,10 @@ sphinx_gallery_conf = {
     # path to your examples scripts
     'examples_dirs' : '../examples',
     # path where to save gallery generated examples
-    'gallery_dirs'  : 'auto_examples'}
+    'gallery_dirs'  : 'auto_examples',
+    'backreferences_dir': os.path.join('modules', 'generated')
+}
+
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -80,7 +87,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Feature Relevance Intervals'
-copyright = u'2017, Lukas Pfannschmidt'
+copyright = u'2017 - 2018, Lukas Pfannschmidt'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
