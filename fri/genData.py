@@ -22,13 +22,6 @@ def _repeatFeat(feats, i, randomstate):
     return feats[:, i_pick]
 
 
-def genData(**args):
-    """ 
-    Deprecated Method call generating Classification data
-    """
-    return genClassificationData(**args)
-
-
 def _checkParam(n_samples: int = 100, n_features: int = 2,
                 n_redundant: int = 0, strRel: int = 1,
                 n_repeated: int = 0,

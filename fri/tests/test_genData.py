@@ -1,5 +1,5 @@
 import pytest
-from fri.genData import genData, genClassificationData, genRegressionData
+from fri import genClassificationData, genRegressionData
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import  assert_equal
 import numpy as np
@@ -13,22 +13,6 @@ from sklearn.metrics import r2_score
 @pytest.fixture(scope="function")
 def randomstate():
     return check_random_state(1337)
-
-
-def test_legacy_method(randomstate):
-    generator = randomstate
-    n = 10
-    d = 4
-    strRel = 2
-    weakRel = 2
-    flip_y = 0
-    args = {"n_samples": n, "n_features": d, "n_redundant": weakRel, "strRel": strRel,
-            "n_repeated": 0, "flip_y": flip_y, "random_state": generator}
-    X, y = genData(**args)
-    # Equal length
-    assert_equal(len(X), len(y))
-    assert_equal(len(X), n)
-    assert_equal(X.shape[1], d)
 
 
 @pytest.mark.parametrize('n_samples', [2, 100, 10000])

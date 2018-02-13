@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 from fri import FRIClassification, FRIRegression, EnsembleFRI
-from fri.genData import genData, genRegressionData, genClassificationData
+from fri import  genRegressionData, genClassificationData
 
 
 @pytest.fixture(scope="function")
