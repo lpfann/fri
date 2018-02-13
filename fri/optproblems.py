@@ -129,10 +129,11 @@ class BaseRegressionProblem(BaseProblem):
         self.omega = cvx.Variable(shape=(d,1))  # complete linear weight vector
         self.b = cvx.Variable()  # shift
         self.slack = cvx.Variable(shape=(n,1),nonneg=True)  # slack variables
-
+        self.loss =  cvx.sum(self.slack)
+        self.weight_norm = cvx.norm(self.omega, 1) 
         self._constraints = [
-            cvx.norm(self.omega, 1) <= self.L1,
-            cvx.sum(self.slack) <= self.svrloss,
+            self.weight_norm <= self.L1,
+            self.loss <= self.svrloss,
             cvx.abs(self.Y - (self.X * self.omega + self.b )) <= self.epsilon + self.slack
         ]
 
