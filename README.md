@@ -13,13 +13,23 @@ Before installing the module you will need `numpy` and `scipy`.
 We highly recommend the Anaconda Python distribution.
 The library was written with Python 3 in mind, we did not test it under Python 2.
 
-To install the module execute:
+To install the module after cloning the repository execute:
 ```shell
 $ python setup.py install
 ```
-or 
+or if you just want to use the stable version without cloning use
 ```shell
 pip install fri
+```
+## Testing
+To test if the library was installed correctly you can use the `pytest` command to run all included tests.
+
+```shell
+pip install pytest
+```
+then run in the root directory:
+```shell
+pytest
 ```
 
 ## Usage
