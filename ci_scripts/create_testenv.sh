@@ -21,6 +21,11 @@ then
     fi
 fi
 
-
 conda install --yes numpy scipy pytest pytest-cov coverage scikit-learn pandas seaborn matplotlib nose
+
+pip install pyqt5==5.9 &&
+      python -c 'import PyQt5.QtCore' &&
+      echo 'PyQt5 is available' ||
+      echo 'PyQt5 is not available'
+
 python setup.py install
