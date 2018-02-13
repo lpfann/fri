@@ -9,9 +9,9 @@ This repo contains the python implementation of the all-relevant feature selecti
 ![Example output of method for biomedical dataset](/examples/example_plot.png?raw=true)
 
 ## Installation
-Before installing the module you will need `numpy` and `scipy`.
-We highly recommend the Anaconda Python distribution.
-The library was written with Python 3 in mind, we did not test it under Python 2.
+The library needs various dependencies which should automatically be installed.
+We highly recommend the [Anaconda](https://www.anaconda.com/download) Python distribution to provide all dependencies.
+The library was written with Python 3 in mind and due to the foreseeable ending of Python 2 support, backwards compatibility is not planned.
 
 To install the module after cloning the repository execute:
 ```shell
@@ -21,6 +21,7 @@ or if you just want to use the stable version without cloning use
 ```shell
 $ pip install fri
 ```
+
 ## Testing
 To test if the library was installed correctly you can use the `pytest` command to run all included tests.
 
