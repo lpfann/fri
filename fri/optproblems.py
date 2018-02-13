@@ -45,17 +45,17 @@ class BaseClassificationProblem(BaseProblem):
         self.b = cvx.Variable()  # shift
 
         point_distances = cvx.multiply(Y, X * self.omega + self.b)
-        loss = cvx.sum(cvx.pos(1 - point_distances))
-        weight_norm = cvx.norm(self.omega, 1)
+        self.loss = cvx.sum(cvx.pos(1 - point_distances))
+        self.weight_norm = cvx.norm(self.omega, 1)
 
         self._constraints = [
-            weight_norm <= L1
+            self.weight_norm <= L1
         ]
 
         svmloss = max(0.01, svmloss)
         self._constraints.extend(
             [
-                loss <= svmloss
+                self.loss <= svmloss
             ])
 
 
