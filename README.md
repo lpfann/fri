@@ -142,5 +142,6 @@ print(fri_model._omegas)
 ## References  
 >[1] Göpfert C, Pfannschmidt L, Hammer B. Feature Relevance Bounds for Linear Classification. In: Proceedings of the ESANN. 25th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning; Accepted.
 https://pub.uni-bielefeld.de/publication/2908201
+
 >[2] Göpfert C, Pfannschmidt L, Göpfert JP, Hammer B. Interpretation of Linear Classifiers by Means of Feature Relevance Bounds. Neurocomputing. Accepted.
 https://pub.uni-bielefeld.de/publication/2915273
