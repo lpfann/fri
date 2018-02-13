@@ -13,6 +13,8 @@ Provided in this doc are docstrings for the API methods and some simple examples
        :maxdepth: 2
        
        model
+       classification
+       regression
        datagen
        auto_examples/index
 

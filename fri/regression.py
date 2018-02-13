@@ -5,22 +5,10 @@ from fri.base import FRIBase
 import fri.base
 
 class FRIRegression(FRIBase):
-    """Class for regression data
-
-        Attributes
-        ----------
-        epsilon : float, optional
-            epsilon margin, default is using value provided by gridsearch
-        LowerBound : LowerBound
-            Class for lower bound
-        LowerBoundS : ShadowLowerBound
-            Class for lower bound noise reduction (shadow)
-        UpperBound : UpperBound
-            Class for upper Bound
-        UpperBoundS : ShadowUpperBound
-            Class for upper bound noise reduction (shadow)
-
-        """
+    """
+        Class for regression data
+    
+    """
     LowerBound = fri.bounds.LowerBound
     UpperBound = fri.bounds.UpperBound
     LowerBoundS = fri.bounds.ShadowLowerBound

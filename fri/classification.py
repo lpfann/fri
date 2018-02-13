@@ -7,18 +7,10 @@ from fri.base import FRIBase
 import fri.base
 
 class FRIClassification(FRIBase):
-    """Class for Classification data
-    Attributes
-    ----------
-    LowerBound : LowerBound
-        Class for lower bound
-    LowerBoundS : ShadowLowerBound
-        Class for lower bound noise reduction (shadow)
-    UpperBound : UpperBound
-        Class for upper Bound
-    UpperBoundS : ShadowUpperBound
-        Class for upper bound noise reduction (shadow)
     """
+    Class for Classification data
+    """
+
     LowerBound = fri.bounds.LowerBound
     UpperBound = fri.bounds.UpperBound
     LowerBoundS = fri.bounds.ShadowLowerBound

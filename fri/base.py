@@ -26,39 +26,39 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
     """Base class for interaction with program
-    Attributes
+
+    Parameters
     ----------
-    allrel_prediction_ : array of booleans
-        Truth value for each feature if it is relevant (weakly OR strongly)
     C : float , optional
-        Regularization parameter, default obtains the hyperparameter
-         through gridsearch optimizing accuracy
-    interval_ : array of [float,float]
-        Feature relevance intervals
-    parallel : boolean, optional
-        Enables parallel computation of feature intervals
+        Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
     shadow_features : boolean, optional
         Enables noise reduction using feature permutation results.
-    """
+    parallel : boolean, optional
+        Enables parallel computation of feature intervals
+
+    Attributes
+    ----------
+    allrel_prediction_ : array of booleans
+        Truth value for each feature if it is relevant (weakly OR strongly).
+    interval_ : array [[lower_Bound_0,UpperBound_0],...,]
+        Relevace bounds in 2D array format.
+    n_features : int
+        Amount of selected features.
+
+    See Also
+    ---------
+    :class:`FRIClassification`:
+        Class for classification problems
+    :class:`FRIRegression`:
+        Class for regression problems
+
+   """
 
     @abstractmethod
     def __init__(self, isRegression, C=None, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):
-        """Summary
-        Parameters
-        ----------
-        C : float , optional
-            Regularization parameter, default obtains the hyperparameter
-             through gridsearch optimizing accuracy
-        random_state : object
-            Set seed for random number generation.
-        shadow_features : boolean, optional
-            Enables noise reduction using feature permutation results.
-        parallel : boolean, optional
-            Enables parallel computation of feature intervals
-        """
 
         self._svm_clf = None
         self._best_clf_score = None
@@ -77,6 +77,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.allrel_prediction_ = None
         self.feature_clusters_ = None
         self.linkage_ = None
+        self.interval_ = None
         self.debug = debug
 
     @abstractmethod
