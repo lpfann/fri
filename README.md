@@ -4,7 +4,7 @@
 [![CircleCI](https://circleci.com/gh/lpfann/fri/tree/master.svg?style=svg)](https://circleci.com/gh/lpfann/fri/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/lpfann/fri/badge.svg)](https://coveralls.io/github/lpfann/fri)
 
-This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publication[1].
+This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publications[1,2].
 
 ![Example output of method for biomedical dataset](/examples/example_plot.png?raw=true)
 
@@ -101,8 +101,8 @@ __epsilon__ : float, optional
 
 ```python
 # ## Classification data
-from fri.genData import genData
-X,y = genData(n_samples=100, n_features=6,strRel=2, n_redundant=2,
+from fri import genClassificationData
+X,y = genClassificationData(n_samples=100, n_features=6,n_strel=2, n_redundant=2,
                     n_repeated=0, flip_y=0)
 
 # We created a binary classification set with 6 features of which 2 are strongly relevant and 2 weakly relevant.
@@ -112,28 +112,28 @@ from sklearn.preprocessing import StandardScaler
 X_scaled = StandardScaler().fit_transform(X)
 
 # New object for Classification Data
-from fri.fri import FRIClassification
-fri = FRIClassification()
+from fri import FRIClassification
+fri_model = FRIClassification()
 
 # Fit to data
-fri.fit(X_scaled,y)
+fri_model.fit(X_scaled,y)
 
 # Print out feature relevance intervals
-print(fri.interval_)
+print(fri_model.interval_)
 
 # ### Plot results
 from fri import plot
-plot.plotIntervals(fri.interval_)
+plot.plotIntervals(fri_model.interval_)
 
 # ### Print internal Parameters
 
-print(fri.allrel_prediction_)
+print(fri_model.allrel_prediction_)
 
 # Print out hyperparameter found by GridSearchCV
-print(fri._hyper_C)
+print(fri_model._hyper_C)
 # Get weights for linear models used for each feature optimization
 
-print(fri._omegas)
+print(fri_model._omegas)
 
 ```
 
@@ -142,3 +142,5 @@ print(fri._omegas)
 ## References  
 >[1] Göpfert C, Pfannschmidt L, Hammer B. Feature Relevance Bounds for Linear Classification. In: Proceedings of the ESANN. 25th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning; Accepted.
 https://pub.uni-bielefeld.de/publication/2908201
+>[2] Göpfert C, Pfannschmidt L, Göpfert JP, Hammer B. Interpretation of Linear Classifiers by Means of Feature Relevance Bounds. Neurocomputing. Accepted.
+https://pub.uni-bielefeld.de/publication/2915273
