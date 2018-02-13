@@ -23,7 +23,7 @@ def _repeatFeat(feats, i, randomstate):
 
 
 def _checkParam(n_samples: int = 100, n_features: int = 2,
-                n_redundant: int = 0, strRel: int = 1,
+                n_redundant: int = 0, n_strel: int = 1,
                 n_repeated: int = 0,
                 flip_y: float = 0, noise: float = 1, partition=None, **kwargs):
     if not 1 < n_samples:
@@ -32,11 +32,11 @@ def _checkParam(n_samples: int = 100, n_features: int = 2,
         raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
-    if not n_redundant + n_repeated + strRel <= n_features:
+    if not n_redundant + n_repeated + n_strel <= n_features:
         raise ValueError("Inconsistent number of features")
-    if strRel + n_redundant < 1:
+    if n_strel + n_redundant < 1:
         raise ValueError("No informative features.")
-    if strRel == 0 and n_redundant < 2:
+    if n_strel == 0 and n_redundant < 2:
         raise ValueError("Redundant features have per definition more than one member.")
     if partition is not None:
         if sum(partition) != n_redundant:
@@ -45,18 +45,18 @@ def _checkParam(n_samples: int = 100, n_features: int = 2,
             raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
     print(
         "Generating dataset with d={},n={},strongly={},weakly={}, partition of weakly={}".format(n_features, n_samples,
-                                                                                                 strRel, n_redundant,
+                                                                                                 n_strel, n_redundant,
                                                                                                  partition))
 
 
 def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100, n_features: int = 2,
-                       n_redundant: int = 0, strRel: int = 1,
+                       n_redundant: int = 0, n_strel: int = 1,
                        n_repeated: int = 0,
                        noise: float = 1, partition=None, **kwargs):
     X = np.zeros((int(n_samples), int(n_features)))
-    X[:, :strRel] = X_informative[:, :strRel]
-    holdout = X_informative[:, strRel:]
-    i = strRel
+    X[:, :n_strel] = X_informative[:, :n_strel]
+    holdout = X_informative[:, n_strel:]
+    i = n_strel
 
     pi = 0
     for x in range(len(holdout.T)):
@@ -76,7 +76,7 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100
 
 
 def genClassificationData(n_samples: int = 100, n_features: int = 2,
-                          n_redundant: int = 0, strRel: int = 1,
+                          n_redundant: int = 0, n_strel: int = 1,
                           n_repeated: int = 0,
                           flip_y: float = 0, random_state: object = None,
                           partition=None):
@@ -90,7 +90,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
         Number of features
     n_redundant : int, optional
         Number of features which are part of redundant subsets (weakly relevant)
-    strRel : int, optional
+    n_strel : int, optional
         Number of features which are mandatory for the underlying model (strongly relevant)
     n_repeated : int, optional
         Number of features which are clones of existing ones. 
@@ -152,10 +152,10 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     else:
         part_size = 0
 
-    X_informative, Y = genStrongRelFeatures(n_samples, strRel + part_size, random_state)
+    X_informative, Y = genStrongRelFeatures(n_samples, n_strel + part_size, random_state)
 
     X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
-                           n_redundant=n_redundant, strRel=strRel,
+                           n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated, partition=partition)
 
     if flip_y > 0:
@@ -165,7 +165,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     return X, Y
 
 
-def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, strRel: int = 1,
+def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
                       n_repeated: int = 0, noise: float = 0, random_state: object = None,
                       partition=None) -> object:
     """Generate synthetic regression data
@@ -178,7 +178,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
         Number of features
     n_redundant : int, optional
         Number of features which are part of redundant subsets (weakly relevant)
-    strRel : int, optional
+    n_strel : int, optional
         Number of features which are mandatory for the underlying model (strongly relevant)
     n_repeated : int, optional
         Number of features which are clones of existing ones. 
@@ -214,15 +214,15 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     else:
         part_size = 0
 
-    X_informative, Y = make_regression(n_features=int(strRel + part_size),
+    X_informative, Y = make_regression(n_features=int(n_strel + part_size),
                                        n_samples=int(n_samples),
                                        noise=noise,
-                                       n_informative=int(strRel + part_size),
+                                       n_informative=int(n_strel + part_size),
                                        random_state=random_state,
                                        shuffle=False)
 
     X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
-                           n_redundant=n_redundant, strRel=strRel,
+                           n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated,
                            noise=noise, partition=partition)
 

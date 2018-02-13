@@ -7,8 +7,8 @@ An example plot created using :class:`fri.fri.EnsembleFRI` on Classification dat
 """
 
 
-from fri.genData import genData
-X,y = genData(n_samples=100, n_features=6,strRel=2, n_redundant=2,
+from fri import genClassificationData
+X,y = genClassificationData(n_samples=100, n_features=6,n_strel=2, n_redundant=2,
                     n_repeated=0, flip_y=0,random_state=123)
 
 from sklearn.preprocessing import StandardScaler

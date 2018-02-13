@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 from fri import FRIClassification, FRIRegression, EnsembleFRI
-from fri import  genRegressionData, genClassificationData
+from fri.genData import  genRegressionData, genClassificationData
 
 
 @pytest.fixture(scope="function")
@@ -44,11 +44,11 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
-            gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, strRel=n_strong,
+            gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
                 n_repeated=0, random_state=randomstate)
 
     else:
-        data = gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, strRel=n_strong,
+        data = gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
                    n_repeated=0, random_state=randomstate)
 
         X_orig, y = data
@@ -75,7 +75,7 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
 
 def test_multiprocessing(randomstate):
-    data = genData(n_samples=500, n_features=10, n_redundant=2, strRel=2, random_state=randomstate)
+    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
 
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)

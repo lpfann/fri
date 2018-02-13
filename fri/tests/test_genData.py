@@ -32,7 +32,7 @@ def test_shape(n_samples, n_dim):
     {"n_features": 0},
     {"n_samples": -1},
     {"n_features": -1},
-    {"n_features": 2, "strRel": 3},
+    {"n_features": 2, "n_strel": 3},
     {"n_features": 2, "n_redundant": 3},
     {"n_features": 2, "n_repeated": 3},
 ])
@@ -51,7 +51,7 @@ def test_all_feature_types(problem, strong, weak, repeated, flip_y, noise):
     n_samples = 10
     n_features = 100
     args = {"n_samples": n_samples, "n_features": n_features,
-            "strRel": strong, "n_redundant": weak, "n_repeated": repeated}
+            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
 
     if problem == "regression":
         args["noise"] = noise
@@ -93,7 +93,7 @@ def test_data_truth():
     d = 10
     strRel = 2
     generator = check_random_state(1337)
-    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, strRel=strRel,
+    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, n_strel=strRel,
                              n_repeated=0, random_state=generator, noise=0)
     X = StandardScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, Y, random_state=generator)
@@ -112,7 +112,7 @@ def test_data_noise():
     strRel = 5
 
     generator = check_random_state(1337)
-    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, strRel=strRel,
+    X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, n_strel=strRel,
                              n_repeated=0, random_state=generator, noise=100)
     X = StandardScaler().fit_transform(X)
     X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=generator)
@@ -138,7 +138,7 @@ def test_partition(problem, randomstate, partition):
     repeated = 0
 
     args = {"n_samples": n_samples, "n_features": n_features,
-            "strRel": strong, "n_redundant": weak, "n_repeated": repeated,
+            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated,
             "partition": partition}
 
     if problem == "regression":
