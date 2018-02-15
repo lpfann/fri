@@ -16,13 +16,14 @@ The library needs various dependencies which should automatically be installed.
 We highly recommend the [Anaconda](https://www.anaconda.com/download) Python distribution to provide all dependencies.
 The library was written with Python 3 in mind and due to the foreseeable ending of Python 2 support, backwards compatibility is not planned.
 
-To install the module after cloning the repository execute:
-```shell
-$ python setup.py install
-```
-or if you just want to use the stable version without cloning use
+If you just want to use the __stable__ version from PyPi use
 ```shell
 $ pip install fri
+```
+
+To install the module in __development__ clone the repo and execute:
+```shell
+$ python setup.py install
 ```
 
 ## Testing
