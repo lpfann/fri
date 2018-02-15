@@ -1,6 +1,7 @@
 numpy
 scipy
 scikit-learn>=0.18
-cvxpy>=1.0
+-e git+https://github.com/cvxgrp/cvxpy.git@1.0#egg=cvxpy
+#cvxpy>=1.0
 pytest
 seaborn
