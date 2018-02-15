@@ -3,8 +3,11 @@
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
 [![CircleCI](https://circleci.com/gh/lpfann/fri/tree/master.svg?style=svg)](https://circleci.com/gh/lpfann/fri/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/lpfann/fri/badge.svg)](https://coveralls.io/github/lpfann/fri)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lpfann/fri/dev?filepath=notebooks)
 
 This repo contains the python implementation of the all-relevant feature selection method described in the corresponding publications[1,2].
+
+Try out the online demo notebook [here](https://mybinder.org/v2/gh/lpfann/fri/dev?filepath=notebooks).
 
 ![Example output of method for biomedical dataset](/examples/example_plot.png?raw=true)
 
