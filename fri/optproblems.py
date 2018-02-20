@@ -1,7 +1,10 @@
 from abc import ABCMeta
 
 import cvxpy as cvx
-
+#
+# Minimal loss in constraints to mitigate numerical instabilities for solvers
+#
+MINLOSS = 0.01
 
 class BaseProblem(object):
     def __init__(self, di=0, d=0, n=0, kwargs=None, X=None, Y=None):
@@ -52,7 +55,7 @@ class BaseClassificationProblem(BaseProblem):
             self.weight_norm <= L1
         ]
 
-        svmloss = max(0.01, svmloss)
+        svmloss = max(MINLOSS, svmloss)
         self._constraints.extend(
             [
                 self.loss <= svmloss
@@ -118,7 +121,7 @@ class BaseRegressionProblem(BaseProblem):
         # self.Y = Y # other format then with classification
         self.Y = Y.reshape((-1, 1))
 
-        self.svrloss = max(0.01, svrloss)
+        self.svrloss = max(MINLOSS, svrloss)
         self.epsilon = epsilon
         self.L1 = L1
         self.C = C
