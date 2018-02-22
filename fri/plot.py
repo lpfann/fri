@@ -21,7 +21,7 @@ def plotIntervals(ranges, ticklabels=None, invert=False):
     lower_vals = ranges[:, 0]
     height = upper_vals - lower_vals
     # Minimal height to make very small intervals visible
-    height[height < 0.01] = 0.02
+    height[height < 0.001] =  0.001
     bars = ax.bar(ind, height, width, bottom=lower_vals, tick_label=ticks, align="center", edgecolor="none",
                   linewidth=1.3)
 
