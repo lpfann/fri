@@ -14,27 +14,29 @@ class Bound(object):
 
     """Class for lower and upper relevance bounds"""
 
-    def __init__(self, di, X, Y):
+    def __init__(self, optim_dim, X, Y):
         self.X = X
         self.Y = Y
-        self.di = di
+        self.optim_dim = optim_dim
         self.acceptableStati = [OPTIMAL, OPTIMAL_INACCURATE]
         self.isUpperBound = None
+
     @abstractmethod
     def solve(self):
         pass
-
+    def __repr__(self):
+        return("{}('optim_dim={}, X=np.array, Y=np.array')".format(self.__class__.__name__, self.optim_dim))
 
 class LowerBound(Bound):
     """Class for lower bounds """
 
-    def __init__(self, problemClass, di, kwargs, initLoss, initL1, X, Y):
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None):
         # Init Super class, could be used for data manipulation
-        super().__init__(di, X, Y)
+        super().__init__(optim_dim, X, Y)
 
 
         # Init problem instance usually defined in the main class
-        self.prob_instance = problemClass.minProblem(di=di, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance = problemClass.minProblem(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
 
         # Define bound type for easier indexing after result collection
         self.isUpperBound = False
@@ -45,18 +47,18 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
-            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.di, status))
+            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.optim_dim, status))
             raise NotFeasibleForParameters
 
 
 class UpperBound(Bound):
     """Class for Upper bounds """
 
-    def __init__(self, problemClass, di, kwargs, initLoss, initL1, X, Y):
-        super().__init__(di, X, Y)
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None):
+        super().__init__(optim_dim, X, Y)
 
-        self.prob_instance1 = problemClass.maxProblem1(di=di, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
-        self.prob_instance2 = problemClass.maxProblem2(di=di, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance1 = problemClass.maxProblem1(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance2 = problemClass.maxProblem2(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
 
         self.isUpperBound = True
 
@@ -68,7 +70,7 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
-            print("DEBUG: Upper Bound - current_feature={}".format(self.di))
+            print("DEBUG: Upper Bound - current_feature={}".format(self.optim_dim))
             raise NotFeasibleForParameters
 
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
@@ -83,16 +85,16 @@ class ShadowLowerBound(LowerBound):
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass, di, kwargs, initLoss, initL1, X, Y, random_state=None):
-        # Permute dimension di and insert it at the first column
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None, random_state=None):
+        # Permute dimension optim_dim and insert it at the first column
         if not random_state:
-            X = np.append(np.random.permutation(X[:, di]).reshape((X.shape[0], 1)), X, axis=1)
+            X = np.append(np.random.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
         else:
-            X = np.append(random_state.permutation(X[:, di]).reshape((X.shape[0], 1)), X, axis=1)
+            X = np.append(random_state.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
         # Optimize for the first (random permutated) column
         super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
         self.isShadow = True
-        self.di = di
+        self.di = optim_dim
 
 
 class ShadowUpperBound(UpperBound):
@@ -100,14 +102,14 @@ class ShadowUpperBound(UpperBound):
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass, di, kwargs, initLoss, initL1, X, Y, random_state=None):
-        # Permute dimension di and insert it at the first column
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None, random_state=None):
+        # Permute dimension optim_dim and insert it at the first column
         if not random_state:
-            X = np.append(np.random.permutation(X[:, di]).reshape((X.shape[0], 1)), X, axis=1)
+            X = np.append(np.random.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
         else:
-            X = np.append(random_state.permutation(X[:, di]).reshape((X.shape[0], 1)), X, axis=1)
+            X = np.append(random_state.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
         
         # Optimize for the first (random permutated) column
         super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
         self.isShadow = True
-        self.di = di
+        self.di = optim_dim

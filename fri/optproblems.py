@@ -29,6 +29,10 @@ class BaseProblem(object):
         self._constraints = None
         self._objective = None
 
+    def __str__(self):
+        return '{self.__class__.__name__}(current_dim={self.di}, n={self.n}, d={self.d}, initL1={self.initL1}, initLoss={self.initLoss}, '\
+                            'parameters={self.parameters}, kwargs={self.kwargs})'.format(self=self)
+
     def solve(self):
         self.problem = cvx.Problem(self._objective, self._constraints)
         try:

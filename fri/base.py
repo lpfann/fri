@@ -118,9 +118,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("WARNING: Weak Model performance! score = {}".format(self._best_clf_score))
 
         # Main Optimization step
-        results = self._main_opt(X, y, self._svm_loss, self._svm_L1,
-                                 self._hyper_C, self._hyper_epsilon,
-                                 self.random_state, self.isRegression)
+        results = self._main_opt(X, y, self._svm_loss, self._svm_L1, self.random_state)
 
         self.interval_ = results[0]
         self._omegas = results[1]
@@ -289,8 +287,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1,
-                  C, _hyper_epsilon, random_state, isRegression):
+    def _main_opt(self, X, Y, svmloss, L1, random_state):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -314,23 +311,16 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         Create tasks for worker(s)
         """
-        work = [LowerBound(self, di, kwargs,
-                                svmloss, L1, X, Y,
-                                )
+        work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
                 for di in range(d)]
-        work.extend([UpperBound(self, di, kwargs,
-                                svmloss, L1, X, Y,
-                                )
+        work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
                      for di in range(d)])
+
         if self.shadow_features:
             for nr in range(self.n_resampling):
-                work.extend([ShadowLowerBound(self, di, kwargs,
-                                              svmloss, L1, X, Y,
-                                              random_state=random_state)
+                work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
                              for di in range(d)])
-                work.extend([ShadowUpperBound(self, di, kwargs,
-                                              svmloss, L1, X, Y,
-                                              random_state=random_state)
+                work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
                              for di in range(d)])
 
         # Define Map which can use multiple processes to speed up computation
@@ -352,8 +342,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
-            di = finished_bound.di
-            i = finished_bound.isUpperBound
+            di = finished_bound.optim_dim
+            i = int(finished_bound.isUpperBound)
             prob_i = finished_bound.prob_instance
             # Handle shadow values differently (we discard useless values)
             if not hasattr(finished_bound, "isShadow"):

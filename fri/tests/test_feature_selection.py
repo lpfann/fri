@@ -26,7 +26,7 @@ def check_interval(interval, n_strong):
 
 @pytest.mark.parametrize('problem', ["regression", "classification"])
 @pytest.mark.parametrize('model', [
-    "Ensemble",
+    "Ensemble",    
     "Single"
 ])
 @pytest.mark.parametrize('n_strong', [0, 1, 2])
