@@ -395,6 +395,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             gridsearch.fit(X, Y)
 
         # Legacy Code
+        # TODO: remove legacy code
         ###
         self._hyper_C = gridsearch.best_params_['C']
         if self.isRegression:
