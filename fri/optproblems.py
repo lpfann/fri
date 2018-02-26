@@ -8,7 +8,7 @@ import cvxpy as cvx
 MINLOSS = 0.01
 
 class BaseProblem(object):
-    def __init__(self, di=0, kwargs=None, X=None, Y=None,initLoss=None,initL1=None, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None,initLoss=None,initL1=None, parameters=None):
         # General data parameters
         self.n = X.shape[0]
         self.d = X.shape[1]
@@ -18,7 +18,6 @@ class BaseProblem(object):
         # InitModel Parameters
         self.initL1 = initL1
         self.initLoss = max(MINLOSS, initLoss)
-        print(parameters)
         self.parameters = parameters
         # Dimension specific data
         self.di = di
@@ -46,7 +45,7 @@ class BaseClassificationProblem(BaseProblem):
 
     __metaclass__ = ABCMeta
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
         # Solver parameters
         self.kwargs = kwargs
@@ -73,7 +72,7 @@ class BaseClassificationProblem(BaseProblem):
 class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
@@ -89,7 +88,7 @@ class MaxProblem1(BaseClassificationProblem):
         We take the maximum of both these max. classes to get the absolute value.
     """
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
@@ -105,7 +104,7 @@ class MaxProblem2(BaseClassificationProblem):
         We take the maximum of both these max. classes to get the absolute value.
     """
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
@@ -126,7 +125,7 @@ class MaxProblem2(BaseClassificationProblem):
 class BaseRegressionProblem(BaseProblem):
     __metaclass__ = ABCMeta
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None,  initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None,  initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,parameters=parameters)
 
         # General data
@@ -156,7 +155,7 @@ class BaseRegressionProblem(BaseProblem):
 class MinProblemRegression(BaseRegressionProblem):
     """Class for minimization."""
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
@@ -170,7 +169,7 @@ class MinProblemRegression(BaseRegressionProblem):
 class MaxProblem1Regression(BaseRegressionProblem):
     """Class for maximization."""
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, epsilon=0.1, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, epsilon=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
@@ -184,7 +183,7 @@ class MaxProblem1Regression(BaseRegressionProblem):
 class MaxProblem2Regression(BaseRegressionProblem):
     """Class for maximization."""
 
-    def __init__(self, di=0, kwargs=None, X=None, Y=None, epsilon=0.1, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, epsilon=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
