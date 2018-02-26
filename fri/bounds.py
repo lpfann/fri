@@ -94,7 +94,7 @@ class ShadowLowerBound(LowerBound):
         # Optimize for the first (random permutated) column
         super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
         self.isShadow = True
-        self.di = optim_dim
+        self.optim_dim = optim_dim
 
 
 class ShadowUpperBound(UpperBound):
@@ -112,4 +112,4 @@ class ShadowUpperBound(UpperBound):
         # Optimize for the first (random permutated) column
         super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
         self.isShadow = True
-        self.di = optim_dim
+        self.optim_dim = optim_dim
