@@ -1,8 +1,6 @@
 import numpy as np
 from sklearn.datasets import make_regression
-from sklearn.datasets.samples_generator import make_blobs
 from sklearn.utils import check_random_state
-
 
 def _combFeat(n, size, strRelFeat, randomstate):
     # Split each strongly relevant feature into linear combination of it
@@ -247,3 +245,10 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
                            noise=noise, partition=partition)
 
     return X, Y
+
+def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
+                      n_repeated: int = 0, noise: float = 0, random_state: object = None,
+                      partition=None):
+    # TODO: implement ordinal regression data generation
+    # Easy way would be using the genRegressionData method to generate regression data and put the points in discrete intervals
+    raise NotImplementedError
