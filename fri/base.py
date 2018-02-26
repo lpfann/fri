@@ -385,32 +385,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return rangevector, omegas, biase, shadowrangevector
 
     def _initEstimator(self, X, Y):
-        tuned_parameters = {}
 
-        if self.C is None:
-            tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
-        else:
-            tuned_parameters["C"] = [self.C]
-
-        if self.isRegression:
-            model = L1EpsilonRegressor
-            scoring = None  # None uses default scorer
-            if self.epsilon is None:
-                tuned_parameters["epsilon"] = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
-            else:
-                tuned_parameters["epsilon"] = [self.epsilon]
-        else:
-            model = L1HingeHyperplane
-            scoring= None # Use score() method of model
-            
+        # Use less folds for very small datasets
         if len(X) <= 20:
             cv = 3
         else:
             cv = 7
 
-        gridsearch = GridSearchCV(model(),
-                                  tuned_parameters,
-                                  scoring=scoring,
+        gridsearch = GridSearchCV(self.initModel(),
+                                  self.tuned_parameters,
                                   n_jobs=-1 if self.parallel else 1,
                                   cv=cv,
                                   error_score=0,

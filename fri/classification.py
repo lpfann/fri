@@ -4,6 +4,7 @@ from sklearn.utils.multiclass import unique_labels
 
 import fri.bounds
 from fri.base import FRIBase
+from fri.l1models import L1HingeHyperplane
 import fri.base
 
 class FRIClassification(FRIBase):
@@ -33,6 +34,16 @@ class FRIClassification(FRIBase):
         """
         super().__init__(isRegression=False, C=C, random_state=random_state,
                          shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
+        
+        self.initModel = L1HingeHyperplane
+
+        # Define parameters which are optimized in the initial gridsearch
+        self.tuned_parameters = {}
+        # Only use parameter grid when no parameter is given
+        if self.C is None:
+            self.tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+        else:
+            self.tuned_parameters["C"] = [self.C]
 
     def fit(self, X, y):
         """A reference implementation of a fitting function for a classifier.
