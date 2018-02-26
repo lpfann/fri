@@ -401,8 +401,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 tuned_parameters["epsilon"] = [self.epsilon]
         else:
             model = L1HingeHyperplane
-            scoring = "precision"
-
+            scoring= None # Use score() method of model
+            
         if len(X) <= 20:
             cv = 3
         else:

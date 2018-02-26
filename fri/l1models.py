@@ -5,9 +5,11 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-
+from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler, LabelEncoder
 import cvxpy as cvx
-
+from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import unique_labels
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
@@ -40,6 +42,19 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
 
         return self
 
+    def score(self, X, y):
+        # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
+
+        # Negative class is set to -1 for decision surface
+        y = LabelEncoder().fit_transform(y)
+        y[y == 0] = -1
+
+        X = StandardScaler().fit_transform(X)
+        prediction = self.predict(X)
+        # Using weighted f1 score to have a stable score for imbalanced datasets
+        score = f1_score(y, prediction, average="weighted")
+        return score
 
 class L1EpsilonRegressor(LinearModel, RegressorMixin):
     """
