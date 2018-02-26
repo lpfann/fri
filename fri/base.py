@@ -423,8 +423,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def score(self, X, y):
         if self._svm_clf:
-            return self._svm_clf.score(X, y, )
+            return self._svm_clf.score(X, y)
         else:
             raise NotFittedError()
-
 

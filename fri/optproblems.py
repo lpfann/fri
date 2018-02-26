@@ -72,12 +72,12 @@ class BaseClassificationProblem(BaseProblem):
 class MinProblemClassification(BaseClassificationProblem):
     """Class for minimization."""
 
-    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
 
         self._constraints.extend(
             [
-                cvx.abs(self.omega[di]) <= self.xp
+                cvx.abs(self.omega[self.di]) <= self.xp
             ])
 
         self._objective = cvx.Minimize(self.xp)

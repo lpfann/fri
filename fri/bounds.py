@@ -32,12 +32,12 @@ class LowerBound(Bound):
         # Init Super class, could be used for data manipulation
         super().__init__(di, X, Y)
 
-        # Define bound type for easier indexing after result collection
-        self.isUpperBound = False
 
         # Init problem instance usually defined in the main class
         self.prob_instance = problemClass.minProblem(di=di, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
 
+        # Define bound type for easier indexing after result collection
+        self.isUpperBound = False
 
     def solve(self):
         status = self.prob_instance.solve().problem.status
