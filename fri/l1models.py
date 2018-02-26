@@ -85,3 +85,13 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         self.slack = np.asarray(xi.value).flatten()
 
         return self
+
+class L1OrdinalRegressor(LinearModel):
+    # TODO: define an optimal ordinal regression model using cvxpy or use another regression library which can solve this.
+    def __init__(self, arg):
+        pass  
+
+    def score(self, X, y):
+        # TODO: Define score method for ordinal regression which is used by the Gridsearch to guide its search for good parameters
+        #return score
+        pass

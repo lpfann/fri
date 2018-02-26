@@ -43,6 +43,9 @@ class BaseProblem(object):
 
         return self
 
+# ****************************************************************************
+# *                              Classification                              *
+# ****************************************************************************
 
 class BaseClassificationProblem(BaseProblem):
     """Base class for all common optimization problems."""
@@ -119,11 +122,9 @@ class MaxProblem2(BaseClassificationProblem):
         self._objective = cvx.Maximize(self.xp)
 
 
-'''
-#############
-            ##### REGRESSION
-#############
-'''
+# ****************************************************************************
+# *                                Regression                                *
+# ****************************************************************************
 
 
 class BaseRegressionProblem(BaseProblem):
@@ -196,3 +197,30 @@ class MaxProblem2Regression(BaseRegressionProblem):
             ])
 
         self._objective = cvx.Maximize(self.xp)
+
+
+# ****************************************************************************
+# *                            Ordinal Regression                            *
+# ****************************************************************************
+# TODO: define problems as cvxpy problem with constraints and objective
+class BaseOrdinalRegressionProblem(BaseProblem):
+    __metaclass__ = ABCMeta
+    def __init__(self, di=None, kwargs=None, X=None, Y=None,  initLoss=None, initL1=None, parameters=None):
+        super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,parameters=parameters)
+        pass
+
+
+class MinProblemOrdinalRegression(BaseOrdinalRegressionProblem):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
+        super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
+        pass
+
+class MaxProblem1OrdinalRegression(BaseOrdinalRegressionProblem):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, epsilon=None, initLoss=None, initL1=None, parameters=None):
+        super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
+        pass
+
+class MaxProblem2OrdinalRegression(BaseOrdinalRegressionProblem):
+    def __init__(self, di=None, kwargs=None, X=None, Y=None, epsilon=None, initLoss=None, initL1=None, parameters=None):
+        super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
+        pass

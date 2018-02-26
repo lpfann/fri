@@ -1,5 +1,5 @@
 import pytest
-from fri import genClassificationData, genRegressionData
+from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import  assert_equal
 import numpy as np
@@ -46,7 +46,9 @@ def test_wrong_values(wrong_param):
 @pytest.mark.parametrize('repeated', [0, 1, 2, 5])
 @pytest.mark.parametrize('flip_y', [0, 0.1, 1])
 @pytest.mark.parametrize('noise', [0, 0.5, 1, 10])
-@pytest.mark.parametrize('problem', ["regression", "classification"])
+@pytest.mark.parametrize('problem', ["regression", "classification",
+                                    pytest.param("ordinalregression",marks=pytest.mark.xfail(raises=NotImplementedError)) # TODO: remove this when implemented
+                                    ])
 def test_all_feature_types(problem, strong, weak, repeated, flip_y, noise):
     n_samples = 10
     n_features = 100
@@ -56,6 +58,9 @@ def test_all_feature_types(problem, strong, weak, repeated, flip_y, noise):
     if problem == "regression":
         args["noise"] = noise
         gen = genRegressionData
+    elif problem == "ordinalregression":
+        args["noise"] = noise
+        gen = genOrdinalRegressionData
     else:
         args["flip_y"] = flip_y
         gen = genClassificationData
