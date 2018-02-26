@@ -5,7 +5,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 from fri import FRIClassification, FRIRegression, EnsembleFRI
-from fri.genData import  genRegressionData, genClassificationData
+from fri.genData import genRegressionData, genClassificationData
 
 
 @pytest.fixture(scope="function")
@@ -37,10 +37,10 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, C=1)
+        fri = FRIRegression(random_state=randomstate, C=1, debug=True)
     else:
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, C=1)
+        fri = FRIClassification(random_state=randomstate, C=1, debug=True)
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):

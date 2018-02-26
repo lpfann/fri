@@ -16,7 +16,7 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
 
-from fri.l1models import L1HingeHyperplane, L1EpsilonRegressor
+from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
 class NotFeasibleForParameters(Exception):
@@ -78,6 +78,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.feature_clusters_ = None
         self.linkage_ = None
         self.interval_ = None
+        self.tuned_parameters = {}
+        self.initModel = None
         self.debug = debug
 
     @abstractmethod
@@ -307,54 +309,53 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         Solver Parameters
         """
-        '''
-
-        '''
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
 
         """
         Create tasks for worker(s)
         """
-        work = [self.LowerBound(di, d, n, kwargs,
-                                L1, svmloss, C, X, Y,
-                                regression=self.isRegression,
-                                epsilon=_hyper_epsilon)
+        work = [LowerBound(self, di, kwargs,
+                                svmloss, L1, X, Y,
+                                )
                 for di in range(d)]
-        work.extend([self.UpperBound(di, d, n, kwargs,
-                                     L1, svmloss, C, X, Y,
-                                     regression=self.isRegression,
-                                     epsilon=_hyper_epsilon)
+        work.extend([UpperBound(self, di, kwargs,
+                                svmloss, L1, X, Y,
+                                )
                      for di in range(d)])
         if self.shadow_features:
             for nr in range(self.n_resampling):
-                work.extend([self.LowerBoundS(di, d, n, kwargs,
-                                              L1, svmloss, C, X, Y,
-                                              regression=isRegression,
-                                              epsilon=_hyper_epsilon,
+                work.extend([ShadowLowerBound(self, di, kwargs,
+                                              svmloss, L1, X, Y,
                                               random_state=random_state)
                              for di in range(d)])
-                work.extend([self.UpperBoundS(di, d, n, kwargs,
-                                              L1, svmloss, C, X, Y,
-                                              regression=isRegression,
-                                              epsilon=_hyper_epsilon,
+                work.extend([ShadowUpperBound(self, di, kwargs,
+                                              svmloss, L1, X, Y,
                                               random_state=random_state)
                              for di in range(d)])
 
+        # Define Map which can use multiple processes to speed up computation
         def pmap(*args):
             with Pool() as p:
                 return p.map(*args)
-
+        # Only use multiprocessing when switched on (default off)
         if self.parallel:
             newmap = pmap
         else:
             newmap = map
 
+        #
+        #
+        # Compute all bounds using map
+        #
+        #
         done = newmap(self._opt_per_thread, work)
 
+        # Retrieve results and aggregate values in arrays
         for finished_bound in done:
             di = finished_bound.di
-            i = finished_bound.type
+            i = finished_bound.isUpperBound
             prob_i = finished_bound.prob_instance
+            # Handle shadow values differently (we discard useless values)
             if not hasattr(finished_bound, "isShadow"):
                 rangevector[di, i] = np.abs(prob_i.problem.value)
                 omegas[di, i] = prob_i.omega.value.reshape(d)
@@ -367,7 +368,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.unmod_interval_ = rangevector.copy()
 
         # Correction through shadow features
-
         if self.shadow_features:
             shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
             rangevector[:, 0] -= shadow_variance
@@ -404,12 +404,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
             warnings.simplefilter("ignore")
             gridsearch.fit(X, Y)
 
+        # Legacy Code
+        ###
         self._hyper_C = gridsearch.best_params_['C']
         if self.isRegression:
             self._hyper_epsilon = gridsearch.best_params_['epsilon']
-        self._best_clf_score = gridsearch.best_score_
+        ###
 
+        # Save parameters for use in optimization
+        self._best_params = gridsearch.best_params_
+        self._best_clf_score = gridsearch.best_score_
         self._svm_clf = gridsearch.best_estimator_
+
         self._svm_coef = self._svm_clf.coef_
         self._svm_bias = self._svm_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
@@ -417,7 +423,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def score(self, X, y):
         if self._svm_clf:
-            return self._svm_clf.score(X, y)
+            return self._svm_clf.score(X, y, )
         else:
             raise NotFittedError()
 

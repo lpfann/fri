@@ -1,19 +1,18 @@
 from sklearn.utils import check_X_y
 
-import fri.bounds
 from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
-import fri.base
+from fri.optproblems import MinProblemRegression, MaxProblem1Regression, MaxProblem2Regression
+
 
 class FRIRegression(FRIBase):
     """
         Class for regression data
     
     """
-    LowerBound = fri.bounds.LowerBound
-    UpperBound = fri.bounds.UpperBound
-    LowerBoundS = fri.bounds.ShadowLowerBound
-    UpperBoundS = fri.bounds.ShadowUpperBound
+    minProblem = MinProblemRegression
+    maxProblem1 = MaxProblem1Regression
+    maxProblem2 = MaxProblem2Regression
 
     def __init__(self, epsilon=None, C=None, random_state=None,
                  shadow_features=False, parallel=False, feat_elim=False, **kwargs):

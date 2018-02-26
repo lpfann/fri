@@ -6,7 +6,8 @@ from sklearn import clone
 from sklearn.utils import check_random_state, resample
 
 from fri.base import FRIBase
-from fri.classification import  FRIClassification
+from fri.classification import FRIClassification
+
 
 class EnsembleFRI(FRIBase):
     def __init__(self, model, n_bootstraps=10, random_state=None, n_jobs=1):
@@ -90,4 +91,4 @@ class EnsembleFRI(FRIBase):
         return self
 
     def score(self, X, y):
-        return self.model.score(X, y)
+        return self.model.score(X, y, )

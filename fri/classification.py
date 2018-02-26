@@ -2,20 +2,19 @@ from sklearn import preprocessing
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-import fri.bounds
 from fri.base import FRIBase
 from fri.l1models import L1HingeHyperplane
-import fri.base
+from fri.optproblems import MinProblemClassification, MaxProblem1, MaxProblem2
+
 
 class FRIClassification(FRIBase):
     """
     Class for Classification data
     """
 
-    LowerBound = fri.bounds.LowerBound
-    UpperBound = fri.bounds.UpperBound
-    LowerBoundS = fri.bounds.ShadowLowerBound
-    UpperBoundS = fri.bounds.ShadowUpperBound
+    minProblem = MinProblemClassification
+    maxProblem1 = MaxProblem1
+    maxProblem2 = MaxProblem2
 
     def __init__(self, C=None, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, **kwargs):
