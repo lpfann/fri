@@ -37,6 +37,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Enables noise reduction using feature permutation results.
     parallel : boolean, optional
         Enables parallel computation of feature intervals
+    optimum_deviation : float, optional (Default = 0.01)
+        Percentage of allowed deviation from the optimal solution (L1 norm of model weights).
+        Default allows one percent deviation. 
+        Allows for more relaxed optimization problems and leads to bigger intervals.
 
     Attributes
     ----------
@@ -57,13 +61,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
    """
 
     @abstractmethod
-    def __init__(self, isRegression, C=None, random_state=None,
+    def __init__(self, isRegression, C=None, optimum_deviation=0.01, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):
 
         self._svm_clf = None
         self._best_clf_score = None
         self.random_state = check_random_state(random_state)
         self.C = C
+        self.optimum_deviation = optimum_deviation
         self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = isRegression
@@ -406,11 +411,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._best_params = gridsearch.best_params_
         self._best_clf_score = gridsearch.best_score_
         self._svm_clf = gridsearch.best_estimator_
-
         self._svm_coef = self._svm_clf.coef_
         self._svm_bias = self._svm_clf.intercept_
         self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
         self._svm_loss = np.abs(self._svm_clf.slack).sum()
+        
+        # Allow worse solutions (relaxation)
+        self._svm_L1 = self._svm_L1 * (1 + self.optimum_deviation)
+
 
     def score(self, X, y):
         if self._svm_clf:
