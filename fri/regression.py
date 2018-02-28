@@ -10,9 +10,9 @@ class FRIRegression(FRIBase):
     maxProblem1 = MaxProblem1Regression
     maxProblem2 = MaxProblem2Regression
 
-    def __init__(self, **kwargs):
-        super().__init__(isRegression=True, **kwargs)
-        self.epsilon = kwargs["epsilon"]
+    def __init__(self, epsilon=None,**kwargs):
+        super().__init__(isRegression=True,**kwargs)
+        self.epsilon = epsilon
 
         self.initModel = L1EpsilonRegressor
 

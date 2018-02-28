@@ -47,8 +47,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Enable output of internal values for debugging purposes.
     feat_elim : boolean
         Enables feature selection routine guided by backwards feature elimination using performance metric.
-
     
+    --
+    For Regression
+    --
+    epsilon : float
+        Allowed epsilon wide tube around target.
     Attributes
     ----------
     allrel_prediction_ : array of booleans
