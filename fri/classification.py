@@ -8,31 +8,12 @@ from fri.optproblems import MinProblemClassification, MaxProblem1, MaxProblem2
 
 
 class FRIClassification(FRIBase):
-    """
-    Class for Classification data
-    """
-
     minProblem = MinProblemClassification
     maxProblem1 = MaxProblem1
     maxProblem2 = MaxProblem2
 
-    def __init__(self, C=None, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, **kwargs):
-        """Initialize a solver for classification data
-        Parameters
-        ----------
-        C : float , optional
-            Regularization parameter, default obtains the hyperparameter
-            through gridsearch optimizing accuracy
-        random_state : object
-            Set seed for random number generation.
-        shadow_features : boolean, optional
-            Enables noise reduction using feature permutation results.
-        parallel : boolean, optional
-            Enables parallel computation of feature intervals
-        """
-        super().__init__(isRegression=False, C=C, random_state=random_state,
-                         shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(isRegression=False, **kwargs)
         
         self.initModel = L1HingeHyperplane
 

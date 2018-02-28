@@ -6,19 +6,13 @@ from fri.optproblems import MinProblemRegression, MaxProblem1Regression, MaxProb
 
 
 class FRIRegression(FRIBase):
-    """
-        Class for regression data
-    
-    """
     minProblem = MinProblemRegression
     maxProblem1 = MaxProblem1Regression
     maxProblem2 = MaxProblem2Regression
 
-    def __init__(self, epsilon=None, C=None, random_state=None,
-                 shadow_features=False, parallel=False, feat_elim=False, **kwargs):
-        super().__init__(isRegression=True, C=C, random_state=random_state,
-                         shadow_features=shadow_features, parallel=parallel, feat_elim=False, **kwargs)
-        self.epsilon = epsilon
+    def __init__(self, **kwargs):
+        super().__init__(isRegression=True, **kwargs)
+        self.epsilon = kwargs["epsilon"]
 
         self.initModel = L1EpsilonRegressor
 

@@ -25,8 +25,8 @@ class NotFeasibleForParameters(Exception):
 
 
 class FRIBase(BaseEstimator, SelectorMixin):
-    """Base class for interaction with program
-
+    """Object for performing the feature relevance bound method.
+    
     Parameters
     ----------
     C : float , optional
@@ -35,30 +35,37 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Set seed for random number generation.
     shadow_features : boolean, optional
         Enables noise reduction using feature permutation results.
+    n_resampling : integer ( Default = 3)
+        Number of shadowfeature permutations used. 
     parallel : boolean, optional
         Enables parallel computation of feature intervals
     optimum_deviation : float, optional (Default = 0.01)
         Percentage of allowed deviation from the optimal solution (L1 norm of model weights).
         Default allows one percent deviation. 
         Allows for more relaxed optimization problems and leads to bigger intervals.
+    debug : boolean
+        Enable output of internal values for debugging purposes.
+    feat_elim : boolean
+        Enables feature selection routine guided by backwards feature elimination using performance metric.
 
+    
     Attributes
     ----------
     allrel_prediction_ : array of booleans
         Truth value for each feature if it is relevant (weakly OR strongly).
+    feature_clusters_ : array
+        Denotes each features classification into subgroups obtained using correlation like measures.
     interval_ : array [[lower_Bound_0,UpperBound_0],...,]
-        Relevace bounds in 2D array format.
-    n_features : int
-        Amount of selected features.
-
+        Relevance bounds in 2D array format.
+    
     See Also
-    ---------
+    --------
     :class:`FRIClassification`:
         Class for classification problems
     :class:`FRIRegression`:
         Class for regression problems
-
-   """
+    
+    """
 
     @abstractmethod
     def __init__(self, isRegression, C=None, optimum_deviation=0.01, random_state=None,
