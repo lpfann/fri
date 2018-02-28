@@ -68,7 +68,7 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
         # Check the score which should be good
         assert fri.score(X[:30], y[:30]) >= 0.8
         # Check the feature selection methods providing boolean masks and #n of selected features
-        assert fri.n_features_() == n_strong + n_weak
+        assert fri._n_features() == n_strong + n_weak
         truth = np.zeros(n_features)
         truth[:n_strong + n_weak] = 1
         assert all(fri._get_support_mask() == truth)

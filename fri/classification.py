@@ -12,9 +12,14 @@ class FRIClassification(FRIBase):
     maxProblem1 = MaxProblem1
     maxProblem2 = MaxProblem2
 
-    def __init__(self, **kwargs):
-        super().__init__(isRegression=False, **kwargs)
-        
+    def __init__(self, C=None, optimum_deviation=0.01,
+                 random_state=None,shadow_features=False,
+                 parallel=False, n_resampling=3,
+                 feat_elim=False, debug=False):
+        super().__init__(isRegression=False, C=C, random_state=random_state,
+                         shadow_features=shadow_features, parallel=parallel,
+                         feat_elim=feat_elim,n_resampling=n_resampling,
+                         debug=debug, optimum_deviation=optimum_deviation)
         self.initModel = L1HingeHyperplane
 
         # Define parameters which are optimized in the initial gridsearch
