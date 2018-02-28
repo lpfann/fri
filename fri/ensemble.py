@@ -85,7 +85,7 @@ class EnsembleFRI(FRIBase):
 
         # Classify features
         self.model._initEstimator(X, y)
-        self._svm_clf = self.model._svm_clf
+        self._svm_clf = self.model.optim_model_
         self._get_relevance_mask()
 
         return self

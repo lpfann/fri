@@ -15,6 +15,7 @@ from sklearn.exceptions import NotFittedError, FitFailedWarning
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
+from sklearn.utils.validation import check_is_fitted
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
@@ -74,10 +75,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
     @abstractmethod
     def __init__(self, isRegression, C=None, optimum_deviation=0.01, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):
-
-        self._svm_clf = None
-        self._best_clf_score = None
-        self.random_state = check_random_state(random_state)
+        self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
         self.shadow_features = shadow_features
@@ -85,33 +83,35 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.isRegression = isRegression
         self.n_resampling = n_resampling
         self.feat_elim = feat_elim
-        self._hyper_epsilon = None
-        self._hyper_C = None
-        self._svm_L1 = None
-        self._svm_loss = None
-        self._ensemble = None
-        self.allrel_prediction_ = None
-        self.feature_clusters_ = None
-        self.linkage_ = None
-        self.interval_ = None
-        self.tuned_parameters = {}
-        self.initModel = None
         self.debug = debug
 
     @abstractmethod
     def fit(self, X, y):
         """Summary
-        Parameters
-        ----------
-        X : array_like
-            Data matrix
-        y : array_like
-            Response variable
-        Returns
-        -------
-        FRIBase
-            Instance
-        """
+            Parameters
+            ----------
+            X : array_like
+                Data matrix
+            y : array_like
+                Response variable
+            Returns
+            -------
+            FRIBase
+                Instance
+            """
+
+        self.optim_model_ = None
+        self.optim_score_ = None
+        self.optim_L1_ = None
+        self.optim_loss_ = None
+        self.tuned_epsilon_ = None
+        self.tuned_C_ = None
+        self.isEnsemble = None
+        self.allrel_prediction_ = None
+        self.feature_clusters_ = None
+        self.linkage_ = None
+        self.interval_ = None
+        self.random_state = check_random_state(self.random_state)
 
         y = np.asarray(y)
 
@@ -121,27 +121,27 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
         if self.debug:
-            print("loss", self._svm_loss)
-            print("L1", self._svm_L1)
-            print("C", self._hyper_C)
-            print("score", self._best_clf_score)
+            print("loss", self.optim_loss_)
+            print("L1", self.optim_L1_)
+            print("C", self.tuned_C_)
+            print("score", self.optim_score_)
             print("coef:\n{}".format(self._svm_coef.T))
 
-        if self._best_clf_score < 0.6:
-            print("Error: Weak Model performance! score = {}".format(self._best_clf_score))
+        if self.optim_score_ < 0.6:
+            print("Error: Weak Model performance! score = {}".format(self.optim_score_))
             raise FitFailedWarning
-        if self._best_clf_score < 0.75:
-            print("WARNING: Weak Model performance! score = {}".format(self._best_clf_score))
+        if self.optim_score_ < 0.75:
+            print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Main Optimization step
-        results = self._main_opt(X, y, self._svm_loss, self._svm_L1, self.random_state)
+        results = self._main_opt(X, y, self.optim_loss_, self.optim_L1_, self.random_state)
 
         self.interval_ = results[0]
         self._omegas = results[1]
         self._biase = results[2]
         self._shadowintervals = results[3]
 
-        if not self._ensemble:
+        if not self.isEnsemble:
             self._get_relevance_mask()
             if X.shape[1] > 1:
                 self.feature_clusters_, self.linkage_ = self.community_detection()
@@ -272,20 +272,21 @@ class FRIBase(BaseEstimator, SelectorMixin):
             if self.allrel_prediction_ is None:
                 # Classify features
                 best_fs = self._feature_elimination(
-                    self.X_, self.y_, self._svm_clf, self.interval_)
+                    self.X_, self.y_, self.optim_model_, self.interval_)
                 prediction = np.zeros(self.interval_.shape[0], dtype=np.bool)
                 prediction[best_fs] = True
                 self.allrel_prediction_ = prediction
 
         return self.allrel_prediction_
 
-    def n_features_(self):
+    def _n_features(self):
         """
 
         Returns the number of selected features.
         -------
 
         """
+        check_is_fitted(self,"allrel_prediction_")
         return sum(self.allrel_prediction_)
 
     def _get_support_mask(self):
@@ -413,27 +414,27 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Legacy Code
         # TODO: remove legacy code
         ###
-        self._hyper_C = gridsearch.best_params_['C']
+        self.tuned_C_ = gridsearch.best_params_['C']
         if self.isRegression:
-            self._hyper_epsilon = gridsearch.best_params_['epsilon']
+            self.tuned_epsilon_ = gridsearch.best_params_['epsilon']
         ###
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
-        self._best_clf_score = gridsearch.best_score_
-        self._svm_clf = gridsearch.best_estimator_
-        self._svm_coef = self._svm_clf.coef_
-        self._svm_bias = self._svm_clf.intercept_
-        self._svm_L1 = np.linalg.norm(self._svm_coef[0], ord=1)
-        self._svm_loss = np.abs(self._svm_clf.slack).sum()
-        
+        self.optim_score_ = gridsearch.best_score_
+        self.optim_model_ = gridsearch.best_estimator_
+        self._svm_coef = self.optim_model_.coef_
+        self._svm_bias = self.optim_model_.intercept_
+        self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
+        self.optim_loss_ = np.abs(self.optim_model_.slack).sum()
+
         # Allow worse solutions (relaxation)
-        self._svm_L1 = self._svm_L1 * (1 + self.optimum_deviation)
+        self.optim_L1_ = self.optim_L1_ * (1 + self.optimum_deviation)
 
 
     def score(self, X, y):
-        if self._svm_clf:
-            return self._svm_clf.score(X, y)
+        if self.optim_model_:
+            return self.optim_model_.score(X, y)
         else:
             raise NotFittedError()
 
