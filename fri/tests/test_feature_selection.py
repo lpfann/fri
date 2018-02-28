@@ -17,7 +17,7 @@ def check_interval(interval, n_strong):
     # All strongly relevant features have a lower bound > 0
     assert np.all(interval[0:n_strong, 0] > 0)
     # All other features are zero or very close to it
-    np.testing.assert_allclose(interval[n_strong:, 0], 0, atol=1e-02)
+    np.testing.assert_allclose(interval[n_strong:, 0], 0, atol=1e-05)
 
     # Upper bounds of relevant features also bigger than zero
     assert np.all(interval[0:n_strong, 1] > 0)
@@ -37,10 +37,10 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, C=1, debug=True)
+        fri = FRIRegression(random_state=randomstate, C=1, debug=True, optimum_deviation=0.05)
     else:
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, C=1, debug=True)
+        fri = FRIClassification(random_state=randomstate, C=1, debug=True, optimum_deviation=0.05)
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
