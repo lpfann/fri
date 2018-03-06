@@ -24,15 +24,15 @@ for i in range(n_bins):
      indices = np.where(y == i)
      X_re.append(X[indices])
 
-w = cvx.Variable(d)
-b = cvx.Variable(n_bins - 1)
+w = cvx.Variable(shape=(d,1))
+b = cvx.Variable(shape=(n_bins - 1,1))
 
 chi = []
 xi = []
 for i in range(n_bins):
     n_x = len(np.where(y == i)[0])
-    chi.append(cvx.Variable(n_x,))
-    xi.append(cvx.Variable(n_x,))
+    chi.append(cvx.Variable(shape=(n_x,1)))
+    xi.append(cvx.Variable(shape=(n_x,1)))
 
 objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C * cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
 
