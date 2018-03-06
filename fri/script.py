@@ -14,24 +14,44 @@ def fit(X, y):
         n_bins = len(np.unique(y))
         bin_size = int(np.floor(n / n_bins))
 
-
     
         X_re = np.zeros([bin_size,d,n_bins])
 
+        #X_re = []
+        # y = np.array(y)
+        # for i in range(n_bins):
+        #     indices = np.where(y == i)
+        #     X_re.append(X[indices])
 
-        
-        y = np.array(y)  
+
+        y = np.array(y)
         for i in range(n_bins):
             index = np.where(y == i)
             X_re[0:bin_size, 0:d, i] = X[index]
 
         w = cvx.Variable(d)
-        chi = cvx.Variable(n_bins, bin_size, nonneg=True)
-        xi = cvx.Variable(n_bins, bin_size, nonneg=True)
+        chi = cvx.Variable([n_bins, bin_size], nonneg=True)
+        xi = cvx.Variable([n_bins, bin_size], nonneg=True)
         b = cvx.Variable(n_bins - 1)
 
+        # chi = []
+        # xi = []
+        # for i in range(n_bins):
+        #     n_x = len(np.where(y == i)[0])
+        #     chi.append(cvx.Variable(n_x))
+        #     xi.append(cvx.Variable(n_x))
+
+
+        # print(chi)
+        # print(chi[0])
+        # print(cvx.vstack(chi))
+        # print(cvx.hstack(chi))
+        # print(cvx.hstack(chi)[6])
+
+
+
         # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C * cvx.sum(chi + xi))
+        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C )#* cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
         '''
         constraints = []
         for i in range(max_bin_size):
@@ -54,11 +74,13 @@ def fit(X, y):
         constraints = []
         for i in range(n_bins - 1):
             constraints.append(X_re[:,:,i] * w - chi[i] <= b[i] - 1)
+            #constraints.append(X_re[i] * w - chi[i] <= b[i] - 1)
             constraints.append(chi[i] >= 0)
             constraints.append(xi[i] >= 0)
 
         for i in range(1, n_bins):
             constraints.append(X_re[:,:,i] * w + xi[i] >= b[i - 1] + 1)
+            #constraints.append(X_re[i] * w + xi[i] >= b[i - 1] + 1)
 
         for i in range(n_bins - 2):
             constraints.append(b[i] <= b[i + 1])
@@ -77,9 +99,12 @@ def fit(X, y):
         print(problem.status)
         print(b.value)
         print(w.value)
-        print(X_re[0,:,0])
-        print(np.matmul(w.value, X_re[0,:,0]))
-        print(np.matmul(w.value, X_re[0, :, 1]))
+        print(chi[0].value)
+        print(xi[0].value)
+        print(X_re[0][0])
+        #
+        # print(np.matmul(w.value, X_re[0][0]))
+        #print(np.matmul(w.value, X_re[1][0]))
 '''
         self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = b.value

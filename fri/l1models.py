@@ -87,11 +87,17 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         return self
 
 class L1OrdinalRegressor(LinearModel):
-    # TODO: define an optimal ordinal regression model using cvxpy or use another regression library which can solve this.
+
     def __init__(self, C=1):
         self.C = C
+        self.w = None
+        self.b = None
+        self.chi = None
+        self.xi = None
+
 
     def fit(self, X, y):
+
         (n, d) = X.shape
         n_bins = len(np.unique(y))
         bin_size = np.floor(n / n_bins)
@@ -128,13 +134,19 @@ class L1OrdinalRegressor(LinearModel):
         problem.solve(solver="ECOS", max_iters=5000)
 
         # TODO: Check out all used parameters
-        self.coef_ = np.array(w.value)[np.newaxis]
-        self.intercept_ = np.array(b.value)[np.newaxis]
-        self.slack = np.asarray(xi.value).flatten()
+        self.w_ = np.array(w.value)[np.newaxis]
+        self.b = np.array(b.value)[np.newaxis]
+        self.chi = np.asarray(chi.value).flatten()
+        self.xi = np.asarray(xi.value).flatten()
 
-        return self  
+        return self
 
     def score(self, X, y):
+
+        X, y = check_X_y(X, y)
+
+
+
         # TODO: Define score method for ordinal regression which is used by the Gridsearch to guide its search for good parameters
         #return score
         pass
