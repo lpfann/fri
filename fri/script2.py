@@ -1,6 +1,7 @@
 import numpy as np
 from genData import genOrdinalRegressionData
 from script import fit
+import cvxpy as cvx
 
 #x,y = genOrdinalRegressionData(n_samples=10, n_features=2, n_target_bins = 2)
 
