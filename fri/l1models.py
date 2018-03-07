@@ -100,34 +100,39 @@ class L1OrdinalRegressor(LinearModel):
 
         (n, d) = X.shape
         n_bins = len(np.unique(y))
-        bin_size = np.floor(n / n_bins)
-        
-        X_re = np.zeros([bin_size,d,n_bins])
-        
-        y = np.array(y)  
-        for i in range(n_bins):
-            index = np.where(y == i)
-            X_re[0:bin_size, 0:d, i] = X[index]
 
-        w = cvx.Variable(d)
-        chi = cvx.Variable(n_bins, bin_size, nonneg=True)
-        xi = cvx.Variable(n_bins, bin_size, nonneg=True)
-        b = cvx.Variable(n_bins - 1)
+        X_re = []
+        y = np.array(y)
+        for i in range(n_bins):
+            indices = np.where(y == i)
+            X_re.append(X[indices])
+
+        w = cvx.Variable(shape=(d, 1))
+        b = cvx.Variable(shape=(n_bins - 1, 1))
+
+        chi = []
+        xi = []
+        for i in range(n_bins):
+            n_x = len(np.where(y == i)[0])
+            chi.append(cvx.Variable(shape=(n_x, 1)))
+            xi.append(cvx.Variable(shape=(n_x, 1)))
 
         # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(chi + xi))
+        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
         constraints = []
 
         for i in range(n_bins - 1):
-            constraints.append(X_re[:, :, i] * w - chi[i] <= b[i] - 1)
-            constraints.append(chi[i] >= 0)
-            constraints.append(xi[i] >= 0)
+            constraints.append(X_re[i] * w - chi[i] <= b[i] - 1)
 
         for i in range(1, n_bins):
-            constraints.append(X_re[:, :, i] * w + xi[i] >= b[i - 1] + 1)
+            constraints.append(X_re[i] * w + xi[i] >= b[i - 1] + 1)
 
         for i in range(n_bins - 2):
             constraints.append(b[i] <= b[i + 1])
+
+        for i in range(n_bins):
+            constraints.append(chi[i] >= 0)
+            constraints.append(xi[i] >= 0)
 
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
@@ -145,7 +150,10 @@ class L1OrdinalRegressor(LinearModel):
 
         X, y = check_X_y(X, y)
 
+        (n, d) = X.shape
 
+        for i in range(n):
+            pass
 
         # TODO: Define score method for ordinal regression which is used by the Gridsearch to guide its search for good parameters
         #return score
