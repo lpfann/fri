@@ -88,8 +88,11 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 
 class L1OrdinalRegressor(LinearModel):
 
-    def __init__(self, C=1):
+    #TODO: Connect error_type in higher levels
+
+    def __init__(self, C=1, error_type="mmae"):
         self.C = C
+        self.error_type = error_type
         self.w = None
         self.b = None
         self.chi = None
@@ -138,11 +141,10 @@ class L1OrdinalRegressor(LinearModel):
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS", max_iters=5000)
 
-        # TODO: Check out all used parameters
-        self.w_ = np.array(w.value)[np.newaxis]
-        self.b = np.array(b.value)[np.newaxis]
-        self.chi = np.asarray(chi.value).flatten()
-        self.xi = np.asarray(xi.value).flatten()
+        self.w = np.array(w.value).flatten()
+        self.b = np.array(b.value).flatten()
+        self.chi = np.asarray(cvx.vstack(chi).value).flatten()
+        self.xi = np.asarray(cvx.vstack(xi).value).flatten()
 
         return self
 
@@ -151,11 +153,54 @@ class L1OrdinalRegressor(LinearModel):
         X, y = check_X_y(X, y)
 
         (n, d) = X.shape
+        n_bins = len(np.unique(y))
+        b = np.append(self.b, np.inf)
+        sum = 0
 
-        for i in range(n):
+        # Score based on mean zero-one error
+        if self.error_type == "mze":
+            for i in range(n):
+                val = np.matmul(self.w, X[i])
+                pos = np.argmax(np.less_equal(val, b))
+                if y[i] != pos:
+                    sum += 1
+
+            score = 1 - (sum / n)
+
+        # Score based on mean absolute error
+        elif self.error_type == "mae":
+            for i in range(n):
+                val = np.matmul(self.w, X[i])
+                sum += np.abs(y[i] - np.argmax(np.less_equal(val, b)))
+
+            error = sum / n
+            score = 1 - (error / (n_bins - 1))
+
+        # Score based on macro-averaged mean absolute error
+        elif self.error_type == "mmae":
+            for i in range(n_bins):
+                indices = np.where(y == i)
+                X_re = X[indices]
+                y_re = y[indices]
+                n_c = X_re.shape[0]
+                sum_c = 0
+
+                for j in range(n_c):
+                    val = np.matmul(self.w, X_re[j])
+                    sum_c += np.abs(y_re[j] - np.argmax(np.less_equal(val, b)))
+
+                error_c = sum_c / n_c
+                sum += error_c
+
+            error = sum / n_bins
+            score = 1 - (error / (n_bins - 1))
+
+        # error message if no correct error type has been specified
+        else:
+            #TODO: Send Error message (wrong input on 'error_type')
             pass
 
-        # TODO: Define score method for ordinal regression which is used by the Gridsearch to guide its search for good parameters
-        #return score
-        pass
+        return score
+
+
 
