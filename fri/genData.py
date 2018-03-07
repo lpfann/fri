@@ -248,7 +248,79 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
                       n_repeated: int = 0, noise: float = 0, random_state: object = None,
-                      partition=None):
-    # TODO: implement ordinal regression data generation
-    # Easy way would be using the genRegressionData method to generate regression data and put the points in discrete intervals
-    raise NotImplementedError
+                      partition=None, n_target_bins: int = 2):
+
+    """
+    Generate ordinal regression data
+    
+    Parameters
+    ----------
+    n_samples : int, optional
+        Number of samples
+    n_features : int, optional
+        Number of features
+    n_redundant : int, optional
+        Number of features which are part of redundant subsets (weakly relevant)
+    n_strel : int, optional
+        Number of features which are mandatory for the underlying model (strongly relevant)
+    n_repeated : int, optional
+        Number of features which are clones of existing ones. 
+    noise : float, optional
+        Noise of the created samples around ground truth.
+    random_state : object, optional
+        Randomstate object used for generation.
+    n_target_bins : int, optional
+        Number of bins in which the regressional target variable is split to form the ordinal classes
+    
+    Returns
+    -------
+    X : array of shape [n_samples, n_features]
+        The generated samples.
+    y : array of shape [n_samples]
+        The output values (target).
+    
+    Raises
+    ------
+    ValueError
+    Wrong parameters for specified amonut of features/samples.
+    """
+
+    _checkParam(**locals())
+    random_state = check_random_state(random_state)
+
+    if not n_target_bins > 1:
+        raise ValueError("At least 2 target bins needed")
+    
+    # Use normal regression data as starting point
+    X_regression, Y_regression = genRegressionData(n_samples=int(n_samples), 
+                                                   n_features=int(n_features),
+                                                   n_redundant=int(n_redundant),
+                                                   n_strel=int(n_strel),
+                                                   n_repeated=int(n_repeated),
+                                                   noise=float(noise),
+                                                   random_state=random_state,
+                                                   partition=partition)
+
+    bin_size = int(np.floor(n_samples / n_target_bins))
+    rest = int(n_samples - (bin_size * n_target_bins))
+    
+    # Sort the target values and rearange the data accordingly
+    sort_indices = np.argsort(Y_regression)
+    X = X_regression[sort_indices]
+    Y = Y_regression[sort_indices]
+
+    # If the values can't be distributed evenly to the bins, duplicate values and
+    # raise the bin size by 1
+    if not rest == 0:
+        for i in range(n_target_bins - rest):
+            X = np.append(X, [X[-1]], axis=0)
+            Y = np.append(Y, Y[-1])
+        bin_size += 1
+
+    # Assign ordinal classes as target values
+    for i in range(n_target_bins):
+        Y[bin_size*i:bin_size*(i+1)] = i
+
+    return X, Y
+
+

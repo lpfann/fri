@@ -87,11 +87,67 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
         return self
 
 class L1OrdinalRegressor(LinearModel):
-    # TODO: define an optimal ordinal regression model using cvxpy or use another regression library which can solve this.
-    def __init__(self, arg):
-        pass  
+
+    def __init__(self, C=1):
+        self.C = C
+        self.w = None
+        self.b = None
+        self.chi = None
+        self.xi = None
+
+
+    def fit(self, X, y):
+
+        (n, d) = X.shape
+        n_bins = len(np.unique(y))
+        bin_size = np.floor(n / n_bins)
+        
+        X_re = np.zeros([bin_size,d,n_bins])
+        
+        y = np.array(y)  
+        for i in range(n_bins):
+            index = np.where(y == i)
+            X_re[0:bin_size, 0:d, i] = X[index]
+
+        w = cvx.Variable(d)
+        chi = cvx.Variable(n_bins, bin_size, nonneg=True)
+        xi = cvx.Variable(n_bins, bin_size, nonneg=True)
+        b = cvx.Variable(n_bins - 1)
+
+        # Prepare problem.
+        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(chi + xi))
+        constraints = []
+
+        for i in range(n_bins - 1):
+            constraints.append(X_re[:, :, i] * w - chi[i] <= b[i] - 1)
+            constraints.append(chi[i] >= 0)
+            constraints.append(xi[i] >= 0)
+
+        for i in range(1, n_bins):
+            constraints.append(X_re[:, :, i] * w + xi[i] >= b[i - 1] + 1)
+
+        for i in range(n_bins - 2):
+            constraints.append(b[i] <= b[i + 1])
+
+        # Solve problem.
+        problem = cvx.Problem(objective, constraints)
+        problem.solve(solver="ECOS", max_iters=5000)
+
+        # TODO: Check out all used parameters
+        self.w_ = np.array(w.value)[np.newaxis]
+        self.b = np.array(b.value)[np.newaxis]
+        self.chi = np.asarray(chi.value).flatten()
+        self.xi = np.asarray(xi.value).flatten()
+
+        return self
 
     def score(self, X, y):
+
+        X, y = check_X_y(X, y)
+
+
+
         # TODO: Define score method for ordinal regression which is used by the Gridsearch to guide its search for good parameters
         #return score
         pass
+
