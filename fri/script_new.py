@@ -29,14 +29,16 @@ b = cvx.Variable(shape=(n_bins - 1,1))
 
 chi = []
 xi = []
+constraints = []
 for i in range(n_bins):
     n_x = len(np.where(y == i)[0])
-    chi.append(cvx.Variable(shape=(n_x,1),nonneg=True))
-    xi.append(cvx.Variable(shape=(n_x,1),nonneg=True))
+    chi.append(cvx.Variable(shape=(n_x,1)))
+    xi.append(cvx.Variable(shape=(n_x,1)))
+    constraints.append(chi[i] >= 0)
+    constraints.append(xi[i] >= 0)
 
 objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C * cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
 
-constraints = []
 for i in range(n_bins - 1):
     constraints.append(X_re[i] * w - chi[i] <= b[i] - 1)
 
