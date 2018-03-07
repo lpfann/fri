@@ -52,8 +52,44 @@ for i in range(n_bins - 2):
 problem = cvx.Problem(objective, constraints)
 problem.solve(solver="ECOS", max_iters=5000)
 
-print(problem.status)
-print("b = ", b.value)
-print("w = ", w.value)
-print("chi[0] = ", chi[0].value)
-print(X_re[0][0])
+w2 = np.array(w.value).flatten()
+b2 = np.array(b.value).flatten()
+chi2 = np.asarray(cvx.vstack(chi).value).flatten()
+xi2 = np.asarray(cvx.vstack(xi).value).flatten()
+
+b3 = b2
+b2 = np.append(b2, np.inf)
+sum = 0
+
+for i in range(n):
+    val = np.matmul(w2, X[i])
+    pos = np.argmax(np.less_equal(val, b2))
+    if y[i] != pos:
+        sum += 1
+
+score = 1 - (sum / n)
+
+
+for i in range(n):
+    val = np.matmul(w2, X[i])
+    sum += np.abs(y[i] - np.argmax(np.less_equal(val, b2)))
+
+score2 = 1 - (sum / (len(np.unique(y)) - 1))
+
+
+for i in range(n_bins):
+    indices = np.where(y == i)
+    X_re = X[indices]
+    y_re = y[indices]
+    n_c = X_re.shape[0]
+    sum_c = 0
+
+    for j in range(n_c):
+        val = np.matmul(w2, X_re[j])
+        sum_c += np.abs(y_re[j] - np.argmax(np.less_equal(val, b2)))
+
+    error_c = sum_c / n_c
+    sum += error_c
+
+error = sum / n_bins
+score3 = 1 - (error / (n_bins - 1))
