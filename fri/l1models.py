@@ -146,6 +146,11 @@ class L1OrdinalRegressor(LinearModel):
         self.chi = np.asarray(cvx.vstack(chi).value).flatten()
         self.xi = np.asarray(cvx.vstack(xi).value).flatten()
 
+        self.coef_ = np.array(w.value)[np.newaxis]
+        self.intercept_ = np.array(b.value).flatten()
+        self.slack = np.append(self.chi, self.xi)
+
+
         return self
 
     def score(self, X, y):
