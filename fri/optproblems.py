@@ -1,4 +1,4 @@
-import abc
+from abc import ABCMeta
 
 import cvxpy as cvx
 
@@ -7,9 +7,8 @@ import cvxpy as cvx
 #
 MINLOSS = 0.01
 
-
 class BaseProblem(object):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
+    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
         # General data parameters
         self.n = X.shape[0]
         self.d = X.shape[1]
@@ -60,9 +59,9 @@ class ProblemType(object, metaclass=abc.ABCMeta):
 
 
 class MinProblem(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
+    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
-                         parameters=parameters)
+                         parameters=parameters, presetModel=presetModel)
 
         self._constraints.extend(
             [
@@ -73,9 +72,9 @@ class MinProblem(BaseProblem):
 
 
 class MaxProblem1(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
+    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
-                         parameters=parameters)
+                         parameters=parameters,presetModel=presetModel)
 
         self._constraints.extend(
             [
@@ -86,9 +85,9 @@ class MaxProblem1(BaseProblem):
 
 
 class MaxProblem2(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None):
+    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
-                         parameters=parameters)
+                         parameters=parameters,presetModel=presetModel)
 
         self._constraints.extend(
             [
