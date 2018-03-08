@@ -3,17 +3,18 @@ from sklearn.utils import check_X_y
 
 from fri.base import FRIBase
 from fri.l1models import L1OrdinalRegressor
+from fri.optproblems import MinProblemOrdinalRegression, MaxProblem1OrdinalRegression, MaxProblem2OrdinalRegression
 
 
 class FRIOrdinalRegression(FRIBase):
+
     """
         Class for ordinal regression data
-    
     """
-    # TODO: add Min and max problems
-    #minProblem = MinProblemOrdinalRegression
-    #maxProblem1 = MaxProblem1OrdinalRegression
-    #maxProblem2 = MaxProblem2OrdinalRegression
+
+    minProblem = MinProblemOrdinalRegression
+    maxProblem1 = MaxProblem1OrdinalRegression
+    maxProblem2 = MaxProblem2OrdinalRegression
 
     def __init__(self, epsilon=None, C=None, random_state=None,
                  shadow_features=False, parallel=False, feat_elim=False, **kwargs):
