@@ -25,12 +25,34 @@ class BaseProblem(object):
         self.parameters = parameters
         # Dimension specific data
         self.di = di
+        # Solver parameters
+        self._constraints = []
+        self.omega = cvx.Variable(self.d)  # complete linear weight vector
+
+        # Check if some model values have a pre fixed value
+        if presetModel is not None:
+            assert len(
+                presetModel) == self.d  # only assert length, # TODO: add check for two dimensionality when allow ranges of constraints
+            for dim in range(self.d):
+                assert presetModel[dim] < self.initL1  # a weight bigger than the optimal L1 makes no sense
+                # Skip current dimension
+                if dim == di:
+                    continue
+                if presetModel[dim] >= 0:  # Negative elements are considered unset/free
+                    self._constraints.extend([
+                        self.omega[dim] == presetModel[dim]
+                    ])
+        self.presetModel = presetModel
+
+
 
         # Solver parameters
-        self.kwargs = kwargs
+        if kwargs is None:
+            self.kwargs = {}  # Fix (unpacking)error when manually calling bounds without keyword arguments to the solver
+        else:
+            self.kwargs = kwargs
 
         self.problem = None
-        self._constraints = []
         self._objective = None
 
         # Add problem type specific constraints and variables to cvxpy
@@ -38,7 +60,7 @@ class BaseProblem(object):
 
     def __str__(self):
         return '{self.__class__.__name__}(current_dim={self.di}, n={self.n}, d={self.d}, initL1={self.initL1}, initLoss={self.initLoss}, ' \
-               'parameters={self.parameters}, kwargs={self.kwargs})'.format(self=self)
+               'parameters={self.parameters}, kwargs={self.kwargs}, presetModel={self.presetModel})'.format(self=self)
 
     def solve(self):
         self.problem = cvx.Problem(self._objective, self._constraints)
