@@ -15,6 +15,8 @@ class BaseProblem(object):
         self.X = X
         self.Y = Y
 
+        self.omega = cvx.Variable(self.d)  # complete linear weight vector
+
         # InitModel Parameters
         self.initL1 = initL1
         self.initLoss = max(MINLOSS, initLoss)
@@ -56,7 +58,6 @@ class BaseClassificationProblem(BaseProblem):
 
         # Solver Variables
         self.xp = cvx.Variable(nonneg=True)  # x' , our opt. value
-        self.omega = cvx.Variable(self.d)  # complete linear weight vector
         self.b = cvx.Variable()  # shift
 
         point_distances = cvx.multiply(self.Y, self.X * self.omega + self.b)
@@ -132,20 +133,14 @@ class BaseRegressionProblem(BaseProblem):
     def __init__(self, di=None, kwargs=None, X=None, Y=None,  initLoss=None, initL1=None, parameters=None):
         super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,parameters=parameters)
 
-        # General data
-        # self.Y = Y # other format then with classification
-        self.Y = Y.reshape((-1, 1))
-
         self.epsilon = self.parameters["epsilon"]
-
         # Solver parameters
         self.kwargs = kwargs
 
         # Solver Variables
         self.xp = cvx.Variable()  # x' , our opt. value
-        self.omega = cvx.Variable(shape=(self.d, 1))  # complete linear weight vector
         self.b = cvx.Variable()  # offset from origin
-        self.slack = cvx.Variable(shape=(self.n, 1), nonneg=True)  # slack variables
+        self.slack = cvx.Variable(shape=(self.n), nonneg=True)  # slack variables
         self.loss = cvx.sum(self.slack)
         self.weight_norm = cvx.norm(self.omega, 1)
 
