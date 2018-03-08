@@ -222,6 +222,10 @@ class BaseOrdinalRegressionProblem(BaseProblem):
         self.delta = 0.1
         self.mu = np.linalg.norm(self.w_opt, ord=1) + self.C * np.sum(self.chi_opt + self.xi_opt)
 
+        # TODO: Find the best suited version of constraints
+        # Flag is either 0 or 1
+        self.flag = 0
+
         # Prepare the same Problem structure as in initial search
         (n, d) = X.shape
         n_bins = len(np.unique(Y))
@@ -262,7 +266,14 @@ class BaseOrdinalRegressionProblem(BaseProblem):
         self._constraints.append(self.w <= cvx.abs(self.w))
         self._constraints.append(-self.w <= cvx.abs(self.w))
 
-
+        if self.flag == 0:
+            self._constraints.append(
+                cvx.norm(self.w, 1) + self.C * cvx.sum(cvx.hstack(self.chi) + cvx.hstack(self.xi)) <= (
+                            1 + self.delta) * self.mu)
+        else:
+            self._constraints.append(cvx.norm(self.w, 1) <= (1 + self.delta) * cvx.norm(self.w_opt, 1))
+            self._constraints.append(cvx.sum(cvx.hstack(self.chi) + cvx.hstack(self.xi)) <=
+                                     cvx.sum(cvx.hstack(self.chi_opt) + cvx.hstack(self.xi_opt)))
 
 
 
