@@ -104,51 +104,34 @@ class L1OrdinalRegressor(LinearModel):
         (n, d) = X.shape
         n_bins = len(np.unique(y))
 
-        X_re = []
-        y = np.array(y)
-        for i in range(n_bins):
-            indices = np.where(y == i)
-            X_re.append(X[indices])
-
-        w = cvx.Variable(shape=(d, 1))
-        b = cvx.Variable(shape=(n_bins - 1, 1))
-
-        chi = []
-        xi = []
-        for i in range(n_bins):
-            n_x = len(np.where(y == i)[0])
-            chi.append(cvx.Variable(shape=(n_x, 1)))
-            xi.append(cvx.Variable(shape=(n_x, 1)))
+        w = cvx.Variable(d)
+        b = cvx.Variable(n_bins - 1)
+        chi = cvx.Variable(n, nonneg=True)
+        xi = cvx.Variable(n, nonneg=True)
 
         # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
+        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(chi + xi))
         constraints = []
 
         for i in range(n_bins - 1):
-            constraints.append(X_re[i] * w - chi[i] <= b[i] - 1)
+            indices = np.where(y == i)
+            constraints.append(X[indices] * w - chi[indices] <= b[i] - 1)
 
         for i in range(1, n_bins):
-            constraints.append(X_re[i] * w + xi[i] >= b[i - 1] + 1)
+            indices = np.where(y == i)
+            constraints.append(X[indices] * w + xi[indices] >= b[i - 1] + 1)
 
         for i in range(n_bins - 2):
             constraints.append(b[i] <= b[i + 1])
 
-        for i in range(n_bins):
-            constraints.append(chi[i] >= 0)
-            constraints.append(xi[i] >= 0)
 
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS", max_iters=5000)
 
-        self.w = np.array(w.value).flatten()
-        self.b = np.array(b.value).flatten()
-        self.chi = np.asarray(cvx.vstack(chi).value).flatten()
-        self.xi = np.asarray(cvx.vstack(xi).value).flatten()
-
         self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = np.array(b.value).flatten()
-        self.slack = np.append(self.chi, self.xi)
+        self.slack = np.append(chi, xi)
 
 
         return self

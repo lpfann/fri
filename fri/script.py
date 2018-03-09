@@ -7,107 +7,43 @@ import cvxpy as cvx
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
+X = np.array([[1,1],[1,2],[2,1],[2,2], [4,1],[4,3],[4,2],[5,1]])
+y = np.array([0,0,0,0,1,1,1,1])
 
-def fit(X, y):
-        C = 1
-        (n, d) = X.shape
-        n_bins = len(np.unique(y))
-        bin_size = int(np.floor(n / n_bins))
+C=1
+(n, d) = X.shape
+n_bins = len(np.unique(y))
 
-    
-        X_re = np.zeros([bin_size,d,n_bins])
+w = cvx.Variable(d)
+b = cvx.Variable(n_bins - 1)
+chi = cvx.Variable(n, nonneg=True)
+xi = cvx.Variable(n, nonneg=True)
 
-        #X_re = []
-        # y = np.array(y)
-        # for i in range(n_bins):
-        #     indices = np.where(y == i)
-        #     X_re.append(X[indices])
+# Prepare problem.
+objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C * cvx.sum(chi + xi))
+constraints = []
 
+for i in range(n_bins - 1):
+    indices = np.where(y == i)
+    constraints.append(X[indices] * w - chi[indices] <= b[i] - 1)
 
-        y = np.array(y)
-        for i in range(n_bins):
-            index = np.where(y == i)
-            X_re[0:bin_size, 0:d, i] = X[index]
+for i in range(1, n_bins):
+    indices = np.where(y == i)
+    constraints.append(X[indices] * w + xi[indices] >= b[i - 1] + 1)
 
-        w = cvx.Variable(d)
-        chi = cvx.Variable([n_bins, bin_size], nonneg=True)
-        xi = cvx.Variable([n_bins, bin_size], nonneg=True)
-        b = cvx.Variable(n_bins - 1)
-
-        # chi = []
-        # xi = []
-        # for i in range(n_bins):
-        #     n_x = len(np.where(y == i)[0])
-        #     chi.append(cvx.Variable(n_x))
-        #     xi.append(cvx.Variable(n_x))
+for i in range(n_bins - 2):
+    constraints.append(b[i] <= b[i + 1])
 
 
-        # print(chi)
-        # print(chi[0])
-        # print(cvx.vstack(chi))
-        # print(cvx.hstack(chi))
-        # print(cvx.hstack(chi)[6])
+# Solve problem.
+problem = cvx.Problem(objective, constraints)
+problem.solve(solver="ECOS", max_iters=5000)
 
 
 
-        # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + C )#* cvx.sum(cvx.hstack(chi) + cvx.hstack(xi)))
-        '''
-        constraints = []
-        for i in range(max_bin_size):
-            for j in range(n_bins):
-                #constraints.append(w.T * X_re[i,:,j] <= b[j] - 1 + chi[i,j])
-                #constraints.append(w.T * X_re[i,:,j+1] >= b[j] + 1 - xi[i,j+1])
-                constraints.append(b[j] <= b[j+1])
-                constraints.append(chi.value[i,j] >= 0)
-                constraints.append(xi[i,j] >= 0)
-        
-        constraints = [
-            [X_re[:,:,i] * w - chi[i] <= b[i] - 1 for i in range(n_bins)],
-            [X_re[:,:,i] * w + xi[i] >= b[i - 1] + 1 for i in range(1, n_bins)],
-            [b[i] <= b[i + 1] for i in range(n_bins - 1)],
-            [chi[i] >= 0 for i in range(n_bins)],
-            [xi[i] >= 0 for i in range(n_bins)]
-            ]
-        '''
+coef_ = np.array(w.value)[np.newaxis]
+intercept_ = np.array(b.value).flatten()
+slack = np.append(chi.value, xi.value)
 
-        constraints = []
-        for i in range(n_bins - 1):
-            constraints.append(X_re[:,:,i] * w - chi[i] <= b[i] - 1)
-            #constraints.append(X_re[i] * w - chi[i] <= b[i] - 1)
-            constraints.append(chi[i] >= 0)
-            constraints.append(xi[i] >= 0)
-
-        for i in range(1, n_bins):
-            constraints.append(X_re[:,:,i] * w + xi[i] >= b[i - 1] + 1)
-            #constraints.append(X_re[i] * w + xi[i] >= b[i - 1] + 1)
-
-        for i in range(n_bins - 2):
-            constraints.append(b[i] <= b[i + 1])
-
-            #[[w.T * X_re[i, :, j] <= b[j] - 1 + chi[i, j] for i in range(max_bin_size)] for j in range(n_bins)],
-            #[[w.T * X_re[i, :, j + 1] >= b[j] + 1 - xi.value[i, j + 1] for i in range(max_bin_size)] for j in
-            # range(n_bins)],
-            #[b[j] <= b[j + 1] for j in range(n_bins - 1)],
-            #[[chi.value[i, j] >= 0 for i in range(max_bin_size)] for j in range(n_bins)],
-            #[[xi.value[i, j] >= 0 for i in range(max_bin_size)] for j in range(n_bins)]
-
-        # Solve problem.
-        problem = cvx.Problem(objective, constraints)
-        problem.solve(solver="ECOS", max_iters=5000)
-
-        print(problem.status)
-        print(b.value)
-        print(w.value)
-        print(chi[0].value)
-        print(xi[0].value)
-        print(X_re[0][0])
-        #
-        # print(np.matmul(w.value, X_re[0][0]))
-        #print(np.matmul(w.value, X_re[1][0]))
-'''
-        self.coef_ = np.array(w.value)[np.newaxis]
-        self.intercept_ = b.value
-        self.slack = np.asarray(xi.value).flatten()
-'''
-        
+intercept_2 = b.value
+slack2 = np.asarray(xi.value).flatten()
