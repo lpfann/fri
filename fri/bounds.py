@@ -3,6 +3,8 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from cvxpy import OPTIMAL, OPTIMAL_INACCURATE
 
+from fri.optproblems import MinProblem, MaxProblem1, MaxProblem2
+
 
 class NotFeasibleForParameters(Exception):
     """SVM cannot separate points with this parameters"""
@@ -13,12 +15,13 @@ class Bound(object):
 
     """Class for lower and upper relevance bounds"""
 
-    def __init__(self, optim_dim, X, Y, initLoss, initL1, presetModel=None):
+    def __init__(self, optim_dim, X, Y, initLoss, initL1, presetModel):
         self.optim_dim = optim_dim
         self.X = X
         self.Y = Y
         self.initL1 = initL1
         self.initLoss = initLoss
+        self.optim_dim = optim_dim
         self.presetModel = presetModel
         self.acceptableStati = [OPTIMAL, OPTIMAL_INACCURATE]
         self.isUpperBound = None
@@ -40,9 +43,9 @@ class LowerBound(Bound):
 
 
         # Init problem instance usually defined in the main class
-        self.prob_instance = problemClass.minProblem(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss,
-                                                     initL1=initL1, parameters=problemClass._best_params,
-                                                     presetModel=presetModel)
+        self.prob_instance = MinProblem(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                        initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+                                        presetModel=presetModel)
 
         # Define bound type for easier indexing after result collection
         self.isUpperBound = False
@@ -64,12 +67,12 @@ class UpperBound(Bound):
                  presetModel=None):
         super().__init__(optim_dim, X, Y, initLoss, initL1, presetModel)
 
-        self.prob_instance1 = problemClass.maxProblem1(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
-                                                       initLoss=initLoss, initL1=initL1,
-                                                       parameters=problemClass._best_params, presetModel=presetModel)
-        self.prob_instance2 = problemClass.maxProblem2(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
-                                                       initLoss=initLoss, initL1=initL1,
-                                                       parameters=problemClass._best_params, presetModel=presetModel)
+        self.prob_instance1 = MaxProblem1(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+                                          presetModel=presetModel)
+        self.prob_instance2 = MaxProblem2(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+                                          presetModel=presetModel)
 
         self.isUpperBound = True
 
