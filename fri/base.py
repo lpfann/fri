@@ -406,10 +406,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   error_score=0,
                                   verbose=False)
 
-        # Ignore warnings for extremely bad parameters (when precision=0)
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+        if self.debug:
             gridsearch.fit(X, Y)
+        else:
+            # Ignore warnings for extremely bad parameters (when precision=0)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                gridsearch.fit(X, Y)
 
         # Legacy Code
         # TODO: remove legacy code
