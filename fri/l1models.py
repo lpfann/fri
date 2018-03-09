@@ -93,10 +93,9 @@ class L1OrdinalRegressor(LinearModel):
     def __init__(self, C=1, error_type="mmae"):
         self.C = C
         self.error_type = error_type
-        self.w = None
-        self.b = None
-        self.chi = None
-        self.xi = None
+        self.coef_ = None
+        self.intercept_ = None
+        self.slack = None
 
 
     def fit(self, X, y):
@@ -131,7 +130,7 @@ class L1OrdinalRegressor(LinearModel):
 
         self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = np.array(b.value).flatten()
-        self.slack = np.append(chi, xi)
+        self.slack = np.append(chi.value, xi.value)
 
 
         return self
@@ -142,13 +141,14 @@ class L1OrdinalRegressor(LinearModel):
 
         (n, d) = X.shape
         n_bins = len(np.unique(y))
-        b = np.append(self.b, np.inf)
+        w = self.coef_[0]
+        b = np.append(self.intercept_, np.inf)
         sum = 0
 
         # Score based on mean zero-one error
         if self.error_type == "mze":
             for i in range(n):
-                val = np.matmul(self.w, X[i])
+                val = np.matmul(w, X[i])
                 pos = np.argmax(np.less_equal(val, b))
                 if y[i] != pos:
                     sum += 1
@@ -158,11 +158,16 @@ class L1OrdinalRegressor(LinearModel):
         # Score based on mean absolute error
         elif self.error_type == "mae":
             for i in range(n):
-                val = np.matmul(self.w, X[i])
+                val = np.matmul(w, X[i])
                 sum += np.abs(y[i] - np.argmax(np.less_equal(val, b)))
 
             error = sum / n
-            score = 1 - (error / (n_bins - 1))
+
+            # TODO: Check how the error has to be scaled to transform it to a adequate score in case of n_bins == 1
+            if n_bins == 1:
+                score = 0
+            else:
+                score = 1 - (error / (n_bins - 1))
 
         # Score based on macro-averaged mean absolute error
         elif self.error_type == "mmae":
@@ -171,17 +176,28 @@ class L1OrdinalRegressor(LinearModel):
                 X_re = X[indices]
                 y_re = y[indices]
                 n_c = X_re.shape[0]
-                sum_c = 0
 
-                for j in range(n_c):
-                    val = np.matmul(self.w, X_re[j])
-                    sum_c += np.abs(y_re[j] - np.argmax(np.less_equal(val, b)))
+                if n_c == 0:
+                    error_c = 0
 
-                error_c = sum_c / n_c
+                else:
+                    sum_c = 0
+
+                    for j in range(n_c):
+                        val = np.matmul(w, X_re[j])
+                        sum_c += np.abs(y_re[j] - np.argmax(np.less_equal(val, b)))
+
+                    error_c = sum_c / n_c
+
                 sum += error_c
 
             error = sum / n_bins
-            score = 1 - (error / (n_bins - 1))
+
+            #TODO: Check how the error has to be scaled to transform it to a adequate score in case of n_bins == 1
+            if n_bins == 1:
+                score = 0
+            else:
+                score = 1 - (error / (n_bins - 1))
 
         # error message if no correct error type has been specified
         else:

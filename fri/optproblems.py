@@ -1,6 +1,7 @@
 import abc
 
 import cvxpy as cvx
+import numpy as np
 
 #
 # Minimal loss in constraints to mitigate numerical instabilities for solvers
@@ -137,54 +138,26 @@ class BaseOrdinalRegressionProblem(ProblemType):
     def add_type_specific(self, baseProblem):
         # TODO: anpassen an baseProblem, wir erweitern Min und Maxprobleme um variablen (siehe oben)
         # anstatt self einfach die baseProblem nehmen um Werte zuzuweisen
-        # Optimal parameters from initial gridsearch
-        self.C = self.parameters["C"]
-        self.w_opt = self.parameters["w"]
-        self.chi_opt = self.parameters["chi"]
-        self.xi_opt = self.parameters["xi"]
-
-        #TODO: Set appropriate delta value
-        self.delta = 0.1
-        self.mu = np.linalg.norm(self.w_opt, ord=1) + self.C * np.sum(self.chi_opt + self.xi_opt)
 
         # Prepare the same Problem structure as in initial search
-        (n, d) = X.shape
-        n_bins = len(np.unique(Y))
+        (n, d) = baseProblem.X.shape
+        n_bins = len(np.unique(baseProblem.Y))
 
-        X_re = []
-        y = np.array(Y)
-        for i in range(n_bins):
-            indices = np.where(y == i)
-            X_re.append(X[indices])
+        baseProblem.b = cvx.Variable(n_bins - 1)
+        baseProblem.chi = cvx.Variable(n, nonneg=True)
+        baseProblem.xi = cvx.Variable(n, nonneg=True)
 
-
-        self.w = cvx.Variable(shape=(d, 1))
-        self.b = cvx.Variable(shape=(n_bins - 1, 1))
-        self.chi = []
-        self.xi = []
-        for i in range(n_bins):
-            n_x = len(np.where(y == i)[0])
-            self.chi.append(cvx.Variable(shape=(n_x, 1)))
-            self.xi.append(cvx.Variable(shape=(n_x, 1)))
-
-
-        self._constraints = []
         for i in range(n_bins - 1):
-            self._constraints.append(X_re[i] * self.w - self.chi[i] <= self.b[i] - 1)
+            indices = np.where(baseProblem.Y == i)
+            baseProblem._constraints.append(baseProblem.X[indices] * baseProblem.omega - baseProblem.chi[indices] <= baseProblem.b[i] - 1)
 
         for i in range(1, n_bins):
-            self._constraints.append(X_re[i] * self.w + self.xi[i] >= self.b[i - 1] + 1)
+            indices = np.where(baseProblem.Y == i)
+            baseProblem._constraints.append(baseProblem.X[indices] * baseProblem.omega + baseProblem.xi[indices] >= baseProblem.b[i - 1] + 1)
 
         for i in range(n_bins - 2):
-            self._constraints.append(self.b[i] <= self.b[i + 1])
+            baseProblem._constraints.append(baseProblem.b[i] <= baseProblem.b[i + 1])
 
-        for i in range(n_bins):
-            self._constraints.append(self.chi[i] >= 0)
-            self._constraints.append(self.xi[i] >= 0)
-
-        # Extend contstraints with regard to the initial problem
-        self._constraints.append(cvx.norm(self.w,1) + self.C * cvx.sum(cvx.hstack(self.chi) + cvx.hstack(self.xi)) <= (1 + self.delta) * self.mu)
-        self._constraints.append(self.w <= cvx.abs(self.w))
-        self._constraints.append(-self.w <= cvx.abs(self.w))
-
+        baseProblem._constraints.append(cvx.norm(baseProblem.omega, 1) <= baseProblem.initL1)
+        baseProblem._constraints.append(cvx.sum(baseProblem.chi + baseProblem.xi) <= baseProblem.initLoss)
 

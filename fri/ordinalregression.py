@@ -3,7 +3,7 @@ from sklearn.utils import check_X_y
 
 from fri.base import FRIBase
 from fri.l1models import L1OrdinalRegressor
-from fri.optproblems import MinProblemOrdinalRegression, MaxProblem1OrdinalRegression, MaxProblem2OrdinalRegression
+from fri.optproblems import BaseOrdinalRegressionProblem
 
 
 class FRIOrdinalRegression(FRIBase):
@@ -12,9 +12,7 @@ class FRIOrdinalRegression(FRIBase):
         Class for ordinal regression data
     """
 
-    minProblem = MinProblemOrdinalRegression
-    maxProblem1 = MaxProblem1OrdinalRegression
-    maxProblem2 = MaxProblem2OrdinalRegression
+    problemType = BaseOrdinalRegressionProblem
 
     def __init__(self, epsilon=None, C=None, random_state=None,
                  shadow_features=False, parallel=False, feat_elim=False, **kwargs):
@@ -27,7 +25,7 @@ class FRIOrdinalRegression(FRIBase):
         self.tuned_parameters = {}
 
         # Only use parameter grid when no parameter is given
-        # TODO: Set appropraite values for C and delta
+        # TODO: Set appropraite values for C
         if self.C is None:
             self.tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
         else:
