@@ -4,13 +4,11 @@ from sklearn.utils.multiclass import unique_labels
 
 from fri.base import FRIBase
 from fri.l1models import L1HingeHyperplane
-from fri.optproblems import MinProblemClassification, MaxProblem1, MaxProblem2
+from fri.optproblems import BaseClassificationProblem
 
 
 class FRIClassification(FRIBase):
-    minProblem = MinProblemClassification
-    maxProblem1 = MaxProblem1
-    maxProblem2 = MaxProblem2
+    problemType = BaseClassificationProblem
 
     def __init__(self, C=None, optimum_deviation=0.01,
                  random_state=None,shadow_features=False,
