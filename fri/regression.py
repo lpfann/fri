@@ -2,13 +2,11 @@ from sklearn.utils import check_X_y
 
 from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
-from fri.optproblems import MinProblemRegression, MaxProblem1Regression, MaxProblem2Regression
+from fri.optproblems import BaseRegressionProblem
 
 
 class FRIRegression(FRIBase):
-    minProblem = MinProblemRegression
-    maxProblem1 = MaxProblem1Regression
-    maxProblem2 = MaxProblem2Regression
+    problemType = BaseRegressionProblem
 
     def __init__(self, C=None,epsilon=None, optimum_deviation=0.01, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):

@@ -1,8 +1,9 @@
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-
 from cvxpy import OPTIMAL, OPTIMAL_INACCURATE
+
+from fri.optproblems import MinProblem, MaxProblem1, MaxProblem2
 
 
 class NotFeasibleForParameters(Exception):
@@ -14,9 +15,12 @@ class Bound(object):
 
     """Class for lower and upper relevance bounds"""
 
-    def __init__(self, optim_dim, X, Y):
+    def __init__(self, optim_dim, X, Y, initLoss, initL1):
+        self.optim_dim = optim_dim
         self.X = X
         self.Y = Y
+        self.initL1 = initL1
+        self.initLoss = initLoss
         self.optim_dim = optim_dim
         self.acceptableStati = [OPTIMAL, OPTIMAL_INACCURATE]
         self.isUpperBound = None
@@ -25,18 +29,20 @@ class Bound(object):
     def solve(self):
         pass
     def __repr__(self):
-        return("{}('optim_dim={}, X=np.array, Y=np.array')".format(self.__class__.__name__, self.optim_dim))
+        return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}, initL1={self.initL1}, initLoss={self.initLoss})".format(
+            self=self)
 
 class LowerBound(Bound):
     """Class for lower bounds """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None):
         # Init Super class, could be used for data manipulation
-        super().__init__(optim_dim, X, Y)
+        super().__init__(optim_dim, X, Y, initLoss, initL1)
 
 
         # Init problem instance usually defined in the main class
-        self.prob_instance = problemClass.minProblem(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance = MinProblem(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                        initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
 
         # Define bound type for easier indexing after result collection
         self.isUpperBound = False
@@ -55,10 +61,12 @@ class UpperBound(Bound):
     """Class for Upper bounds """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None):
-        super().__init__(optim_dim, X, Y)
+        super().__init__(optim_dim, X, Y, initLoss, initL1)
 
-        self.prob_instance1 = problemClass.maxProblem1(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
-        self.prob_instance2 = problemClass.maxProblem2(di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y, initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance1 = MaxProblem1(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
+        self.prob_instance2 = MaxProblem2(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params)
 
         self.isUpperBound = True
 
