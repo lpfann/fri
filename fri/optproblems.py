@@ -50,19 +50,6 @@ class BaseProblem(object):
 
         return self
 
-# ****************************************************************************
-# *                              Classification                              *
-# ****************************************************************************
-
-class BaseClassificationProblem(BaseProblem):
-    """Base class for all common optimization problems."""
-
-    __metaclass__ = ABCMeta
-
-    def __init__(self, di=None, kwargs=None, X=None, Y=None, initLoss=1, initL1=1, parameters=None):
-        super().__init__(di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1, parameters=parameters)
-        # Solver parameters
-        self.kwargs = kwargs
 
 class ProblemType(object, metaclass=abc.ABCMeta):
     # Decorator class to add problem type specific constraints and variables to the BaseProblem
