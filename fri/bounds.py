@@ -30,7 +30,8 @@ class Bound(object):
     def solve(self):
         pass
     def __repr__(self):
-        return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}, initL1={self.initL1}, initLoss={self.initLoss})".format(
+        return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
+               " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel})".format(
             self=self)
 
 class LowerBound(Bound):
@@ -56,6 +57,7 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
+            print(self)
             raise NotFeasibleForParameters
 
 
@@ -83,6 +85,7 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
+            print(self)
             raise NotFeasibleForParameters
 
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])

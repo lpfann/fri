@@ -40,7 +40,7 @@ class BaseProblem(object):
                     continue
                 if presetModel[dim] >= 0:  # Negative elements are considered unset/free
                     self._constraints.extend([
-                        self.omega[dim] == presetModel[dim]
+                        cvx.abs(self.omega[dim]) <= presetModel[dim]
                     ])
         self.presetModel = presetModel
 

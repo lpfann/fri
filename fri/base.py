@@ -267,20 +267,25 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         interval = self.interval_
         d = len(interval)
-        constrained_ranges = np.zeros((d, d))  # Save ranges (d-dim) for every contrained run (d-times)
+        constrained_ranges = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
 
         for i in range(d):
             # Get lower bound for i
             min_i = interval[i, 0]
             # presetModel
             preset = np.ones(d) * -1  # Negative values are ignored
-            preset[i] = min_i  # Constrain dim i to the minimal value
+            preset[i] = min_i * self.optim_L1_  # Constrain dim i to the minimal value
             # Calculate all bounds with feature i set to min_i
-            rangevector, _, _, shadowrangevector, _ = self._main_opt(X, y, self.optim_loss_,
-                                                                     self.optim_L1_,
-                                                                     self.random_state,
-                                                                     False, presetModel=preset)
+            rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
+                                                  self.optim_L1_,
+                                                  self.random_state,
+                                                  False, presetModel=preset)
+            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+                                                  None)
+            rangevector[i] = 0
             constrained_ranges[i] = rangevector
+
+        self.conranges = constrained_ranges
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
@@ -408,17 +413,21 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Postprocessig intervals
         #
         # Correction through shadow features
+        assert L1 > 0
+
         if shadow_features:
             shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
             rangevector[:, 0] -= shadow_variance
             rangevector[:, 1] -= shadow_variance
             rangevector[rangevector < 0] = 0
-        # Scale to L1
-        if L1 > 0:
-            rangevector = rangevector / L1
             shadowrangevector = shadowrangevector / L1
+
+        # Scale to L1
+        rangevector = rangevector / L1
+
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+
         return rangevector, shadowrangevector
 
     def _initEstimator(self, X, Y):
