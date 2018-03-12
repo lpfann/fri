@@ -138,3 +138,15 @@ def test_shadowfeatures(randomstate):
     efri = EnsembleFRI(fri, random_state=randomstate, n_jobs=2)
     efri.fit(X, y)
     check_interval(fri.interval_, 2)
+
+
+def test_groupDetection(randomstate):
+    data = genClassificationData(n_samples=500, n_features=10, n_redundant=4, n_strel=2, random_state=randomstate)
+
+    X_orig, y = data
+    X = StandardScaler().fit(X_orig).transform(X_orig)
+
+    fri = FRIClassification(random_state=randomstate, optimum_deviation=0.1)
+    fri.fit(X, y)
+
+    fri.community_detection2(X, y)
