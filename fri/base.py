@@ -145,10 +145,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Calculate bounds
-        rangevector, omegas, biase, shadowrangevector, unmod_interval = self._main_opt(X, y, self.optim_loss_,
-                                                                                       self.optim_L1_,
-                                                                                       self.random_state,
-                                                                                       self.shadow_features)
+        rangevector, omegas, biase, shadowrangevector = self._main_opt(X, y, self.optim_loss_,
+                                                                       self.optim_L1_,
+                                                                       self.random_state,
+                                                                       self.shadow_features)
+        # save unmodified intervals (without postprocessing
+        self.unmod_interval = rangevector.copy()
         # Postprocess bounds
         rangevector, shadowrangevector = self._postprocessing(self.optim_L1_, rangevector, self.shadow_features,
                                                               shadowrangevector)
@@ -157,7 +159,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._omegas = omegas
         self._biase = biase
         self._shadowintervals = shadowrangevector
-        self.unmod_interval_ = unmod_interval
 
         if not self.isEnsemble:
             self._get_relevance_mask()
@@ -260,17 +261,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link
 
-    def community_detection2(self):
+    def community_detection2(self, X, y):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
         interval = self.interval_
         d = len(interval)
+        constrained_ranges = np.zeros((d, d))  # Save ranges (d-dim) for every contrained run (d-times)
 
         for i in range(d):
             # Get lower bound for i
             min_i = interval[i, 0]
+            # presetModel
+            preset = np.ones(d) * -1  # Negative values are ignored
+            preset[i] = min_i  # Constrain dim i to the minimal value
             # Calculate all bounds with feature i set to min_i
+            rangevector, _, _, shadowrangevector, _ = self._main_opt(X, y, self.optim_loss_,
+                                                                     self.optim_L1_,
+                                                                     self.random_state,
+                                                                     False, presetModel=preset)
+            constrained_ranges[i] = rangevector
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
@@ -391,10 +401,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 # Get the mean of all shadow samples
                 shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
 
-        # save unmodified intervals (without postprocessing
-        unmod_interval = rangevector.copy()
-
-        return rangevector, omegas, biase, shadowrangevector, unmod_interval
+        return rangevector, omegas, biase, shadowrangevector
 
     def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
         #
