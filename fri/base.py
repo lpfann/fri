@@ -144,14 +144,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if self.optim_score_ < 0.75:
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
-        # Main Optimization step
-        results = self._main_opt(X, y, self.optim_loss_, self.optim_L1_, self.random_state, self.shadow_features)
+        # Calculate bounds
+        rangevector, omegas, biase, shadowrangevector, unmod_interval = self._main_opt(X, y, self.optim_loss_,
+                                                                                       self.optim_L1_,
+                                                                                       self.random_state,
+                                                                                       self.shadow_features)
+        # Postprocess bounds
+        rangevector, shadowrangevector = self._postprocessing(self.optim_L1_, rangevector, self.shadow_features,
+                                                              shadowrangevector)
 
-        self.interval_ = results[0]
-        self._omegas = results[1]
-        self._biase = results[2]
-        self._shadowintervals = results[3]
-        self.unmod_interval_ = results[4]
+        self.interval_ = rangevector
+        self._omegas = omegas
+        self._biase = biase
+        self._shadowintervals = shadowrangevector
+        self.unmod_interval_ = unmod_interval
 
         if not self.isEnsemble:
             self._get_relevance_mask()
@@ -355,7 +361,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 for di in range(d)]
         work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
                      for di in range(d)])
-        if self.shadow_features:
+        if shadow_features:
             for nr in range(self.n_resampling):
                 work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
                              for di in range(d)])
@@ -363,7 +369,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                              for di in range(d)])
 
         #
-        # Compute all bounds using map
+        # Compute all bounds using redefined map function (parallel / non parallel)
         #
         done = self.newmap(self._opt_per_thread, work)
 
@@ -383,26 +389,25 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # save unmodified intervals (without postprocessing
         unmod_interval = rangevector.copy()
 
+        return rangevector, omegas, biase, shadowrangevector, unmod_interval
+
+    def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
         #
         # Postprocessig intervals
         #
-
         # Correction through shadow features
         if shadow_features:
             shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
             rangevector[:, 0] -= shadow_variance
             rangevector[:, 1] -= shadow_variance
             rangevector[rangevector < 0] = 0
-
         # Scale to L1
         if L1 > 0:
             rangevector = rangevector / L1
             shadowrangevector = shadowrangevector / L1
-
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
-
-        return rangevector, omegas, biase, shadowrangevector, unmod_interval
+        return rangevector, shadowrangevector
 
     def _initEstimator(self, X, Y):
 
