@@ -85,6 +85,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.feat_elim = feat_elim
         self.debug = debug
 
+        # Define Map which can use multiple processes to speed up computation
+        def pmap(*args):
+            with Pool() as p:
+                return p.map(*args)
+
+        # Only use multiprocessing when switched on (default off)
+        if self.parallel:
+            self.newmap = pmap
+        else:
+            self.newmap = map
+
     @abstractmethod
     def fit(self, X, y):
         """Summary
@@ -134,12 +145,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Main Optimization step
-        results = self._main_opt(X, y, self.optim_loss_, self.optim_L1_, self.random_state)
+        results = self._main_opt(X, y, self.optim_loss_, self.optim_L1_, self.random_state, self.shadow_features)
 
         self.interval_ = results[0]
         self._omegas = results[1]
         self._biase = results[2]
         self._shadowintervals = results[3]
+        self.unmod_interval_ = results[4]
 
         if not self.isEnsemble:
             self._get_relevance_mask()
@@ -242,6 +254,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link
 
+    def community_detection2(self):
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+
+        interval = self.interval_
+        d = len(interval)
+
+        for i in range(d):
+            # Get lower bound for i
+            min_i = interval[i, 0]
+            # Calculate all bounds with feature i set to min_i
+
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
                             lower_epsilon=0.0323
@@ -304,7 +328,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state):
+    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -325,14 +349,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
 
-        """
-        Create tasks for worker(s)
-        """
+        # Create tasks for worker(s)
+        #
         work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
                 for di in range(d)]
         work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
                      for di in range(d)])
-
         if self.shadow_features:
             for nr in range(self.n_resampling):
                 work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
@@ -340,22 +362,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
                              for di in range(d)])
 
-        # Define Map which can use multiple processes to speed up computation
-        def pmap(*args):
-            with Pool() as p:
-                return p.map(*args)
-        # Only use multiprocessing when switched on (default off)
-        if self.parallel:
-            newmap = pmap
-        else:
-            newmap = map
-
-        #
         #
         # Compute all bounds using map
         #
-        #
-        done = newmap(self._opt_per_thread, work)
+        done = self.newmap(self._opt_per_thread, work)
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
@@ -370,12 +380,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
             else:
                 # Get the mean of all shadow samples
                 shadowrangevector[di, i] += (prob_i.problem.value / self.n_resampling)
+        # save unmodified intervals (without postprocessing
+        unmod_interval = rangevector.copy()
 
-        # rangevector = np.abs(rangevector)
-        self.unmod_interval_ = rangevector.copy()
+        #
+        # Postprocessig intervals
+        #
 
         # Correction through shadow features
-        if self.shadow_features:
+        if shadow_features:
             shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
             rangevector[:, 0] -= shadow_variance
             rangevector[:, 1] -= shadow_variance
@@ -384,12 +397,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Scale to L1
         if L1 > 0:
             rangevector = rangevector / L1
-            # shadowrangevector = shadowrangevector / L1
+            shadowrangevector = shadowrangevector / L1
 
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
-        return rangevector, omegas, biase, shadowrangevector
+        return rangevector, omegas, biase, shadowrangevector, unmod_interval
 
     def _initEstimator(self, X, Y):
 
