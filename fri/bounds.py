@@ -56,7 +56,6 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
-            print("DEBUG: Lower Bound - current_feature={} - Status={}".format(self.optim_dim, status))
             raise NotFeasibleForParameters
 
 
@@ -84,7 +83,6 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
-            print("DEBUG: Upper Bound - current_feature={}".format(self.optim_dim))
             raise NotFeasibleForParameters
 
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
@@ -99,31 +97,59 @@ class ShadowLowerBound(LowerBound):
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None, random_state=None):
-        # Permute dimension optim_dim and insert it at the first column
-        if not random_state:
-            X = np.append(np.random.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
-        else:
-            X = np.append(random_state.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
-        # Optimize for the first (random permutated) column
-        super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
-        self.isShadow = True
-        self.optim_dim = optim_dim
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
+                 random_state=None, presetModel=None):
+        # Permute dimension optim_dim
+        X_copy = np.copy(X)
+        perm_dim = random_state.permutation(X_copy[:, optim_dim])
 
+        X_copy[:, optim_dim] = perm_dim
+
+        # Optimize for the first (random permutated) column
+        super().__init__(problemClass, optim_dim, kwargs, initLoss, initL1, X_copy, Y, presetModel=presetModel)
+        self.isShadow = True
+
+    def solve(self):
+        status = self.prob_instance.solve().problem.status
+
+        if status in self.acceptableStati:
+            self.shadow_value = self.prob_instance.problem.value
+            return self
+        else:
+            self.shadow_value = 0
+
+        return self
 
 class ShadowUpperBound(UpperBound):
     """ Class for shadow upper bounds 
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None, random_state=None):
-        # Permute dimension optim_dim and insert it at the first column
-        if not random_state:
-            X = np.append(np.random.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
-        else:
-            X = np.append(random_state.permutation(X[:, optim_dim]).reshape((X.shape[0], 1)), X, axis=1)
-        
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
+                 random_state=None, presetModel=None):
+        # Permute dimension optim_dim
+        X_copy = np.copy(X)
+        perm_dim = random_state.permutation(X_copy[:, optim_dim])
+
+        X_copy[:, optim_dim] = perm_dim
+
         # Optimize for the first (random permutated) column
-        super().__init__(problemClass, 0, kwargs, initLoss, initL1, X, Y)
+        super().__init__(problemClass, optim_dim, kwargs, initLoss, initL1, X_copy, Y, presetModel=presetModel)
         self.isShadow = True
-        self.optim_dim = optim_dim
+
+    def solve(self):
+        status = [None, None]
+        status[0] = self.prob_instance1.solve()
+        status[1] = self.prob_instance2.solve()
+        status = list(filter(lambda x: x is not None, status))
+
+        valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
+        if len(valid_problems) == 0:
+            self.shadow_value = 0
+        else:
+            max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
+            best_problem = valid_problems[max_index]
+
+            self.prob_instance = best_problem
+            self.shadow_value = self.prob_instance.problem.value
+        return self

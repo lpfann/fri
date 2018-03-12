@@ -334,7 +334,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features):
+    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -357,15 +357,19 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Create tasks for worker(s)
         #
-        work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
+        work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
+                           presetModel=presetModel)
                 for di in range(d)]
-        work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y)
+        work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
+                                presetModel=presetModel)
                      for di in range(d)])
         if shadow_features:
             for nr in range(self.n_resampling):
-                work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
+                work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
+                                              initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
                              for di in range(d)])
-                work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,random_state=random_state)
+                work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
+                                              initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
                              for di in range(d)])
 
         #
@@ -377,15 +381,16 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for finished_bound in done:
             di = finished_bound.optim_dim
             i = int(finished_bound.isUpperBound)
-            prob_i = finished_bound.prob_instance
             # Handle shadow values differently (we discard useless values)
             if not hasattr(finished_bound, "isShadow"):
+                prob_i = finished_bound.prob_instance
                 rangevector[di, i] = np.abs(prob_i.problem.value)
                 omegas[di, i] = prob_i.omega.value.reshape(d)
                 biase[di, i] = prob_i.b.value
             else:
                 # Get the mean of all shadow samples
-                shadowrangevector[di, i] += (prob_i.problem.value / self.n_resampling)
+                shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
+
         # save unmodified intervals (without postprocessing
         unmod_interval = rangevector.copy()
 
