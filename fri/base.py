@@ -285,53 +285,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                   None)
             constrained_ranges[i] = rangevector
             # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff[i] = self.interval_ - rangevector
+            constrained_ranges_diff[i] = np.abs(self.interval_) - np.abs(rangevector)
             # Current dimension is not constrained, so these values are nulled
-            constrained_ranges[i] = 0
+            constrained_ranges[i, i] = self.interval_[i, 0]  # we use the constraint we set the problem with
             constrained_ranges_diff[i, i, :] = 0
 
         self.conranges = constrained_ranges
         self.conranges_diff = constrained_ranges_diff
 
-        mins = constrained_ranges[:, :, 0]
-        maxs = constrained_ranges[:, :, 1]
-        abs_mins = np.abs(mins)
-        abs_maxs = np.abs(maxs)
-
-        # Aggregate min and max solution values to obtain the absolute variation
-        lower_variation = self.interval_[:, 0] - abs_mins
-        upper_variation = self.interval_[:, 1] - abs_maxs
-        variation = np.abs(lower_variation) + np.abs(upper_variation)
-
-        # add up lower triangular matrix to upper one
-        collapsed_variation = np.triu(variation) + np.tril(variation).T
-        np.fill_diagonal(collapsed_variation, 0)
-        # collapsed_variation = pd.DataFrame(collapsed_variation)
-
-        # Create distance matrix
-        dist_mat = np.triu(collapsed_variation).T + collapsed_variation
-        # normalize
-        dist_mat = 1 - dist_mat / np.max(dist_mat)
-        # get numpy array
-        # dist_mat = dist_mat.values[:]
-        # feature with itself has no distance
-        np.fill_diagonal(dist_mat, 0)
-
-        # convert to squareform for scipy compat.
-        dist_mat_square = squareform(dist_mat)
-
-        # Execute clustering
-        link = linkage(dist_mat_square, method="ward")
-
-        # Set cutoff at which threshold the linkage gets flattened (clustering)
-        RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
-
-        feature_clustering = fcluster(link, threshold, criterion="distance")
-
-        self.distmat = dist_mat_square
-        self.featclust = feature_clustering
-        self.linkage_ = link
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
