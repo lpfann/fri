@@ -1,6 +1,7 @@
 import abc
 
 import cvxpy as cvx
+import numpy as np
 
 #
 # Minimal loss in constraints to mitigate numerical instabilities for solvers
@@ -15,42 +16,52 @@ class BaseProblem(object):
         self.X = X
         self.Y = Y
 
-        # Solver Variables
-        self.xp = cvx.Variable(nonneg=True)  # x' , our opt. value
-        self.omega = cvx.Variable(self.d)  # complete linear weight vector
-
         # InitModel Parameters
         self.initL1 = initL1
         self.initLoss = max(MINLOSS, initLoss)
         self.parameters = parameters
+
         # Dimension specific data
         self.di = di
+
         # Solver parameters
         self._constraints = []
-        self.omega = cvx.Variable(self.d)  # complete linear weight vector
-
-        # Check if some model values have a pre fixed value
-        if presetModel is not None:
-            assert len(
-                presetModel) == self.d  # only assert length, # TODO: add check for two dimensionality when allow ranges of constraints
-            for dim in range(self.d):
-                assert presetModel[dim] < self.initL1  # a weight bigger than the optimal L1 makes no sense
-                # Skip current dimension
-                if dim == di:
-                    continue
-                if presetModel[dim] >= 0:  # Negative elements are considered unset/free
-                    self._constraints.extend([
-                        cvx.abs(self.omega[dim]) <= presetModel[dim]
-                    ])
-        self.presetModel = presetModel
-
-
-
-        # Solver parameters
+        self.xp = cvx.Variable(nonneg=True, name="currentDimWeight")  # x' , our opt. value
+        self.omega = cvx.Variable(self.d, name="Omega")  # complete linear weight vector
         if kwargs is None:
             self.kwargs = {}  # Fix (unpacking)error when manually calling bounds without keyword arguments to the solver
         else:
             self.kwargs = kwargs
+
+        # Check if some model values have a pre fixed value
+        self.presetModel = presetModel
+        if presetModel is not None:
+            assert presetModel.shape == (self.d, 2)
+            for dim in range(self.d):
+                # Skip current dimension
+                if dim == di:
+                    continue
+                current_preset = presetModel[dim]
+
+                # Skip unset values
+                if all(np.isnan(current_preset)):
+                    continue
+
+                # a weight bigger than the optimal model L1 makes no sense
+                assert abs(current_preset[0]) <= self.initL1
+                assert abs(current_preset[1]) <= self.initL1
+                # We add a pair of constraints depending on sign of known coefficient
+                # this makes it possible to solve this as a convex problem
+                if current_preset[0] >= 0:
+                    self._constraints.extend([
+                        self.omega[dim] >= current_preset[0],
+                        self.omega[dim] <= current_preset[1],
+                    ])
+                else:
+                    self._constraints.extend([
+                        self.omega[dim] <= current_preset[0],
+                        self.omega[dim] >= current_preset[1],
+                    ])
 
         self.problem = None
         self._objective = None
@@ -69,7 +80,6 @@ class BaseProblem(object):
         except Exception as e:
             print(e)
             return None
-
         return self
 
 
@@ -122,7 +132,7 @@ class MaxProblem2(BaseProblem):
 class BaseClassificationProblem(ProblemType):
     def add_type_specific(self, baseProblem):
         # Problem Specific variables and constraints
-        baseProblem.b = cvx.Variable()  # shift
+        baseProblem.b = cvx.Variable(name="offset")  # shift
         point_distances = cvx.multiply(baseProblem.Y, baseProblem.X * baseProblem.omega + baseProblem.b)
         baseProblem.loss = cvx.sum(cvx.pos(1 - point_distances))
         baseProblem.weight_norm = cvx.norm(baseProblem.omega, 1)
@@ -138,7 +148,7 @@ class BaseRegressionProblem(ProblemType):
 
     def add_type_specific(self, baseProblem):
         baseProblem.epsilon = baseProblem.parameters["epsilon"]
-        baseProblem.b = cvx.Variable()  # offset from origin
+        baseProblem.b = cvx.Variable(name="offset")  # offset from origin
         baseProblem.slack = cvx.Variable(shape=(baseProblem.n), nonneg=True)  # slack variables
         baseProblem.loss = cvx.sum(baseProblem.slack)
         baseProblem.weight_norm = cvx.norm(baseProblem.omega, 1)

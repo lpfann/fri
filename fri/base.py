@@ -271,11 +271,16 @@ class FRIBase(BaseEstimator, SelectorMixin):
         constrained_ranges_diff = np.zeros((d, d, 2))
 
         for i in range(d):
+            # Init empty preset
+            preset = np.empty(shape=(d, 2))
+            preset.fill(np.nan)
+
             # Get lower bound for i
             min_i = interval[i, 0]
-            # presetModel
-            preset = np.ones(d) * -1  # Negative values are ignored
-            preset[i] = min_i * self.optim_L1_  # Constrain dim i to the minimal value
+            # Add correct sign of this coef
+            min_i = np.sign(self._svm_coef[0][i]) * min_i
+            preset[i] = min_i * self.optim_L1_  # scale with L1 and add to preset
+
             # Calculate all bounds with feature i set to min_i
             rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
                                                   self.optim_L1_,
@@ -285,13 +290,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                   None)
             constrained_ranges[i] = rangevector
             # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff[i] = np.abs(self.interval_) - np.abs(rangevector)
+            constrained_ranges_diff[i] = np.abs(np.abs(self.interval_) - np.abs(rangevector))
             # Current dimension is not constrained, so these values are nulled
             constrained_ranges[i, i] = self.interval_[i, 0]  # we use the constraint we set the problem with
             constrained_ranges_diff[i, i, :] = 0
 
+
         self.conranges = constrained_ranges
-        self.conranges_diff = constrained_ranges_diff
+        self.conranges_diff = constrained_ranges_diff.sum(2)
 
 
     def _get_relevance_mask(self,
