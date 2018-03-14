@@ -267,20 +267,22 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         interval = self.interval_
         d = len(interval)
-        constrained_ranges = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        constrained_ranges_diff = np.zeros((d, d, 2))
+        self.constrained_ranges_min = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.constrained_ranges_diff_min = np.zeros((d, d, 2))
+        self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.constrained_ranges_diff_max = np.zeros((d, d, 2))
 
-        for i in range(d):
+        def run_with_single_dim_single_value_preset(i, preset_i):
+            constrained_ranges = np.zeros((d, 2))
+            constrained_ranges_diff = np.zeros((d, 2))
+
             # Init empty preset
             preset = np.empty(shape=(d, 2))
             preset.fill(np.nan)
 
-            # Get lower bound for i
-            min_i = interval[i, 0]
             # Add correct sign of this coef
-            min_i = np.sign(self._svm_coef[0][i]) * min_i
-            preset[i] = min_i * self.optim_L1_  # scale with L1 and add to preset
-
+            signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
+            preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
             # Calculate all bounds with feature i set to min_i
             rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
                                                   self.optim_L1_,
@@ -288,16 +290,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                   False, presetModel=preset)
             rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
                                                   None)
-            constrained_ranges[i] = rangevector
+            constrained_ranges = rangevector
             # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff[i] = np.abs(np.abs(self.interval_) - np.abs(rangevector))
+            constrained_ranges_diff = np.abs(np.abs(self.interval_) - np.abs(rangevector))
             # Current dimension is not constrained, so these values are nulled
-            constrained_ranges[i, i] = self.interval_[i, 0]  # we use the constraint we set the problem with
-            constrained_ranges_diff[i, i, :] = 0
+            print("dim", i, "preset:", preset_i)
+            constrained_ranges[i] = np.abs(preset_i)  # we use the constraint we set the problem with
+            constrained_ranges_diff[i, :] = 0
+            return constrained_ranges, constrained_ranges_diff
+
+        for i in range(d):
+            # min
+            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
+            self.constrained_ranges_min[i] = ranges
+            self.constrained_ranges_diff_min[i] = diff.sum(2)
+            # max
+            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
+            self.constrained_ranges_max[i] = ranges
+            self.constrained_ranges_diff_max[i] = diff.sum(2)
 
 
-        self.conranges = constrained_ranges
-        self.conranges_diff = constrained_ranges_diff.sum(2)
 
 
     def _get_relevance_mask(self,
