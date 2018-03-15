@@ -141,12 +141,12 @@ def test_shadowfeatures(randomstate):
 
 
 def test_groupDetection(randomstate):
-    data = genClassificationData(n_samples=500, n_features=10, n_redundant=4, n_strel=2, random_state=randomstate)
+    data = genClassificationData(n_samples=200, n_features=10, n_redundant=5, n_strel=2, random_state=2)
 
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
-    fri = FRIClassification(random_state=randomstate, optimum_deviation=0.1)
+    fri = FRIClassification(random_state=randomstate)
     fri.fit(X, y)
 
     fri.community_detection2(X, y)

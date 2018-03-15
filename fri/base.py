@@ -21,7 +21,7 @@ from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
 class NotFeasibleForParameters(Exception):
-    """SVM cannot separate points with this parameters
+    """ Problem was infeasible with the current parameter set.
     """
 
 
@@ -165,7 +165,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if not self.isEnsemble:
             self._get_relevance_mask()
             if X.shape[1] > 1:
-                self.feature_clusters_, self.linkage_ = self.community_detection()
+                self.feature_clusters_, self.linkage_, _ = self.community_detection()
 
         # Return the classifier
         return self
@@ -261,7 +261,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        return feature_clustering, link
+        return feature_clustering, link, dist_mat
 
     def community_detection2(self, X, y, cutoff_threshold=0.55):
         # Do we have intervals?
@@ -269,12 +269,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         interval = self.interval_
         d = len(interval)
-        self.constrained_ranges_min = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.constrained_ranges_diff_min = np.zeros((d, d))
-        self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.constrained_ranges_diff_max = np.zeros((d, d))
+        # TODO: remove global variables
+        self.interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.absolute_delta_bounds_summed_min = np.zeros((d, d))
+        self.interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.absolute_delta_bounds_summed_max = np.zeros((d, d))
 
-        def run_with_single_dim_single_value_preset(i, preset_i):
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -286,10 +289,27 @@ class FRIBase(BaseEstimator, SelectorMixin):
             signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
             preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
             # Calculate all bounds with feature i set to min_i
-            rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
-                                                  self.optim_L1_,
-                                                  self.random_state,
-                                                  False, presetModel=preset)
+            l1 = self.optim_L1_
+
+            for j in range(n_tries):
+                # try several times if problem to stringent
+                try:
+                    rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
+                                                          l1,
+                                                          self.random_state,
+                                                          False, presetModel=preset)
+                except NotFeasibleForParameters:
+                    # relax problem to mitigate feasibility problems in some rare cases
+                    if self.debug:
+                        print("Community detection: Constrained run failed, relaxing L1")
+                    l1 *= 1.001
+                    continue
+                else:
+                    # problem was solvable
+                    break
+            else:
+                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
+
             rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
                                                   None)
             # Get differences for constrained intervals to normal intervals
@@ -302,18 +322,32 @@ class FRIBase(BaseEstimator, SelectorMixin):
             return rangevector, constrained_ranges_diff
 
         # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
-        # We retrieve the relevance bounds and calculate the absolute differnce between them and non-constrained bounds
+        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
         for i in range(d):
             # min
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
-            self.constrained_ranges_min[i] = ranges
-            self.constrained_ranges_diff_min[i] = diff.sum(1)
+            self.interval_constrained_to_min[i] = ranges
+            self.absolute_delta_bounds_summed_min[i] = diff.sum(1)
             # max
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
-            self.constrained_ranges_max[i] = ranges
-            self.constrained_ranges_diff_max[i] = diff.sum(1)
+            self.interval_constrained_to_max[i] = ranges
+            self.absolute_delta_bounds_summed_max[i] = diff.sum(1)
 
+        feature_points = np.zeros((d, 2 * d))
+        for i in range(d):
+            feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
+            feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
 
+        # Execute clustering
+        link = linkage(feature_points, method="single")
+
+        # Set cutoff at which threshold the linkage gets flattened (clustering)
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+
+        feature_clustering = fcluster(link, threshold, criterion="distance")
+
+        return feature_clustering, link, feature_points
 
 
     def _get_relevance_mask(self,
