@@ -165,7 +165,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if not self.isEnsemble:
             self._get_relevance_mask()
             if X.shape[1] > 1:
-                self.feature_clusters_, self.linkage_ = self.community_detection()
+                self.feature_clusters_, self.linkage_, _ = self.community_detection()
 
         # Return the classifier
         return self
@@ -261,7 +261,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        return feature_clustering, link
+        return feature_clustering, link, dist_mat
 
     def community_detection2(self, X, y, cutoff_threshold=0.55):
         # Do we have intervals?
@@ -269,6 +269,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         interval = self.interval_
         d = len(interval)
+        # TODO: remove global variables
         self.constrained_ranges_min = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
         self.constrained_ranges_diff_min = np.zeros((d, d))
         self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
@@ -319,7 +320,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             return rangevector, constrained_ranges_diff
 
         # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
-        # We retrieve the relevance bounds and calculate the absolute differnce between them and non-constrained bounds
+        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
         for i in range(d):
             # min
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
@@ -330,7 +331,32 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self.constrained_ranges_max[i] = ranges
             self.constrained_ranges_diff_max[i] = diff.sum(1)
 
+        # TODO: check differnce between min and max in these con. ranges
+        diff_min_and_max = self.constrained_ranges_diff_min + self.constrained_ranges_diff_max
 
+        # add up lower triangular matrix to upper one
+        collapsed_variation = np.triu(diff_min_and_max) + np.tril(diff_min_and_max).T
+        np.fill_diagonal(collapsed_variation, 0)
+
+        # Create distance matrix
+        dist_mat = np.triu(collapsed_variation).T + collapsed_variation
+        # normalize and convert distance to similarities
+        dist_mat = 1 - dist_mat / np.max(dist_mat)
+        # feature with itself has no distance
+        np.fill_diagonal(dist_mat, 0)
+        # convert to squareform for scipy compat.
+        dist_mat_square = squareform(dist_mat)
+
+        # Execute clustering
+        link = linkage(dist_mat_square, method="ward")
+
+        # Set cutoff at which threshold the linkage gets flattened (clustering)
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+
+        feature_clustering = fcluster(link, threshold, criterion="distance")
+
+        return feature_clustering, link, dist_mat
 
 
     def _get_relevance_mask(self,
