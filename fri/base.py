@@ -21,7 +21,7 @@ from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
 class NotFeasibleForParameters(Exception):
-    """SVM cannot separate points with this parameters
+    """ Problem was infeasible with the current parameter set.
     """
 
 
@@ -274,7 +274,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
         self.constrained_ranges_diff_max = np.zeros((d, d))
 
-        def run_with_single_dim_single_value_preset(i, preset_i):
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=5):
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -286,10 +286,27 @@ class FRIBase(BaseEstimator, SelectorMixin):
             signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
             preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
             # Calculate all bounds with feature i set to min_i
-            rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
-                                                  self.optim_L1_,
-                                                  self.random_state,
-                                                  False, presetModel=preset)
+            l1 = self.optim_L1_
+
+            for j in range(n_tries):
+                # try several times if problem to stringent
+                try:
+                    rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
+                                                          l1,
+                                                          self.random_state,
+                                                          False, presetModel=preset)
+                except NotFeasibleForParameters:
+                    # relax problem to mitigate feasibility problems in some rare cases
+                    if self.debug:
+                        print("Community detection: Constrained run failed, relaxing L1")
+                    l1 *= 1.001
+                    continue
+                else:
+                    # problem was solvable
+                    break
+            else:
+                raise NotFeasibleForParameters("Community detection failed.")
+
             rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
                                                   None)
             # Get differences for constrained intervals to normal intervals

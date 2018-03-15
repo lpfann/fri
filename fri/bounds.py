@@ -3,11 +3,8 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 from cvxpy import OPTIMAL, OPTIMAL_INACCURATE
 
+import fri.base
 from fri.optproblems import MinProblem, MaxProblem1, MaxProblem2
-
-
-class NotFeasibleForParameters(Exception):
-    """SVM cannot separate points with this parameters"""
 
 
 class Bound(object):
@@ -29,6 +26,7 @@ class Bound(object):
     @abstractmethod
     def solve(self):
         pass
+
     def __repr__(self):
         return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
                " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel})".format(
@@ -57,8 +55,7 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
-            print(self)
-            raise NotFeasibleForParameters
+            raise fri.base.NotFeasibleForParameters(status, self)
 
 
 class UpperBound(Bound):
@@ -85,8 +82,7 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
-            print(self)
-            raise NotFeasibleForParameters
+            raise fri.base.NotFeasibleForParameters("Upper bound has no feasible problems.", self)
 
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
         best_problem = valid_problems[max_index]
