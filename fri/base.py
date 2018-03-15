@@ -85,13 +85,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.feat_elim = feat_elim
         self.debug = debug
 
-        # Define Map which can use multiple processes to speed up computation
-        def pmap(*args):
-            with Pool() as p:
-                return p.map(*args)
+
 
         # Only use multiprocessing when switched on (default off)
         if self.parallel:
+            self._mappool = Pool()
+
+            # Define Map which can use multiple processes to speed up computation
+            def pmap(*args):
+                return self._mappool.map(*args)
             self.newmap = pmap
         else:
             self.newmap = map
