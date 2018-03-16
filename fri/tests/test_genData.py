@@ -1,13 +1,13 @@
 import pytest
-from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
-from sklearn.utils import check_random_state
-from sklearn.utils.testing import  assert_equal
-import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn import linear_model
+from sklearn.metrics import r2_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVR
-from sklearn.metrics import r2_score
+from sklearn.utils import check_random_state
+from sklearn.utils.testing import assert_equal
+
+from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -45,29 +45,18 @@ def test_wrong_values(wrong_param):
 @pytest.mark.parametrize("weak", [0, 1, 2, 20])
 @pytest.mark.parametrize('repeated', [0, 1, 2, 5])
 @pytest.mark.parametrize('flip_y', [0, 0.1, 1])
-@pytest.mark.parametrize('noise', [0, 0.5, 1, 10])
-@pytest.mark.parametrize('problem', ["regression", "classification",
-                                    pytest.param("ordinalregression",marks=pytest.mark.xfail(raises=NotImplementedError)) # TODO: remove this when implemented
-                                    ])
-def test_all_feature_types(problem, strong, weak, repeated, flip_y, noise):
+def test_genClassification(strong, weak, repeated, flip_y):
     n_samples = 10
     n_features = 100
     args = {"n_samples": n_samples, "n_features": n_features,
             "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
 
-    if problem == "regression":
-        args["noise"] = noise
-        gen = genRegressionData
-    elif problem == "ordinalregression":
-        args["noise"] = noise
-        gen = genOrdinalRegressionData
-    else:
-        args["flip_y"] = flip_y
-        gen = genClassificationData
-        if flip_y == 1:
-            with pytest.raises(ValueError):
-                X, y = gen(**args)
-            return
+    args["flip_y"] = flip_y
+    gen = genClassificationData
+    if flip_y == 1:
+        with pytest.raises(ValueError):
+            X, y = gen(**args)
+        return
 
     if strong == 0 and weak < 2:
         with pytest.raises(ValueError):
@@ -83,15 +72,60 @@ def test_all_feature_types(problem, strong, weak, repeated, flip_y, noise):
     assert_equal(X.shape[1], n_features)
 
 
-# def test_class_balance(randomstate):
-#     X, y = genClassificationData(n_samples=5000, random_state=randomstate)
+@pytest.mark.parametrize('strong', [0, 1, 2, 20, 50])
+@pytest.mark.parametrize("weak", [0, 1, 2, 20])
+@pytest.mark.parametrize('repeated', [0, 1, 2, 5])
+@pytest.mark.parametrize('noise', [0, 0.5, 1, 10])
+def test_genRegression(strong, weak, repeated, noise):
+    n_samples = 10
+    n_features = 100
+    args = {"n_samples": n_samples, "n_features": n_features,
+            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
 
-#     import collections
-#     c = collections.Counter(y)
-#     first_class = c[-1]
-#     second_class = c[1]
-#     assert np.abs(first_class - second_class) <= 1
+    args["noise"] = noise
+    gen = genRegressionData
 
+    if strong == 0 and weak < 2:
+        with pytest.raises(ValueError):
+            X, y = gen(**args)
+        return
+
+    X, y = gen(**args)
+
+    # Equal length
+    assert_equal(len(X), len(y))
+    # Correct parameters
+    assert_equal(len(X), n_samples)
+    assert_equal(X.shape[1], n_features)
+
+
+@pytest.mark.parametrize('strong', [0, 1, 2, 20, 50])
+@pytest.mark.parametrize("weak", [0, 1, 2, 20])
+@pytest.mark.parametrize('repeated', [0, 1, 2, 5])
+@pytest.mark.parametrize('noise', [0, 0.5, 1, 10])
+@pytest.mark.parametrize('bins', [3, 4, 10, 20])
+def test_genOrdinalRegression(strong, weak, repeated, noise, bins):
+    n_samples = 10
+    n_features = 100
+    args = {"n_samples": n_samples, "n_features": n_features,
+            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
+
+    args["noise"] = noise
+    args["n_target_bins"] = bins
+    gen = genOrdinalRegressionData
+
+    if strong == 0 and weak < 2:
+        with pytest.raises(ValueError):
+            X, y = gen(**args)
+        return
+
+    X, y = gen(**args)
+
+    # Equal length
+    assert_equal(len(X), len(y))
+    # Correct parameters
+    assert_equal(len(X), n_samples)
+    assert_equal(X.shape[1], n_features)
 
 def test_data_truth():
     n = 100
