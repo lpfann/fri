@@ -263,7 +263,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link, dist_mat
 
-    def community_detection2(self, X, y, cutoff_threshold=0.55):
+    def community_detection2(self, X, y, cutoff_threshold=0.55, dist_mat="sum"):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
@@ -275,7 +275,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
         self.constrained_ranges_diff_max = np.zeros((d, d))
 
-        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=5):
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -306,7 +306,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                     # problem was solvable
                     break
             else:
-                raise NotFeasibleForParameters("Community detection failed.")
+                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
 
             rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
                                                   None)
@@ -332,7 +332,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self.constrained_ranges_diff_max[i] = diff.sum(1)
 
         # TODO: check differnce between min and max in these con. ranges
-        diff_min_and_max = self.constrained_ranges_diff_min + self.constrained_ranges_diff_max
+        if dist_mat is "sum":
+            diff_min_and_max = self.constrained_ranges_diff_min + self.constrained_ranges_diff_max
+        if dist_mat is "min":
+            diff_min_and_max = self.constrained_ranges_diff_min
+        if dist_mat is "max":
+            diff_min_and_max = self.constrained_ranges_diff_max
 
         # add up lower triangular matrix to upper one
         collapsed_variation = np.triu(diff_min_and_max) + np.tril(diff_min_and_max).T
