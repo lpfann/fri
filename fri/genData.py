@@ -247,8 +247,8 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     return X, Y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                      n_repeated: int = 0, noise: float = 0, random_state: object = None,
-                      partition=None, n_target_bins: int = 2):
+                             n_repeated: int = 0, noise: float = 0, random_state: object = None,
+                             partition=None, n_target_bins: int = 3):
 
     """
     Generate ordinal regression data
@@ -309,17 +309,14 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
     X = X_regression[sort_indices]
     Y = Y_regression[sort_indices]
 
-    # If the values can't be distributed evenly to the bins, duplicate values and
-    # raise the bin size by 1
-    if not rest == 0:
-        for i in range(n_target_bins - rest):
-            X = np.append(X, [X[-1]], axis=0)
-            Y = np.append(Y, Y[-1])
-        bin_size += 1
-
     # Assign ordinal classes as target values
     for i in range(n_target_bins):
         Y[bin_size*i:bin_size*(i+1)] = i
 
+    # Put non divisable rest into last bin
+    if rest > 0:
+        Y[-rest:] = n_target_bins - 1
+
+    # TODO: add shuffle function here? all values sorted at the moment
     return X, Y
 

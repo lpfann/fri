@@ -100,12 +100,12 @@ def test_genRegression(strong, weak, repeated, noise):
 
 
 @pytest.mark.parametrize('strong', [0, 1, 2, 20, 50])
+@pytest.mark.parametrize('n_samples', [100, 101])
 @pytest.mark.parametrize("weak", [0, 1, 2, 20])
 @pytest.mark.parametrize('repeated', [0, 1, 2, 5])
 @pytest.mark.parametrize('noise', [0, 0.5, 1, 10])
 @pytest.mark.parametrize('bins', [3, 4, 10, 20])
-def test_genOrdinalRegression(strong, weak, repeated, noise, bins):
-    n_samples = 10
+def test_genOrdinalRegression(strong, weak, repeated, noise, bins, n_samples):
     n_features = 100
     args = {"n_samples": n_samples, "n_features": n_features,
             "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
