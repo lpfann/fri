@@ -41,10 +41,6 @@ def _checkParam(n_samples: int = 100, n_features: int = 2,
             raise ValueError("Sum of partition values should yield number of redundant features.")
         if 0 in partition or 1 in partition:
             raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
-    print(
-        "Generating dataset with d={},n={},strongly={},weakly={}, partition of weakly={}".format(n_features, n_samples,
-                                                                                                 n_strel, n_redundant,
-                                                                                                 partition))
 
 
 def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100, n_features: int = 2,
