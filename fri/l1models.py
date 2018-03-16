@@ -2,14 +2,14 @@
     Class housing all initialisation models used in fri
     We use the models paramaters to calculate the loss and L1 bounds.
 """
+import cvxpy as cvx
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
 from sklearn.metrics import f1_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-import cvxpy as cvx
 from sklearn.utils import check_X_y
-from sklearn.utils.multiclass import unique_labels
+
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
@@ -89,8 +89,8 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 class L1OrdinalRegressor(LinearModel):
 
     #TODO: Connect error_type in higher levels
-
-    def __init__(self, C=1, error_type="mmae"):
+    # TODO: score mze hat intuitiv richtigen score, die anderen beiden nicht?
+    def __init__(self, C=1, error_type="mze"):
         self.C = C
         self.error_type = error_type
         self.coef_ = None
