@@ -4,8 +4,8 @@ from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
-from fri import FRIClassification, FRIRegression, EnsembleFRI
-from fri.genData import genRegressionData, genClassificationData
+from fri import FRIClassification, FRIRegression, EnsembleFRI, FRIOrdinalRegression
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -24,7 +24,7 @@ def check_interval(interval, n_strong):
     assert np.all(interval[0:n_strong, 1] >= interval[0:n_strong, 0])  # TODO: check what consequences this has
 
 
-@pytest.mark.parametrize('problem', ["regression", "classification"])
+@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
 @pytest.mark.parametrize('model', [
     "Ensemble",    
     "Single"
@@ -38,10 +38,12 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
     if problem is "regression":
         gen = genRegressionData
         fri = FRIRegression(random_state=randomstate, C=1, debug=True, optimum_deviation=0.05)
-    else:
+    elif problem is "classification":
         gen = genClassificationData
         fri = FRIClassification(random_state=randomstate, C=1, debug=True, optimum_deviation=0.05)
-
+    elif problem is "ordreg":
+        gen = genOrdinalRegressionData
+        fri = FRIOrdinalRegression(random_state=randomstate, C=1, debug=True, optimum_deviation=0.05)
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
             gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
