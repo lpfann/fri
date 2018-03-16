@@ -318,7 +318,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector = np.zeros((d, 2))
         shadowrangevector = np.zeros((d, 2))
         omegas = np.zeros((d, 2, d))
-        biase = np.zeros((d, 2))
+        if self.classes_ is not None:
+            class_thresholds = len(self.classes_) - 1
+            biase = np.zeros((d, 2, class_thresholds))
+        else:
+            biase = np.zeros((d, 2))
 
         """
         Solver Parameters

@@ -1,5 +1,5 @@
+import numpy as np
 from sklearn.utils import check_X_y
-
 
 from fri.base import FRIBase
 from fri.l1models import L1OrdinalRegressor
@@ -46,5 +46,8 @@ class FRIOrdinalRegression(FRIBase):
 
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
+
+        # Get ordinal classes
+        self.classes_ = np.unique(y)
 
         super().fit(X, y)

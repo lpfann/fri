@@ -42,5 +42,6 @@ class FRIRegression(FRIBase):
 
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
+        self.classes_ = None
 
         super().fit(X, y)
