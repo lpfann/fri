@@ -263,17 +263,19 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link, dist_mat
 
-    def community_detection2(self, X, y, cutoff_threshold=0.55, dist_mat="sum"):
+    def community_detection2(self, X, y, cutoff_threshold=0.55):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
         interval = self.interval_
         d = len(interval)
         # TODO: remove global variables
-        self.constrained_ranges_min = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.constrained_ranges_diff_min = np.zeros((d, d))
-        self.constrained_ranges_max = np.zeros((d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.constrained_ranges_diff_max = np.zeros((d, d))
+        self.interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.absolute_delta_bounds_summed_min = np.zeros((d, d))
+        self.interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        self.absolute_delta_bounds_summed_max = np.zeros((d, d))
 
         def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
             constrained_ranges = np.zeros((d, 2))
@@ -324,36 +326,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for i in range(d):
             # min
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
-            self.constrained_ranges_min[i] = ranges
-            self.constrained_ranges_diff_min[i] = diff.sum(1)
+            self.interval_constrained_to_min[i] = ranges
+            self.absolute_delta_bounds_summed_min[i] = diff.sum(1)
             # max
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
-            self.constrained_ranges_max[i] = ranges
-            self.constrained_ranges_diff_max[i] = diff.sum(1)
+            self.interval_constrained_to_max[i] = ranges
+            self.absolute_delta_bounds_summed_max[i] = diff.sum(1)
 
-        # TODO: check differnce between min and max in these con. ranges
-        if dist_mat is "sum":
-            diff_min_and_max = self.constrained_ranges_diff_min + self.constrained_ranges_diff_max
-        if dist_mat is "min":
-            diff_min_and_max = self.constrained_ranges_diff_min
-        if dist_mat is "max":
-            diff_min_and_max = self.constrained_ranges_diff_max
-
-        # add up lower triangular matrix to upper one
-        collapsed_variation = np.triu(diff_min_and_max) + np.tril(diff_min_and_max).T
-        np.fill_diagonal(collapsed_variation, 0)
-
-        # Create distance matrix
-        dist_mat = np.triu(collapsed_variation).T + collapsed_variation
-        # normalize and convert distance to similarities
-        dist_mat = 1 - dist_mat / np.max(dist_mat)
-        # feature with itself has no distance
-        np.fill_diagonal(dist_mat, 0)
-        # convert to squareform for scipy compat.
-        dist_mat_square = squareform(dist_mat)
+        feature_points = np.zeros((d, 2 * d))
+        for i in range(d):
+            feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
+            feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
 
         # Execute clustering
-        link = linkage(dist_mat_square, method="ward")
+        link = linkage(feature_points, method="single")
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
         RATIO = cutoff_threshold
@@ -361,7 +347,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        return feature_clustering, link, dist_mat
+        return feature_clustering, link, feature_points
 
 
     def _get_relevance_mask(self,
