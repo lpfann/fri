@@ -8,6 +8,7 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 import numpy as np
+import scipy
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -302,7 +303,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                     # relax problem to mitigate feasibility problems in some rare cases
                     if self.debug:
                         print("Community detection: Constrained run failed, relaxing L1")
-                    l1 *= 1.001
+                    l1 *= 1.01
                     continue
                 else:
                     # problem was solvable
@@ -338,8 +339,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
             feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
             feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
 
+        # Calculate cosine similarity
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric="cosine")
+
+        # TODO: do we need that really? why?
+        # dist_mat  = squareform(dist_mat)
+        # Convert distance to similarity
+        # sim_mat = 1- dist_mat
+        # np.fill_diagonal(sim_mat, 0)
+
         # Execute clustering
-        link = linkage(feature_points, method="single")
+        link = linkage(dist_mat, method="single")
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
         RATIO = cutoff_threshold
