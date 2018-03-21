@@ -264,7 +264,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link, dist_mat
 
-    def community_detection2(self, X, y, cutoff_threshold=0.55):
+    def community_detection2(self, X, y, cutoff_threshold=0.55,mode="both"):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
@@ -334,13 +334,23 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self.interval_constrained_to_max[i] = ranges
             self.absolute_delta_bounds_summed_max[i] = diff.sum(1)
 
-        feature_points = np.zeros((d, 2 * d))
-        for i in range(d):
-            feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
-            feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
+        if mode is "both":
+            feature_points = np.zeros((d, 2 * d))
+            for i in range(d):
+                feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
+                feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
+        if mode is "min":
+            feature_points = np.zeros((d, d))
+            for i in range(d):
+                feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
+        if mode is "max":
+            feature_points = np.zeros((d, d))
+            for i in range(d):
+                feature_points[i, :d] = self.absolute_delta_bounds_summed_max[i]
 
         # Calculate cosine similarity
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric="cosine")
+        from fri.utils import similarity
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
 
         # TODO: do we need that really? why?
         # dist_mat  = squareform(dist_mat)
