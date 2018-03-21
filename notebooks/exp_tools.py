@@ -13,7 +13,7 @@ def gen_split_feature():
     s1 = np.zeros(n)
     s2 = np.zeros(n)
 
-    division = int(n / 5)
+    division = int(n / 2)
 
     s1[:division] = X[:division, 0]
 

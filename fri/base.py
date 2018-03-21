@@ -357,7 +357,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        return feature_clustering, link, feature_points
+        return feature_clustering, link, feature_points, dist_mat
 
 
     def _get_relevance_mask(self,
