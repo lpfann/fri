@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import sklearn.datasets
 from sklearn.preprocessing import StandardScaler
 
 from fri import genClassificationData
@@ -26,6 +27,16 @@ def gen_split_feature():
 
     return X_scaled, y
 
+
+def gen_quadrant_problem():
+    X, y = sklearn.datasets.make_blobs(n_samples=200, n_features=2, centers=[[1, 1], [-1, -1]], cluster_std=0.2)
+    # X_random,y_random = sklearn.datasets.make_blobs(n_samples=100,n_features=2,centers=[[-1,1],[1,-1]],cluster_std=0.5)
+    # np.random.shuffle(y_random)
+    # X = np.vstack((X,X_random))
+    # y = np.hstack((y,y_random))
+    X = StandardScaler().fit_transform(X)
+
+    return X, y
 
 def plotbars(bars, names, X, di):
     d = X.shape[1]

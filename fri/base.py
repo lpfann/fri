@@ -334,6 +334,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self.interval_constrained_to_max[i] = ranges
             self.absolute_delta_bounds_summed_max[i] = diff.sum(1)
 
+        # Modeswitch
         if mode is "both":
             feature_points = np.zeros((d, 2 * d))
             for i in range(d):
@@ -362,10 +363,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
         link = linkage(dist_mat, method="single")
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
-        RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        # RATIO = cutoff_threshold
+        # threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        # feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        feature_clustering = fcluster(link, threshold, criterion="distance")
+        # Max Clust
+        max_clusters = 2
+        feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
 
         return feature_clustering, link, feature_points, dist_mat
 

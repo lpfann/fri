@@ -1,3 +1,4 @@
+import numpy as np
 from numpy.random import RandomState
 from sklearn import metrics
 from sklearn.preprocessing import StandardScaler
@@ -19,19 +20,15 @@ def get_truth(dataset):
     informative = dataset["n_strel"]
     redundant = dataset["n_redundant"]
     rest = d - informative - redundant
-    truth = [0] * informative + [1] * redundant + [2] * rest
+    truth = [0] * informative + [1] * redundant + [0] * rest
     return truth
 
-def test_sets(n_repeats=5):
+
+def test_sets(dataset, random_state, n_repeats=5):
     repeats = []
-    d = 20
-    informative = 5
-    redundant = 5
     for x in range(n_repeats):
-        X, y = genClassificationData(n_samples=200, n_features=d, n_strel=informative, n_redundant=redundant,
-                                     random_state=RANDOM_STATE,)
-        truth = get_truth(d, informative, redundant)
-        repeats.append((X, y, truth))
+        X, y = genClassificationData(**dataset, random_state=random_state)
+        repeats.append((X, y))
 
     return repeats
 
@@ -42,24 +39,27 @@ def evaluate(true, pred):
     return metrics.fowlkes_mallows_score(true, pred)
 
 
-def test(dataset,mode):
-    X,y = gen_set(dataset)
-
+def test(X, y, dataset, mode):
     X_scaled = StandardScaler().fit_transform(X)
     fri = FRIClassification(parallel=True)
     fri.fit(X_scaled, y)
-    clust, link, feat_points, dist_mat = fri.community_detection2(X_scaled, y)
+    clust, link, feat_points, dist_mat = fri.community_detection2(X_scaled, y, mode=mode)
     
     truth = get_truth(dataset)
 
     measure =  evaluate(truth, clust)
-    print(measure)
+    # print(measure)
     return measure
 
 if __name__ == '__main__':
-    test(datasets["partitions"],"both")
-    test(datasets["partitions"],"min")
-    test(datasets["partitions"],"max")
-
+    n_repeats = 5
+    set = datasets["partitions"]
+    data_sets = test_sets(set, RANDOM_STATE, n_repeats=n_repeats)
+    results = np.zeros((3, n_repeats))
+    for i, s in enumerate(data_sets):
+        results[0, i] = test(*s, set, "both")
+        results[1, i] = test(*s, set, "min")
+        results[2, i] = test(*s, set, "max")
+    print(results)
 # result output
 # community
