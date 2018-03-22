@@ -273,10 +273,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # TODO: remove global variables
         self.interval_constrained_to_min = np.zeros(
             (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.absolute_delta_bounds_summed_min = np.zeros((d, d))
+        self.absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
         self.interval_constrained_to_max = np.zeros(
             (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.absolute_delta_bounds_summed_max = np.zeros((d, d))
+        self.absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
 
         def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
             constrained_ranges = np.zeros((d, 2))
@@ -314,7 +314,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
                                                   None)
             # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff = np.abs(np.abs(self.interval_) - np.abs(rangevector))
+            constrained_ranges_diff = self.interval_ - rangevector
 
             # Current dimension is not constrained, so these values are set accordingly
             rangevector[i] = preset_i
@@ -328,30 +328,30 @@ class FRIBase(BaseEstimator, SelectorMixin):
             # min
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
             self.interval_constrained_to_min[i] = ranges
-            self.absolute_delta_bounds_summed_min[i] = diff.sum(1)
+            self.absolute_delta_bounds_summed_min[i] = diff
             # max
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
             self.interval_constrained_to_max[i] = ranges
-            self.absolute_delta_bounds_summed_max[i] = diff.sum(1)
+            self.absolute_delta_bounds_summed_max[i] = diff
 
         # Modeswitch
         if mode is "both":
-            feature_points = np.zeros((d, 2 * d))
+            feature_points = np.zeros((d, 2 * d * 2))
             for i in range(d):
-                feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
-                feature_points[i, d:] = self.absolute_delta_bounds_summed_max[i]
+                feature_points[i, :(2 * d)] = self.absolute_delta_bounds_summed_min[i].flatten()
+                feature_points[i, (2 * d):] = self.absolute_delta_bounds_summed_max[i].flatten()
         if mode is "min":
-            feature_points = np.zeros((d, d))
+            feature_points = np.zeros((d, d * 2))
             for i in range(d):
-                feature_points[i, :d] = self.absolute_delta_bounds_summed_min[i]
+                feature_points[i] = self.absolute_delta_bounds_summed_min[i].flatten()
         if mode is "max":
-            feature_points = np.zeros((d, d))
+            feature_points = np.zeros((d, d * 2))
             for i in range(d):
-                feature_points[i, :d] = self.absolute_delta_bounds_summed_max[i]
+                feature_points[i] = self.absolute_delta_bounds_summed_max[i].flatten()
 
         # Calculate cosine similarity
-        from fri.utils import similarity
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
+        from fri.utils import similarity2
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity2)
 
         # TODO: do we need that really? why?
         # dist_mat  = squareform(dist_mat)
