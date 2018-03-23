@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import sklearn.datasets
 from sklearn.preprocessing import StandardScaler
 
 from fri import genClassificationData
@@ -28,12 +27,22 @@ def gen_split_feature():
     return X_scaled, y
 
 
-def gen_quadrant_problem():
-    X, y = sklearn.datasets.make_blobs(n_samples=200, n_features=2, centers=[[1, 1], [-1, -1]], cluster_std=0.2)
-    # X_random,y_random = sklearn.datasets.make_blobs(n_samples=100,n_features=2,centers=[[-1,1],[1,-1]],cluster_std=0.5)
-    # np.random.shuffle(y_random)
-    # X = np.vstack((X,X_random))
-    # y = np.hstack((y,y_random))
+def gen_quadrant_problem(random_state=None):
+    if random_state is None:
+        random_state = np.random.RandomState()
+    rs = random_state
+    n = 5000
+    X = rs.rand(n, 4)
+
+    class1 = 2 * rs.rand(n) - 1
+    class2 = 2 * rs.rand(n) - 1
+
+    y = rs.choice([0, 1], n)
+    y[np.logical_and(class1 >= 0, class2 >= 0)] = 1
+    y[np.logical_and(class1 < 0, class2 < 0)] = 0
+    X[:, 0] = class1
+    X[:, 1] = class2
+
     X = StandardScaler().fit_transform(X)
 
     return X, y
@@ -64,3 +73,7 @@ def plotbars(bars, names, X, di):
     plt.axvline(x=di - width / 2, linestyle="--")
     plt.axvline(x=di + n_bars * width - 0.5 * width, linestyle="--")
     plt.legend(bbox_to_anchor=(1.04, 1), loc="upper left")
+
+
+if __name__ == '__main__':
+    gen_quadrant_problem()
