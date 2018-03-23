@@ -39,11 +39,31 @@ def gen_quadrant_problem(random_state=None):
 
     y = rs.choice([0, 1], n)
     y[np.logical_and(class1 >= 0, class2 >= 0)] = 1
-    y[np.logical_and(class1 < 0, class2 < 0)] = 0
+    y[np.logical_and(class1 < 0, class2 < 0)] = -1
     X[:, 0] = class1
     X[:, 1] = class2
 
     X = StandardScaler().fit_transform(X)
+
+    return X, y
+
+
+def gen_quadrant_pair(n=5000, random_state=None):
+    if random_state is None:
+        random_state = np.random.RandomState()
+    rs = random_state
+
+    X = np.zeros(shape=(n, 2))
+    # y = rs.choice([-1, 1], size=n)
+    y = np.ones(n)
+    class1 = 2 * rs.rand(n) - 1
+    class2 = 2 * rs.rand(n) - 1
+
+    y[np.logical_and(class1 >= 0, class2 >= 0)] = 1
+    y[np.logical_and(class1 < 0, class2 < 0)] = -1
+
+    X[:, 0] = class1
+    X[:, 1] = class2
 
     return X, y
 

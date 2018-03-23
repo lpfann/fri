@@ -364,13 +364,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
         link = linkage(dist_mat, method="single")
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
-        # RATIO = cutoff_threshold
-        # threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
-        # feature_clustering = fcluster(link, threshold, criterion="distance")
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        feature_clustering = fcluster(link, threshold, criterion="distance")
 
         # Max Clust
-        max_clusters = 2
-        feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
+        # max_clusters = 2
+        # feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
 
         return feature_clustering, link, feature_points, dist_mat
 
@@ -533,13 +533,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   error_score=0,
                                   verbose=False)
 
-        if self.debug:
+        # Ignore warnings for extremely bad parameters (when precision=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             gridsearch.fit(X, Y)
-        else:
-            # Ignore warnings for extremely bad parameters (when precision=0)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                gridsearch.fit(X, Y)
 
         # Legacy Code
         # TODO: remove legacy code
