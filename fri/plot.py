@@ -28,7 +28,7 @@ def plotIntervals(ranges, ticklabels=None, invert=False):
     plt.xticks(ind, ticks, rotation='vertical')
     # loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
     # ax.xaxis.set_major_locator(loc)
-    # ax.set_ylim([0,1])
+    ax.set_ylim([0, 1])
     # ax.set_xlim([0,33])
     plt.ylabel('relevance', fontsize=19)
     plt.xlabel('feature', fontsize=19)
