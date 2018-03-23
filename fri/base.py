@@ -137,14 +137,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if self.debug:
             print("loss", self.optim_loss_)
             print("L1", self.optim_L1_)
+            print("offset", self._svm_bias)
             print("C", self.tuned_C_)
             print("score", self.optim_score_)
             print("coef:\n{}".format(self._svm_coef.T))
 
-        if self.optim_score_ < 0.6:
+        if self.optim_score_ <= 0.5:
             print("Error: Weak Model performance! score = {}".format(self.optim_score_))
             raise FitFailedWarning
-        if self.optim_score_ < 0.75:
+        if self.optim_score_ < 0.65:
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Calculate bounds
@@ -550,8 +551,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
-        self.optim_score_ = gridsearch.best_score_
         self.optim_model_ = gridsearch.best_estimator_
+        self.optim_score_ = self.optim_model_.score(X, Y)
         self._svm_coef = self.optim_model_.coef_
         self._svm_bias = self.optim_model_.intercept_
         self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
