@@ -89,8 +89,8 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 class L1OrdinalRegressor(LinearModel):
 
     #TODO: Connect error_type in higher levels
-    # TODO: score mze hat intuitiv richtigen score, die anderen beiden nicht?
-    def __init__(self, C=1, error_type="mze"):
+
+    def __init__(self, error_type="mmae", C=1,):
         self.C = C
         self.error_type = error_type
         self.coef_ = None
@@ -140,9 +140,9 @@ class L1OrdinalRegressor(LinearModel):
         X, y = check_X_y(X, y)
 
         (n, d) = X.shape
-        n_bins = len(np.unique(y))
         w = self.coef_[0]
         b = np.append(self.intercept_, np.inf)
+        n_bins = len(b)
         sum = 0
 
         # Score based on mean zero-one error
@@ -163,11 +163,7 @@ class L1OrdinalRegressor(LinearModel):
 
             error = sum / n
 
-            # TODO: Check how the error has to be scaled to transform it to a adequate score in case of n_bins == 1
-            if n_bins == 1:
-                score = 0
-            else:
-                score = 1 - (error / (n_bins - 1))
+            score = 1 - (error / (n_bins - 1))
 
         # Score based on macro-averaged mean absolute error
         elif self.error_type == "mmae":
@@ -193,11 +189,8 @@ class L1OrdinalRegressor(LinearModel):
 
             error = sum / n_bins
 
-            #TODO: Check how the error has to be scaled to transform it to a adequate score in case of n_bins == 1
-            if n_bins == 1:
-                score = 0
-            else:
-                score = 1 - (error / (n_bins - 1))
+            score = 1 - (error / (n_bins - 1))
+
 
         # error message if no correct error type has been specified
         else:
