@@ -146,6 +146,8 @@ class BaseOrdinalRegressionProblem(ProblemType):
         baseProblem.b = cvx.Variable(n_bins - 1)
         baseProblem.chi = cvx.Variable(n, nonneg=True)
         baseProblem.xi = cvx.Variable(n, nonneg=True)
+        baseProblem.loss = cvx.sum(baseProblem.chi + baseProblem.xi)
+        baseProblem.weight_norm = cvx.norm(baseProblem.omega, 1)
 
         for i in range(n_bins - 1):
             indices = np.where(baseProblem.Y == i)

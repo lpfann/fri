@@ -8,4 +8,6 @@ def test_sklearn_api():
     check_no_fit_attributes_set_in_init("FRIClassification",FRIClassification)
     check_parameters_default_constructible("FRIRegression",FRIRegression)
     check_no_fit_attributes_set_in_init("FRIRegression",FRIRegression)
+    check_parameters_default_constructible("FRIOrdinalRegression", FRIClassification)
+    check_no_fit_attributes_set_in_init("FRIOrdinalRegression", FRIClassification)
 
