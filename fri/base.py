@@ -520,16 +520,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def _initEstimator(self, X, Y):
 
-        # Use less folds for very small datasets
-        if len(X) <= 20:
-            cv = 3
-        else:
-            cv = 7
-
         gridsearch = GridSearchCV(self.initModel(),
                                   self.tuned_parameters,
                                   n_jobs=-1 if self.parallel else 1,
-                                  cv=cv,
                                   error_score=0,
                                   verbose=False)
 
