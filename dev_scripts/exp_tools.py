@@ -48,6 +48,27 @@ def gen_quadrant_problem(random_state=None):
     return X, y
 
 
+def gen_quadrant_problem_2weak(n=5000, random_state=None):
+    if random_state is None:
+        random_state = np.random.RandomState()
+    rs = random_state
+    X = rs.rand(n, 2)
+
+    class1 = 2 * rs.rand(n) - 1
+    class2 = 2 * rs.rand(n) - 1
+
+    X2, y2 = genClassificationData(n_samples=n, n_features=5, n_strel=0, n_redundant=2,
+                                   n_repeated=0, flip_y=0, random_state=rs)
+
+    # y = rs.choice([0, 1], n)
+    # y[np.logical_and(class1 >= 0, class2 >= 0)] = 1
+    # y[np.logical_and(class1 < 0, class2 < 0)] = -1
+    X = np.hstack([X, X2])
+    X = StandardScaler().fit_transform(X)
+    y = X[:, 0] + X[:, 1] + X[:, 2] > 0
+
+    return X, y
+
 def gen_quadrant_pair(n=5000, random_state=None):
     if random_state is None:
         random_state = np.random.RandomState()

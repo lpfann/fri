@@ -279,7 +279,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
         self.absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
 
-        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=100):
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -456,7 +456,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         Solver Parameters
         """
-        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000, "abstol": 1e-1}
 
         # Create tasks for worker(s)
         #
@@ -514,7 +514,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector = rangevector / L1
 
         # round mins to zero
-        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+        # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         return rangevector, shadowrangevector
 
