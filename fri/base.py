@@ -303,7 +303,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
             # Calculate all bounds with feature i set to min_i
             l1 = self.optim_L1_
-
+            loss = self.optim_loss_
             for j in range(n_tries):
                 # try several times if problem to stringent
                 try:
@@ -315,9 +315,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                           solverargs=kwargs)
                 except NotFeasibleForParameters:
                     # relax problem to mitigate feasibility problems in some rare cases
-                    l1 *= 1.01
+                    # l1 *= 1.001
+                    if loss == 0:
+                        loss = 0.1
+                    loss *= np.exp(j)
                     if self.debug:
-                        print("Community detection: Constrained run failed, relaxing L1")
+                        print("Community detection: Constrained run failed, relaxing constraints, loss={}".format(loss))
                     continue
                 else:
                     # problem was solvable
