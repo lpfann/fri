@@ -18,6 +18,7 @@ from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
+from fri.utils import similarity
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
@@ -268,18 +269,28 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def community_detection2(self, X, y, cutoff_threshold=0.55,mode="both"):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
-
         interval = self.interval_
         d = len(interval)
-        # TODO: remove global variables
-        self.interval_constrained_to_min = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
-        self.interval_constrained_to_max = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        self.absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
 
-        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=100):
+        # Init arrays
+        interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
+        interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
+
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
+            """
+            Method to run method once for one restricted feature
+            Parameters
+            ----------
+            i restricted feature
+            preset_i restricted range of feature i (set before optimization = preset)
+            n_tries number of allowed relaxation steps for the L1 constraint in case of LP infeasible
+
+            """
+
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -302,9 +313,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                           False, presetModel=preset)
                 except NotFeasibleForParameters:
                     # relax problem to mitigate feasibility problems in some rare cases
+                    l1 *= 1.01
                     if self.debug:
                         print("Community detection: Constrained run failed, relaxing L1")
-                    l1 *= 1.01
                     continue
                 else:
                     # problem was solvable
@@ -328,39 +339,32 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for i in range(d):
             # min
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
-            self.interval_constrained_to_min[i] = ranges
-            self.absolute_delta_bounds_summed_min[i] = diff
+            interval_constrained_to_min[i] = ranges
+            absolute_delta_bounds_summed_min[i] = diff
             # max
             ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
-            self.interval_constrained_to_max[i] = ranges
-            self.absolute_delta_bounds_summed_max[i] = diff
+            interval_constrained_to_max[i] = ranges
+            absolute_delta_bounds_summed_max[i] = diff
 
         # Modeswitch
         if mode is "both":
             feature_points = np.zeros((d, 2 * d * 2))
             for i in range(d):
-                feature_points[i, :(2 * d)] = self.absolute_delta_bounds_summed_min[i].flatten()
-                feature_points[i, (2 * d):] = self.absolute_delta_bounds_summed_max[i].flatten()
+                feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
+                feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
         if mode is "min":
             feature_points = np.zeros((d, d * 2))
             for i in range(d):
-                feature_points[i] = self.absolute_delta_bounds_summed_min[i].flatten()
+                feature_points[i] = absolute_delta_bounds_summed_min[i].flatten()
         if mode is "max":
             feature_points = np.zeros((d, d * 2))
             for i in range(d):
-                feature_points[i] = self.absolute_delta_bounds_summed_max[i].flatten()
+                feature_points[i] = absolute_delta_bounds_summed_max[i].flatten()
 
-        # Calculate cosine similarity
-        from fri.utils import similarity2
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity2)
+        # Calculate similarity using custom measure
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
 
-        # TODO: do we need that really? why?
-        # dist_mat  = squareform(dist_mat)
-        # Convert distance to similarity
-        # sim_mat = 1- dist_mat
-        # np.fill_diagonal(sim_mat, 0)
-
-        # Execute clustering
+        # Single Linkage clustering
         link = linkage(dist_mat, method="single")
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
