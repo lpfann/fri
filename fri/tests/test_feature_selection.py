@@ -91,7 +91,7 @@ def test_multiprocessing(randomstate):
     check_interval(fri.interval_, 2)
 
 
-@pytest.mark.parametrize('problem', ["regression", "classification"])
+@pytest.mark.parametrize('problem', ["regression", "classification", "ordReg"])
 @pytest.mark.parametrize('hyperParam', [1, None])
 def test_random_data(randomstate, problem, hyperParam):
     n = 100
@@ -101,6 +101,12 @@ def test_random_data(randomstate, problem, hyperParam):
     if problem is "regression":
         fri = FRIRegression(random_state=randomstate, C=hyperParam, epsilon=hyperParam)
         y = randomstate.rand(n)
+    elif problem is "ordReg":
+        fri = FRIOrdinalRegression(random_state=randomstate, C=hyperParam)
+        y = np.ones(n)
+        # invert first half of labels
+        half = int(n / 2)
+        y[:half] *= 0
     else:
         fri = FRIClassification(random_state=randomstate, C=hyperParam)
         y = np.ones(n)
