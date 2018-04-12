@@ -456,7 +456,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         Solver Parameters
         """
-        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000, "abstol": 1e-1}
+        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
 
         # Create tasks for worker(s)
         #
