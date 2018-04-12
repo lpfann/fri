@@ -2,14 +2,14 @@
     Class housing all initialisation models used in fri
     We use the models paramaters to calculate the loss and L1 bounds.
 """
+import cvxpy as cvx
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-from sklearn.metrics import f1_score
+from sklearn.metrics import fbeta_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-import cvxpy as cvx
 from sklearn.utils import check_X_y
-from sklearn.utils.multiclass import unique_labels
+
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
@@ -53,7 +53,7 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         X = StandardScaler().fit_transform(X)
         prediction = self.predict(X)
         # Using weighted f1 score to have a stable score for imbalanced datasets
-        score = f1_score(y, prediction, average="weighted")
+        score = fbeta_score(y, prediction, beta=1, average="weighted")
         return score
 
 class L1EpsilonRegressor(LinearModel, RegressorMixin):

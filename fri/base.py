@@ -8,6 +8,7 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 import numpy as np
+import scipy
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -17,6 +18,7 @@ from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
+from fri.utils import similarity
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
@@ -136,14 +138,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if self.debug:
             print("loss", self.optim_loss_)
             print("L1", self.optim_L1_)
+            print("offset", self._svm_bias)
             print("C", self.tuned_C_)
             print("score", self.optim_score_)
             print("coef:\n{}".format(self._svm_coef.T))
 
-        if self.optim_score_ < 0.6:
+        if self.optim_score_ <= 0.57:
             print("Error: Weak Model performance! score = {}".format(self.optim_score_))
             raise FitFailedWarning
-        if self.optim_score_ < 0.75:
+        if self.optim_score_ < 0.65:
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Calculate bounds
@@ -262,6 +265,118 @@ class FRIBase(BaseEstimator, SelectorMixin):
         feature_clustering = fcluster(link, threshold, criterion="distance")
 
         return feature_clustering, link, dist_mat
+
+    def community_detection2(self, X, y, cutoff_threshold=0.55,mode="both"):
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+        interval = self.interval_
+        d = len(interval)
+
+        # Init arrays
+        interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
+        interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
+
+        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
+            """
+            Method to run method once for one restricted feature
+            Parameters
+            ----------
+            i restricted feature
+            preset_i restricted range of feature i (set before optimization = preset)
+            n_tries number of allowed relaxation steps for the L1 constraint in case of LP infeasible
+
+            """
+
+            constrained_ranges = np.zeros((d, 2))
+            constrained_ranges_diff = np.zeros((d, 2))
+
+            # Init empty preset
+            preset = np.empty(shape=(d, 2))
+            preset.fill(np.nan)
+
+            # Add correct sign of this coef
+            signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
+            preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
+            # Calculate all bounds with feature i set to min_i
+            l1 = self.optim_L1_
+
+            for j in range(n_tries):
+                # try several times if problem to stringent
+                try:
+                    rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
+                                                          l1,
+                                                          self.random_state,
+                                                          False, presetModel=preset)
+                except NotFeasibleForParameters:
+                    # relax problem to mitigate feasibility problems in some rare cases
+                    l1 *= 1.01
+                    if self.debug:
+                        print("Community detection: Constrained run failed, relaxing L1")
+                    continue
+                else:
+                    # problem was solvable
+                    break
+            else:
+                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
+
+            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+                                                  None)
+            # Get differences for constrained intervals to normal intervals
+            constrained_ranges_diff = self.interval_ - rangevector
+
+            # Current dimension is not constrained, so these values are set accordingly
+            rangevector[i] = preset_i
+            constrained_ranges_diff[i] = 0
+
+            return rangevector, constrained_ranges_diff
+
+        # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
+        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
+        for i in range(d):
+            # min
+            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
+            interval_constrained_to_min[i] = ranges
+            absolute_delta_bounds_summed_min[i] = diff
+            # max
+            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
+            interval_constrained_to_max[i] = ranges
+            absolute_delta_bounds_summed_max[i] = diff
+
+        # Modeswitch
+        if mode is "both":
+            feature_points = np.zeros((d, 2 * d * 2))
+            for i in range(d):
+                feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
+                feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
+        if mode is "min":
+            feature_points = np.zeros((d, d * 2))
+            for i in range(d):
+                feature_points[i] = absolute_delta_bounds_summed_min[i].flatten()
+        if mode is "max":
+            feature_points = np.zeros((d, d * 2))
+            for i in range(d):
+                feature_points[i] = absolute_delta_bounds_summed_max[i].flatten()
+
+        # Calculate similarity using custom measure
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
+
+        # Single Linkage clustering
+        link = linkage(dist_mat, method="single")
+
+        # Set cutoff at which threshold the linkage gets flattened (clustering)
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        feature_clustering = fcluster(link, threshold, criterion="distance")
+
+        # Max Clust
+        # max_clusters = 2
+        # feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
+
+        return feature_clustering, link, feature_points, dist_mat
 
 
     def _get_relevance_mask(self,
@@ -403,32 +518,22 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector = rangevector / L1
 
         # round mins to zero
-        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+        # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         return rangevector, shadowrangevector
 
     def _initEstimator(self, X, Y):
 
-        # Use less folds for very small datasets
-        if len(X) <= 20:
-            cv = 3
-        else:
-            cv = 7
-
         gridsearch = GridSearchCV(self.initModel(),
                                   self.tuned_parameters,
                                   n_jobs=-1 if self.parallel else 1,
-                                  cv=cv,
                                   error_score=0,
                                   verbose=False)
 
-        if self.debug:
+        # Ignore warnings for extremely bad parameters (when precision=0)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
             gridsearch.fit(X, Y)
-        else:
-            # Ignore warnings for extremely bad parameters (when precision=0)
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                gridsearch.fit(X, Y)
 
         # Legacy Code
         # TODO: remove legacy code
@@ -440,8 +545,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
-        self.optim_score_ = gridsearch.best_score_
         self.optim_model_ = gridsearch.best_estimator_
+        self.optim_score_ = self.optim_model_.score(X, Y)
         self._svm_coef = self.optim_model_.coef_
         self._svm_bias = self.optim_model_.intercept_
         self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
