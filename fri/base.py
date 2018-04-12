@@ -142,7 +142,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("score", self.optim_score_)
             print("coef:\n{}".format(self._svm_coef.T))
 
-        if self.optim_score_ <= 0.5:
+        if self.optim_score_ <= 0.57:
             print("Error: Weak Model performance! score = {}".format(self.optim_score_))
             raise FitFailedWarning
         if self.optim_score_ < 0.65:
