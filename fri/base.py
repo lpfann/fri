@@ -307,10 +307,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             for j in range(n_tries):
                 # try several times if problem to stringent
                 try:
-                    rangevector, _, _, _ = self._main_opt(X, y, self.optim_loss_,
+                    kwargs = {"verbose": False, "solver": "ECOS"}
+                    rangevector, _, _, _ = self._main_opt(X, y, loss,
                                                           l1,
                                                           self.random_state,
-                                                          False, presetModel=preset)
+                                                          False, presetModel=preset,
+                                                          solverargs=kwargs)
                 except NotFeasibleForParameters:
                     # relax problem to mitigate feasibility problems in some rare cases
                     l1 *= 1.01
@@ -441,7 +443,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None):
+    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None, solverargs=None):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -457,27 +459,44 @@ class FRIBase(BaseEstimator, SelectorMixin):
         omegas = np.zeros((d, 2, d))
         biase = np.zeros((d, 2))
 
+        dims = np.arange(d)
+        if presetModel is not None:
+            # Exclude fixed (preset) dimensions from being run
+            for di, preset in enumerate(presetModel):
+                # Nans are unset and ignored
+                if np.isnan(preset[0]):
+                    continue
+                else:
+                    # Check for difference between upper and lower bound,
+                    # when very small difference assume fixed value and skip computation later
+                    if np.diff(np.abs(preset)) <= 0.0001:
+                        np.delete(dims, di)
+
         """
         Solver Parameters
         """
-        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+        if solverargs is None:
+            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 100}
+        else:
+            kwargs = solverargs
+
 
         # Create tasks for worker(s)
         #
         work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
                            presetModel=presetModel)
-                for di in range(d)]
+                for di in dims]
         work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
                                 presetModel=presetModel)
-                     for di in range(d)])
+                     for di in dims])
         if shadow_features:
             for nr in range(self.n_resampling):
                 work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
                                               initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
-                             for di in range(d)])
+                             for di in dims])
                 work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
                                               initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
-                             for di in range(d)])
+                             for di in dims])
 
         #
         # Compute all bounds using redefined map function (parallel / non parallel)
