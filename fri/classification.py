@@ -10,8 +10,8 @@ from fri.optproblems import BaseClassificationProblem
 class FRIClassification(FRIBase):
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=None, optimum_deviation=0.01,
-                 random_state=None,shadow_features=False,
+    def __init__(self, C=None, optimum_deviation=0.1,
+                 random_state=None, shadow_features=False,
                  parallel=False, n_resampling=3,
                  feat_elim=False, debug=False):
         super().__init__(isRegression=False, C=C, random_state=random_state,

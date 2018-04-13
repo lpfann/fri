@@ -8,7 +8,7 @@ from fri.optproblems import BaseRegressionProblem
 class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
-    def __init__(self, C=None,epsilon=None, optimum_deviation=0.01, random_state=None,
+    def __init__(self, C=None, epsilon=None, optimum_deviation=0.1, random_state=None,
                  shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):
         super().__init__(isRegression=True, C=C, random_state=random_state,
                          shadow_features=shadow_features, parallel=parallel,
