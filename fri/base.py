@@ -495,10 +495,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if shadow_features:
             for nr in range(self.n_resampling):
                 work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
+                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
                              for di in dims])
                 work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, random_state=random_state, presetModel=presetModel)
+                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
                              for di in dims])
 
         #

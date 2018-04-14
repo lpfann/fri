@@ -97,7 +97,9 @@ class ShadowLowerBound(LowerBound):
     """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
-                 random_state=None, presetModel=None):
+                 sampleNum=None, presetModel=None):
+        # Seed random state with permutation sample number given by parent
+        random_state = np.random.RandomState(optim_dim + sampleNum)
         # Permute dimension optim_dim
         X_copy = np.copy(X)
         perm_dim = random_state.permutation(X_copy[:, optim_dim])
@@ -125,7 +127,9 @@ class ShadowUpperBound(UpperBound):
     """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
-                 random_state=None, presetModel=None):
+                 sampleNum=None, presetModel=None):
+        # Seed random state with permutation sample number given by parent
+        random_state = np.random.RandomState(optim_dim + sampleNum)
         # Permute dimension optim_dim
         X_copy = np.copy(X)
         perm_dim = random_state.permutation(X_copy[:, optim_dim])
