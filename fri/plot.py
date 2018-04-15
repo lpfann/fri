@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -7,6 +8,56 @@ from scipy.cluster.hierarchy import dendrogram
 # Get three colors for each relevance type
 color_palette_3 = sns.color_palette(palette="muted", n_colors=3)
 
+
+def plot_relevance_bars(ax: matplotlib.axes.Axes, ranges, ticklabels=None, classes=None):
+    N = len(ranges)
+
+    # Ticklabels
+    if ticklabels is None:
+        ticks = np.arange(N) + 1
+    else:
+        ticks = list(ticklabels)
+        for i in range(N):
+            ticks[i] += " - {}".format(i + 1)
+
+    # Interval sizes
+    ind = np.arange(N) + 1
+    width = 0.6
+    upper_vals = ranges[:, 1]
+    lower_vals = ranges[:, 0]
+    height = upper_vals - lower_vals
+    # Minimal height to make very small intervals visible
+    height[height < 0.001] = 0.001
+
+    # Bar colors
+    if classes is None:
+        new_classes = np.zeros(N).astype(int)
+        color = [color_palette_3[c] for c in new_classes]
+    else:
+        color = [color_palette_3[c] for c in classes]
+
+    # Plot the bars
+    bars = ax.bar(ind, height, width, bottom=lower_vals, tick_label=ticks, align="center", edgecolor=["black"] * N,
+                  linewidth=1.3, color=color)
+
+    ax.set_xticklabels(ticks)
+    ax.tick_params(rotation="auto")
+    # Limit the y range to 0,1 or 0,L1
+    ax.set_ylim([0, 1])
+
+    ax.set_ylabel('relevance', fontsize=19)
+    ax.set_xlabel('feature', fontsize=19)
+
+    if classes is not None:
+        relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+        patches = []
+        for i, rc in enumerate(relevance_classes):
+            patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+            patches.append(patch)
+
+        ax.legend(handles=patches)
+
+    return bars
 
 def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
     # Figure Parameters
