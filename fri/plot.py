@@ -41,7 +41,9 @@ def plot_relevance_bars(ax: matplotlib.axes.Axes, ranges, ticklabels=None, class
                   linewidth=1.3, color=color)
 
     ax.set_xticklabels(ticks)
-    ax.tick_params(rotation="auto")
+    if ticklabels is not None:
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha="right")
+    # ax.tick_params(rotation="auto")
     # Limit the y range to 0,1 or 0,L1
     ax.set_ylim([0, 1])
 
@@ -65,45 +67,8 @@ def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
     ax = fig.add_subplot(111)
     N = len(ranges)
 
-    # Ticklabels
-    if ticklabels is None:
-        ticks = np.arange(N) + 1
-    else:
-        ticks = list(ticklabels)
-        for i in range(N):
-            ticks[i] += " - {}".format(i + 1)
-    # Interval sizes
-    ind = np.arange(N) + 1
-    width = 0.6
-    upper_vals = ranges[:, 1]
-    lower_vals = ranges[:, 0]
-    height = upper_vals - lower_vals
-    # Minimal height to make very small intervals visible
-    height[height < 0.001] =  0.001
-
-    # Bar colors
-    if classes is None:
-        classes = np.zeros(N)
-    color = [color_palette_3[c] for c in classes]
-
-    # Plot the bars
-    bars = ax.bar(ind, height, width, bottom=lower_vals, tick_label=ticks, align="center", edgecolor="none",
-                  linewidth=1.3, color=color)
-
-    plt.xticks(ind, ticks, rotation='vertical')
-    # Limit the y range to 0,1 or 0,L1
-    ax.set_ylim([0, 1])
-
-    plt.ylabel('relevance', fontsize=19)
-    plt.xlabel('feature', fontsize=19)
-
-    relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
-    patches = []
-    for i, rc in enumerate(relevance_classes):
-        patch = mpatches.Patch(color=color_palette_3[i], label=rc)
-        patches.append(patch)
-
-    plt.legend(handles=patches)
+    out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
+    fig.autofmt_xdate()
     # Invert the xaxis for cases in which the comparison with other tools
     if invert:
         plt.gca().invert_xaxis()
