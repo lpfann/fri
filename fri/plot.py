@@ -1,20 +1,27 @@
+import matplotlib.patches as mpatches
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
 
-def plotIntervals(ranges, ticklabels=None, invert=False):
+# Get three colors for each relevance type
+color_palette_3 = sns.color_palette(palette="muted", n_colors=3)
 
 
-    import matplotlib.pyplot as plt
+def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
+    # Figure Parameters
     fig = plt.figure(figsize=(13, 6))
     ax = fig.add_subplot(111)
     N = len(ranges)
+
+    # Ticklabels
     if ticklabels is None:
         ticks = np.arange(N) + 1
     else:
         ticks = list(ticklabels)
         for i in range(N):
             ticks[i] += " - {}".format(i + 1)
-
+    # Interval sizes
     ind = np.arange(N) + 1
     width = 0.6
     upper_vals = ranges[:, 1]
@@ -22,16 +29,31 @@ def plotIntervals(ranges, ticklabels=None, invert=False):
     height = upper_vals - lower_vals
     # Minimal height to make very small intervals visible
     height[height < 0.001] =  0.001
+
+    # Bar colors
+    if classes is None:
+        classes = np.zeros(N)
+    color = [color_palette_3[c] for c in classes]
+
+    # Plot the bars
     bars = ax.bar(ind, height, width, bottom=lower_vals, tick_label=ticks, align="center", edgecolor="none",
-                  linewidth=1.3)
+                  linewidth=1.3, color=color)
 
     plt.xticks(ind, ticks, rotation='vertical')
-    # loc = plticker.MultipleLocator(base=1.0) # this locator puts ticks at regular intervals
-    # ax.xaxis.set_major_locator(loc)
+    # Limit the y range to 0,1 or 0,L1
     ax.set_ylim([0, 1])
-    # ax.set_xlim([0,33])
+
     plt.ylabel('relevance', fontsize=19)
     plt.xlabel('feature', fontsize=19)
+
+    relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+    patches = []
+    for i, rc in enumerate(relevance_classes):
+        patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+        patches.append(patch)
+
+    plt.legend(handles=patches)
+    # Invert the xaxis for cases in which the comparison with other tools
     if invert:
         plt.gca().invert_xaxis()
     return fig
