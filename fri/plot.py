@@ -37,11 +37,11 @@ def plotIntervals(ranges, ticklabels=None, invert=False):
     return fig
 
 
-def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, ticklabels=None):
+def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, figsize=(13, 7), ticklabels=None, **kwargs):
     import matplotlib.pyplot as plt
 
     z = linkage
-    fig = plt.figure(figsize=(13, 6))
+    fig = plt.figure(figsize=figsize)
 
     # Top dendrogram plot
     ax2 = fig.add_subplot(211)
@@ -50,7 +50,8 @@ def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, ticklabels
         color_threshold=threshold,
         leaf_rotation=0.,  # rotates the x axis labels
         leaf_font_size=12.,  # font size for the x axis labels
-        ax=ax2
+        ax=ax2,
+        **kwargs
     )
     # Get index determined through linkage method and dendrogram
     rearranged_index = d['leaves']
@@ -63,6 +64,8 @@ def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, ticklabels
         ticks += 1  # Index starting at 1
     else:
         ticks = list(ticklabels[rearranged_index])
+        for i in range(N):
+            ticks[i] += " - {}".format(rearranged_index[i] + 1)
 
     ind = np.arange(N) + 1
     width = 0.6
@@ -73,7 +76,7 @@ def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, ticklabels
 
     plt.ylabel('relevance', fontsize=19)
     plt.xlabel('feature', fontsize=19)
-    plt.xticks(ind, ticks, rotation='vertical')
+    plt.xticks(ind, ticks, rotation='30', ha="right")
     ax.margins(x=0)
     ax2.set_xticks([])
     ax2.margins(x=0)
