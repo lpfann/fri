@@ -290,7 +290,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
             n_tries number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
             """
-
             constrained_ranges = np.zeros((d, 2))
             constrained_ranges_diff = np.zeros((d, 2))
 
@@ -402,14 +401,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         if not self.feat_elim:
             rangevector = self.interval_
-            prediction = np.zeros(rangevector.shape[0], dtype=np.bool)
+            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
             # Weakly relevant ones have high upper bounds
-            prediction[rangevector[:, 1] > upper_epsilon] = True
+            prediction[rangevector[:, 0] > lower_epsilon] = 1
             # Strongly relevant bigger than 0 + some epsilon
-            prediction[rangevector[:, 0] > lower_epsilon] = True
+            prediction[rangevector[:, 1] > upper_epsilon] = 2
 
-            self.allrel_prediction_ = prediction
+            self.relevance_classes_ = prediction
+            self.allrel_prediction_ = prediction > 0
         else:
             if self.allrel_prediction_ is None:
                 # Classify features
