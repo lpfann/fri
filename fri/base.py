@@ -580,7 +580,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def score(self, X, y):
         if self.optim_model_:
-            return self.optim_model_.score(X, y)
+            return self.optim_model_.score(X, y, debug=self.debug)
         else:
             raise NotFittedError()
 
