@@ -89,16 +89,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
 
-        # Only use multiprocessing when switched on (default off)
-        if self.parallel:
-            self._mappool = Pool()
 
-            # Define Map which can use multiple processes to speed up computation
-            def pmap(*args):
-                return self._mappool.map(*args)
-            self.newmap = pmap
-        else:
-            self.newmap = map
 
     @abstractmethod
     def fit(self, X, y):
@@ -385,7 +376,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def _get_relevance_mask(self,
                             upper_epsilon=0.1,
-                            lower_epsilon=0.0323
+                            lower_epsilon=0
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
@@ -501,10 +492,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                               initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
                              for di in dims])
 
+        def pmap(*args):
+            with Pool() as p:
+                return p.map(*args)
+
+        if self.parallel:
+            newmap = pmap
+        else:
+            newmap = map
         #
         # Compute all bounds using redefined map function (parallel / non parallel)
         #
-        done = self.newmap(self._opt_per_thread, work)
+        done = newmap(self._opt_per_thread, work)
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
