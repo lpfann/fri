@@ -76,14 +76,13 @@ def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
     return fig
 
 
-def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, figsize=(13, 7), ticklabels=None, classes=None,
+def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabels=None, classes=None,
                                   **kwargs):
     fig, (ax2, ax) = plt.subplots(2, 1, figsize=figsize)
-
     # Top dendrogram plot
     d = dendrogram(
         linkage,
-        color_threshold=threshold,
+        color_threshold=0,
         leaf_rotation=0.,  # rotates the x axis labels
         leaf_font_size=12.,  # font size for the x axis labels
         ax=ax2,
@@ -101,7 +100,8 @@ def plot_dendrogram_and_intervals(intervals, linkage, threshold=0.55, figsize=(1
         for i in range(len(intervals)):
             ticks[i] += " - {}".format(rearranged_index[i] + 1)
 
-    plot_relevance_bars(ax, ranges, ticklabels=ticks, classes=classes[rearranged_index], numbering=False)
+    plot_relevance_bars(ax, ranges, ticklabels=ticks,
+                        classes=classes[rearranged_index] if classes is not None else None, numbering=False)
 
     ax.margins(x=0)
     ax2.set_xticks([])
