@@ -313,6 +313,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                         print("Community detection: Constrained run failed, relaxing constraints, loss={}".format(loss))
                     continue
                 else:
+                    print("solved constrained opt for ", i)
                     # problem was solvable
                     break
             else:

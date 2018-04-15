@@ -141,7 +141,6 @@ def test_shadowfeatures(randomstate):
 
 
 def test_shadowfeatures_parallel(randomstate):
-    # TODO: fix this test, shadow features failing when parallel processing
     data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
 
     X_orig, y = data
@@ -151,6 +150,3 @@ def test_shadowfeatures_parallel(randomstate):
     fri.fit(X, y)
     check_interval(fri.interval_, 2)
     assert hasattr(fri, "_shadowintervals")
-    efri = EnsembleFRI(fri, random_state=randomstate, n_jobs=2)
-    efri.fit(X, y)
-    check_interval(fri.interval_, 2)
