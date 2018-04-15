@@ -155,7 +155,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                                        self.random_state,
                                                                        self.shadow_features)
         # save unmodified intervals (without postprocessing
-        self.unmod_interval = rangevector.copy()
+        self.unmod_interval_ = rangevector.copy()
         # Postprocess bounds
         rangevector, shadowrangevector = self._postprocessing(self.optim_L1_, rangevector, self.shadow_features,
                                                               shadowrangevector)
@@ -269,7 +269,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def community_detection2(self, X, y, cutoff_threshold=0.55,mode="both"):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
-        interval = self.interval_
+        interval = self.unmod_interval_
         d = len(interval)
 
         # Init arrays
@@ -299,7 +299,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             # Add correct sign of this coef
             signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
-            preset[i] = signed_preset_i * self.optim_L1_  # scale with L1 and add to preset
+            preset[i] = signed_preset_i
             # Calculate all bounds with feature i set to min_i
             l1 = self.optim_L1_
             loss = self.optim_loss_
@@ -327,10 +327,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             else:
                 raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
 
-            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-                                                  None)
+            # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+            #                                      None)
             # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff = self.interval_ - rangevector
+            constrained_ranges_diff = self.unmod_interval_ - rangevector
 
             # Current dimension is not constrained, so these values are set accordingly
             rangevector[i] = preset_i
@@ -404,9 +404,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
             prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
             # Weakly relevant ones have high upper bounds
-            prediction[rangevector[:, 0] > lower_epsilon] = 1
+            prediction[rangevector[:, 1] > upper_epsilon] = 1
             # Strongly relevant bigger than 0 + some epsilon
-            prediction[rangevector[:, 1] > upper_epsilon] = 2
+            prediction[rangevector[:, 0] > lower_epsilon] = 2
 
             self.relevance_classes_ = prediction
             self.allrel_prediction_ = prediction > 0
@@ -540,7 +540,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector = rangevector / L1
 
         # round mins to zero
-        # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         return rangevector, shadowrangevector
 
