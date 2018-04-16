@@ -12,7 +12,7 @@ import scipy
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
-from sklearn.exceptions import NotFittedError, FitFailedWarning
+from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
@@ -136,7 +136,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         if self.optim_score_ <= 0.57:
             print("Error: Weak Model performance! score = {}".format(self.optim_score_))
-            raise FitFailedWarning
+            # raise FitFailedWarning
         if self.optim_score_ < 0.65:
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
