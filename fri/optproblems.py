@@ -3,13 +3,22 @@ import abc
 import cvxpy as cvx
 import numpy as np
 
+
+class ProblemType(object, metaclass=abc.ABCMeta):
+    # Decorator class to add problem type specific constraints and variables to the BaseProblem
+    @abc.abstractmethod
+    def add_type_specific(self, baseProblem):
+        pass
 #
 # Minimal loss in constraints to mitigate numerical instabilities for solvers
 #
 MINLOSS = 0.01
 
 class BaseProblem(object):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
+    def __init__(self, problemType: ProblemType, di: int = None, kwargs: dict = None,
+                 X: np.ndarray = None, Y: np.ndarray = None, initLoss: float = None, initL1: float = None,
+                 parameters: dict = None,
+                 presetModel: np.ndarray = None):
         # General data parameters
         self.n = X.shape[0]
         self.d = X.shape[1]
@@ -36,33 +45,35 @@ class BaseProblem(object):
         # Check if some model values have a pre fixed value
         self.presetModel = presetModel
         if presetModel is not None:
-            assert presetModel.shape == (self.d, 2)
-            for dim in range(self.d):
-                # Skip current dimension
-                if dim == di:
-                    continue
-                current_preset = presetModel[dim]
+            if np.all(np.isnan(presetModel)):
+                self.presetModel = None
+            else:
+                assert presetModel.shape == (self.d, 2)
+                for dim in range(self.d):
+                    # Skip current dimension
+                    if dim == di:
+                        continue
+                    current_preset = presetModel[dim]
 
-                # Skip unset values
-                if all(np.isnan(current_preset)):
-                    continue
+                    # Skip unset values
+                    if all(np.isnan(current_preset)):
+                        continue
 
-                # a weight bigger than the optimal model L1 makes no sense
-                assert abs(current_preset[0]) <= self.initL1
-                assert abs(current_preset[1]) <= self.initL1
-                # We add a pair of constraints depending on sign of known coefficient
-                # this makes it possible to solve this as a convex problem
-                if current_preset[0] >= 0:
-                    self._constraints.extend([
-                        self.omega[dim] >= current_preset[0],
-                        self.omega[dim] <= current_preset[1],
-                    ])
-                else:
-                    self._constraints.extend([
-                        self.omega[dim] <= current_preset[0],
-                        self.omega[dim] >= current_preset[1],
-                    ])
-
+                    # a weight bigger than the optimal model L1 makes no sense
+                    assert abs(current_preset[0]) <= self.initL1
+                    assert abs(current_preset[1]) <= self.initL1
+                    # We add a pair of constraints depending on sign of known coefficient
+                    # this makes it possible to solve this as a convex problem
+                    if current_preset[0] >= 0:
+                        self._constraints.extend([
+                            self.omega[dim] >= current_preset[0],
+                            self.omega[dim] <= current_preset[1],
+                        ])
+                    else:
+                        self._constraints.extend([
+                            self.omega[dim] <= current_preset[0],
+                            self.omega[dim] >= current_preset[1],
+                        ])
         self.problem = None
         self._objective = None
 
@@ -81,13 +92,6 @@ class BaseProblem(object):
             print(e)
             return None
         return self
-
-
-class ProblemType(object, metaclass=abc.ABCMeta):
-    # Decorator class to add problem type specific constraints and variables to the BaseProblem
-    @abc.abstractmethod
-    def add_type_specific(self, baseProblem):
-        pass
 
 
 class MinProblem(BaseProblem):
