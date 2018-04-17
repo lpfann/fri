@@ -9,6 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy
+from fri.utils import similarity
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -18,7 +19,6 @@ from sklearn.model_selection import GridSearchCV, cross_validate
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from fri.utils import similarity
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
@@ -257,7 +257,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return feature_clustering, link, dist_mat
 
-    def community_detection2(self, X, y, cutoff_threshold=0.55,mode="both"):
+    def community_detection2(self, cutoff_threshold=0.55):
+        X = self.X_
+        y = self.y_
         # Do we have intervals?
         check_is_fitted(self, "interval_")
         interval = self.unmod_interval_
@@ -304,13 +306,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                           False, presetModel=preset,
                                                           solverargs=kwargs)
                 except NotFeasibleForParameters:
-                    # relax problem to mitigate feasibility problems in some rare cases
-                    # l1 *= 1.001
-                    if loss == 0:
-                        loss = 0.1
-                    loss *= np.exp(j)
-                    # if self.debug:
-                    #    print("Community detection: Constrained run failed, relaxing constraints, loss={}".format(loss))
+                    preset[i] *= -1
+                    print("Community detection: Constrained run failed, swap sign".format)
                     continue
                 else:
                     #print("solved constrained opt for ", i)
@@ -342,20 +339,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             interval_constrained_to_max[i] = ranges
             absolute_delta_bounds_summed_max[i] = diff
 
-        # Modeswitch
-        if mode is "both":
-            feature_points = np.zeros((d, 2 * d * 2))
-            for i in range(d):
-                feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
-                feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
-        if mode is "min":
-            feature_points = np.zeros((d, d * 2))
-            for i in range(d):
-                feature_points[i] = absolute_delta_bounds_summed_min[i].flatten()
-        if mode is "max":
-            feature_points = np.zeros((d, d * 2))
-            for i in range(d):
-                feature_points[i] = absolute_delta_bounds_summed_max[i].flatten()
+        feature_points = np.zeros((d, 2 * d * 2))
+        for i in range(d):
+            feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
+            feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
 
         # Calculate similarity using custom measure
         dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
@@ -519,6 +506,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             else:
                 # Get the mean of all shadow samples
                 shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
+        if presetModel is not None:
+            for i, p in enumerate(presetModel):
+                if np.all(np.isnan(p)):
+                    continue
+                else:
+                    rangevector[i] = p
 
         return rangevector, omegas, biase, shadowrangevector
 
