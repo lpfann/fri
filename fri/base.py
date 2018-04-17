@@ -309,11 +309,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
                     if loss == 0:
                         loss = 0.1
                     loss *= np.exp(j)
-                    if self.debug:
-                        print("Community detection: Constrained run failed, relaxing constraints, loss={}".format(loss))
+                    # if self.debug:
+                    #    print("Community detection: Constrained run failed, relaxing constraints, loss={}".format(loss))
                     continue
                 else:
-                    print("solved constrained opt for ", i)
+                    #print("solved constrained opt for ", i)
                     # problem was solvable
                     break
             else:
