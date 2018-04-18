@@ -1,11 +1,9 @@
 import numpy as np
 
 
-def similarity(u, v):
+def distance(u, v):
     """
-    Similarity measure custom made for feature comparison.
-    We define similarity as the ability to replace another feature in the same context.
-    Because of this we nullify the pairwise differences between u and v and only consider the relation to all other features.
+    Distance measure custom made for feature comparison.
 
     Parameters
     ----------

@@ -9,7 +9,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy
-from fri.utils import similarity
+from fri.utils import distance
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -307,7 +307,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                           solverargs=kwargs)
                 except NotFeasibleForParameters:
                     preset[i] *= -1
-                    print("Community detection: Constrained run failed, swap sign".format)
+                    # print("Community detection: Constrained run failed, swap sign".format)
                     continue
                 else:
                     #print("solved constrained opt for ", i)
@@ -345,7 +345,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
 
         # Calculate similarity using custom measure
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=similarity)
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
 
         # Single Linkage clustering
         link = linkage(dist_mat, method="single")
