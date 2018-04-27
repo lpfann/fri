@@ -3,11 +3,12 @@
 import numpy as np
 import pytest
 from cvxpy import OPTIMAL
+from pytest import approx
+from sklearn.utils import check_random_state
+
 from fri import FRIClassification, FRIRegression
 from fri.bounds import LowerBound, UpperBound
 from fri.l1models import L1HingeHyperplane, L1EpsilonRegressor
-from pytest import approx
-from sklearn.utils import check_random_state
 
 
 @pytest.fixture(scope="function")
@@ -48,12 +49,12 @@ class TestClassifBounds(object):
         loss = np.abs(l1init.slack).sum()
 
         # Test the init parameters
-        assert bias == approx(0, abs=1e-7)
-        assert L1 == approx(1, abs=1e-7)
-        assert loss == approx(0, abs=1e-7)
+        assert bias == approx(0, rel=1e-3, abs=1e-3)
+        assert L1 == approx(1, rel=1e-3, abs=1e-3)
+        assert loss == approx(0, rel=1e-3, abs=1e-3)
         assert abs(coef[0]) > abs(coef[1])
-        assert coef[0] == approx(1, abs=1e-7)
-        assert coef[1] == approx(0, abs=1e-7)
+        assert coef[0] == approx(1, rel=1e-3, abs=1e-3)
+        assert coef[1] == approx(0, rel=1e-3, abs=1e-3)
 
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
         
@@ -102,12 +103,12 @@ class TestClassifBounds(object):
         loss = np.abs(np.maximum(0, l1init.slack)).sum()
 
         # Test the init parameters
-        assert bias == approx(0, abs=1e-7)
-        assert L1 == approx(0.5, abs=1e-7)
-        assert loss == approx(4, abs=1e-7)
+        assert bias == approx(0, rel=1e-3, abs=1e-3)
+        assert L1 == approx(0.5, rel=1e-3, abs=1e-3)
+        assert loss == approx(4, rel=1e-3, abs=1e-3)
         assert abs(coef[0]) > abs(coef[1])
-        assert coef[0] == approx(0.5, abs=1e-7)
-        assert coef[1] == approx(0, abs=1e-7)
+        assert coef[0] == approx(0.5, rel=1e-3, abs=1e-3)
+        assert coef[1] == approx(0, rel=1e-3, abs=1e-3)
 
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
 
@@ -158,12 +159,12 @@ class TestRegressionBounds(object):
         loss = np.abs(l1init.slack).sum()
 
         # Test the init parameters
-        assert bias == approx(0, abs=1e-9)
-        assert L1 == approx(1, abs=1e-7)
-        assert loss == approx(0, abs=1e-7)
+        assert bias == approx(0, rel=1e-3, abs=1e-3)
+        assert L1 == approx(1, rel=1e-3, abs=1e-3)
+        assert loss == approx(0, rel=1e-3, abs=1e-3)
         assert abs(coef[0]) > abs(coef[1])
-        assert coef[0] == approx(1, abs=1e-7)
-        assert coef[1] == approx(0, abs=1e-7)
+        assert coef[0] == approx(1, rel=1e-3, abs=1e-3)
+        assert coef[1] == approx(0, rel=1e-3, abs=1e-3)
 
         model = FRIRegression()
         model._best_params = {"C":C,"epsilon":epsilon}
@@ -211,12 +212,12 @@ class TestRegressionBounds(object):
         loss = np.abs(l1init.slack).sum()
 
         # Test the init parameters
-        assert bias == approx(0, abs=1e-9)
-        assert L1 == approx(1, abs=1e-7)
-        assert loss == approx(8, abs=1e-7)
+        assert bias == approx(0, rel=1e-3, abs=1e-3)
+        assert L1 == approx(1, rel=1e-3, abs=1e-3)
+        assert loss == approx(8, rel=1e-3, abs=1e-3)
         assert abs(coef[0]) > abs(coef[1])
-        assert coef[0] == approx(1, abs=1e-7)
-        assert coef[1] == approx(0, abs=1e-7)
+        assert coef[0] == approx(1, rel=1e-3, abs=1e-3)
+        assert coef[1] == approx(0, rel=1e-3, abs=1e-3)
 
         model = FRIRegression()
         model._best_params = {"C":C,"epsilon":epsilon}
