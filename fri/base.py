@@ -107,7 +107,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.optim_loss_ = None
         self.tuned_epsilon_ = None
         self.tuned_C_ = None
-        self.isEnsemble = None
         self.allrel_prediction_ = None
         self.feature_clusters_ = None
         self.linkage_ = None
@@ -148,8 +147,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._biase = biase
         self._shadowintervals = shadowrangevector
 
-        if not self.isEnsemble:
-            self._get_relevance_mask()
+        self._get_relevance_mask()
 
         # Return the classifier
         return self

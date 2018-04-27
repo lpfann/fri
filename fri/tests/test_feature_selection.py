@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from fri import FRIClassification, FRIRegression, EnsembleFRI
+from fri import FRIClassification, FRIRegression
 from fri.genData import genRegressionData, genClassificationData
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
@@ -23,13 +23,9 @@ def check_interval(interval, n_strong):
 
 
 @pytest.mark.parametrize('problem', ["regression", "classification"])
-@pytest.mark.parametrize('model', [
-    "Ensemble",    
-    "Single"
-])
 @pytest.mark.parametrize('n_strong', [0, 1, 2])
 @pytest.mark.parametrize('n_weak', [0, 2, 3])
-def test_model(problem, model, n_strong, n_weak, randomstate):
+def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
 
@@ -53,8 +49,6 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
         X_orig = StandardScaler().fit(X_orig).transform(X_orig)
         X = X_orig
 
-        if model is "Ensemble":
-            fri = EnsembleFRI(fri, random_state=randomstate)
 
         fri.fit(X, y)
 
@@ -80,10 +74,6 @@ def test_multiprocessing(randomstate):
 
     fri = FRIClassification(random_state=randomstate, parallel=True)
     fri.fit(X, y)
-    check_interval(fri.interval_, 2)
-
-    efri = EnsembleFRI(FRIClassification(), random_state=randomstate, n_jobs=2)
-    efri.fit(X, y)
     check_interval(fri.interval_, 2)
 
 
@@ -112,9 +102,6 @@ def test_shadowfeatures(randomstate):
     fri.fit(X, y)
     check_interval(fri.interval_, 2)
     assert hasattr(fri, "_shadowintervals")
-    efri = EnsembleFRI(fri, random_state=randomstate, n_jobs=2)
-    efri.fit(X, y)
-    check_interval(fri.interval_, 2)
 
 
 def test_shadowfeatures_parallel(randomstate):
