@@ -47,9 +47,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Allows for more relaxed optimization problems and leads to bigger intervals.
     debug : boolean
         Enable output of internal values for debugging purposes.
-    feat_elim : boolean
-        Enables feature selection routine guided by backwards feature elimination using performance metric.
-    
+
     --
     For Regression
     --
@@ -59,8 +57,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
     ----------
     allrel_prediction_ : array of booleans
         Truth value for each feature if it is relevant (weakly OR strongly).
-    feature_clusters_ : array
-        Denotes each features classification into subgroups obtained using correlation like measures.
     interval_ : array [[lower_Bound_0,UpperBound_0],...,]
         Relevance bounds in 2D array format.
     
