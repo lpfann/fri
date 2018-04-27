@@ -1,11 +1,9 @@
 import numpy as np
 import pytest
-from sklearn.exceptions import FitFailedWarning
-from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_random_state
-
 from fri import FRIClassification, FRIRegression, EnsembleFRI
 from fri.genData import genRegressionData, genClassificationData
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import check_random_state
 
 
 @pytest.fixture(scope="function")
@@ -88,27 +86,6 @@ def test_multiprocessing(randomstate):
     efri.fit(X, y)
     check_interval(fri.interval_, 2)
 
-
-@pytest.mark.parametrize('problem', ["regression", "classification"])
-@pytest.mark.parametrize('hyperParam', [1, None])
-def test_random_data(randomstate, problem, hyperParam):
-    n = 100
-    d = 5
-    X = randomstate.rand(n, d)
-
-    if problem is "regression":
-        fri = FRIRegression(random_state=randomstate, C=hyperParam, epsilon=hyperParam)
-        y = randomstate.rand(n)
-    else:
-        fri = FRIClassification(random_state=randomstate, C=hyperParam)
-        y = np.ones(n)
-        # invert first half of labels
-        half = int(n / 2)
-        y[:half] *= -1
-
-    # Test with expectation to get warning
-    with pytest.raises(FitFailedWarning):
-        fri.fit(X, y)
 
 
 def test_nonbinaryclasses(randomstate):
