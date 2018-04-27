@@ -2,7 +2,6 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-import copy
 import warnings
 from abc import abstractmethod
 from multiprocessing import Pool
@@ -15,7 +14,7 @@ from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
-from sklearn.model_selection import GridSearchCV, cross_validate
+from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
@@ -76,7 +75,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def __init__(self, isRegression=False, C=None, optimum_deviation=0.1, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, feat_elim=False, debug=False):
+                 shadow_features=False, parallel=False, n_resampling=3, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
@@ -84,11 +83,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.parallel = parallel
         self.isRegression = isRegression
         self.n_resampling = n_resampling
-        self.feat_elim = feat_elim
         self.debug = debug
-
-
-
 
 
     @abstractmethod
@@ -164,52 +159,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def _feature_elimination(self, X, y, estimator, intervals, minsize=1):
-        # copy array to allow deletion
-        intervals = copy.copy(intervals)
-        assert intervals.shape[1] == 2
-
-        # sort features by bounds
-        low_bounds = intervals[:, 0]
-        up_bounds = intervals[:, 1]
-        # lower bounds are more important, used as primary sort key
-        sorted_bounds = list(np.lexsort((up_bounds, low_bounds)))
-
-        fs = np.zeros(intervals.shape[0], dtype=np.bool)
-        elem_big_zero = np.where(np.any(intervals > 0, 1))[0]
-        if sum(elem_big_zero) < 1:
-            # All bounds zero, no relevant feature or error...
-            return fs
-        fs[elem_big_zero] = 1
-        fs = np.where(fs)[0]
-        fs = fs.tolist()
-
-        # skip features with bounds==0
-        bounds = intervals[intervals[:, 1].argsort(kind="mergesort")]
-        bounds = bounds[bounds[:, 0].argsort(kind="mergesort")]
-        skip = np.argmax(np.any(bounds > 0, 1))
-        sorted_bounds = sorted_bounds[skip:]
-
-        memory = []
-        # iterate over all features who have low_bound >0 starting by lowest
-        while len(fs) >= minsize:
-            # for i in range(X.shape[1] - minsize - (skip + 1)):
-            # 10cv for each subset
-            # print(fs, sorted_bounds, skip)
-            cv_score = cross_validate(estimator, X[:, fs],
-                                      y=y, cv=10,
-                                      scoring=None)["test_score"]
-            mean_score = cv_score.mean()
-            # print(fs, sorted_bounds, skip, mean_score)
-            memory.append((mean_score, fs[:]))
-            fs.remove(sorted_bounds.pop(0))
-        if len(memory) < 1:
-            return fs
-        # Return only best scoring feature subset
-        # memory = sorted(memory, key=lambda m: len(m[1]))
-        best_fs = max(memory, key=lambda m: m[0])
-        # print("bests fs socer {}, best fs {}".format(*best_fs))
-        return best_fs[1]
 
     def community_detection(self, cutoff_threshold=0.55):
         '''
@@ -378,25 +327,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-        if not self.feat_elim:
-            rangevector = self.interval_
-            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+        rangevector = self.interval_
+        prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
-            # Weakly relevant ones have high upper bounds
-            prediction[rangevector[:, 1] > upper_epsilon] = 1
-            # Strongly relevant bigger than 0 + some epsilon
-            prediction[rangevector[:, 0] > lower_epsilon] = 2
+        # Weakly relevant ones have high upper bounds
+        prediction[rangevector[:, 1] > upper_epsilon] = 1
+        # Strongly relevant bigger than 0 + some epsilon
+        prediction[rangevector[:, 0] > lower_epsilon] = 2
 
-            self.relevance_classes_ = prediction
-            self.allrel_prediction_ = prediction > 0
-        else:
-            if self.allrel_prediction_ is None:
-                # Classify features
-                best_fs = self._feature_elimination(
-                    self.X_, self.y_, self.optim_model_, self.interval_)
-                prediction = np.zeros(self.interval_.shape[0], dtype=np.bool)
-                prediction[best_fs] = True
-                self.allrel_prediction_ = prediction
+        self.relevance_classes_ = prediction
+        self.allrel_prediction_ = prediction > 0
+
 
         return self.allrel_prediction_
 
