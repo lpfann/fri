@@ -126,20 +126,40 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    def genStrongRelFeatures(n, strRel, random_state):
+    def genStrongRelFeatures(n_samples, strRel, random_state,
+                              margin=1,
+                              data_range=10):
+        """ Generate data uniformly distributed in a square and perfectly separated by the hyperplane given by normal_vector and b.
+        Keyword arguments:
+        n_samples -- number of samples required (default 100)
+        n_features -- number of features required
+        normal_vector -- the normal vector of the separating hyperplane
+        margin -- intrusion-free margin of the optimal separating hyperplane (default 1)
+        data_range -- data is distributed between -data_range and data_range (default 10)
+        
+        """
+        min_relevance = 0.2 # Minimum relevance for a feature
+        normal_vector = random_state.uniform(min_relevance, 1, int(strRel)) # Generate absolute values
+        normal_vector *= random_state.choice([1, -1], int(strRel)) #  Add random sign for each relevance
+        b = random_state.uniform(-1, 1) # Hyperplane offset (bias) from origin
+        
+        # Sample data uniformly.
+        data = random_state.uniform(-data_range, data_range,
+                                    (n_samples, int(strRel))) + b
 
-        width = 10
-        stddev = 1
-        centers = np.zeros((2, strRel))
-        centers[0] = width
-        centers[1] = -width
+        # Re-roll margin intrusions.
+        intruders = np.abs(np.inner(normal_vector, data) - b) < margin
+        while np.sum(intruders) > 0:
+            data[intruders] = random_state.uniform(
+                -data_range, data_range, (np.sum(intruders), int(strRel))) + b
+            intruders = np.abs(np.inner(normal_vector, data) - b) < margin
 
-        X, y = make_blobs(n_samples=n, centers=centers, cluster_std=stddev, n_features=strRel,
-                          random_state=random_state)
-
-        y[y == 0] = -1
-
-        return X, y
+        # Label data according to placement relative to the hyperplane induced by normal_vector and b.
+        labels = np.ones(n_samples)
+        labels[np.inner(normal_vector, data) - b > 0] = 1
+        labels[np.inner(normal_vector, data) - b < 0] = -1
+        
+        return data, labels
 
     X = np.zeros((n_samples, n_features))
 

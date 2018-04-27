@@ -6,6 +6,7 @@ from pytest import approx
 from sklearn.utils import check_random_state
 
 from cvxpy import OPTIMAL
+from fri import FRIClassification, FRIRegression
 from fri.bounds import LowerBound, UpperBound
 from fri.l1models import L1HingeHyperplane, L1EpsilonRegressor
 
@@ -56,15 +57,14 @@ class TestClassifBounds(object):
         assert coef[1] == approx(0)
 
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
-        isRegression = False
-        epsilon = None
+        
+        model = FRIClassification()
+        model._best_params = {"C":C}
+
         for current_dim in range(n_features):
             for b in (LowerBound, UpperBound):
-                bound = b(current_dim, n_features,
-                          n_samples, kwargs, L1,
-                          loss, C, X, y,
-                          regression=isRegression,
-                          epsilon=epsilon)
+                bound = b(model, current_dim, kwargs, 
+                          loss, L1, X, y)
                 bound.solve()
 
                 prob = bound.prob_instance.problem
@@ -111,16 +111,14 @@ class TestClassifBounds(object):
         assert coef[1] == approx(0)
 
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
-        isRegression = False
-        epsilon = None
+
+        model = FRIClassification()
+        model._best_params = {"C":C}
 
         for current_dim in range(n_features):
             for b in (LowerBound, UpperBound):
-                bound = b(current_dim, n_features,
-                          n_samples, kwargs, L1,
-                          loss, C, X, y,
-                          regression=isRegression,
-                          epsilon=epsilon)
+                bound = b(model, current_dim, kwargs, 
+                          loss, L1, X, y)
                 bound.solve()
 
                 prob = bound.prob_instance.problem
@@ -168,15 +166,14 @@ class TestRegressionBounds(object):
         assert coef[0] == approx(1)
         assert coef[1] == approx(0)
 
+        model = FRIRegression()
+        model._best_params = {"C":C,"epsilon":epsilon}
+
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
-        isRegression = True
         for current_dim in range(n_features):
             for b in (LowerBound, UpperBound):
-                bound = b(current_dim, n_features,
-                          n_samples, kwargs, L1,
-                          loss, C, X, y,
-                          regression=isRegression,
-                          epsilon=epsilon)
+                bound = b(model, current_dim, kwargs, 
+                          loss, L1, X, y)
                 bound.solve()
 
                 prob = bound.prob_instance.problem
@@ -222,15 +219,14 @@ class TestRegressionBounds(object):
         assert coef[0] == approx(1)
         assert coef[1] == approx(0)
 
+        model = FRIRegression()
+        model._best_params = {"C":C,"epsilon":epsilon}
+
         kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
-        isRegression = True
         for current_dim in range(n_features):
             for b in (LowerBound, UpperBound):
-                bound = b(current_dim, n_features,
-                          n_samples, kwargs, L1,
-                          loss, C, X, y,
-                          regression=isRegression,
-                          epsilon=epsilon)
+                bound = b(model, current_dim, kwargs, 
+                          loss, L1, X, y)
                 bound.solve()
 
                 prob = bound.prob_instance.problem
