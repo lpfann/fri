@@ -150,60 +150,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         if not self.isEnsemble:
             self._get_relevance_mask()
-            if X.shape[1] > 1:
-                self.feature_clusters_, self.linkage_, _ = self.community_detection()
 
         # Return the classifier
         return self
 
-
     def community_detection(self, cutoff_threshold=0.55):
-        '''
-        Finding communities of features using pairwise differences of solutions aquired in the main LP step.
-        '''
-        svm_solution = self._svm_coef
-        abs_svm_sol = np.abs(svm_solution)
-
-        om = self._omegas
-        mins = om[:, 0, :]
-        maxs = om[:, 1, :]
-        abs_mins = np.abs(mins)
-        abs_maxs = np.abs(maxs)
-
-        # Aggregate min and max solution values to obtain the absolute variation
-        lower_variation = abs_svm_sol - abs_mins
-        upper_variation = abs_maxs - abs_svm_sol
-        variation = np.abs(lower_variation) + np.abs(upper_variation)
-
-        # add up lower triangular matrix to upper one
-        collapsed_variation = np.triu(variation) + np.tril(variation).T
-        np.fill_diagonal(collapsed_variation, 0)
-        # collapsed_variation = pd.DataFrame(collapsed_variation)
-
-        # Create distance matrix
-        dist_mat = np.triu(collapsed_variation).T + collapsed_variation
-        # normalize
-        dist_mat = 1 - dist_mat / np.max(dist_mat)
-        # get numpy array
-        # dist_mat = dist_mat.values[:]
-        # feature with itself has no distance
-        np.fill_diagonal(dist_mat, 0)
-
-        # convert to squareform for scipy compat.
-        dist_mat_square = squareform(dist_mat)
-
-        # Execute clustering 
-        link = linkage(dist_mat_square, method="ward")
-
-        # Set cutoff at which threshold the linkage gets flattened (clustering)
-        RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
-
-        feature_clustering = fcluster(link, threshold, criterion="distance")
-
-        return feature_clustering, link, dist_mat
-
-    def community_detection2(self, cutoff_threshold=0.55):
         X = self.X_
         y = self.y_
         # Do we have intervals?
@@ -304,6 +255,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Max Clust
         # max_clusters = 2
         # feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
+
+        self.feature_clusters_, self.linkage_ = feature_clustering, link
 
         return feature_clustering, link, feature_points, dist_mat
 
