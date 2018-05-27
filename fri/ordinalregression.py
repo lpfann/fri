@@ -15,9 +15,10 @@ class FRIOrdinalRegression(FRIBase):
     problemType = BaseOrdinalRegressionProblem
 
     def __init__(self, C=None, random_state=None, optimum_deviation=0.01,
-                 shadow_features=False, parallel=False, feat_elim=False, **kwargs):
+                 shadow_features=False, parallel=False, feat_elim=False, debug=False, **kwargs):
         super().__init__(isRegression=False, C=C, random_state=random_state,
                          shadow_features=shadow_features, parallel=parallel, feat_elim=False,
+                         debug=debug,
                          optimum_deviation=optimum_deviation,
                          **kwargs)
 

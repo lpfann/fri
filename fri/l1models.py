@@ -90,7 +90,7 @@ class L1OrdinalRegressor(LinearModel):
 
     #TODO: Connect error_type in higher levels
 
-    def __init__(self, error_type="mae", C=1,):
+    def __init__(self, error_type="mae", C=1):
         self.C = C
         self.error_type = error_type
         self.coef_ = None
