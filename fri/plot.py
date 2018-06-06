@@ -11,7 +11,27 @@ from scipy.cluster.hierarchy import dendrogram
 color_palette_3 = sns.color_palette(palette="muted", n_colors=3)
 
 
-def plot_relevance_bars(ax: matplotlib.axes.Axes, ranges, ticklabels=None, classes=None, numbering=True):
+def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=True,
+                        tick_rotation=30):
+    """
+
+    Parameters
+    ----------
+    ax:
+        axis which the bars get drawn on
+    ranges:
+        the 2d array of floating values determining the lower and upper bounds of the bars
+    ticklabels: (optional)
+        labels for each feature
+    classes: (optional)
+        relevance class for each feature, determines color
+    numbering: bool
+        Add feature index when using ticklabels
+    tick_rotation:  int
+        Amonut of rotation of ticklabels for easier readability.
+
+
+    """
     N = len(ranges)
 
     # Ticklabels
@@ -45,7 +65,7 @@ def plot_relevance_bars(ax: matplotlib.axes.Axes, ranges, ticklabels=None, class
 
     ax.set_xticklabels(ticks)
     if ticklabels is not None:
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=30, ha="right")
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=tick_rotation, ha="right")
     # ax.tick_params(rotation="auto")
     # Limit the y range to 0,1 or 0,L1
     ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
@@ -87,8 +107,7 @@ def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabel
         color_threshold=0,
         leaf_rotation=0.,  # rotates the x axis labels
         leaf_font_size=12.,  # font size for the x axis labels
-        ax=ax2,
-        **kwargs
+        ax=ax2
     )
     # Get index determined through linkage method and dendrogram
     rearranged_index = d['leaves']
@@ -103,8 +122,8 @@ def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabel
             ticks[i] += " - {}".format(rearranged_index[i] + 1)
 
     plot_relevance_bars(ax, ranges, ticklabels=ticks,
-                        classes=classes[rearranged_index] if classes is not None else None, numbering=False)
-
+                        classes=classes[rearranged_index] if classes is not None else None, numbering=False, **kwargs)
+    fig.subplots_adjust(hspace=0)
     ax.margins(x=0)
     ax2.set_xticks([])
     ax2.margins(x=0)
