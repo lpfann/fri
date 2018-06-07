@@ -8,7 +8,6 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy
-from fri.utils import distance
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -18,6 +17,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
+from fri.utils import distance
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
@@ -148,7 +148,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def community_detection(self, cutoff_threshold=0.55):
+    def community_detection(self, cutoff_threshold=0.55, method="single"):
         X = self.X_
         y = self.y_
         # Do we have intervals?
@@ -239,7 +239,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
 
         # Single Linkage clustering
-        link = linkage(dist_mat, method="single")
+        # link = linkage(dist_mat, method="single")
+
+        link = linkage(dist_mat, method=method, optimal_ordering=True)
 
         # Set cutoff at which threshold the linkage gets flattened (clustering)
         RATIO = cutoff_threshold
