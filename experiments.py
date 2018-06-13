@@ -106,19 +106,26 @@ train_size = 0.75
 test_size = 0.25
 
 
+# ----------------------------------------------------------------------------------------------
+
+
+
+
+
 
 
 
 scaler = StandardScaler().fit(X)
 X = scaler.transform(X)
 
-fri_model = FRIOrdinalRegression(C=None, debug=False)
-fri_model.fit(X,y)
+#fri_model = FRIOrdinalRegression(C=None, debug=False)
+#fri_model.fit(X,y)
 #plot.plotIntervals(fri_model.interval_)
 
 
-rs = ShuffleSplit(n_splits=30, test_size=test_size, train_size=train_size)
+#rs = ShuffleSplit(n_splits=20, test_size=test_size, train_size=train_size)
 
+'''
 C = fri_model.tuned_C_
 n_bins = 6
 mze = []
@@ -160,9 +167,23 @@ print("mze:", avg_mze, "+/-", std_mze)
 print("mae:", avg_mae, "+/-", std_mae)
 print("mmae:", avg_mmae, "+/-", std_mmae)
 
+'''
+
+#############################################################
 
 
+C_params = []
+bounds = []
+for train_idx, test_idx in rs.split(X):
+    X_train = X[train_idx]
+    y_train = y[train_idx]
 
+    fri_model = FRIOrdinalRegression(C=0.1, debug=False)
+    fri_model.fit(X_train, y_train)
 
-
+    C_params.append(fri_model.tuned_C_)
+    bounds.append(fri_model.interval_)
+    
+avg_C = np.average(C_params)
+avg_bounds = np.average(bounds, axis=0)
 

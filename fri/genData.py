@@ -1,6 +1,8 @@
 import numpy as np
 from sklearn.datasets import make_regression
 from sklearn.utils import check_random_state
+from sklearn.utils import shuffle
+
 
 def _combFeat(n, size, strRelFeat, randomstate):
     # Split each strongly relevant feature into linear combination of it
@@ -314,5 +316,7 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
         Y[-rest:] = n_target_bins - 1
 
     # TODO: add shuffle function here? all values sorted at the moment
+    X, Y = shuffle(X, Y, random_state=0)
+
     return X, Y
 

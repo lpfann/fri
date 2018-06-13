@@ -103,10 +103,10 @@ class L1OrdinalRegressor(LinearModel):
         (n, d) = X.shape
         n_bins = len(np.unique(y))
 
-        w = cvx.Variable(d)
+        w = cvx.Variable((d,1))
         b = cvx.Variable(n_bins - 1)
-        chi = cvx.Variable(n, nonneg=True)
-        xi = cvx.Variable(n, nonneg=True)
+        chi = cvx.Variable((n,1), nonneg=True)
+        xi = cvx.Variable((n,1), nonneg=True)
 
         # Prepare problem.
         objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(chi + xi))
@@ -128,7 +128,7 @@ class L1OrdinalRegressor(LinearModel):
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS", max_iters=5000)
 
-        self.coef_ = np.array(w.value)[np.newaxis]
+        self.coef_ = np.array(w.value).flatten()[np.newaxis]
         self.intercept_ = np.array(b.value).flatten()
         self.slack = np.append(chi.value, xi.value)
 
