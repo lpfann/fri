@@ -4,7 +4,7 @@ from sklearn.exceptions import FitFailedWarning
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
-from fri import FRIClassification, FRIRegression, EnsembleFRI, FRIOrdinalRegression
+from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
 from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 
 
@@ -25,13 +25,9 @@ def check_interval(interval, n_strong):
 
 
 @pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
-@pytest.mark.parametrize('model', [
-    "Ensemble",    
-    "Single"
-])
 @pytest.mark.parametrize('n_strong', [0, 1, 2])
 @pytest.mark.parametrize('n_weak', [0, 2, 3])
-def test_model(problem, model, n_strong, n_weak, randomstate):
+def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
 
@@ -57,8 +53,6 @@ def test_model(problem, model, n_strong, n_weak, randomstate):
         X_orig = StandardScaler().fit(X_orig).transform(X_orig)
         X = X_orig
 
-        if model is "Ensemble":
-            fri = EnsembleFRI(fri, random_state=randomstate)
 
         fri.fit(X, y)
 
@@ -86,37 +80,6 @@ def test_multiprocessing(randomstate):
     fri.fit(X, y)
     check_interval(fri.interval_, 2)
 
-    efri = EnsembleFRI(FRIClassification(), random_state=randomstate, n_jobs=2)
-    efri.fit(X, y)
-    check_interval(fri.interval_, 2)
-
-
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordReg"])
-@pytest.mark.parametrize('hyperParam', [1, None])
-def test_random_data(randomstate, problem, hyperParam):
-    n = 100
-    d = 5
-    X = randomstate.rand(n, d)
-
-    if problem is "regression":
-        fri = FRIRegression(random_state=randomstate, C=hyperParam, epsilon=hyperParam)
-        y = randomstate.rand(n)
-    elif problem is "ordReg":
-        fri = FRIOrdinalRegression(random_state=randomstate, C=hyperParam)
-        y = np.ones(n)
-        # invert first half of labels
-        half = int(n / 2)
-        y[:half] *= 0
-    else:
-        fri = FRIClassification(random_state=randomstate, C=hyperParam)
-        y = np.ones(n)
-        # invert first half of labels
-        half = int(n / 2)
-        y[:half] *= -1
-
-    # Test with expectation to get warning
-    with pytest.raises(FitFailedWarning):
-        fri.fit(X, y)
 
 
 def test_nonbinaryclasses(randomstate):
@@ -131,3 +94,27 @@ def test_nonbinaryclasses(randomstate):
     fri = FRIClassification()
     with pytest.raises(ValueError):
         fri.fit(X, y)
+
+
+def test_shadowfeatures(randomstate):
+    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
+
+    X_orig, y = data
+    X = StandardScaler().fit(X_orig).transform(X_orig)
+
+    fri = FRIClassification(random_state=randomstate, shadow_features=True)
+    fri.fit(X, y)
+    check_interval(fri.interval_, 2)
+    assert hasattr(fri, "_shadowintervals")
+
+
+def test_shadowfeatures_parallel(randomstate):
+    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
+
+    X_orig, y = data
+    X = StandardScaler().fit(X_orig).transform(X_orig)
+
+    fri = FRIClassification(random_state=randomstate, parallel=True, shadow_features=True)
+    fri.fit(X, y)
+    check_interval(fri.interval_, 2)
+    assert hasattr(fri, "_shadowintervals")

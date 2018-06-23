@@ -1,22 +1,20 @@
-from sklearn import preprocessing
-from sklearn.utils import check_X_y
-from sklearn.utils.multiclass import unique_labels
-
 from fri.base import FRIBase
 from fri.l1models import L1HingeHyperplane
 from fri.optproblems import BaseClassificationProblem
+from sklearn import preprocessing
+from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import unique_labels
 
 
 class FRIClassification(FRIBase):
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=None, optimum_deviation=0.01,
-                 random_state=None,shadow_features=False,
-                 parallel=False, n_resampling=3,
-                 feat_elim=False, debug=False):
+    def __init__(self, C=None, optimum_deviation=0.1,
+                 random_state=None, shadow_features=False,
+                 parallel=False, n_resampling=3, debug=False):
         super().__init__(isRegression=False, C=C, random_state=random_state,
                          shadow_features=shadow_features, parallel=parallel,
-                         feat_elim=feat_elim,n_resampling=n_resampling,
+                         n_resampling=n_resampling,
                          debug=debug, optimum_deviation=optimum_deviation)
         self.initModel = L1HingeHyperplane
 

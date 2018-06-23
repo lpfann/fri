@@ -6,7 +6,7 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-from sklearn.metrics import f1_score
+from sklearn.metrics import fbeta_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.utils import check_X_y
 
@@ -42,7 +42,7 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
 
         return self
 
-    def score(self, X, y):
+    def score(self, X, y, debug=False):
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
 
@@ -53,7 +53,11 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         X = StandardScaler().fit_transform(X)
         prediction = self.predict(X)
         # Using weighted f1 score to have a stable score for imbalanced datasets
-        score = f1_score(y, prediction, average="weighted")
+        score = fbeta_score(y, prediction, beta=1, average="weighted")
+        if debug:
+            precision = precision_score(y, prediction)
+            recall = recall_score(y, prediction)
+            print("precision: {}, recall: {}".format(precision, recall))
         return score
 
 class L1EpsilonRegressor(LinearModel, RegressorMixin):
