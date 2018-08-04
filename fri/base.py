@@ -70,8 +70,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, isRegression=False, C=None, optimum_deviation=0.1, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, debug=False):
+    def __init__(self, isRegression=False, C=None, optimum_deviation=0.001, random_state=None,
+                 shadow_features=True, parallel=False, n_resampling=3, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
@@ -258,7 +258,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
     def _get_relevance_mask(self,
-                            upper_epsilon=0.1,
+                            upper_epsilon=1e-5,
                             lower_epsilon=0
                             ):
         """Determines relevancy using feature relevance interval values
