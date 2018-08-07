@@ -258,7 +258,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
     def _get_relevance_mask(self,
-                            upper_epsilon=1e-5,
+                            upper_epsilon=1e-3,
                             lower_epsilon=0
                             ):
         """Determines relevancy using feature relevance interval values
