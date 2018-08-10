@@ -8,6 +8,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy
+import math
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -258,28 +259,41 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
     def _get_relevance_mask(self,
-                            upper_epsilon=1e-3,
-                            lower_epsilon=0
+                            fpr=0.01
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
         ----------
-        upper_epsilon : float, optional
-            Threshold for upper bound of feature relevance interval
-        lower_epsilon : float, optional
-            Threshold for lower bound of feature relevance interval
+        fpr : float, optional
+            false positive rate allowed under H_0
         Returns
         -------
         boolean array
             Relevancy prediction for each feature
         """
         rangevector = self.interval_
+        shadows = self._shadowintervals
         prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
+        n = self.X_.shape[1]
+        allowed =  math.floor(fpr * n)
+        
+        lower = shadows[:,0]
+        lower = sorted(lower)[::-1]
+        upper = shadows[:,1]
+        upper = sorted(upper)[::-1]
+
+        upper_epsilon = upper[allowed+1]
+        lower_epsilon = lower[allowed+1]
+        self.epsilons = [lower_epsilon,upper_epsilon]
+
         # Weakly relevant ones have high upper bounds
-        prediction[rangevector[:, 1] > upper_epsilon] = 1
-        # Strongly relevant bigger than 0 + some epsilon
-        prediction[rangevector[:, 0] > lower_epsilon] = 2
+        weakly = rangevector[:, 1] > upper_epsilon
+        strongly = np.equal(shadows[:,0], 0)
+        both = np.logical_and(weakly, strongly) 
+
+        prediction[weakly] = 1
+        prediction[both] = 2
 
         self.relevance_classes_ = prediction
         self.allrel_prediction_ = prediction > 0
@@ -410,10 +424,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         assert L1 > 0
 
         if shadow_features:
-            shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
-            rangevector[:, 0] -= shadow_variance
-            rangevector[:, 1] -= shadow_variance
-            rangevector[rangevector < 0] = 0
+            #shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
+            #rangevector[:, 0] -= shadow_variance
+            #rangevector[:, 1] -= shadow_variance
+            #rangevector[rangevector < 0] = 0
             shadowrangevector = shadowrangevector / L1
 
         # Scale to L1
