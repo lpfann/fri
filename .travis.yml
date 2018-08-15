@@ -12,6 +12,7 @@ install:
   - . ./ci_scripts/create_testenv.sh
   - pip install coveralls
   - pip install pytest-xdist
+  - pip install travis-sphinx
 
 before_script:
   - |
@@ -23,9 +24,11 @@ before_script:
 # Run test
 script:
   - pytest -v --cov=fri -n 8
+  - travis-sphinx build --source=doc
 
 after_success:
   - coveralls
+  - travis-sphinx deploy
 
 deploy:
   provider: pypi
