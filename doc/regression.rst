@@ -1,5 +1,5 @@
 Regression class
-============
+================
 
 
 .. automodule:: fri.regression

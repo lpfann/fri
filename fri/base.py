@@ -48,11 +48,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
     debug : boolean
         Enable output of internal values for debugging purposes.
 
-    --
-    For Regression
-    --
-    epsilon : float
-        Allowed epsilon wide tube around target.
     Attributes
     ----------
     allrel_prediction_ : array of booleans

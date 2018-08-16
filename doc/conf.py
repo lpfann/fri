@@ -51,7 +51,7 @@ extensions = [
 ]
 
 # generate autosummary even if no references
-autosummary_generate = True
+autosummary_generate = False
 
 # pngmath / imgmath compatibility layer for different sphinx versions
 import sphinx

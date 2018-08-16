@@ -1,5 +1,5 @@
 Classification class
-============
+=====================
 
 
 .. automodule:: fri.classification
