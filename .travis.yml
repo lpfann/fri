@@ -12,7 +12,8 @@ install:
   - . ./ci_scripts/create_testenv.sh
   - pip install coveralls
   - pip install pytest-xdist
-  - conda install --yes sphinx
+  - pip install --upgrade sphinx pillow sphinx-gallery sphinx_rtd_theme
+  - pip install --upgrade cython numpydoc
   - pip install travis-sphinx
 
 before_script:
