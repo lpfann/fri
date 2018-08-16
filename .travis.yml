@@ -26,7 +26,7 @@ before_script:
 # Run test
 script:
   - pytest -v --cov=fri -n 8
-  - travis-sphinx -n build --source=doc
+  - travis-sphinx build -n --source=doc
 
 after_success:
   - coveralls
