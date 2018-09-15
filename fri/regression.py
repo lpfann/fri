@@ -7,10 +7,10 @@ from sklearn.utils import check_X_y
 class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
-    def __init__(self, C=None, epsilon=None, optimum_deviation=0.1, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, debug=False):
+    def __init__(self, C=None, epsilon=None, optimum_deviation=0.001, random_state=None,
+                    parallel=False, n_resampling=3, debug=False):
         super().__init__(isRegression=True, C=C, random_state=random_state,
-                         shadow_features=shadow_features, parallel=parallel,
+                         parallel=parallel,
                          n_resampling=n_resampling,
                          debug=debug, optimum_deviation=optimum_deviation)
         self.epsilon = epsilon

@@ -8,6 +8,7 @@ from multiprocessing import Pool
 
 import numpy as np
 import scipy
+import math
 from scipy.cluster.hierarchy import fcluster, linkage
 from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
@@ -35,10 +36,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    shadow_features : boolean, optional
-        Enables noise reduction using feature permutation results.
     n_resampling : integer ( Default = 3)
-        Number of shadowfeature permutations used. 
+        Number of probe feature permutations used. 
     parallel : boolean, optional
         Enables parallel computation of feature intervals
     optimum_deviation : float, optional (Default = 0.01)
@@ -65,16 +64,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, isRegression=False, C=None, optimum_deviation=0.1, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, debug=False):
+    def __init__(self, isRegression=False, C=None, optimum_deviation=0.001, random_state=None,
+                 parallel=False, n_resampling=3, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
-        self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = isRegression
         self.n_resampling = n_resampling
         self.debug = debug
+        # Shadow features always calculated with new feature classification method
+        self.shadow_features = True
 
 
     @abstractmethod
@@ -253,28 +253,41 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
     def _get_relevance_mask(self,
-                            upper_epsilon=0.1,
-                            lower_epsilon=0
+                            fpr=0.01
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
         ----------
-        upper_epsilon : float, optional
-            Threshold for upper bound of feature relevance interval
-        lower_epsilon : float, optional
-            Threshold for lower bound of feature relevance interval
+        fpr : float, optional
+            false positive rate allowed under H_0
         Returns
         -------
         boolean array
             Relevancy prediction for each feature
         """
         rangevector = self.interval_
+        shadows = self._shadowintervals
         prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
+        n = self.X_.shape[1]
+        allowed =  math.floor(fpr * n)
+        
+        lower = shadows[:,0]
+        lower = sorted(lower)[::-1]
+        upper = shadows[:,1]
+        upper = sorted(upper)[::-1]
+
+        upper_epsilon = upper[allowed+1]
+        lower_epsilon = lower[allowed+1]
+        self.epsilons = [lower_epsilon,upper_epsilon]
+
         # Weakly relevant ones have high upper bounds
-        prediction[rangevector[:, 1] > upper_epsilon] = 1
-        # Strongly relevant bigger than 0 + some epsilon
-        prediction[rangevector[:, 0] > lower_epsilon] = 2
+        weakly = rangevector[:, 1] > upper_epsilon
+        strongly = np.equal(shadows[:,0], 0)
+        both = np.logical_and(weakly, strongly) 
+
+        prediction[weakly] = 1
+        prediction[both] = 2
 
         self.relevance_classes_ = prediction
         self.allrel_prediction_ = prediction > 0
@@ -405,10 +418,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         assert L1 > 0
 
         if shadow_features:
-            shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
-            rangevector[:, 0] -= shadow_variance
-            rangevector[:, 1] -= shadow_variance
-            rangevector[rangevector < 0] = 0
+            #shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
+            #rangevector[:, 0] -= shadow_variance
+            #rangevector[:, 1] -= shadow_variance
+            #rangevector[rangevector < 0] = 0
             shadowrangevector = shadowrangevector / L1
 
         # Scale to L1
