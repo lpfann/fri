@@ -36,10 +36,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    shadow_features : boolean, optional
-        Enables noise reduction using feature permutation results.
     n_resampling : integer ( Default = 3)
-        Number of shadowfeature permutations used. 
+        Number of probe feature permutations used. 
     parallel : boolean, optional
         Enables parallel computation of feature intervals
     optimum_deviation : float, optional (Default = 0.01)
@@ -72,15 +70,16 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def __init__(self, isRegression=False, C=None, optimum_deviation=0.001, random_state=None,
-                 shadow_features=True, parallel=False, n_resampling=3, debug=False):
+                 parallel=False, n_resampling=3, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
-        self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = isRegression
         self.n_resampling = n_resampling
         self.debug = debug
+        # Shadow features always calculated with new feature classification method
+        self.shadow_features = True
 
 
     @abstractmethod

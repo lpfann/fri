@@ -31,10 +31,10 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, debug=True, optimum_deviation=0.0, shadow_features=True)
+        fri = FRIRegression(random_state=randomstate, debug=True, optimum_deviation=0.0)
     else:
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, debug=True, optimum_deviation=0.0, shadow_features=True)
+        fri = FRIClassification(random_state=randomstate, debug=True, optimum_deviation=0.0)
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
@@ -93,25 +93,3 @@ def test_nonbinaryclasses(randomstate):
         fri.fit(X, y)
 
 
-def test_shadowfeatures(randomstate):
-    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
-
-    X_orig, y = data
-    X = StandardScaler().fit(X_orig).transform(X_orig)
-
-    fri = FRIClassification(random_state=randomstate, shadow_features=True)
-    fri.fit(X, y)
-    check_interval(fri.interval_, 2)
-    assert hasattr(fri, "_shadowintervals")
-
-
-def test_shadowfeatures_parallel(randomstate):
-    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
-
-    X_orig, y = data
-    X = StandardScaler().fit(X_orig).transform(X_orig)
-
-    fri = FRIClassification(random_state=randomstate, parallel=True, shadow_features=True)
-    fri.fit(X, y)
-    check_interval(fri.interval_, 2)
-    assert hasattr(fri, "_shadowintervals")
