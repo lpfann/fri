@@ -1,8 +1,27 @@
+dist: trusty
+sudo: false
+
 language: python
 
 cache:
+  timeout: 500
   directories:
-    - $HOME/miniconda3
+    - $HOME/.cache/pip
+
+matrix:
+  include:
+    - name: "3.6 Newest Libs"
+      env: DISTRIB="conda" PYTHON_VERSION="3.6"
+           NUMPY_VERSION="*" SCIPY_VERSION="*" SKLEARN_VERSION="*"
+    - name: "3.6 Static Libs"
+      env: DISTRIB="conda" PYTHON_VERSION="3.6"
+           NUMPY_VERSION="1.14" SCIPY_VERSION="0.19.1" SKLEARN_VERSION="0.20"
+    - name: "3.7 Newest Libs"
+      env: DISTRIB="conda" PYTHON_VERSION="3.7"
+           NUMPY_VERSION="*" SCIPY_VERSION="*" SKLEARN_VERSION="*"
+    - name: "3.7 Static Libs"
+      env: DISTRIB="conda" PYTHON_VERSION="3.7"
+           NUMPY_VERSION="1.14" SCIPY_VERSION="0.19.1" SKLEARN_VERSION="0.20"
 
 # Setup anaconda
 before_install:
@@ -25,7 +44,7 @@ before_script:
 
 # Run test
 script:
-  - pytest -v --cov=fri -n 8
+  - pytest --cov=fri -n 2
   - travis-sphinx build -n --source=doc
 
 after_success:
