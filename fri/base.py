@@ -70,8 +70,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.isRegression = isRegression
         self.n_resampling = n_resampling
         self.debug = debug
-        # Shadow features always calculated with new feature classification method
-        self.shadow_features = True
 
 
     @abstractmethod
@@ -100,6 +98,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.linkage_ = None
         self.interval_ = None
         self.random_state = check_random_state(self.random_state)
+        # Shadow features always calculated with new feature classification method
+        self.shadow_features = True
 
         y = np.asarray(y)
 
