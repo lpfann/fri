@@ -40,10 +40,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Number of probe feature permutations used. 
     parallel : boolean, optional
         Enables parallel computation of feature intervals
-    optimum_deviation : float, optional (Default = 0.01)
-        Percentage of allowed deviation from the optimal solution (L1 norm of model weights).
+    optimum_deviation : float, optional (Default = 0.001)
+        Rate of allowed deviation from the optimal solution (L1 norm of model weights).
         Default allows one percent deviation. 
-        Allows for more relaxed optimization problems and leads to bigger intervals.
+        Allows for more relaxed optimization problems and leads to bigger intervals which are easier to interpret.
+        Setting to 0 allows the best feature selection accuracy.
     debug : boolean
         Enable output of internal values for debugging purposes.
 
@@ -426,10 +427,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         assert L1 > 0
 
         if shadow_features:
-            #shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
-            #rangevector[:, 0] -= shadow_variance
-            #rangevector[:, 1] -= shadow_variance
-            #rangevector[rangevector < 0] = 0
             shadowrangevector = shadowrangevector / L1
 
         # Scale to L1
