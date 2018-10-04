@@ -143,33 +143,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def community_detection(self, cutoff_threshold=0.55, method="single"):
-        X = self.X_
-        y = self.y_
-        # Do we have intervals?
-        check_is_fitted(self, "interval_")
-        interval = self.unmod_interval_
-        d = len(interval)
-
-        # Init arrays
-        interval_constrained_to_min = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
-        interval_constrained_to_max = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
-
-        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
+    def _run_with_single_dim_single_value_preset(self,i, preset_i, n_tries=10):
             """
             Method to run method once for one restricted feature
             Parameters
             ----------
-            i restricted feature
-            preset_i restricted range of feature i (set before optimization = preset)
-            n_tries number of allowed relaxation steps for the L1 constraint in case of LP infeasible
+            i:
+                restricted feature
+            preset_i:
+                restricted range of feature i (set before optimization = preset)
+            n_tries:
+                number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
             """
-            constrained_ranges = np.zeros((d, 2))
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
+
             constrained_ranges_diff = np.zeros((d, 2))
 
             # Init empty preset
@@ -213,15 +206,84 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             return rangevector, constrained_ranges_diff
 
+    def _run_with_multiple_value_preset(self, preset=None):
+            """
+            Method to run method with preset values
+            """
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
+
+            constrained_ranges_diff = np.zeros((d, 2))
+
+            # Init empty preset
+            #preset = np.empty(shape=(d, 2))
+            #preset.fill(np.nan)
+
+            #print("Preset: \n",preset)
+            # Add correct sign of this coef
+            signed_presets = np.sign(self._svm_coef[0]) * preset.T
+            signed_presets = signed_presets.T
+            # Calculate all bounds with feature presets
+            l1 = self.optim_L1_
+            loss = self.optim_loss_
+            sumofpreset = np.nansum(preset[:,1])
+            if sumofpreset > l1:
+                print("maximum L1 norm of presets: ",sumofpreset)
+                print("L1 allowed:",l1)
+                print("Presets are not feasible. Try lowering values.")
+                return
+            try:
+                kwargs = {"verbose": False, "solver": "ECOS"}
+                rangevector, _, _, _ = self._main_opt(X, y, loss,
+                                                      l1,
+                                                      self.random_state,
+                                                      False, presetModel=signed_presets,
+                                                      solverargs=kwargs)
+            except NotFeasibleForParameters:
+                print("Presets are not feasible")
+                return
+
+
+            constrained_ranges_diff = self.unmod_interval_ - rangevector
+
+            # Current dimension is not constrained, so these values are set accordingly
+            for i, p in enumerate(preset):
+                if np.all(np.isnan(p)):
+                    continue
+                else:
+                    rangevector[i] = p
+            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+                                                              None)
+            return rangevector
+
+    def community_detection(self, cutoff_threshold=0.55, method="single"):
+
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+        interval = self.unmod_interval_
+        d = len(interval)
+
+        # Init arrays
+        interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
+        interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
+
         # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
         # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
         for i in range(d):
             # min
-            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
+            ranges, diff = self._run_with_single_dim_single_value_preset(i, interval[i, 0])
             interval_constrained_to_min[i] = ranges
             absolute_delta_bounds_summed_min[i] = diff
             # max
-            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
+            ranges, diff = self._run_with_single_dim_single_value_preset(i, interval[i, 1])
             interval_constrained_to_max[i] = ranges
             absolute_delta_bounds_summed_max[i] = diff
 
