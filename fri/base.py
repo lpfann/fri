@@ -260,60 +260,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                               None)
             return rangevector
 
-    def community_detection(self, cutoff_threshold=0.55, method="single"):
-
-        # Do we have intervals?
-        check_is_fitted(self, "interval_")
-        interval = self.unmod_interval_
-        d = len(interval)
-
-        # Init arrays
-        interval_constrained_to_min = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
-        interval_constrained_to_max = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
-
-        # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
-        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
-        for i in range(d):
-            # min
-            ranges, diff = self._run_with_single_dim_single_value_preset(i, interval[i, 0])
-            interval_constrained_to_min[i] = ranges
-            absolute_delta_bounds_summed_min[i] = diff
-            # max
-            ranges, diff = self._run_with_single_dim_single_value_preset(i, interval[i, 1])
-            interval_constrained_to_max[i] = ranges
-            absolute_delta_bounds_summed_max[i] = diff
-
-        feature_points = np.zeros((d, 2 * d * 2))
-        for i in range(d):
-            feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
-            feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
-
-        # Calculate similarity using custom measure
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
-
-        # Single Linkage clustering
-        # link = linkage(dist_mat, method="single")
-
-        link = linkage(dist_mat, method=method, optimal_ordering=True)
-
-        # Set cutoff at which threshold the linkage gets flattened (clustering)
-        RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
-        feature_clustering = fcluster(link, threshold, criterion="distance")
-
-        # Max Clust
-        # max_clusters = 2
-        # feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
-
-        self.feature_clusters_, self.linkage_ = feature_clustering, link
-
-        return feature_clustering, link, feature_points, dist_mat
-
-
     def _get_relevance_mask(self,
                             fpr=0.01
                             ):
