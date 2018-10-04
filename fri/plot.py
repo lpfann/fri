@@ -70,8 +70,8 @@ def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=Tru
     # Limit the y range to 0,1 or 0,L1
     ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
 
-    ax.set_ylabel('relevance', fontsize=19)
-    ax.set_xlabel('feature', fontsize=19)
+    ax.set_ylabel('relevance')
+    ax.set_xlabel('feature')
 
     if classes is not None:
         relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
