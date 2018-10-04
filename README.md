@@ -61,16 +61,6 @@ __C__ : float, optional
 __random_state__ :  int seed, RandomState instance, or None (default=None)
    >The seed of the pseudo random number generator to use when shuffling the data.
 
-__shadow_features__ : boolean, default = True
-   > Use shuffled contrast features for each real feature as a baseline
-   > correction. 
-   > Each feature gets shuffled independently and 
-   > feature relevance bounds computed on these contrast features.
-   > Leads to a more sparse output but still has some 
-   > ploblems with very sparse binary features, which lead to a better 
-   > "random" distribution. 
-   > Increase __n_resampling__ when having problems with this.
-
 __parallel__ : boolean, default = False
    > Uses multiprocessing with all available cores when enabled
    > to compute relevance bounds in parallel.
@@ -94,12 +84,6 @@ __epsilon__ : float, optional
 
 **allrel_prediction_** : array of shape [n_features]
    > The mask of selected features. Includes all relevant ones.
-
-**ranking_** : array of shape [n_features]
-  >  The feature ranking, such that ``ranking_[i]`` corresponds to the
-  >  ranking position of the i-th feature. Selected (i.e., estimated
-  >  best) features are assigned rank 1 and tentative features are assigned
-  >  rank 2.
 
 
 ## Examples ##
