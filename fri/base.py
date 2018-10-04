@@ -7,10 +7,7 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 import numpy as np
-import scipy
 import math
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
@@ -18,7 +15,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from fri.utils import distance
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 
 
@@ -300,7 +296,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         self.relevance_classes_ = prediction
         self.allrel_prediction_ = prediction > 0
-
 
         return self.allrel_prediction_
 
