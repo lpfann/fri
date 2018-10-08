@@ -89,7 +89,6 @@ class BaseProblem(object):
         try:
             self.problem.solve(**self.kwargs)
         except Exception as e:
-            print(e)
             return None
         return self
 

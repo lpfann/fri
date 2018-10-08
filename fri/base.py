@@ -7,10 +7,7 @@ from abc import abstractmethod
 from multiprocessing import Pool
 
 import numpy as np
-import scipy
-from fri.utils import distance
-from scipy.cluster.hierarchy import fcluster, linkage
-from scipy.spatial.distance import squareform
+import math
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
@@ -35,24 +32,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    shadow_features : boolean, optional
-        Enables noise reduction using feature permutation results.
     n_resampling : integer ( Default = 3)
-        Number of shadowfeature permutations used. 
+        Number of probe feature permutations used. 
     parallel : boolean, optional
         Enables parallel computation of feature intervals
-    optimum_deviation : float, optional (Default = 0.01)
-        Percentage of allowed deviation from the optimal solution (L1 norm of model weights).
+    optimum_deviation : float, optional (Default = 0.001)
+        Rate of allowed deviation from the optimal solution (L1 norm of model weights).
         Default allows one percent deviation. 
-        Allows for more relaxed optimization problems and leads to bigger intervals.
+        Allows for more relaxed optimization problems and leads to bigger intervals which are easier to interpret.
+        Setting to 0 allows the best feature selection accuracy.
     debug : boolean
         Enable output of internal values for debugging purposes.
 
-    --
-    For Regression
-    --
-    epsilon : float
-        Allowed epsilon wide tube around target.
     Attributes
     ----------
     allrel_prediction_ : array of booleans
@@ -70,12 +61,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, isRegression=False, C=None, optimum_deviation=0.1, random_state=None,
-                 shadow_features=False, parallel=False, n_resampling=3, debug=False):
+    def __init__(self, isRegression=False, C=None, optimum_deviation=0.001, random_state=None,
+                 parallel=False, n_resampling=3, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
-        self.shadow_features = shadow_features
         self.parallel = parallel
         self.isRegression = isRegression
         self.n_resampling = n_resampling
@@ -108,6 +98,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.linkage_ = None
         self.interval_ = None
         self.random_state = check_random_state(self.random_state)
+        # Shadow features always calculated with new feature classification method
+        self.shadow_features = True
 
         y = np.asarray(y)
 
@@ -148,33 +140,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def community_detection(self, cutoff_threshold=0.55):
-        X = self.X_
-        y = self.y_
-        # Do we have intervals?
-        check_is_fitted(self, "interval_")
-        interval = self.unmod_interval_
-        d = len(interval)
-
-        # Init arrays
-        interval_constrained_to_min = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
-        interval_constrained_to_max = np.zeros(
-            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
-        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
-
-        def run_with_single_dim_single_value_preset(i, preset_i, n_tries=10):
+    def _run_with_single_dim_single_value_preset(self,i, preset_i, n_tries=10):
             """
             Method to run method once for one restricted feature
             Parameters
             ----------
-            i restricted feature
-            preset_i restricted range of feature i (set before optimization = preset)
-            n_tries number of allowed relaxation steps for the L1 constraint in case of LP infeasible
+            i:
+                restricted feature
+            preset_i:
+                restricted range of feature i (set before optimization = preset)
+            n_tries:
+                number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
             """
-            constrained_ranges = np.zeros((d, 2))
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
+
             constrained_ranges_diff = np.zeros((d, 2))
 
             # Init empty preset
@@ -218,70 +203,99 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             return rangevector, constrained_ranges_diff
 
-        # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
-        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
-        for i in range(d):
-            # min
-            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 0])
-            interval_constrained_to_min[i] = ranges
-            absolute_delta_bounds_summed_min[i] = diff
-            # max
-            ranges, diff = run_with_single_dim_single_value_preset(i, interval[i, 1])
-            interval_constrained_to_max[i] = ranges
-            absolute_delta_bounds_summed_max[i] = diff
+    def _run_with_multiple_value_preset(self, preset=None):
+            """
+            Method to run method with preset values
+            """
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
 
-        feature_points = np.zeros((d, 2 * d * 2))
-        for i in range(d):
-            feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
-            feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
+            constrained_ranges_diff = np.zeros((d, 2))
 
-        # Calculate similarity using custom measure
-        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
+            # Init empty preset
+            #preset = np.empty(shape=(d, 2))
+            #preset.fill(np.nan)
 
-        # Single Linkage clustering
-        link = linkage(dist_mat, method="single")
+            #print("Preset: \n",preset)
+            # Add correct sign of this coef
+            signed_presets = np.sign(self._svm_coef[0]) * preset.T
+            signed_presets = signed_presets.T
+            # Calculate all bounds with feature presets
+            l1 = self.optim_L1_
+            loss = self.optim_loss_
+            sumofpreset = np.nansum(preset[:,1])
+            if sumofpreset > l1:
+                print("maximum L1 norm of presets: ",sumofpreset)
+                print("L1 allowed:",l1)
+                print("Presets are not feasible. Try lowering values.")
+                return
+            try:
+                kwargs = {"verbose": False, "solver": "ECOS"}
+                rangevector, _, _, _ = self._main_opt(X, y, loss,
+                                                      l1,
+                                                      self.random_state,
+                                                      False, presetModel=signed_presets,
+                                                      solverargs=kwargs)
+            except NotFeasibleForParameters:
+                print("Presets are not feasible")
+                return
 
-        # Set cutoff at which threshold the linkage gets flattened (clustering)
-        RATIO = cutoff_threshold
-        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
-        feature_clustering = fcluster(link, threshold, criterion="distance")
 
-        # Max Clust
-        # max_clusters = 2
-        # feature_clustering = fcluster(link, max_clusters, criterion="maxclust")
+            constrained_ranges_diff = self.unmod_interval_ - rangevector
 
-        self.feature_clusters_, self.linkage_ = feature_clustering, link
-
-        return feature_clustering, link, feature_points, dist_mat
-
+            # Current dimension is not constrained, so these values are set accordingly
+            for i, p in enumerate(preset):
+                if np.all(np.isnan(p)):
+                    continue
+                else:
+                    rangevector[i] = p
+            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+                                                              None)
+            return rangevector
 
     def _get_relevance_mask(self,
-                            upper_epsilon=0.1,
-                            lower_epsilon=0
+                            fpr=0.01
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
         ----------
-        upper_epsilon : float, optional
-            Threshold for upper bound of feature relevance interval
-        lower_epsilon : float, optional
-            Threshold for lower bound of feature relevance interval
+        fpr : float, optional
+            false positive rate allowed under H_0
         Returns
         -------
         boolean array
             Relevancy prediction for each feature
         """
         rangevector = self.interval_
+        shadows = self._shadowintervals
         prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
+        n = self.X_.shape[1]
+        allowed =  math.floor(fpr * n)
+        
+        lower = shadows[:,0]
+        lower = sorted(lower)[::-1]
+        upper = shadows[:,1]
+        upper = sorted(upper)[::-1]
+
+        upper_epsilon = upper[allowed+1]
+        lower_epsilon = lower[allowed+1]
+        self.epsilons = [lower_epsilon,upper_epsilon]
+
         # Weakly relevant ones have high upper bounds
-        prediction[rangevector[:, 1] > upper_epsilon] = 1
-        # Strongly relevant bigger than 0 + some epsilon
-        prediction[rangevector[:, 0] > lower_epsilon] = 2
+        weakly = rangevector[:, 1] > upper_epsilon
+        strongly = np.equal(shadows[:,0], 0)
+        both = np.logical_and(weakly, strongly) 
+
+        prediction[weakly] = 1
+        prediction[both] = 2
 
         self.relevance_classes_ = prediction
         self.allrel_prediction_ = prediction > 0
-
 
         return self.allrel_prediction_
 
@@ -412,10 +426,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         assert L1 > 0
 
         if shadow_features:
-            shadow_variance = shadowrangevector[:, 1] - shadowrangevector[:, 0]
-            rangevector[:, 0] -= shadow_variance
-            rangevector[:, 1] -= shadow_variance
-            rangevector[rangevector < 0] = 0
             shadowrangevector = shadowrangevector / L1
 
         # Scale to L1

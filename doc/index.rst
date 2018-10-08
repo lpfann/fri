@@ -10,7 +10,7 @@ This project contains the implementation of the method and various extensions fo
 Provided in this doc are docstrings for the API methods and some simple examples on synthetic data sets.
 
     .. toctree::
-       :maxdepth: 2
+       :maxdepth: 3
        
        model
        classification
