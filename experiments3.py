@@ -1,13 +1,12 @@
 import sys
 import sklearn
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from sklearn.metrics import precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler
 from fri import *
-import fri.plot as plot
+from fri.genData import genOrdinalRegressionData
 from sklearn.feature_selection import RFECV
 from fri.l1models import L1OrdinalRegressor
 from sklearn.feature_selection import RFE
@@ -24,7 +23,7 @@ def get_truth(d, informative, redundant):
 
 #############################################################################################################
 
-n = 150
+n = 512
 d = 14
 strong = 1
 weak = 2
@@ -48,6 +47,9 @@ D_recall = []
 for i in range(10):
 
     X,y = genOrdinalRegressionData(n_samples=n, n_features=d, n_strel=strong, n_redundant=weak, random_state=i)
+
+    scaler = StandardScaler().fit(X)
+    X = scaler.transform(X)
 
     f = FRIOrdinalRegression()
     f.fit(X, y)
