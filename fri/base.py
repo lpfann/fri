@@ -203,6 +203,24 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             return rangevector, constrained_ranges_diff
 
+    def constrained_intervals_(self, preset):
+        """Method to return relevance intervals which are constrained using preset ranges or values.
+        
+        Parameters
+        ----------
+        preset : array like [[preset lower_Bound_0,preset upper_Bound_0],...,]
+            An array where all entries which are not 'np.nan' are interpreted as constraint for that corresponding feature.
+            Best created using 'np.full_like(fri_model.interval_, np.nan, dtype=np.double)'.
+            Example: To set  feature 0 to a fixed value use preset[0] = fri_model.interval_[0, 0].
+        
+        Returns
+        -------
+        array like
+            Relevance bounds with user constraints 
+        """
+        processed = preset*self.optim_L1_ # Revert scaling to L1 norm which is done for our output intervals (see postprocessing)
+        return self._run_with_multiple_value_preset(preset=processed)
+
     def _run_with_multiple_value_preset(self, preset=None):
             """
             Method to run method with preset values
@@ -216,11 +234,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             constrained_ranges_diff = np.zeros((d, 2))
 
-            # Init empty preset
-            #preset = np.empty(shape=(d, 2))
-            #preset.fill(np.nan)
-
-            #print("Preset: \n",preset)
             # Add correct sign of this coef
             signed_presets = np.sign(self._svm_coef[0]) * preset.T
             signed_presets = signed_presets.T
