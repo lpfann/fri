@@ -43,13 +43,29 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Setting to 0 allows the best feature selection accuracy.
     debug : boolean
         Enable output of internal values for debugging purposes.
-
+    
     Attributes
     ----------
     allrel_prediction_ : array of booleans
         Truth value for each feature if it is relevant (weakly OR strongly).
     interval_ : array [[lower_Bound_0,UpperBound_0],...,]
         Relevance bounds in 2D array format.
+    optim_L1_ : double
+        L1 norm of baseline model.
+    optim_loss_ : double
+        Sum of slack (loss) of baseline model.
+    optim_model_ : fri.l1models object
+        Baseline model
+    optim_score_ : double
+        Score of baseline model
+    relevance_classes_ : array like
+        Array with classification of feature relevances: 2 denotes strongly relevant, 1 weakly relevant and 0 irrelevant.
+    tuned_C_ : double
+        Chosen reguralisation parameter using cv-gridsearch.
+    tuned_epsilon_ : double
+        Epsilon parameter for regression baseline model chosen by cv-gridsearch.
+    unmod_interval_ : array like
+        Same as `interval_` but not scaled to L1.
     
     See Also
     --------
@@ -210,8 +226,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         ----------
         preset : array like [[preset lower_Bound_0,preset upper_Bound_0],...,]
             An array where all entries which are not 'np.nan' are interpreted as constraint for that corresponding feature.
-            Best created using 'np.full_like(fri_model.interval_, np.nan, dtype=np.double)'.
-            Example: To set  feature 0 to a fixed value use preset[0] = fri_model.interval_[0, 0].
+            
+            Best created using 
+
+            >>> np.full_like(fri_model.interval_, np.nan, dtype=np.double)
+
+            Example: To set  feature 0 to a fixed value use 
+
+            >>> preset[0] = fri_model.interval_[0, 0]
         
         Returns
         -------
