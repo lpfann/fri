@@ -45,7 +45,7 @@ before_script:
 # Run test
 script:
   - pytest --cov=fri -n 2
-  - travis-sphinx build -n --source=doc
+  - travis-sphinx build -n --source=doc/source
 
 after_success:
   - coveralls
