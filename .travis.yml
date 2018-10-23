@@ -34,6 +34,9 @@ install:
   - pip install --upgrade sphinx pillow sphinx-gallery sphinx_rtd_theme nbsphinx
   - pip install --upgrade cython
   - pip install travis-sphinx 
+  - conda install -c conda-forge ipython
+  - conda install -c conda-forge pandoc
+  - conda install -c conda-forge ipykernel
 
 before_script:
   - |
