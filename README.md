@@ -2,13 +2,14 @@
 
 [![Build Status](https://travis-ci.org/lpfann/fri.svg?branch=master)](https://travis-ci.org/lpfann/fri)
 [![Coverage Status](https://coveralls.io/repos/github/lpfann/fri/badge.svg)](https://coveralls.io/github/lpfann/fri)
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/lpfann/fri/master?filepath=notebooks)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1188749.svg)](https://doi.org/10.5281/zenodo.1188749)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/lpfann/fri/blob/master/doc/source/notebooks/Guide.ipynb)
 
 This repository contains the Python implementation of the Feature Relevance Intervals method (FRI)[1,2].
 
 Check out our online documentation [here](https://lpfann.github.io/fri/).
 There you can find a quick start guide and more background information.
+You can also run the guide directly [in Colab](https://colab.research.google.com/github/lpfann/fri/blob/master/doc/source/notebooks/Guide.ipynb).
 
 ![Example output of method for biomedical dataset](doc/source/examples/example_plot.png?raw=true)
 
