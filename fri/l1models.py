@@ -8,8 +8,8 @@ from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.utils import check_X_y
-
+from sklearn.utils import check_X_y,check_array
+from sklearn.exceptions import NotFittedError
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
@@ -92,11 +92,8 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 
 class L1OrdinalRegressor(LinearModel):
 
-    #TODO: Connect error_type in higher levels
-
-    def __init__(self, error_type="mae", C=1):
+    def __init__(self, C=1):
         self.C = C
-        self.error_type = error_type
         self.coef_ = None
         self.intercept_ = None
         self.slack = None
@@ -106,14 +103,15 @@ class L1OrdinalRegressor(LinearModel):
 
         (n, d) = X.shape
         n_bins = len(np.unique(y))
+        self.classes_ = np.unique(y)
 
-        w = cvx.Variable((d,1))
+        w = cvx.Variable(d)
         b = cvx.Variable(n_bins - 1)
-        chi = cvx.Variable((n,1), nonneg=True)
-        xi = cvx.Variable((n,1), nonneg=True)
+        chi = cvx.Variable(n, nonneg=True)
+        xi = cvx.Variable(n, nonneg=True)
 
         # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.norm(w, 1) + self.C * cvx.sum(chi + xi))
+        objective = cvx.Minimize(0.5 * cvx.pnorm(w, 1) + self.C * cvx.sum(chi + xi))
         constraints = []
 
         for i in range(n_bins - 1):
@@ -132,74 +130,94 @@ class L1OrdinalRegressor(LinearModel):
         problem = cvx.Problem(objective, constraints)
         problem.solve(solver="ECOS", max_iters=5000)
 
-        self.coef_ = np.array(w.value).flatten()[np.newaxis]
+        self.coef_ = np.array(w.value)[np.newaxis]
         self.intercept_ = np.array(b.value).flatten()
         self.slack = np.append(chi.value, xi.value)
 
 
         return self
 
-    def score(self, X, y):
+    def decision_function(self, X):
+        """Compute predicted scores for samples in X
+        Parameters
+        ----------
+        X : array_like or sparse matrix, shape (n_samples, n_features)
+            Samples.
+        Returns
+        -------
+        array, shape=(n_samples,)
+        """
+        if not hasattr(self, 'coef_') or self.coef_ is None:
+            raise NotFittedError("This %(name)s instance is not fitted "
+                                 "yet" % {'name': type(self).__name__})
+
+        X = check_array(X,)
+
+        n_features = self.coef_.shape[1]
+        if X.shape[1] != n_features:
+            raise ValueError("X has %d features per sample; expecting %d"
+                             % (X.shape[1], n_features))
+
+        scores = np.dot(X, self.coef_[0].T)[np.newaxis]
+        return scores.ravel() if scores.shape[1] == 1 else scores
+
+    def predict(self, X):
+        """Predict class labels for samples in X.
+        Parameters
+        ----------
+        X : array_like or sparse matrix, shape (n_samples, n_features)
+            Samples.
+        Returns
+        -------
+        C : array, shape [n_samples]
+            Predicted class label per sample.
+        """
+        bin_thresholds = np.append(self.intercept_, np.inf)
+
+        # If thresholds are smaller than score they value belongs to bigger bin
+        # after subtracting we check for positive elements
+        indices = np.sum(self.decision_function(X).T - bin_thresholds >= 0, -1)
+
+        return self.classes_[indices]
+
+    def score(self, X, y, error_type="mae"):
 
         X, y = check_X_y(X, y)
-
         (n, d) = X.shape
-        w = self.coef_[0]
-        b = np.append(self.intercept_, np.inf)
-        n_bins = len(b)
-        sum = 0
+        n_bins = len(self.intercept_)+1
+
+        def mze(X,y):
+            prediction = self.predict(X)
+            return np.sum(prediction != y)
+
+        def mae(X,y):
+            prediction = self.predict(X)
+            return np.average(np.abs(prediction - y))
 
         # Score based on mean zero-one error
-        if self.error_type == "mze":
-            for i in range(n):
-                val = np.matmul(w, X[i])
-                pos = np.argmax(np.less_equal(val, b))
-                if y[i] != pos:
-                    sum += 1
-
-            score = 1 - (sum / n)
+        if error_type == "mze":
+            error = mze(X,y)
+            score = 1 - (error / n)
 
         # Score based on mean absolute error
-        elif self.error_type == "mae":
-            for i in range(n):
-                val = np.matmul(w, X[i])
-                sum += np.abs(y[i] - np.argmax(np.less_equal(val, b)))
-
-            error = sum / n
-
-            score = 1 - (error / (n_bins - 1))
+        elif error_type == "mae":
+            error = mae(X,y)
+            score = 1 - (error / (n_bins-1))
 
         # Score based on macro-averaged mean absolute error
-        elif self.error_type == "mmae":
+        elif error_type == "mmae":
+            sum = 0
             for i in range(n_bins):
-                indices = np.where(y == i)
-                X_re = X[indices]
-                y_re = y[indices]
-                n_c = X_re.shape[0]
-
-                if n_c == 0:
-                    error_c = 0
-
-                else:
-                    sum_c = 0
-
-                    for j in range(n_c):
-                        val = np.matmul(w, X_re[j])
-                        sum_c += np.abs(y_re[j] - np.argmax(np.less_equal(val, b)))
-
-                    error_c = sum_c / n_c
-
-                sum += error_c
+                samples = y==i
+                if np.sum(samples) >0:
+                    bin_error = mae(X[samples],y[samples])
+                    sum += bin_error
 
             error = sum / n_bins
+            score = 1 - (error / (n_bins-1))
 
-            score = 1 - (error / (n_bins - 1))
-
-
-        # error message if no correct error type has been specified
         else:
-            #TODO: Send Error message (wrong input on 'error_type')
-            pass
+            raise ValueError("error_type {} not available, try 'mae', 'mze' or 'mmae'".format(error_type))
 
         return score
 

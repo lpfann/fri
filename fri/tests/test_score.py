@@ -4,32 +4,74 @@ import numpy as np
 from pytest import approx
 from fri.l1models import L1OrdinalRegressor
 
-@pytest.mark.parametrize('error_type', ["mze", "mae", "mmae"])
-def test_score_max(error_type):
+@pytest.fixture()
+def data():
+    X = np.array([[1, 1], [2, 2], [3, 3],[4, 4] ])
+    y = np.array([0, 1, 2, 3])
+    return X, y
 
-    X = np.array([[1, 1], [1, 2], [2, 1], [2, 2], [4, 1], [4, 3], [4, 2], [5, 1]])
-    y = np.array([0, 0, 0, 0, 1, 1, 1, 1])
+@pytest.fixture()
+def imb_data():
+    X = np.array([[1, 1], [2, 2], [3, 3], [4, 4] ])
+    y = np.array([0, 1, 2, 2])
+    return X, y
 
-    model = L1OrdinalRegressor(error_type=error_type)
+def reverse_label(X,y):
+    return X, np.flip(y)
 
-    model.fit(X, y)
+def swap_first_last(X,y):
+    X[[0,-1]] = X[[-1,0]]
+    return X, y
 
-    score = model.score(X, y)
 
+def test_mze_score(data):
+    error = "mze"
+
+    model = L1OrdinalRegressor()
+    model.fit(*data)
+
+    score = model.score(*data, error_type=error)
     assert score == approx(1)
 
+    score = model.score(*reverse_label(*data), error_type=error)
+    assert score == approx(0)
+
+    score = model.score(*swap_first_last(*data), error_type=error)
+    assert score == approx(0.5)
 
 
-@pytest.mark.parametrize('error_type', ["mze", "mae", "mmae"])
-def test_score_low(error_type):
+def test_mae_score(data):
+    error = "mae"
 
-    X = np.array([[1, 1], [1, 2], [2, 1], [2, 2], [4, 1], [4, 3], [4, 2], [5, 1]])
-    y = np.array([0, 0, 0, 1, 0, 1, 1, 1])
+    model = L1OrdinalRegressor()
+    model.fit(*data)
 
-    model = L1OrdinalRegressor(error_type=error_type)
+    score = model.score(*data, error_type=error)
+    assert score == approx(1)
 
-    model.fit(X, y)
+    score = model.score(*reverse_label(*data), error_type=error)
+    assert score == approx(1/3)
 
-    score = model.score(X, y)
+    score = model.score(*swap_first_last(*data), error_type=error)
+    assert score == approx(0.5)
 
-    assert score == approx(0.75)
+
+
+def test_mmae_score(data,imb_data):
+    error = "mmae"
+
+    model = L1OrdinalRegressor()
+    model.fit(*data)
+
+    score = model.score(*data, error_type=error)
+    assert score == approx(1)
+
+    score = model.score(*reverse_label(*data), error_type=error)
+    assert score == approx(1/3)
+
+    score = model.score(*swap_first_last(*data), error_type=error)
+    assert score == approx(0.5)
+
+
+    score = model.score(*imb_data, error_type=error)
+    assert score == approx(0.95833334) # TODO: richtiger score??
