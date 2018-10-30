@@ -180,7 +180,7 @@ class L1OrdinalRegressor(LinearModel):
 
         return self.classes_[indices]
 
-    def score(self, X, y, error_type="mae"):
+    def score(self, X, y, error_type="mmae"):
 
         X, y = check_X_y(X, y)
         (n, d) = X.shape
