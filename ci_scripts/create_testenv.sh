@@ -21,7 +21,7 @@ then
     fi
 fi
 
-conda install --yes numpy=$NUMPY_VERSION scipy=$SCIPY_VERSION pytest pytest-cov coverage scikit-learn=$SKLEARN_VERSION pandas seaborn matplotlib nose
+conda install --yes numpy=$NUMPY_VERSION scipy=$SCIPY_VERSION pytest pytest-cov coverage scikit-learn=$SKLEARN_VERSION pandas seaborn matplotlib nose ipython pandoc ipykernel
 
 pip install pyqt5==5.9 &&
       python -c 'import PyQt5.QtCore' &&

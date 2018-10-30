@@ -4,11 +4,11 @@ matplotlib.use('Agg')
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
-import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
+import matplotlib.cm as cm
 
-# Get three colors for each relevance type
-color_palette_3 = sns.color_palette(palette="muted", n_colors=3)
+# Get a color for each relevance type
+color_palette_3 = cm.Set1([0,1,2],alpha=0.8)
 
 
 def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=True,

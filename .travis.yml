@@ -31,9 +31,9 @@ install:
   - . ./ci_scripts/create_testenv.sh
   - pip install coveralls
   - pip install pytest-xdist
-  - pip install --upgrade sphinx pillow sphinx-gallery sphinx_rtd_theme
-  - pip install --upgrade cython numpydoc
-  - pip install travis-sphinx
+  - pip install --upgrade sphinx pillow sphinx-gallery sphinx_rtd_theme nbsphinx
+  - pip install --upgrade cython
+  - pip install travis-sphinx 
 
 before_script:
   - |
@@ -45,7 +45,7 @@ before_script:
 # Run test
 script:
   - pytest --cov=fri -n 2
-  - travis-sphinx build -n --source=doc
+  - travis-sphinx build -n --source=doc/source
 
 after_success:
   - coveralls
