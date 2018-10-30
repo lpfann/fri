@@ -17,7 +17,7 @@ def imb_data():
     return X, y
 
 def reverse_label(X,y):
-    return X, np.flip(y,axis=None)
+    return X, np.flip(y,axis=0)
 
 def swap_first_last(X,y):
     X[[0,-1]] = X[[-1,0]]
