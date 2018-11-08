@@ -92,18 +92,23 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 
 class L1OrdinalRegressor(LinearModel):
 
-    def __init__(self, C=1):
+    def __init__(self, error_type="mae", C=1, l1_ratio=1):
         self.C = C
+        self.l1_ratio = l1_ratio
+        self.error_type = error_type
         self.coef_ = None
         self.intercept_ = None
         self.slack = None
-
 
     def fit(self, X, y):
 
         (n, d) = X.shape
         n_bins = len(np.unique(y))
         self.classes_ = np.unique(y)
+        original_bins = sorted(np.unique(y))
+        n_bins = len(original_bins)
+        bins = np.arange(n_bins)
+        get_old_bin = dict(zip(bins, original_bins))
 
         w = cvx.Variable(d)
         b = cvx.Variable(n_bins - 1)
@@ -111,15 +116,16 @@ class L1OrdinalRegressor(LinearModel):
         xi = cvx.Variable(n, nonneg=True)
 
         # Prepare problem.
-        objective = cvx.Minimize(0.5 * cvx.pnorm(w, 1) + self.C * cvx.sum(chi + xi))
+        norm = self.l1_ratio * cvx.pnorm(w, 1) + (1 - self.l1_ratio) * cvx.pnorm(w, 2)**2
+        objective = cvx.Minimize(norm + self.C * cvx.sum(chi + xi))
         constraints = []
 
         for i in range(n_bins - 1):
-            indices = np.where(y == i)
+            indices = np.where(y == get_old_bin[i])
             constraints.append(X[indices] * w - chi[indices] <= b[i] - 1)
 
         for i in range(1, n_bins):
-            indices = np.where(y == i)
+            indices = np.where(y == get_old_bin[i])
             constraints.append(X[indices] * w + xi[indices] >= b[i - 1] + 1)
 
         for i in range(n_bins - 2):
@@ -183,43 +189,47 @@ class L1OrdinalRegressor(LinearModel):
     def score(self, X, y, error_type="mmae"):
 
         X, y = check_X_y(X, y)
-        (n, d) = X.shape
-        n_bins = len(self.intercept_)+1
 
-        def mze(X,y):
-            prediction = self.predict(X)
+        prediction = self.predict(X)
+        score = ordinal_scores(prediction, y, error_type)
+
+        return score
+
+def ordinal_scores( prediction, y, error_type):
+
+        n = len(y)
+        classes = np.unique(y)
+        n_bins = len(classes)
+
+        def mze(prediction, y):
             return np.sum(prediction != y)
 
-        def mae(X,y):
-            prediction = self.predict(X)
+        def mae(prediction, y):
             return np.average(np.abs(prediction - y))
 
         # Score based on mean zero-one error
         if error_type == "mze":
-            error = mze(X,y)
+            error = mze(prediction, y)
             score = 1 - (error / n)
 
         # Score based on mean absolute error
         elif error_type == "mae":
-            error = mae(X,y)
+            error = mae(prediction, y)
             score = 1 - (error / (n_bins-1))
 
         # Score based on macro-averaged mean absolute error
         elif error_type == "mmae":
             sum = 0
             for i in range(n_bins):
-                samples = y==i
-                if np.sum(samples) >0:
-                    bin_error = mae(X[samples],y[samples])
+                samples = y == i
+                if np.sum(samples) > 0:
+                    bin_error = mae(prediction[samples],y[samples])
                     sum += bin_error
 
             error = sum / n_bins
             score = 1 - (error / (n_bins-1))
 
         else:
-            raise ValueError("error_type {} not available, try 'mae', 'mze' or 'mmae'".format(error_type))
+            raise ValueError("error_type {} not available!'".format(error_type))
 
         return score
-
-
-

@@ -72,6 +72,6 @@ def test_mmae_score(data,imb_data):
     score = model.score(*swap_first_last(*data), error_type=error)
     assert score == approx(0.5)
 
-
+    model.fit(*imb_data)
     score = model.score(*imb_data, error_type=error)
-    assert score == approx(0.95833334) # TODO: richtiger score??
+    assert score == approx(1)
