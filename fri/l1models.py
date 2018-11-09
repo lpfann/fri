@@ -195,7 +195,7 @@ class L1OrdinalRegressor(LinearModel):
 
         return score
 
-def ordinal_scores( prediction, y, error_type):
+def ordinal_scores( prediction, y, error_type, return_error=False):
 
         n = len(y)
         classes = np.unique(y)
@@ -232,4 +232,8 @@ def ordinal_scores( prediction, y, error_type):
         else:
             raise ValueError("error_type {} not available!'".format(error_type))
 
-        return score
+        if return_error:
+            return error
+        else:
+            return score
+
