@@ -200,7 +200,7 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
         n = len(y)
         classes = np.unique(y)
         n_bins = len(classes)
-
+        print(prediction, y)
         def mze(prediction, y):
             return np.sum(prediction != y)
 
@@ -209,13 +209,11 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
 
         # Score based on mean zero-one error
         if error_type == "mze":
-            error = mze(prediction, y)
-            score = 1 - (error / n)
+            error = mze(prediction, y) / n
 
         # Score based on mean absolute error
         elif error_type == "mae":
-            error = mae(prediction, y)
-            score = 1 - (error / (n_bins-1))
+            error = mae(prediction, y) / n
 
         # Score based on macro-averaged mean absolute error
         elif error_type == "mmae":
@@ -227,13 +225,14 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
                     sum += bin_error
 
             error = sum / n_bins
-            score = 1 - (error / (n_bins-1))
 
         else:
             raise ValueError("error_type {} not available!'".format(error_type))
 
+
         if return_error:
             return error
         else:
+            score = -1 * error
             return score
 
