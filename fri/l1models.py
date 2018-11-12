@@ -205,7 +205,7 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
             return np.sum(prediction != y)
 
         def mae(prediction, y):
-            return np.average(np.abs(prediction - y))
+            return np.sum(np.abs(prediction - y))
 
         # Score based on mean zero-one error
         if error_type == "mze":
