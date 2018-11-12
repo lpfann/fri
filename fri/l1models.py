@@ -200,7 +200,7 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
         n = len(y)
         classes = np.unique(y)
         n_bins = len(classes)
-        print(prediction, y)
+
         def mze(prediction, y):
             return np.sum(prediction != y)
 
