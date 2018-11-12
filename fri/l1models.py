@@ -220,8 +220,9 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
             sum = 0
             for i in range(n_bins):
                 samples = y == i
-                if np.sum(samples) > 0:
-                    bin_error = mae(prediction[samples],y[samples])
+                n_samples = np.sum(samples)
+                if n_samples > 0:
+                    bin_error = mae(prediction[samples],y[samples]) / n_samples
                     sum += bin_error
 
             error = sum / n_bins
