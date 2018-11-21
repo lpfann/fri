@@ -2,7 +2,7 @@ import abc
 
 import cvxpy as cvx
 import numpy as np
-
+from cvxpy import SolverError
 
 class ProblemType(object, metaclass=abc.ABCMeta):
     # Decorator class to add problem type specific constraints and variables to the BaseProblem
@@ -88,6 +88,10 @@ class BaseProblem(object):
         self.problem = cvx.Problem(self._objective, self._constraints)
         try:
             self.problem.solve(**self.kwargs)
+        except SolverError as e:
+            kwargs = self.kwargs
+            kwargs["solver"] = "SCS"
+            self.problem.solve(**kwargs) 
         except Exception as e:
             return None
         return self

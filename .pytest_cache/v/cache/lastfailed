@@ -12,5 +12,7 @@
   "fri/tests/test_feature_selection.py::test_model[3-0-Single-ordreg]": true,
   "fri/tests/test_feature_selection.py::test_model[3-1-Ensemble-ordreg]": true,
   "fri/tests/test_feature_selection.py::test_model[3-1-Single-ordreg]": true,
-  "fri/tests/test_feature_selection.py::test_model[3-2-Ensemble-ordreg]": true
+  "fri/tests/test_feature_selection.py::test_model[3-2-Ensemble-ordreg]": true,
+  "fri/tests/test_score.py::test_mae_score": true,
+  "fri/tests/test_score.py::test_mze_score": true
 }

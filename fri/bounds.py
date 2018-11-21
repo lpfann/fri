@@ -52,8 +52,11 @@ class LowerBound(Bound):
         self.isUpperBound = False
 
     def solve(self):
-        status = self.prob_instance.solve().problem.status
-
+        try:
+            status = self.prob_instance.solve().problem.status
+        except AttributeError as e:
+            print(self)
+            raise e
         if status in self.acceptableStati:
             return self
         else:
