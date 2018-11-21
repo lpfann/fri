@@ -92,7 +92,7 @@ class L1EpsilonRegressor(LinearModel, RegressorMixin):
 
 class L1OrdinalRegressor(LinearModel):
 
-    def __init__(self, error_type="mae", C=1, l1_ratio=1):
+    def __init__(self, error_type="mmae", C=1, l1_ratio=1):
         self.C = C
         self.l1_ratio = l1_ratio
         self.error_type = error_type
