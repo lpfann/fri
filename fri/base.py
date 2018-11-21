@@ -476,7 +476,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         gridsearch = GridSearchCV(self.initModel(),
                                   self.tuned_parameters,
                                   n_jobs=-1 if self.parallel else 1,
-                                  error_score=0,
+                                  error_score=np.nan,
                                   verbose=False)
 
         # Ignore warnings for extremely bad parameters (when precision=0)
