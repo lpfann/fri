@@ -2,6 +2,7 @@ from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
 from fri.optproblems import BaseRegressionProblem
 from sklearn.utils import check_X_y
+import scipy.stats
 
 
 class FRIRegression(FRIBase):
@@ -17,6 +18,9 @@ class FRIRegression(FRIBase):
         Set seed for random number generation.
     n_resampling : integer ( Default = 3)
         Number of probe feature permutations used. 
+    iter_psearch : integer ( Default = 10)
+        Amount of samples used for parameter search.
+        Trade off between finer tuned model performance and run time of parameter search.
     parallel : boolean, optional
         Enables parallel computation of feature intervals
     optimum_deviation : float, optional (Default = 0.001)
@@ -43,10 +47,6 @@ class FRIRegression(FRIBase):
         Score of baseline model
     relevance_classes_ : array like
         Array with classification of feature relevances: 2 denotes strongly relevant, 1 weakly relevant and 0 irrelevant.
-    tuned_C_ : double
-        Chosen reguralisation parameter using cv-gridsearch.
-    tuned_epsilon_ : double
-        Epsilon parameter for regression baseline model chosen by cv-gridsearch.
     unmod_interval_ : array like
         Same as `interval_` but not scaled to L1.
     
@@ -54,10 +54,10 @@ class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
     def __init__(self, C=None, epsilon=None, optimum_deviation=0.001, random_state=None,
-                    parallel=False, n_resampling=3, debug=False):
-        super().__init__(isRegression=True, C=C, random_state=random_state,
+                    parallel=False, n_resampling=3,iter_psearch=10, debug=False):
+        super().__init__(C=C, random_state=random_state,
                          parallel=parallel,
-                         n_resampling=n_resampling,
+                         n_resampling=n_resampling,iter_psearch=iter_psearch,
                          debug=debug, optimum_deviation=optimum_deviation)
         self.epsilon = epsilon
         self.initModel = L1EpsilonRegressor
@@ -78,12 +78,12 @@ class FRIRegression(FRIBase):
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            self.tuned_parameters["C"] = [0.0001, 0.001, 0.01, 0.1, 1, 10, 100]
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e2)
         else:
             self.tuned_parameters["C"] = [self.C]
 
         if self.epsilon is None:
-            self.tuned_parameters["epsilon"] = [0, 0.0001, 0.001, 0.01, 0.1, 1, 10, 100, 1000]
+            self.tuned_parameters["epsilon"] = scipy.stats.reciprocal(a=1e-7,b=1e3)
         else:
             self.tuned_parameters["epsilon"] = [self.epsilon]
 

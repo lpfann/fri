@@ -11,7 +11,7 @@ import math
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
@@ -34,6 +34,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Set seed for random number generation.
     n_resampling : integer ( Default = 3)
         Number of probe feature permutations used. 
+    iter_psearch : integer ( Default = 10)
+        Amount of samples used for parameter search.
+        Trade off between finer tuned model performance and run time of parameter search.
     parallel : boolean, optional
         Enables parallel computation of feature intervals
     optimum_deviation : float, optional (Default = 0.001)
@@ -60,10 +63,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Score of baseline model
     relevance_classes_ : array like
         Array with classification of feature relevances: 2 denotes strongly relevant, 1 weakly relevant and 0 irrelevant.
-    tuned_C_ : double
-        Chosen reguralisation parameter using cv-gridsearch.
-    tuned_epsilon_ : double
-        Epsilon parameter for regression baseline model chosen by cv-gridsearch.
     unmod_interval_ : array like
         Same as `interval_` but not scaled to L1.
     
@@ -77,14 +76,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, isRegression=False, C=None, optimum_deviation=0.001, random_state=None,
-                 parallel=False, n_resampling=3, debug=False):
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None,
+                 parallel=False, n_resampling=3, iter_psearch=10, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
         self.parallel = parallel
-        self.isRegression = isRegression
         self.n_resampling = n_resampling
+        self.iter_psearch = 10 if iter_psearch is None else iter_psearch
         self.debug = debug
 
 
@@ -107,8 +106,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.optim_score_ = None
         self.optim_L1_ = None
         self.optim_loss_ = None
-        self.tuned_epsilon_ = None
-        self.tuned_C_ = None
         self.allrel_prediction_ = None
         self.feature_clusters_ = None
         self.linkage_ = None
@@ -128,7 +125,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("loss", self.optim_loss_)
             print("L1", self.optim_L1_)
             print("offset", self._svm_bias)
-            print("C", self.tuned_C_)
+            print("best_parameters", self._best_params)
             print("score", self.optim_score_)
             print("coef:\n{}".format(self._svm_coef.T))
 
@@ -473,8 +470,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def _initEstimator(self, X, Y):
 
-        gridsearch = GridSearchCV(self.initModel(),
+        gridsearch = RandomizedSearchCV(self.initModel(),
                                   self.tuned_parameters,
+                                  n_iter=self.iter_psearch,
                                   n_jobs=-1 if self.parallel else 1,
                                   error_score=np.nan,
                                   verbose=False)
@@ -483,14 +481,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             gridsearch.fit(X, Y)
-
-        # Legacy Code
-        # TODO: remove legacy code
-        ###
-        self.tuned_C_ = gridsearch.best_params_['C']
-        if self.isRegression:
-            self.tuned_epsilon_ = gridsearch.best_params_['epsilon']
-        ###
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
