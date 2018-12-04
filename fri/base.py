@@ -14,9 +14,10 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
+from sklearn.metrics import make_scorer
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
-
+from .l1models import L1OrdinalRegressor, ordinal_scores
 
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
@@ -469,12 +470,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return rangevector, shadowrangevector
 
     def _initEstimator(self, X, Y):
+        if self.initModel is L1OrdinalRegressor:
+            # Use two scores for ordinal regression
+            error = ordinal_scores
+            mze = make_scorer(error, error_type="mze")
+            mae = make_scorer(error, error_type="mae")
+            mmae = make_scorer(error, error_type="mmae")
+            scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+            refit = "mmae"
+        else:
+            scorer = None  # use default score from model
+            refit = True
 
         gridsearch = RandomizedSearchCV(self.initModel(),
                                   self.tuned_parameters,
+                                  scoring=scorer,
+                                  refit=refit,
                                   n_iter=self.iter_psearch,
                                   n_jobs=-1 if self.parallel else 1,
                                   error_score=np.nan,
+                                  return_train_score=False,
                                   verbose=False)
 
         # Ignore warnings for extremely bad parameters (when precision=0)
@@ -484,6 +499,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
+        self._cv_results = gridsearch.cv_results_
         self.optim_model_ = gridsearch.best_estimator_
         self.optim_score_ = self.optim_model_.score(X, Y)
         self._svm_coef = self.optim_model_.coef_

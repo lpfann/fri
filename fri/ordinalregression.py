@@ -68,7 +68,7 @@ class FRIOrdinalRegression(FRIBase):
 
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e2)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e7)
         else:
             self.tuned_parameters["C"] = [self.C]
 

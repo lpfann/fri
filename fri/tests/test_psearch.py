@@ -40,6 +40,3 @@ def test_psearch(problem,C,iter_psearch, randomstate):
     assert len(fri.allrel_prediction_) == X.shape[1]
     assert len(interval) == X.shape[1]
 
-    # Check the score which should be good
-    if problem is not "ordreg":
-        assert fri.score(X[:30], y[:30]) >= 0.8
