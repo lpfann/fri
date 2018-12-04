@@ -191,12 +191,34 @@ class L1OrdinalRegressor(LinearModel):
         X, y = check_X_y(X, y)
 
         prediction = self.predict(X)
-        score = ordinal_scores(prediction, y, error_type)
+        score = ordinal_scores(y, prediction, error_type)
 
         return score
 
-def ordinal_scores( prediction, y, error_type, return_error=False):
-
+def ordinal_scores(y, prediction, error_type, return_error=False):
+        """Score function for ordinal problems.
+        
+        Parameters
+        ----------
+        y : target class vector
+            Truth vector
+        prediction : prediction class vector
+            Predicted classes
+        error_type : str
+            Error type "mze","mae","mmae"
+        return_error : bool, optional
+            Return error (lower is better) or score (inverted, higher is better)
+        
+        Returns
+        -------
+        float
+            Error or score depending on 'return_error'
+        
+        Raises
+        ------
+        ValueError
+            When using wrong error_type
+        """
         n = len(y)
         classes = np.unique(y)
         n_bins = len(classes)
@@ -230,7 +252,9 @@ def ordinal_scores( prediction, y, error_type, return_error=False):
         else:
             raise ValueError("error_type {} not available!'".format(error_type))
 
-
+        if error == 0 or error == -0:
+            print(error_type,prediction,y)
+            print("error zero")
         if return_error:
             return error
         else:
