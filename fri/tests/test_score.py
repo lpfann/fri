@@ -24,8 +24,7 @@ def swap_first_last(y):
     return y
 
 @pytest.mark.parametrize('error', ["mze", "mae", "mmae"])
-def test_mze_score(error, data, imb_data):
-    error = "mze"
+def test_ordinal_score(error, data, imb_data):
 
     score_perfect = score(data, data, error_type=error)
     score_mixed = score(data, swap_first_last(data), error_type=error)
@@ -34,6 +33,4 @@ def test_mze_score(error, data, imb_data):
     assert score_perfect > score_mixed
     assert score_mixed > score_worst
 
-    if error == "mmae":
-        score_perfect = score(imb_data, imb_data, error_type=error)
-        assert score_perfect == approx(0)
+    assert score_perfect == 1

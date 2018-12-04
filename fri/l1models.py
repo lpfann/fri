@@ -232,10 +232,12 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
         # Score based on mean zero-one error
         if error_type == "mze":
             error = mze(prediction, y) / n
+            score = 1 - error
 
         # Score based on mean absolute error
         elif error_type == "mae":
             error = mae(prediction, y) / n
+            score = 1 - (error / (n_bins-1))
 
         # Score based on macro-averaged mean absolute error
         elif error_type == "mmae":
@@ -248,16 +250,12 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
                     sum += bin_error
 
             error = sum / n_bins
-
+            score = 1- (error / (n_bins-1))
         else:
             raise ValueError("error_type {} not available!'".format(error_type))
 
-        if error == 0 or error == -0:
-            print(error_type,prediction,y)
-            print("error zero")
         if return_error:
             return error
         else:
-            score = -1 * error
             return score
 
