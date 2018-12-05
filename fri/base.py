@@ -4,7 +4,6 @@
 """
 import warnings
 from abc import abstractmethod
-from multiprocessing import Pool
 
 import numpy as np
 import math
@@ -15,6 +14,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 from sklearn.metrics import make_scorer
+from joblib import Parallel, delayed
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores
@@ -77,12 +77,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None,
-                 parallel=False, n_resampling=3, iter_psearch=10, debug=False):
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=1, n_resampling=3, iter_psearch=10, debug=False):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
-        self.parallel = parallel
+        self.n_jobs = n_jobs
         self.n_resampling = n_resampling
         self.iter_psearch = 10 if iter_psearch is None else iter_psearch
         self.debug = debug
@@ -416,18 +415,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                               initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
                              for di in dims])
 
-        def pmap(*args):
-            with Pool() as p:
-                return p.map(*args)
-
-        if self.parallel:
-            newmap = pmap
-        else:
-            newmap = map
-        #
-        # Compute all bounds using redefined map function (parallel / non parallel)
-        #
-        done = newmap(self._opt_per_thread, work)
+        done = Parallel(n_jobs=self.n_jobs)(map(delayed(self._opt_per_thread), work))
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
@@ -487,7 +475,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   scoring=scorer,
                                   refit=refit,
                                   n_iter=self.iter_psearch,
-                                  n_jobs=-1 if self.parallel else 1,
+                                  n_jobs=self.n_jobs,
                                   error_score=np.nan,
                                   return_train_score=False,
                                   verbose=False)

@@ -21,8 +21,9 @@ class FRIOrdinalRegression(FRIBase):
     iter_psearch : integer ( Default = 10)
         Amount of samples used for parameter search.
         Trade off between finer tuned model performance and run time of parameter search.
-    parallel : boolean, optional
-        Enables parallel computation of feature intervals
+    n_jobs : int, optional
+        Enables parallel computation (>1) of feature intervals.
+        If -1, use all cores.
     optimum_deviation : float, optional (Default = 0.001)
         Rate of allowed deviation from the optimal solution (L1 norm of model weights).
         Default allows one percent deviation. 
@@ -55,9 +56,9 @@ class FRIOrdinalRegression(FRIBase):
     problemType = BaseOrdinalRegressionProblem
 
     def __init__(self, C=None, optimum_deviation=0.001, random_state=None,
-                    parallel=False, n_resampling=3, iter_psearch=10, debug=False, **kwargs):
+                    n_jobs=1, n_resampling=3, iter_psearch=10, debug=False, **kwargs):
         super().__init__(C=C, random_state=random_state,
-                         parallel=parallel,
+                         n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
                          debug=debug, optimum_deviation=optimum_deviation)
 

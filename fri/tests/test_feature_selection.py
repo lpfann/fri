@@ -69,10 +69,15 @@ def test_multiprocessing(randomstate):
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
-    fri = FRIClassification(random_state=randomstate, parallel=True)
+
+    fri = FRIClassification(random_state=randomstate, n_jobs=1)
+    fri.fit(X, y)
+    
+    fri = FRIClassification(random_state=randomstate, n_jobs=2)
     fri.fit(X, y)
 
-
+    fri = FRIClassification(random_state=randomstate, n_jobs=-1)
+    fri.fit(X, y)
 
 def test_nonbinaryclasses(randomstate):
     n = 90

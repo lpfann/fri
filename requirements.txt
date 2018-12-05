@@ -4,3 +4,4 @@ scikit-learn>=0.20
 cvxpy==1.0.8
 ecos==2.0.5
 matplotlib
+joblib
