@@ -19,13 +19,13 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, debug=True, C=0.1, optimum_deviation=0.0)
+        fri = FRIRegression(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
     elif problem is "classification":
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, debug=True, C=0.1, optimum_deviation=0.0)
+        fri = FRIClassification(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
     elif problem is "ordreg":
         gen = genOrdinalRegressionData
-        fri = FRIOrdinalRegression(random_state=randomstate, debug=True, C=0.1, optimum_deviation=0.0)
+        fri = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
             gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,

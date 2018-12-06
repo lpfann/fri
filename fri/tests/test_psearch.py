@@ -18,13 +18,13 @@ def test_psearch(problem,C,iter_psearch, randomstate):
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, debug=True, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
+        fri = FRIRegression(random_state=randomstate, verbose=1, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
     elif problem is "classification":
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, debug=True, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
+        fri = FRIClassification(random_state=randomstate, verbose=1, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
     elif problem is "ordreg":
         gen = genOrdinalRegressionData
-        fri = FRIOrdinalRegression(random_state=randomstate, debug=True, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
+        fri = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=C,iter_psearch=iter_psearch, optimum_deviation=0.0)
 
     data = gen(n_samples=n_samples, n_features=n_features, n_redundant=2, n_strel=2,
                n_repeated=0, random_state=randomstate)

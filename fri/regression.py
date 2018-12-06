@@ -29,8 +29,8 @@ class FRIRegression(FRIBase):
         Default allows one percent deviation. 
         Allows for more relaxed optimization problems and leads to bigger intervals which are easier to interpret.
         Setting to 0 allows the best feature selection accuracy.
-    debug : boolean
-        Enable output of internal values for debugging purposes.
+    verbose : int ( Default = 0)
+        Print out verbose messages. The higher the number, the more messages are printed.
     
     Attributes
     ----------
@@ -55,11 +55,11 @@ class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
     def __init__(self, C=None, epsilon=None, optimum_deviation=0.001, random_state=None,
-                    n_jobs=1, n_resampling=3,iter_psearch=10, debug=False):
+                    n_jobs=1, n_resampling=3,iter_psearch=10, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
-                         debug=debug, optimum_deviation=optimum_deviation)
+                         verbose=verbose, optimum_deviation=optimum_deviation)
         self.epsilon = epsilon
         self.initModel = L1EpsilonRegressor
 

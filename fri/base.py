@@ -45,8 +45,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Default allows one percent deviation. 
         Allows for more relaxed optimization problems and leads to bigger intervals which are easier to interpret.
         Setting to 0 allows the best feature selection accuracy.
-    debug : boolean
-        Enable output of internal values for debugging purposes.
+    verbose : int ( Default = 0)
+        Print out verbose messages. The higher the number, the more messages are printed.
     
     Attributes
     ----------
@@ -77,14 +77,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=1, n_resampling=3, iter_psearch=10, debug=False):
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=1, n_resampling=3, iter_psearch=10, verbose=0):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
         self.n_jobs = n_jobs
         self.n_resampling = n_resampling
         self.iter_psearch = 10 if iter_psearch is None else iter_psearch
-        self.debug = debug
+        self.verbose = verbose
 
 
     @abstractmethod
@@ -121,7 +121,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
-        if self.debug:
+        if self.verbose > 0:
             print("loss", self.optim_loss_)
             print("L1", self.optim_L1_)
             print("offset", self._svm_bias)
@@ -415,7 +415,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                               initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
                              for di in dims])
 
-        done = Parallel(n_jobs=self.n_jobs)(map(delayed(self._opt_per_thread), work))
+        done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work))
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
@@ -424,7 +424,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             # Handle shadow values differently (we discard useless values)
             if not hasattr(finished_bound, "isShadow"):
                 prob_i = finished_bound.prob_instance
-                rangevector[di, i] = np.abs(prob_i.problem.value)
+                rangevector[di, i] = np.abs(prob_i.problem.value)   
                 omegas[di, i] = prob_i.omega.value.reshape(d)
                 biase[di, i] = prob_i.b.value
             else:
@@ -478,7 +478,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   n_jobs=self.n_jobs,
                                   error_score=np.nan,
                                   return_train_score=False,
-                                  verbose=False)
+                                  verbose=self.verbose)
 
         # Ignore warnings for extremely bad parameters (when precision=0)
         with warnings.catch_warnings():
