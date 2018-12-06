@@ -77,7 +77,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=1, n_resampling=3, iter_psearch=10, verbose=0):
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation

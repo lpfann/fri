@@ -55,7 +55,7 @@ class FRIClassification(FRIBase):
 
     def __init__(self, C=None, optimum_deviation=0.001,
                  random_state=None,
-                 n_jobs=1, n_resampling=3,iter_psearch = 10, verbose=0):
+                 n_jobs=None, n_resampling=3,iter_psearch = 10, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
