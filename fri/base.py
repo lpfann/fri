@@ -14,7 +14,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 from sklearn.metrics import make_scorer
-from joblib import Parallel, delayed
+from sklearn.externals.joblib import Parallel,delayed
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores
