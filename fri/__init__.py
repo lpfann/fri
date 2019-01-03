@@ -4,11 +4,11 @@
 from .classification import FRIClassification
 from .genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 from .ordinalregression import FRIOrdinalRegression
-from .plot import plotIntervals
+from .plot import plot_intervals, plot_grouping
 from .regression import FRIRegression
 
-__all__ = ["genRegressionData", "genClassificationData",
-           "plotIntervals", "FRIClassification", "FRIRegression", "FRIOrdinalRegression"]
+__all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
+           "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals", "plot_grouping"]
 
 # Get version from versioneer
 from ._version import get_versions
