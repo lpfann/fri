@@ -130,3 +130,18 @@ def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabel
     plt.tight_layout()
 
     return fig
+
+
+def plot_grouping(model, ticklabels=None):
+    if model.feature_clusters_ is not None:
+        return plot_dendrogram_and_intervals(model.interval_, model.linkage_, ticklabels=ticklabels,
+                                             classes=model.relevance_classes_)
+    else:
+        print("Grouping not computed. Try running grouping() function first.")
+
+
+def plot_intervals(model, ticklabels=None):
+    if model.interval_ is not None:
+        return plotIntervals(model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_)
+    else:
+        print("Intervals not computed. Try running fit() function first.")
