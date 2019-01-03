@@ -200,14 +200,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                           solverargs=kwargs)
                 except NotFeasibleForParameters:
                     preset[i] *= -1
-                    # print("Community detection: Constrained run failed, swap sign".format)
+                    #print("Community detection: Constrained run failed, swap sign".format)
                     continue
                 else:
                     #print("solved constrained opt for ", i)
                     # problem was solvable
                     break
             else:
-                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
+                raise NotFeasibleForParameters("Grouping failed.", "dim {}".format(i))
 
             # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
             #                                      None)
@@ -293,7 +293,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                               None)
             return rangevector
 
-    def community_detection(self, cutoff_threshold=0.55, method="single"):
+    def grouping(self, cutoff_threshold=0.55, method="single"):
+        """ Find feature clusters based on observed variance when changing feature contributions 
+        
+        Parameters
+        ----------
+        cutoff_threshold : float, optional
+            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.
+        method : str, optional
+            Linkage method used in the hierarchical clustering.
+        
+        Returns
+        -------
+        self
+        """
 
         # Do we have intervals?
         check_is_fitted(self, "interval_")
@@ -340,7 +353,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         self.feature_clusters_, self.linkage_ = feature_clustering, link
 
-        return feature_clustering, link, feature_points, dist_mat
+        return self.feature_clusters_
 
 
     def _get_relevance_mask(self,
