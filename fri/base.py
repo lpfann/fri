@@ -3,6 +3,9 @@
 
 """
 import scipy
+import umap
+import hdbscan
+
 import warnings
 from abc import abstractmethod
 
@@ -126,12 +129,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Use SVM to get optimal solution
         self._initEstimator(X, y)
         if self.verbose > 0:
-            print("loss", self.optim_loss_)
-            print("L1", self.optim_L1_)
-            print("offset", self._svm_bias)
-            print("best_parameters", self._best_params)
-            print("score", self.optim_score_)
-            print("coef:\n{}".format(self._svm_coef.T))
+            print("Selected Hyperparameters:", self._best_params)
+            print("SVM Loss:", self.optim_loss_)
+            print("SVM L1:", self.optim_L1_)
+            print("SVM offset: ", self._svm_bias)
+            print("SVM score:", self.optim_score_)
+            print("Allowed deviation: {}, relative to L1: {}".
+                format(self.optimum_deviation, self.optimum_deviation*self.optim_L1_))
+            print("SVM coefficents:\n{}".format(self._svm_coef.T))
 
         if 0 <self.optim_score_ < 0.65: # Only check positive scores, ordinal score function has its maximum at 0, we ignore that
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
@@ -337,6 +342,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for i in range(d):
             feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
             feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
+            
+        self.relevance_variance = feature_points
 
         # Calculate similarity using custom measure
         dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
@@ -354,6 +361,40 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.feature_clusters_, self.linkage_ = feature_clustering, link
 
         return self.feature_clusters_
+
+    def umap(self, n_neighbors=2, n_components=2, min_dist=0.1):
+        if self.relevance_variance is None:
+            print("Use grouping() first to compute relevance_variance")
+            return
+
+        um = umap.UMAP(n_neighbors=n_neighbors, n_components=n_components,
+                       min_dist=min_dist, metric=distance)
+        embedding = um.fit_transform(self.relevance_variance)
+        self._umap_embedding = embedding
+        return embedding
+
+    def grouping_umap(self, only_relevant=False, min_group_size = 2):
+        if self._umap_embedding is None:
+            print("Use umap() first to compute embedding")
+            return
+
+        if only_relevant:
+            embedding = self._umap_embedding[self.allrel_prediction_]
+        else:
+            embedding = self._umap_embedding
+
+        hdb = hdbscan.HDBSCAN(min_cluster_size=min_group_size)
+        hdb.fit(embedding)
+        labels = np.full_like(self.allrel_prediction_,-2,dtype=int)
+
+        if only_relevant:
+            labels[self.allrel_prediction_] = hdb.labels_
+        else:
+            labels = hdb.labels_
+
+        self.group_labels_ = labels
+
+        return labels
 
 
     def _get_relevance_mask(self,
