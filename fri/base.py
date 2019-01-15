@@ -370,13 +370,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
         um = umap.UMAP(n_neighbors=n_neighbors, n_components=n_components,
                        min_dist=min_dist, metric=distance)
         embedding = um.fit_transform(self.relevance_variance)
-        self._umap_embedding = embedding
+
         return embedding
 
-    def grouping_umap(self, only_relevant=False, min_group_size = 2):
-        if self._umap_embedding is None:
-            print("Use umap() first to compute embedding")
-            return
+    def grouping_umap(self, only_relevant=False,
+                      min_group_size = 2,umap_n_neighbors=2,umap_n_components=2, umap_min_dist=0.1):
+
+        self._umap_embedding = self.umap(n_neighbors=umap_n_neighbors, n_components=umap_n_components,min_dist=umap_min_dist) 
 
         if only_relevant:
             embedding = self._umap_embedding[self.allrel_prediction_]
@@ -385,6 +385,27 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         hdb = hdbscan.HDBSCAN(min_cluster_size=min_group_size)
         hdb.fit(embedding)
+        labels = np.full_like(self.allrel_prediction_,-2,dtype=int)
+
+        if only_relevant:
+            labels[self.allrel_prediction_] = hdb.labels_
+        else:
+            labels = hdb.labels_
+
+        self.group_labels_ = labels
+
+        return labels
+
+    def grouping_hdbscan(self, only_relevant=False, min_group_size = 2):
+
+        if only_relevant:
+            data = self.relevance_variance[self.allrel_prediction_]
+        else:
+            data = self.relevance_variance
+
+        hdb = hdbscan.HDBSCAN(min_cluster_size=min_group_size,metric=distance
+            )
+        hdb.fit(data)
         labels = np.full_like(self.allrel_prediction_,-2,dtype=int)
 
         if only_relevant:
@@ -501,7 +522,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         if solverargs is None:
-            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 100}
+            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+            # kwargs = {"verbose": False, "solver": "OSQP"}
         else:
             kwargs = solverargs
 
