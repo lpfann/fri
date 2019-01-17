@@ -163,3 +163,21 @@ def plot_intervals(model, ticklabels=None):
         plotIntervals(model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_)
     else:
         print("Intervals not computed. Try running fit() function first.")
+
+
+def interactive_scatter_embed(embedding, mode="markers", txt=None):
+    import plotly.graph_objs as go
+    from plotly.offline import init_notebook_mode, iplot
+    init_notebook_mode(connected=True)
+    # Create a trace
+    trace = go.Scatter(
+        x=embedding[:, 0],
+        y=embedding[:, 1],
+        mode=mode,
+        text=txt if mode is "text" else None
+    )
+
+    data = [trace]
+
+    # Plot and embed in ipython notebook!
+    iplot(data)
