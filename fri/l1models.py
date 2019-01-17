@@ -6,7 +6,7 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-from sklearn.metrics import fbeta_score, precision_score, recall_score
+from sklearn.metrics import fbeta_score, precision_score, recall_score, classification_report
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.utils import check_X_y,check_array
 from sklearn.exceptions import NotFittedError
@@ -55,9 +55,7 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         # Using weighted f1 score to have a stable score for imbalanced datasets
         score = fbeta_score(y, prediction, beta=1, average="weighted")
         if debug:
-            precision = precision_score(y, prediction)
-            recall = recall_score(y, prediction)
-            print("precision: {}, recall: {}".format(precision, recall))
+            return classification_report(y, prediction)
         return score
 
 class L1EpsilonRegressor(LinearModel, RegressorMixin):

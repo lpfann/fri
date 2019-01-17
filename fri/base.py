@@ -24,7 +24,7 @@ from sklearn.externals.joblib import Parallel,delayed
 
 from .utils import distance
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
-from .l1models import L1OrdinalRegressor, ordinal_scores
+from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
 
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
@@ -136,6 +136,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("SVM score:", self.optim_score_)
             print("Allowed deviation: {}, relative to L1: {}".
                 format(self.optimum_deviation, self.optimum_deviation*self.optim_L1_))
+            if self.initModel is L1HingeHyperplane:
+                print("Classification scores per class")
+                print(self.classification_report)
+
             print("SVM coefficents:\n{}".format(self._svm_coef.T))
 
         if 0 <self.optim_score_ < 0.65: # Only check positive scores, ordinal score function has its maximum at 0, we ignore that
@@ -299,15 +303,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
             return rangevector
 
     def grouping(self, cutoff_threshold=0.55, method="single"):
-        """ Find feature clusters based on observed variance when changing feature contributions 
-        
+        """ Find feature clusters based on observed variance when changing feature contributions
+
         Parameters
         ----------
         cutoff_threshold : float, optional
             Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.
         method : str, optional
             Linkage method used in the hierarchical clustering.
-        
+
         Returns
         -------
         self
@@ -342,7 +346,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for i in range(d):
             feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
             feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
-            
+
         self.relevance_variance = feature_points
 
         # Calculate similarity using custom measure
@@ -376,7 +380,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def grouping_umap(self, only_relevant=False,
                       min_group_size = 2,umap_n_neighbors=2,umap_n_components=2, umap_min_dist=0.1):
 
-        self._umap_embedding = self.umap(n_neighbors=umap_n_neighbors, n_components=umap_n_components,min_dist=umap_min_dist) 
+        self._umap_embedding = self.umap(n_neighbors=umap_n_neighbors, n_components=umap_n_components,min_dist=umap_min_dist)
 
         if only_relevant:
             embedding = self._umap_embedding[self.allrel_prediction_]
@@ -522,8 +526,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         if solverargs is None:
-            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
-            # kwargs = {"verbose": False, "solver": "OSQP"}
+            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 100}
         else:
             kwargs = solverargs
 
@@ -623,6 +626,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._cv_results = gridsearch.cv_results_
         self.optim_model_ = gridsearch.best_estimator_
         self.optim_score_ = self.optim_model_.score(X, Y)
+        if self.verbose > 0 and self.initModel is L1HingeHyperplane:
+            self.classification_report = self.optim_model_.score(X, Y, debug=True)
         self._svm_coef = self.optim_model_.coef_
         self._svm_bias = self.optim_model_.intercept_
         self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
