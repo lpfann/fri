@@ -374,7 +374,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         um = umap.UMAP(n_neighbors=n_neighbors, n_components=n_components,
                        min_dist=min_dist, metric=distance)
         embedding = um.fit_transform(self.relevance_variance)
-
+        self.relevance_var_embedding_ = embedding
         return embedding
 
     def grouping_umap(self, only_relevant=False,
