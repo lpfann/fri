@@ -89,6 +89,10 @@ class FRIOrdinalRegression(FRIBase):
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
 
+        if min(y) >0:
+            print("First ordinal class has index > 0. Trying to shift indices by 1...")
+            y = y-1
+            
         # Get ordinal classes
         self.classes_ = np.unique(y)
 
