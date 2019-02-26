@@ -55,7 +55,7 @@ class FRIOrdinalRegression(FRIBase):
 
     problemType = BaseOrdinalRegressionProblem
 
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None,
+    def __init__(self, C=1, optimum_deviation=0.001, random_state=None,
                     n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0, **kwargs):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
@@ -92,7 +92,7 @@ class FRIOrdinalRegression(FRIBase):
         if min(y) >0:
             print("First ordinal class has index > 0. Trying to shift indices by 1...")
             y = y-1
-            
+
         # Get ordinal classes
         self.classes_ = np.unique(y)
 

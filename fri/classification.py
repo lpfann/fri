@@ -53,7 +53,7 @@ class FRIClassification(FRIBase):
     """
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=None, optimum_deviation=0.001,
+    def __init__(self, C=1, optimum_deviation=0.001,
                  random_state=None,
                  n_jobs=None, n_resampling=3,iter_psearch = 10, verbose=0):
         super().__init__(C=C, random_state=random_state,
