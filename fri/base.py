@@ -166,142 +166,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def _run_with_single_dim_single_value_preset(self,i, preset_i, n_tries=10):
-            """
-            Method to run method once for one restricted feature
-            Parameters
-            ----------
-            i:
-                restricted feature
-            preset_i:
-                restricted range of feature i (set before optimization = preset)
-            n_tries:
-                number of allowed relaxation steps for the L1 constraint in case of LP infeasible
-
-            """
-            X = self.X_
-            y = self.y_
-            # Do we have intervals?
-            check_is_fitted(self, "interval_")
-            interval = self.unmod_interval_
-            d = len(interval)
-
-            constrained_ranges_diff = np.zeros((d, 2))
-
-            # Init empty preset
-            preset = np.empty(shape=(d, 2))
-            preset.fill(np.nan)
-
-            # Add correct sign of this coef
-            signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
-            preset[i] = signed_preset_i
-            # Calculate all bounds with feature i set to min_i
-            l1 = self.optim_L1_
-            loss = self.optim_loss_
-            for j in range(n_tries):
-                # try several times if problem to stringent
-                try:
-                    kwargs = {"verbose": False, "solver": "ECOS"}
-                    rangevector, _, _, _ = self._main_opt(X, y, loss,
-                                                          l1,
-                                                          self.random_state,
-                                                          False, presetModel=preset,
-                                                          solverargs=kwargs)
-                except NotFeasibleForParameters:
-                    preset[i] *= -1
-                    # print("Community detection: Constrained run failed, swap sign".format)
-                    continue
-                else:
-                    #print("solved constrained opt for ", i)
-                    # problem was solvable
-                    break
-            else:
-                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
-
-            # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-            #                                      None)
-            # Get differences for constrained intervals to normal intervals
-            constrained_ranges_diff = self.unmod_interval_ - rangevector
-
-            # Current dimension is not constrained, so these values are set accordingly
-            rangevector[i] = preset_i
-            constrained_ranges_diff[i] = 0
-
-            return rangevector, constrained_ranges_diff
-
-    def constrained_intervals_(self, preset):
-        """Method to return relevance intervals which are constrained using preset ranges or values.
-        
-        Parameters
-        ----------
-        preset : array like [[preset lower_Bound_0,preset upper_Bound_0],...,]
-            An array where all entries which are not 'np.nan' are interpreted as constraint for that corresponding feature.
-            
-            Best created using 
-
-            >>> np.full_like(fri_model.interval_, np.nan, dtype=np.double)
-
-            Example: To set  feature 0 to a fixed value use 
-
-            >>> preset[0] = fri_model.interval_[0, 0]
-        
-        Returns
-        -------
-        array like
-            Relevance bounds with user constraints 
-        """
-        processed = preset*self.optim_L1_ # Revert scaling to L1 norm which is done for our output intervals (see postprocessing)
-        return self._run_with_multiple_value_preset(preset=processed)
-
-    def _run_with_multiple_value_preset(self, preset=None):
-            """
-            Method to run method with preset values
-            """
-            X = self.X_
-            y = self.y_
-            # Do we have intervals?
-            check_is_fitted(self, "interval_")
-            interval = self.unmod_interval_
-            d = len(interval)
-
-            constrained_ranges_diff = np.zeros((d, 2))
-
-            # Add correct sign of this coef
-            signed_presets = np.sign(self._svm_coef[0]) * preset.T
-            signed_presets = signed_presets.T
-            # Calculate all bounds with feature presets
-            l1 = self.optim_L1_
-            loss = self.optim_loss_
-            sumofpreset = np.nansum(preset[:,1])
-            if sumofpreset > l1:
-                print("maximum L1 norm of presets: ",sumofpreset)
-                print("L1 allowed:",l1)
-                print("Presets are not feasible. Try lowering values.")
-                return
-            try:
-                kwargs = {"verbose": False, "solver": "ECOS"}
-                rangevector, _, _, _ = self._main_opt(X, y, loss,
-                                                      l1,
-                                                      self.random_state,
-                                                      False, presetModel=signed_presets,
-                                                      solverargs=kwargs)
-            except NotFeasibleForParameters:
-                print("Presets are not feasible")
-                return
-
-
-            constrained_ranges_diff = self.unmod_interval_ - rangevector
-
-            # Current dimension is not constrained, so these values are set accordingly
-            for i, p in enumerate(preset):
-                if np.all(np.isnan(p)):
-                    continue
-                else:
-                    rangevector[i] = p
-            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-                                                              None)
-            return rangevector
-
     def _get_relevance_mask(self,
                             fpr=0.01
                             ):
@@ -539,3 +403,137 @@ class FRIBase(BaseEstimator, SelectorMixin):
         else:
             raise NotFittedError()
 
+    def _run_with_single_dim_single_value_preset(self, i, preset_i, n_tries=10):
+        """
+        Method to run method once for one restricted feature
+        Parameters
+        ----------
+        i:
+            restricted feature
+        preset_i:
+            restricted range of feature i (set before optimization = preset)
+        n_tries:
+            number of allowed relaxation steps for the L1 constraint in case of LP infeasible
+
+        """
+        X = self.X_
+        y = self.y_
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+        interval = self.unmod_interval_
+        d = len(interval)
+
+        constrained_ranges_diff = np.zeros((d, 2))
+
+        # Init empty preset
+        preset = np.empty(shape=(d, 2))
+        preset.fill(np.nan)
+
+        # Add correct sign of this coef
+        signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
+        preset[i] = signed_preset_i
+        # Calculate all bounds with feature i set to min_i
+        l1 = self.optim_L1_
+        loss = self.optim_loss_
+        for j in range(n_tries):
+            # try several times if problem to stringent
+            try:
+                kwargs = {"verbose": False, "solver": "ECOS"}
+                rangevector, _, _, _ = self._main_opt(X, y, loss,
+                                                      l1,
+                                                      self.random_state,
+                                                      False, presetModel=preset,
+                                                      solverargs=kwargs)
+            except NotFeasibleForParameters:
+                preset[i] *= -1
+                # print("Community detection: Constrained run failed, swap sign".format)
+                continue
+            else:
+                # print("solved constrained opt for ", i)
+                # problem was solvable
+                break
+        else:
+            raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
+
+        # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+        #                                      None)
+        # Get differences for constrained intervals to normal intervals
+        constrained_ranges_diff = self.unmod_interval_ - rangevector
+
+        # Current dimension is not constrained, so these values are set accordingly
+        rangevector[i] = preset_i
+        constrained_ranges_diff[i] = 0
+
+        return rangevector, constrained_ranges_diff
+
+    def constrained_intervals_(self, preset):
+        """Method to return relevance intervals which are constrained using preset ranges or values.
+        
+        Parameters
+        ----------
+        preset : array like [[preset lower_Bound_0,preset upper_Bound_0],...,]
+            An array where all entries which are not 'np.nan' are interpreted as constraint for that corresponding feature.
+            
+            Best created using 
+
+            >>> np.full_like(fri_model.interval_, np.nan, dtype=np.double)
+
+            Example: To set  feature 0 to a fixed value use 
+
+            >>> preset[0] = fri_model.interval_[0, 0]
+        
+        Returns
+        -------
+        array like
+            Relevance bounds with user constraints 
+        """
+        processed = preset * self.optim_L1_  # Revert scaling to L1 norm which is done for our output intervals (see postprocessing)
+        return self._run_with_multiple_value_preset(preset=processed)
+
+    def _run_with_multiple_value_preset(self, preset=None):
+        """
+        Method to run method with preset values
+        """
+        X = self.X_
+        y = self.y_
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+        interval = self.unmod_interval_
+        d = len(interval)
+
+        constrained_ranges_diff = np.zeros((d, 2))
+
+        # Add correct sign of this coef
+        signed_presets = np.sign(self._svm_coef[0]) * preset.T
+        signed_presets = signed_presets.T
+        # Calculate all bounds with feature presets
+        l1 = self.optim_L1_
+        loss = self.optim_loss_
+        sumofpreset = np.nansum(preset[:, 1])
+        if sumofpreset > l1:
+            print("maximum L1 norm of presets: ", sumofpreset)
+            print("L1 allowed:", l1)
+            print("Presets are not feasible. Try lowering values.")
+            return
+        try:
+            kwargs = {"verbose": False, "solver": "ECOS"}
+            rangevector, _, _, _ = self._main_opt(X, y, loss,
+                                                  l1,
+                                                  self.random_state,
+                                                  False, presetModel=signed_presets,
+                                                  solverargs=kwargs)
+        except NotFeasibleForParameters:
+            print("Presets are not feasible")
+            return
+
+        constrained_ranges_diff = self.unmod_interval_ - rangevector
+
+        # Current dimension is not constrained, so these values are set accordingly
+        for i, p in enumerate(preset):
+            if np.all(np.isnan(p)):
+                continue
+            else:
+                rangevector[i] = p
+        rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+                                              None)
+        return rangevector
