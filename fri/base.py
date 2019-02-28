@@ -166,65 +166,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Return the classifier
         return self
 
-    def _get_relevance_mask(self,
-                            fpr=0.01
-                            ):
-        """Determines relevancy using feature relevance interval values
-        Parameters
-        ----------
-        fpr : float, optional
-            false positive rate allowed under H_0
-        Returns
-        -------
-        boolean array
-            Relevancy prediction for each feature
-        """
-        rangevector = self.interval_
-        shadows = self._shadowintervals
-        prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
-        n = self.X_.shape[1]
-        allowed =  math.floor(fpr * n)
-        
-        lower = shadows[:,0]
-        lower = sorted(lower)[::-1]
-        upper = shadows[:,1]
-        upper = sorted(upper)[::-1]
-
-        upper_epsilon = upper[allowed+1]
-        lower_epsilon = lower[allowed+1]
-        self.epsilons = [lower_epsilon,upper_epsilon]
-
-        # Weakly relevant ones have high upper bounds
-        weakly = rangevector[:, 1] > upper_epsilon
-        strongly = np.equal(shadows[:,0], 0)
-        both = np.logical_and(weakly, strongly) 
-
-        prediction[weakly] = 1
-        prediction[both] = 2
-
-        self.relevance_classes_ = prediction
-        self.allrel_prediction_ = prediction > 0
-
-        return self.allrel_prediction_
-
-    def _n_features(self):
-        """
-
-        Returns the number of selected features.
-        -------
-
-        """
-        check_is_fitted(self,"allrel_prediction_")
-        return sum(self.allrel_prediction_)
-
-    def _get_support_mask(self):
-        """Method for SelectorMixin
-        Returns
-        -------
-        boolean array
-        """
-        return self.allrel_prediction_
 
     @staticmethod
     def _opt_per_thread(bound):
@@ -323,23 +265,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return rangevector, omegas, biase, shadowrangevector
 
-    def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
-        #
-        # Postprocessig intervals
-        #
-        # Correction through shadow features
-        assert L1 > 0
 
-        if shadow_features:
-            shadowrangevector = shadowrangevector / L1
-
-        # Scale to L1
-        rangevector = rangevector / L1
-
-        # round mins to zero
-        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
-
-        return rangevector, shadowrangevector
 
 
 
@@ -395,6 +321,84 @@ class FRIBase(BaseEstimator, SelectorMixin):
         if X_priv is not None:
             self.optim_L1_priv_ = self.optim_L1_priv_ * (1 + self.optimum_deviation_priv)
             self.optim_loss_ = self.optim_loss_ * (1 + self.optimum_deviation_slack)
+
+    def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
+        #
+        # Postprocessig intervals
+        #
+        # Correction through shadow features
+        assert L1 > 0
+
+        if shadow_features:
+            shadowrangevector = shadowrangevector / L1
+
+        # Scale to L1
+        rangevector = rangevector / L1
+
+        # round mins to zero
+        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+
+        return rangevector, shadowrangevector
+
+    def _get_relevance_mask(self,
+                            fpr=0.01
+                            ):
+        """Determines relevancy using feature relevance interval values
+        Parameters
+        ----------
+        fpr : float, optional
+            false positive rate allowed under H_0
+        Returns
+        -------
+        boolean array
+            Relevancy prediction for each feature
+        """
+        rangevector = self.interval_
+        shadows = self._shadowintervals
+        prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+
+        n = self.X_.shape[1]
+        allowed = math.floor(fpr * n)
+
+        lower = shadows[:, 0]
+        lower = sorted(lower)[::-1]
+        upper = shadows[:, 1]
+        upper = sorted(upper)[::-1]
+
+        upper_epsilon = upper[allowed + 1]
+        lower_epsilon = lower[allowed + 1]
+        self.epsilons = [lower_epsilon, upper_epsilon]
+
+        # Weakly relevant ones have high upper bounds
+        weakly = rangevector[:, 1] > upper_epsilon
+        strongly = np.equal(shadows[:, 0], 0)
+        both = np.logical_and(weakly, strongly)
+
+        prediction[weakly] = 1
+        prediction[both] = 2
+
+        self.relevance_classes_ = prediction
+        self.allrel_prediction_ = prediction > 0
+
+        return self.allrel_prediction_
+
+    def _n_features(self):
+        """
+
+        Returns the number of selected features.
+        -------
+
+        """
+        check_is_fitted(self, "allrel_prediction_")
+        return sum(self.allrel_prediction_)
+
+    def _get_support_mask(self):
+        """Method for SelectorMixin
+        Returns
+        -------
+        boolean array
+        """
+        return self.allrel_prediction_
 
 
     def score(self, X, y):
