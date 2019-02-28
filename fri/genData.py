@@ -73,7 +73,7 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100
 
 def genClassificationData(n_samples: int = 100, n_features: int = 2,
                           n_redundant: int = 0, n_strel: int = 1,
-                          n_repeated: int = 0,
+                          n_repeated: int = 0, noise : float = 0.1,
                           flip_y: float = 0, random_state: object = None,
                           partition=None):
     """Generate synthetic classification data
@@ -90,6 +90,8 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
         Number of features which are mandatory for the underlying model (strongly relevant)
     n_repeated : int, optional
         Number of features which are clones of existing ones. 
+    noise : float
+        Added gaussian noise to data. Parameter scales Std of normal distribution.
     flip_y : float, optional
         Ratio of samples randomly switched to wrong class.
     random_state : object, optional
@@ -173,16 +175,19 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
                            n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated, partition=partition)
-
+    # Add target noise
     if flip_y > 0:
         n_flip = int(flip_y * n_samples)
         Y[random_state.choice(n_samples, n_flip)] *= -1
+
+    # Add gaussian noise to data
+    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
 
     return X, Y
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                      n_repeated: int = 0, noise: float = 0, random_state: object = None,
+                      n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
                       partition=None) -> object:
     """Generate synthetic regression data
     
@@ -232,7 +237,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
 
     X_informative, Y = make_regression(n_features=int(n_strel + part_size),
                                        n_samples=int(n_samples),
-                                       noise=noise,
+                                       noise=0,
                                        n_informative=int(n_strel + part_size),
                                        random_state=random_state,
                                        shuffle=False)
@@ -241,11 +246,14 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
                            n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated,
                            noise=noise, partition=partition)
+    
+    # Add gaussian noise to data
+    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
 
     return X, Y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                             n_repeated: int = 0, noise: float = 0, random_state: object = None,
+                             n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
                              partition=None, n_target_bins: int = 3):
 
     """
@@ -295,7 +303,7 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
                                                    n_redundant=int(n_redundant),
                                                    n_strel=int(n_strel),
                                                    n_repeated=int(n_repeated),
-                                                   noise=float(noise),
+                                                   noise=0,
                                                    random_state=random_state,
                                                    partition=partition)
 
@@ -315,8 +323,10 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
     if rest > 0:
         Y[-rest:] = n_target_bins - 1
 
-    # TODO: add shuffle function here? all values sorted at the moment
-    X, Y = shuffle(X, Y, random_state=0)
+    X, Y = shuffle(X, Y, random_state=random_state)
+
+    # Add gaussian noise to data
+    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
 
     return X, Y
 
