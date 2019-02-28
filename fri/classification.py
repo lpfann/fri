@@ -15,9 +15,9 @@ class FRIClassification(FRIBase):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
-    iter_psearch : integer ( Default = 10)
+    iter_psearch : integer ( Default = 20)
         Amount of samples used for parameter search.
         Trade off between finer tuned model performance and run time of parameter search.
     n_jobs : int, optional
@@ -55,7 +55,7 @@ class FRIClassification(FRIBase):
 
     def __init__(self, C=1, optimum_deviation=0.001,
                  random_state=None,
-                 n_jobs=None, n_resampling=3,iter_psearch = 10, verbose=0):
+                 n_jobs=None, n_resampling=40,iter_psearch = 20, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,

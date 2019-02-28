@@ -34,7 +34,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
     iter_psearch : integer ( Default = 10)
         Amount of samples used for parameter search.
@@ -78,13 +78,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=None, n_resampling=40, iter_psearch=20, verbose=0):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
         self.n_jobs = n_jobs
         self.n_resampling = n_resampling
-        self.iter_psearch = 10 if iter_psearch is None else iter_psearch
+        self.iter_psearch = 20 if iter_psearch is None else iter_psearch
         self.verbose = verbose
 
 
@@ -112,8 +112,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.linkage_ = None
         self.interval_ = None
         self.random_state = check_random_state(self.random_state)
-        # Shadow features always calculated with new feature classification method
-        self.shadow_features = True
 
         y = np.asarray(y)
 
@@ -138,20 +136,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Calculate bounds
-        rangevector, omegas, biase, shadowrangevector = self._main_opt(X, y, self.optim_loss_,
+        rangevector, omegas, biase = self._main_opt(X, y, self.optim_loss_,
                                                                        self.optim_L1_,
-                                                                       self.random_state,
-                                                                       self.shadow_features)
+                                                                       self.random_state)
         # save unmodified intervals (without postprocessing
         self.unmod_interval_ = rangevector.copy()
         # Postprocess bounds
-        rangevector, shadowrangevector = self._postprocessing(self.optim_L1_, rangevector, self.shadow_features,
-                                                              shadowrangevector)
+        rangevector = self._postprocessing(self.optim_L1_, rangevector)
 
         self.interval_ = rangevector
         self._omegas = omegas
         self._biase = biase
-        self._shadowintervals = shadowrangevector
 
         self._get_relevance_mask()
 
@@ -167,7 +162,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None, solverargs=None):
+    def _main_opt(self, X, Y, svmloss, L1, random_state, presetModel=None, solverargs=None):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -179,7 +174,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         n, d = X.shape
         rangevector = np.zeros((d, 2))
-        shadowrangevector = np.zeros((d, 2))
+        self._shadow_values  = []
         omegas = np.zeros((d, 2, d))
         if self.classes_ is not None:
             class_thresholds = len(self.classes_) - 1
@@ -211,25 +206,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Create tasks for worker(s)
         #
-        work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                           presetModel=presetModel)
-                for di in dims]
-        work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                                presetModel=presetModel)
-                     for di in dims])
-        if shadow_features:
-            for nr in range(self.n_resampling):
-                work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
-                             for di in dims])
-                work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
-                             for di in dims])
 
-        done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work))
+        def work_generator():
+            for di in dims:
+                yield LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y, presetModel=presetModel)
+                yield UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y, presetModel=presetModel)
+            # Random sample n_resampling shadow features by permuting real features and computing upper bound
+            random_choice = random_state.choice(a=np.arange(d),size=self.n_resampling)
+            for i,di in enumerate(random_choice):
+                yield ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,initL1=L1, X=X, Y=Y, sampleNum=i, presetModel=presetModel)
 
-        self._shadow_values  = [],[]
-        
+        done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work_generator()))
+
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
             di = finished_bound.optim_dim
@@ -242,8 +230,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 biase[di, i] = prob_i.b.value
             else:
                 # Get the mean of all shadow samples
-                self._shadow_values[i].append(finished_bound.shadow_value)
-                shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
+                self._shadow_values.append(finished_bound.shadow_value)
         if presetModel is not None:
             for i, p in enumerate(presetModel):
                 if np.all(np.isnan(p)):
@@ -251,7 +238,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 else:
                     rangevector[i] = p
 
-        return rangevector, omegas, biase, shadowrangevector
+        return rangevector, omegas, biase
 
     def _initEstimator(self, X, Y):
         if self.initModel is L1OrdinalRegressor:
@@ -297,15 +284,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.optim_L1_ = self.optim_L1_ * (1 + self.optimum_deviation)
 
 
-    def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
+    def _postprocessing(self, L1, rangevector):
         #
         # Postprocessig intervals
         #
         # Correction through shadow features
         assert L1 > 0
-
-        if shadow_features:
-            shadowrangevector = shadowrangevector / L1
 
         # Scale to L1
         rangevector = rangevector / L1
@@ -313,7 +297,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
-        return rangevector, shadowrangevector
+        return rangevector
 
     def _get_relevance_mask(self,
                             fpr=0.01,
@@ -361,26 +345,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
         else:
             rangevector = self.interval_
             prediction = np.zeros(rangevector.shape[0], dtype=np.int)
-            mins, maxs = self._shadow_values
-            mins, maxs = np.array(mins), np.array(maxs)
-            mins = mins / self.optim_L1_
+            maxs = self._shadow_values
+            maxs = np.array(maxs)
             maxs = maxs / self.optim_L1_
-
             n = len(maxs)
 
-            def prediction_interval(array):
-                mean = array.mean()
-                s = array.std()
-                perc = fpr
-                pos = mean+stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
-                neg = mean-stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
-                return pos, neg
+            mean = maxs.mean()
+            s = maxs.std()
+            perc = fpr
+            pos = mean+stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
+            neg = mean-stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
 
-            max_pi = prediction_interval(maxs)
-            min_pi = prediction_interval(mins)
 
-            weakly = rangevector[:, 1] > max_pi[1]
-            strongly = rangevector[:, 0] > min_pi[1]
+            weakly = rangevector[:, 1] > neg
+            strongly = rangevector[:, 0] > 0
             both = np.logical_and(weakly, strongly) 
 
             prediction[weakly] = 1
