@@ -15,6 +15,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 from sklearn.metrics import make_scorer
 from sklearn.externals.joblib import Parallel,delayed
+import scipy.stats as stats
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
@@ -203,7 +204,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         if solverargs is None:
-            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 100}
+            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
         else:
             kwargs = solverargs
 
@@ -227,6 +228,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work))
 
+        self._shadow_values  = [],[]
+        
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
             di = finished_bound.optim_dim
@@ -239,6 +242,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 biase[di, i] = prob_i.b.value
             else:
                 # Get the mean of all shadow samples
+                self._shadow_values[i].append(finished_bound.shadow_value)
                 shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
         if presetModel is not None:
             for i, p in enumerate(presetModel):
@@ -248,7 +252,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                     rangevector[i] = p
 
         return rangevector, omegas, biase, shadowrangevector
-        
+
     def _initEstimator(self, X, Y):
         if self.initModel is L1OrdinalRegressor:
             # Use two scores for ordinal regression
@@ -312,7 +316,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return rangevector, shadowrangevector
 
     def _get_relevance_mask(self,
-                            fpr=0.01
+                            fpr=0.01,
+                            old=False
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
@@ -324,34 +329,67 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-        rangevector = self.interval_
-        shadows = self._shadowintervals
-        prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+        if old:
+            rangevector = self.interval_
+            shadows = self._shadowintervals
+            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
-        n = self.X_.shape[1]
-        allowed =  math.floor(fpr * n)
-        
-        lower = shadows[:,0]
-        lower = sorted(lower)[::-1]
-        upper = shadows[:,1]
-        upper = sorted(upper)[::-1]
+            n = self.X_.shape[1]
+            allowed =  math.floor(fpr * n)
+            
+            lower = shadows[:,0]
+            lower = sorted(lower)[::-1]
+            upper = shadows[:,1]
+            upper = sorted(upper)[::-1]
 
-        upper_epsilon = upper[allowed+1]
-        lower_epsilon = lower[allowed+1]
-        self.epsilons = [lower_epsilon,upper_epsilon]
+            upper_epsilon = upper[allowed+1]
+            lower_epsilon = lower[allowed+1]
+            self.epsilons = [lower_epsilon,upper_epsilon]
 
-        # Weakly relevant ones have high upper bounds
-        weakly = rangevector[:, 1] > upper_epsilon
-        strongly = np.equal(shadows[:,0], 0)
-        both = np.logical_and(weakly, strongly) 
+            # Weakly relevant ones have high upper bounds
+            weakly = rangevector[:, 1] > upper_epsilon
+            strongly = np.equal(shadows[:,0], 0)
+            both = np.logical_and(weakly, strongly) 
 
-        prediction[weakly] = 1
-        prediction[both] = 2
+            prediction[weakly] = 1
+            prediction[both] = 2
 
-        self.relevance_classes_ = prediction
-        self.allrel_prediction_ = prediction > 0
+            self.relevance_classes_ = prediction
+            self.allrel_prediction_ = prediction > 0
 
-        return self.allrel_prediction_
+            return self.allrel_prediction_
+        else:
+            rangevector = self.interval_
+            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+            mins, maxs = self._shadow_values
+            mins, maxs = np.array(mins), np.array(maxs)
+            mins = mins / self.optim_L1_
+            maxs = maxs / self.optim_L1_
+
+            n = len(maxs)
+
+            def prediction_interval(array):
+                mean = array.mean()
+                s = array.std()
+                perc = fpr
+                pos = mean+stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
+                neg = mean-stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
+                return pos, neg
+
+            max_pi = prediction_interval(maxs)
+            min_pi = prediction_interval(mins)
+
+            weakly = rangevector[:, 1] > max_pi[1]
+            strongly = rangevector[:, 0] > min_pi[1]
+            both = np.logical_and(weakly, strongly) 
+
+            prediction[weakly] = 1
+            prediction[both] = 2
+
+            self.relevance_classes_ = prediction
+            self.allrel_prediction_ = prediction > 0
+
+            return self.allrel_prediction_
 
     def _n_features(self):
         """
