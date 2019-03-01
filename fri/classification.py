@@ -55,7 +55,7 @@ class FRIClassification(FRIBase):
 
     def __init__(self, C=1, optimum_deviation=0.001,
                  random_state=None,
-                 n_jobs=None, n_resampling=3,iter_psearch = 10, verbose=0):
+                 n_jobs=None, n_resampling=3,iter_psearch = 30, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
@@ -83,7 +83,7 @@ class FRIClassification(FRIBase):
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e5)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e2)
         else:
             self.tuned_parameters["C"] = [self.C]
 
