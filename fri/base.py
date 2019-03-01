@@ -408,6 +408,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
             """
+
             X = self.X_
             y = self.y_
             # Do we have intervals?
@@ -424,17 +425,19 @@ class FRIBase(BaseEstimator, SelectorMixin):
             # Add correct sign of this coef
             signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
             preset[i] = signed_preset_i
+            
             # Calculate all bounds with feature i set to min_i
             l1 = self.optim_L1_
             loss = self.optim_loss_
+
             for j in range(n_tries):
                 # try several times if problem to stringent
                 try:
                     kwargs = {"verbose": False, "solver": "ECOS"}
-                    rangevector, _, _, _ = self._main_opt(X, y, loss,
+                    rangevector, _, _ = self._main_opt(X, y, loss,
                                                           l1,
                                                           self.random_state,
-                                                          False, presetModel=preset,
+                                                          presetModel=preset,
                                                           solverargs=kwargs)
                 except NotFeasibleForParameters:
                     preset[i] *= -1
@@ -509,10 +512,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 return
             try:
                 kwargs = {"verbose": False, "solver": "ECOS"}
-                rangevector, _, _, _ = self._main_opt(X, y, loss,
+                rangevector, _, _ = self._main_opt(X, y, loss,
                                                       l1,
                                                       self.random_state,
-                                                      False, presetModel=signed_presets,
+                                                      presetModel=signed_presets,
                                                       solverargs=kwargs)
             except NotFeasibleForParameters:
                 print("Presets are not feasible")
@@ -527,6 +530,5 @@ class FRIBase(BaseEstimator, SelectorMixin):
                     continue
                 else:
                     rangevector[i] = p
-            rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-                                                              None)
+            rangevector = self._postprocessing(self.optim_L1_, rangevector)
             return rangevector
