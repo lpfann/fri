@@ -23,8 +23,9 @@ class L1LupiHyperplane(BaseEstimator, LinearClassifierMixin):
         self.X_priv = data.X_priv
         (n, d) = self.X.shape
         d_priv = self.X_priv.shape[1]
-        w = cvx.Variable(d)
-        w_priv = cvx.Variable(d_priv)
+        y = y.reshape((n,1))
+        w = cvx.Variable((d,1))
+        w_priv = cvx.Variable((d_priv,1))
         b = cvx.Variable()
         b_priv = cvx.Variable()
 
@@ -32,7 +33,7 @@ class L1LupiHyperplane(BaseEstimator, LinearClassifierMixin):
         objective = cvx.Minimize( 0.5 * (cvx.norm(w, 1) + self.gamma * cvx.norm(w_priv, 1)) + self.C * cvx.sum(self.X_priv * w_priv + b_priv))
         constraints = [
 
-            y * (self.X * w + b) >= 1 - (self.X_priv * w_priv + b_priv),
+            cvx.multiply(y, self.X * w + b) >= 1 - (self.X_priv * w_priv + b_priv),
             self.X_priv * w_priv + b_priv >= 0
 
         ]
@@ -57,29 +58,13 @@ class L1LupiHyperplane(BaseEstimator, LinearClassifierMixin):
     def score(self, X, y):
 
         X, y = check_X_y(X, y)
-        (n, d) = X.shape
-        w = self.coef_
-        b = self.intercept_
-        sum = 0
 
         y = LabelEncoder().fit_transform(y)
         y[y == 0] = -1
 
         X = StandardScaler().fit_transform(X)
-        #prediction = self.predict(X)
+        prediction = self.predict(X)
 
-        for i in range(n):
-            val = np.matmul(w, X[i])
-            pos = val + b
-            if y[i] == 1:
-                if pos < 0:
-                    sum += 1
-            else:
-                if pos > 0:
-                    sum += 1
-
-        score = 1 - (sum / n)
-
-        #score = fbeta_score(y, prediction, beta=1, average="weighted")
+        score = fbeta_score(y, prediction, beta=1, average="weighted")
 
         return score
