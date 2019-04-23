@@ -19,12 +19,12 @@ class DataHandler(object):
 
 
 
-X, X_priv, y = genLupiData(n_samples=1000, n_features=6, n_strel=3, n_redundant=2, n_repeated=0,
-                           n_priv_features=4, n_priv_strel=3, n_priv_redundant=1, n_priv_repeated=0)
+X, X_priv, y = genLupiData(n_samples=1000, n_features=4, n_strel=2, n_redundant=2, n_repeated=0,
+                           n_priv_features=2, n_priv_strel=2, n_priv_redundant=0, n_priv_repeated=0)
 
 
 
-
+'''
 data = DataHandler(X=X, X_priv=X_priv)
 
 model = L1LupiHyperplane(C=1, gamma=10)
@@ -33,8 +33,10 @@ model.fit(data=data, y=y)
 
 score = model.score(X, y)
 
+print(score)
+
 '''
 
 f = FRILupi()
 f.fit(X, X_priv, y)
-'''
+

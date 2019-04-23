@@ -23,9 +23,8 @@ class L1LupiHyperplane(BaseEstimator, LinearClassifierMixin):
         self.X_priv = data.X_priv
         (n, d) = self.X.shape
         d_priv = self.X_priv.shape[1]
-        y = y.reshape((n,1))
-        w = cvx.Variable((d,1))
-        w_priv = cvx.Variable((d_priv,1))
+        w = cvx.Variable(d)
+        w_priv = cvx.Variable(d_priv)
         b = cvx.Variable()
         b_priv = cvx.Variable()
 
