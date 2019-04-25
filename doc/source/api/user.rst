@@ -11,6 +11,7 @@ FRI includes models for different problem types:
 
     classification
     regression
+    ordinalregression
 
 Data generation
 ===============
