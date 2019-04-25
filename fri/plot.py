@@ -132,23 +132,6 @@ def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabel
     return fig
 
 
-def plot_grouping(model, ticklabels=None):
-    """Plot grouping of features using a dendrogram combined with relevance intervals.
-    
-    Parameters
-    ----------
-    model : FRI model
-        Needs to be fitted and grouping() method run before.
-    ticklabels : list of str, optional
-        Strs for ticklabels on x-axis (features)
-    """
-    if model.feature_clusters_ is not None:
-        plot_dendrogram_and_intervals(model.interval_, model.linkage_, ticklabels=ticklabels,
-                                      classes=model.relevance_classes_)
-    else:
-        print("Grouping not computed. Try running grouping() function first.")
-
-
 def plot_intervals(model, ticklabels=None):
     """Plot the relevance intervals.
     
