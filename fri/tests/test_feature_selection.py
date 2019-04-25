@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
-from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
-from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
+
+from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -19,7 +20,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
     optimum_deviation = 0.01
     C = None
     noise=0
-    iter_psearch = 20
+    iter_psearch = 30
 
     if problem is "regression":
         gen = genRegressionData

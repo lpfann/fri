@@ -1,4 +1,4 @@
-import numpy as np
+import scipy
 from sklearn.utils import check_X_y
 
 from fri.base import FRIBase
@@ -62,7 +62,6 @@ class FRIRegression(FRIBase):
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
         self.epsilon = epsilon
-        self.initModel = L1EpsilonRegressor
 
 
     def fit(self, X, y):
@@ -75,19 +74,20 @@ class FRIRegression(FRIBase):
         y : array_like
             response vector
         """
+        self.initModel = L1EpsilonRegressor
 
         # Define parameters which are optimized in the initial gridsearch
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            #self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e5)
-            self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7, b=1e5)
+            # self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
         else:
             self.tuned_parameters["C"] = [self.C]
 
         if self.epsilon is None:
-            #self.tuned_parameters["epsilon"] = scipy.stats.reciprocal(a=1e-7,b=1e3)
-            self.tuned_parameters["epsilon"] = np.logspace(-5, 2, self.iter_psearch)
+            self.tuned_parameters["epsilon"] = scipy.stats.reciprocal(a=1e-7, b=1e3)
+            #self.tuned_parameters["epsilon"] = np.logspace(-5, 2, self.iter_psearch)
         else:
             self.tuned_parameters["epsilon"] = [self.epsilon]
 

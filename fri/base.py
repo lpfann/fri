@@ -2,23 +2,24 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
+import math
 import warnings
 from abc import abstractmethod
 
 import numpy as np
-import math
+import scipy.stats as stats
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
+from sklearn.externals.joblib import Parallel, delayed
 from sklearn.feature_selection.base import SelectorMixin
+from sklearn.metrics import make_scorer
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
-from sklearn.metrics import make_scorer
-from sklearn.externals.joblib import Parallel,delayed
-import scipy.stats as stats
 
-from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
+from .bounds import LowerBound, UpperBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
+
 
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
@@ -87,6 +88,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.iter_psearch = 20 if iter_psearch is None else iter_psearch
         self.verbose = verbose
 
+        self.optim_model_ = None
+        self.optim_score_ = None
+        self.optim_L1_ = None
+        self.optim_loss_ = None
+        self.allrel_prediction_ = None
+        self.feature_clusters_ = None
+        self.linkage_ = None
+        self.interval_ = None
+        self.tuned_parameters = None
 
     @abstractmethod
     def fit(self, X, y):
@@ -252,16 +262,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
         else:
             scorer = None  # use default score from model
             refit = True
-
+        print(self.tuned_parameters)
         gridsearch = RandomizedSearchCV(self.initModel(),
-                                  self.tuned_parameters,
-                                  scoring=scorer,
-                                  refit=refit,
-                                  n_iter=self.iter_psearch,
-                                  n_jobs=self.n_jobs,
-                                  error_score=np.nan,
-                                  return_train_score=False,
-                                  verbose=self.verbose)
+                                        self.tuned_parameters,
+                                        scoring=scorer,
+                                        random_state=self.random_state,
+                                        refit=refit,
+                                        n_iter=self.iter_psearch,
+                                        n_jobs=self.n_jobs,
+                                        error_score=np.nan,
+                                        return_train_score=False,
+                                        verbose=self.verbose)
 
         # Ignore warnings for extremely bad parameters (when precision=0)
         with warnings.catch_warnings():
@@ -314,6 +325,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             Relevancy prediction for each feature
         """
         if old:
+            # TODO: old löschen
             rangevector = self.interval_
             shadows = self._shadowintervals
             prediction = np.zeros(rangevector.shape[0], dtype=np.int)

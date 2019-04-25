@@ -1,4 +1,5 @@
 import numpy as np
+import scipy
 from sklearn.utils import check_X_y
 
 from fri.base import FRIBase
@@ -54,25 +55,12 @@ class FRIOrdinalRegression(FRIBase):
 
     problemType = BaseOrdinalRegressionProblem
 
-    def __init__(self, C=1, optimum_deviation=0.001, random_state=None,
+    def __init__(self, C=None, optimum_deviation=0.001, random_state=None,
                  n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0, **kwargs):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
-
-        self.initModel = L1OrdinalRegressor
-
-        # Define parameters which are optimized in the initial gridsearch
-        self.tuned_parameters = {}
-
-        # Only use parameter grid when no parameter is given
-        if self.C is None:
-            #self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e7)
-            self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
-        else:
-            self.tuned_parameters["C"] = [self.C]
-
 
     def fit(self, X, y):
 
@@ -86,12 +74,24 @@ class FRIOrdinalRegression(FRIBase):
             response vector
         """
 
+        self.initModel = L1OrdinalRegressor
+
+        # Define parameters which are optimized in the initial gridsearch
+        self.tuned_parameters = {}
+
+        # Only use parameter grid when no parameter is given
+        if self.C is None:
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7, b=1e7)
+            # self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
+        else:
+            self.tuned_parameters["C"] = [self.C]
+
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
 
-        if min(y) >0:
-            print("First ordinal class has index > 0. Trying to shift indices by 1...")
-            y = y-1
+        if np.min(y) > 0:
+            print("First ordinal class has index > 0. Trying to shift indices.")
+            y = y - np.min(y)
 
         # Get ordinal classes
         self.classes_ = np.unique(y)
