@@ -149,6 +149,7 @@ def plot_intervals(model, ticklabels=None):
 
 
 def interactive_scatter_embed(embedding, mode="markers", txt=None):
+    # TODO: extend method
     import plotly.graph_objs as go
     from plotly.offline import init_notebook_mode, iplot
     init_notebook_mode(connected=True)
