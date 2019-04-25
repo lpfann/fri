@@ -2,7 +2,6 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-import math
 import warnings
 from abc import abstractmethod
 
@@ -311,8 +310,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return rangevector
 
     def _get_relevance_mask(self,
-                            fpr=0.01,
-                            old=False
+                            fpr=0.01
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
@@ -324,62 +322,31 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-        if old:
-            # TODO: old löschen
-            rangevector = self.interval_
-            shadows = self._shadowintervals
-            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
 
-            n = self.X_.shape[1]
-            allowed =  math.floor(fpr * n)
-            
-            lower = shadows[:,0]
-            lower = sorted(lower)[::-1]
-            upper = shadows[:,1]
-            upper = sorted(upper)[::-1]
+        rangevector = self.interval_
+        prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+        maxs = self._shadow_values
+        maxs = np.array(maxs)
+        maxs = maxs / self.optim_L1_
+        n = len(maxs)
 
-            upper_epsilon = upper[allowed+1]
-            lower_epsilon = lower[allowed+1]
-            self.epsilons = [lower_epsilon,upper_epsilon]
+        mean = maxs.mean()
+        s = maxs.std()
+        perc = fpr
+        pos = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+        neg = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
-            # Weakly relevant ones have high upper bounds
-            weakly = rangevector[:, 1] > upper_epsilon
-            strongly = np.equal(shadows[:,0], 0)
-            both = np.logical_and(weakly, strongly) 
+        weakly = rangevector[:, 1] > neg
+        strongly = rangevector[:, 0] > 0
+        both = np.logical_and(weakly, strongly)
 
-            prediction[weakly] = 1
-            prediction[both] = 2
+        prediction[weakly] = 1
+        prediction[both] = 2
 
-            self.relevance_classes_ = prediction
-            self.allrel_prediction_ = prediction > 0
+        self.relevance_classes_ = prediction
+        self.allrel_prediction_ = prediction > 0
 
-            return self.allrel_prediction_
-        else:
-            rangevector = self.interval_
-            prediction = np.zeros(rangevector.shape[0], dtype=np.int)
-            maxs = self._shadow_values
-            maxs = np.array(maxs)
-            maxs = maxs / self.optim_L1_
-            n = len(maxs)
-
-            mean = maxs.mean()
-            s = maxs.std()
-            perc = fpr
-            pos = mean+stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
-            neg = mean-stats.t(df=n-1).ppf(perc)*s*np.sqrt(1+(1/n))
-
-
-            weakly = rangevector[:, 1] > neg
-            strongly = rangevector[:, 0] > 0
-            both = np.logical_and(weakly, strongly) 
-
-            prediction[weakly] = 1
-            prediction[both] = 2
-
-            self.relevance_classes_ = prediction
-            self.allrel_prediction_ = prediction > 0
-
-            return self.allrel_prediction_
+        return self.allrel_prediction_
 
     def _n_features(self):
         """
