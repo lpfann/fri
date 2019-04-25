@@ -1,11 +1,12 @@
-from fri.base import FRIBase
-from fri.l1models import L1HingeHyperplane
-from fri.optproblems import BaseClassificationProblem
+import numpy as np
 from sklearn import preprocessing
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
-import scipy.stats
-import numpy as np
+
+from fri.base import FRIBase
+from fri.l1models import L1HingeHyperplane
+from fri.optproblems import BaseClassificationProblem
+
 
 class FRIClassification(FRIBase):
     """Class for performing FRI on classification data.
@@ -16,7 +17,7 @@ class FRIClassification(FRIBase):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
     iter_psearch : integer ( Default = 50)
         Amount of samples used for parameter search.
@@ -56,7 +57,7 @@ class FRIClassification(FRIBase):
 
     def __init__(self, C=1, optimum_deviation=0.001,
                  random_state=None,
-                 n_jobs=None, n_resampling=3,iter_psearch = 50, verbose=0):
+                 n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,

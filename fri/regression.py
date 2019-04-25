@@ -1,9 +1,10 @@
+import numpy as np
+from sklearn.utils import check_X_y
+
 from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
 from fri.optproblems import BaseRegressionProblem
-from sklearn.utils import check_X_y
-import scipy.stats
-import numpy as np
+
 
 class FRIRegression(FRIBase):
     """Class for performing FRI on regression data.
@@ -16,7 +17,7 @@ class FRIRegression(FRIBase):
         Parameter to determine epsilon region around hyperplane. Related to C.
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
     iter_psearch : integer ( Default = 50)
         Amount of samples used for parameter search.
@@ -55,7 +56,7 @@ class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
     def __init__(self, C=1, epsilon=None, optimum_deviation=0.001, random_state=None,
-                    n_jobs=None, n_resampling=3,iter_psearch=50, verbose=0):
+                 n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,

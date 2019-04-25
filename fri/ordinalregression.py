@@ -4,7 +4,6 @@ from sklearn.utils import check_X_y
 from fri.base import FRIBase
 from fri.l1models import L1OrdinalRegressor
 from fri.optproblems import BaseOrdinalRegressionProblem
-import scipy.stats
 
 
 class FRIOrdinalRegression(FRIBase):
@@ -16,7 +15,7 @@ class FRIOrdinalRegression(FRIBase):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
     iter_psearch : integer ( Default = 50)
         Amount of samples used for parameter search.
@@ -56,7 +55,7 @@ class FRIOrdinalRegression(FRIBase):
     problemType = BaseOrdinalRegressionProblem
 
     def __init__(self, C=1, optimum_deviation=0.001, random_state=None,
-                    n_jobs=None, n_resampling=3, iter_psearch=50, verbose=0, **kwargs):
+                 n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0, **kwargs):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
