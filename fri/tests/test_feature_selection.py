@@ -119,7 +119,8 @@ def test_lupi_model(problem, n_strong, n_weak, n_priv_strong, n_priv_weak, rando
 
     else:
         n_priv_features = n_priv_strong + n_priv_weak
-        data = genLupiData(gen, n_priv_strong=n_priv_strong, n_priv_weak=n_priv_weak, n_priv_features=n_priv_features,
+        data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
+                           n_priv_features=n_priv_features,
                            n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
                            n_repeated=0, random_state=randomstate
                            )
