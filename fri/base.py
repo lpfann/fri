@@ -16,6 +16,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
+import l1models
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
 
@@ -477,15 +478,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return rangevector, shadowrangevector
 
-    class DataHandler(object):
-        # Package class to give X and X_priv to gridsearch.fit()
-        def __init__(self, X, X_priv):
-            self.X = X
-            self.X_priv = X_priv
-            self.shape = self.X.shape
 
-        def __getitem__(self, x):
-            return self.X[x], self.X_priv[x]
 
     def _initEstimator(self, X, Y, X_priv=None):
         if self.initModel is L1OrdinalRegressor:
@@ -510,7 +503,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   return_train_score=False,
                                   verbose=self.verbose)
         if X_priv is not None:
-            data = self.DataHandler(X=X, X_priv=X_priv)
+            data = l1models.DataHandler(X=X, X_priv=X_priv)
         else:
             data = X
 

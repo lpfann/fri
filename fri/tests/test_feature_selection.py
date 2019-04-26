@@ -94,7 +94,8 @@ def test_nonbinaryclasses(randomstate):
         fri.fit(X, y)
 
 
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
+@pytest.mark.parametrize('problem', ["classification"])
+# @pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"]) # TODO: Add support for regression and ordreg
 @pytest.mark.parametrize('n_strong', [0, 1, 2])
 @pytest.mark.parametrize('n_weak', [0, 2, 3])
 @pytest.mark.parametrize('n_priv_strong', [1, 2])

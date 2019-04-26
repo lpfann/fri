@@ -12,6 +12,16 @@ from sklearn.preprocessing import StandardScaler, LabelEncoder
 from sklearn.utils import check_X_y, check_array
 
 
+class DataHandler(object):
+    # Package class to give X and X_priv to gridsearch.fit()
+    def __init__(self, X, X_priv=None):
+        self.X = X
+        self.X_priv = X_priv
+        self.shape = self.X.shape
+
+    def __getitem__(self, x):
+        return self.X[x], self.X_priv[x]
+
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
     Determine a separating hyperplane using L1-regularization and hinge loss
@@ -23,8 +33,12 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
 
     def fit(self, data, y, ):
         self.classes_ = np.unique(y)
-        X = data.X
-        X_priv = data.X_priv
+        if type(data) is DataHandler:
+            X = data.X
+            X_priv = data.X_priv
+        else:
+            X = data
+            X_priv = None
         (n, d) = X.shape
         w = cvx.Variable(d)
         b = cvx.Variable()
