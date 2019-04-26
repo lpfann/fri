@@ -116,7 +116,8 @@ class MinProblem(BaseProblem):
         if X_priv is None:
             self._constraints.extend([cvx.abs(self.omega[self.di]) <= self.xp])
         else:
-            self._constraints.extend([cvx.abs(self.omega_priv[self.di - self.d]) <= self.xp])
+            if self.di > self.d:
+                self._constraints.extend([cvx.abs(self.omega_priv[self.di - self.d]) <= self.xp])
 
         self._objective = cvx.Minimize(self.xp)
 
@@ -130,7 +131,8 @@ class MaxProblem1(BaseProblem):
         if X_priv is None:
             self._constraints.extend([self.xp <= self.omega[self.di]])
         else:
-            self._constraints.extend([self.xp <= self.omega_priv[self.di]])
+            if self.di > self.d:
+                self._constraints.extend([self.xp <= self.omega_priv[self.di - self.d]])
 
         self._objective = cvx.Maximize(self.xp)
 
@@ -145,7 +147,8 @@ class MaxProblem2(BaseProblem):
         if X_priv is None:
             self._constraints.extend([self.xp <= -self.omega[self.di]])
         else:
-            self._constraints.extend([self.xp <= -self.omega_priv[self.di]])
+            if self.di > self.d:
+                self._constraints.extend([self.xp <= -self.omega_priv[self.di - self.d]])
 
         self._objective = cvx.Maximize(self.xp)
 

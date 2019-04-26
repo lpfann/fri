@@ -21,8 +21,10 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         self.C = C
         self.gamma = gamma
 
-    def fit(self, X, y, X_priv=None):
+    def fit(self, data, y, ):
         self.classes_ = np.unique(y)
+        X = data.X
+        X_priv = data.X_priv
         (n, d) = X.shape
         w = cvx.Variable(d)
         b = cvx.Variable()
@@ -32,7 +34,7 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
             w_priv = cvx.Variable(d_priv)
             b_priv = cvx.Variable()
             L1 = 0.5 * (cvx.norm(w, 1) + self.gamma * cvx.norm(w_priv, 1))
-            slack = self.X_priv * w_priv + b_priv
+            slack = X_priv * w_priv + b_priv
             loss = self.C * cvx.sum(slack)
         else:
             slack = cvx.Variable(n, nonneg=True)

@@ -33,7 +33,7 @@ class Bound(object):
 
     def __repr__(self):
         return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
-               " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel})".format(
+               " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel}), X_priv={self.X_priv.shape}".format(
             self=self)
 
 class LowerBound(Bound):
@@ -120,7 +120,7 @@ class ShadowLowerBound(LowerBound):
         if X_priv is not None:
             d_X = X.shape[1]
             # Check if current bound is priv. feature
-            if optim_dim > d_X:
+            if optim_dim >= d_X:
                 priv = True
 
                 # Permute priv feature
@@ -189,7 +189,7 @@ class ShadowUpperBound(UpperBound):
         if X_priv is not None:
             d_X = X.shape[1]
             # Check if current bound is priv. feature
-            if optim_dim > d_X:
+            if optim_dim >= d_X:
                 priv = True
 
                 # Permute priv feature

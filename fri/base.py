@@ -82,6 +82,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                  random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
         self.random_state = random_state
         self.C = C
+        self.gamma = None
         self.optimum_deviation = optimum_deviation
         self.optimum_deviation_priv = optimum_deviation_priv
         self.optimum_deviation_slack = optimum_deviation_slack

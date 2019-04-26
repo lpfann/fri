@@ -7,7 +7,7 @@ from sklearn.svm import LinearSVR
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import assert_equal
 
-from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
+from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData, genLupiData
 
 
 @pytest.fixture(scope="function")
@@ -192,3 +192,24 @@ def test_partition(problem, randomstate, partition):
     # Correct parameters
     assert_equal(len(X), n_samples)
     assert_equal(X.shape[1], n_features)
+
+
+def test_genLupi():
+    n_samples = 100
+    n_features = 10
+    args = {"n_samples": n_samples, "n_features": n_features,
+            "n_strel": 2, "n_redundant": 2, "n_repeated": 0}
+
+    gen = genLupiData
+
+    X, X_priv, y = gen(genClassificationData, n_priv_features=5,
+                       n_priv_redundant=2, n_priv_strel=2, n_priv_repeated=1,
+                       partition_priv=None, **args)
+
+    # Equal length
+    assert_equal(len(X), len(y))
+    assert_equal(len(X_priv), len(y))
+    # Correct parameters
+    assert_equal(len(X), n_samples)
+    assert_equal(X.shape[1], n_features)
+    assert_equal(X_priv.shape[1], 5)

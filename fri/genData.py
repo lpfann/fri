@@ -320,3 +320,59 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
 
     return X, Y
 
+
+def _checkLupiParam(n_priv_features: int = 1,
+                    n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
+                    partition_priv=None):
+    if not 0 < n_priv_features:
+        raise ValueError("We need at least one privileged feature.")
+    if not n_priv_redundant + n_priv_repeated + n_priv_strel <= n_priv_features:
+        raise ValueError("Inconsistent number of priv. features")
+    if n_priv_strel + n_priv_redundant < 1:
+        raise ValueError("No informative priv. features.")
+    if n_priv_strel == 0 and n_priv_redundant < 2:
+        raise ValueError("Redundant features have per definition more than one member (per group).")
+    if partition_priv is not None:
+        if sum(partition_priv) != n_priv_redundant:
+            raise ValueError("Sum of partition_priv values should yield number of redundant features.")
+        if 0 in partition_priv or 1 in partition_priv:
+            raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
+
+
+def genLupiData(generator, n_priv_features: int = 1,
+                n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
+                partition_priv=None, n_features: int = 2,
+                n_redundant: int = 0, n_strel: int = 1,
+                n_repeated: int = 0, partition=None, **kwargs):
+    if generator in [genClassificationData, genRegressionData, genOrdinalRegressionData]:
+        _checkParam(n_features=n_features,
+                    n_redundant=n_redundant, n_strel=n_strel,
+                    n_repeated=n_repeated, partition=partition, **kwargs)
+        _checkLupiParam(n_priv_features=n_priv_features,
+                        n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
+                        n_priv_repeated=n_priv_repeated,
+                        partition_priv=partition_priv)
+
+        n_features += n_priv_features
+        n_strel += n_priv_strel
+        n_redundant += n_priv_redundant
+        n_repeated += n_priv_repeated
+        if partition_priv is not None:
+            partition = partition_priv.extend(partition)  # Take priv partitions first for later indexing
+
+        X, y = generator(n_features=n_features,
+                         n_redundant=n_redundant, n_strel=n_strel,
+                         n_repeated=n_repeated, partition=partition, **kwargs)
+
+        X_priv = np.empty((len(X), n_priv_features))
+
+        ix = range(n_features)
+        ix_priv = []
+        ix_priv.extend(ix[:n_priv_strel])
+        ix_priv.extend(ix[n_strel:n_strel + n_priv_redundant])
+        ix_priv.extend(ix[n_strel + n_redundant:n_strel + n_redundant + n_priv_repeated])
+        ix_not_priv = [index for index in ix if index not in ix_priv]
+
+        X_priv = X[:, ix_priv]
+        X = X[:, ix_not_priv]
+        return X, X_priv, y
