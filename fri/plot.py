@@ -130,3 +130,38 @@ def plot_dendrogram_and_intervals(intervals, linkage, figsize=(13, 7), ticklabel
     plt.tight_layout()
 
     return fig
+
+
+def plot_intervals(model, ticklabels=None):
+    """Plot the relevance intervals.
+    
+    Parameters
+    ----------
+    model : FRI model
+        Needs to be fitted before.
+    ticklabels : list of str, optional
+        Strs for ticklabels on x-axis (features)
+    """
+    if model.interval_ is not None:
+        plotIntervals(model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_)
+    else:
+        print("Intervals not computed. Try running fit() function first.")
+
+
+def interactive_scatter_embed(embedding, mode="markers", txt=None):
+    # TODO: extend method
+    import plotly.graph_objs as go
+    from plotly.offline import init_notebook_mode, iplot
+    init_notebook_mode(connected=True)
+    # Create a trace
+    trace = go.Scatter(
+        x=embedding[:, 0],
+        y=embedding[:, 1],
+        mode=mode,
+        text=txt if mode is "text" else None
+    )
+
+    data = [trace]
+
+    # Plot and embed in ipython notebook!
+    iplot(data)

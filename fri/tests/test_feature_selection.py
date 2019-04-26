@@ -4,6 +4,9 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
+
+from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
 from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData, genLupiData
 
 
@@ -17,16 +20,20 @@ def randomstate():
 def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
+    optimum_deviation = 0.01
+    C = None
+    noise=0
+    iter_psearch = 30
 
     if problem is "regression":
         gen = genRegressionData
-        fri = FRIRegression(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
+        fri = FRIRegression(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation, iter_psearch=iter_psearch)
     elif problem is "classification":
         gen = genClassificationData
-        fri = FRIClassification(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
+        fri = FRIClassification(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation, iter_psearch=iter_psearch)
     elif problem is "ordreg":
         gen = genOrdinalRegressionData
-        fri = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=0.1, optimum_deviation=0.0)
+        fri = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation, iter_psearch=iter_psearch)
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
             gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
@@ -34,7 +41,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
     else:
         data = gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
-                   n_repeated=0, random_state=randomstate)
+                   n_repeated=0,noise=noise, random_state=randomstate)
 
         X_orig, y = data
         X_orig = StandardScaler().fit(X_orig).transform(X_orig)
@@ -58,7 +65,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
         selected = fri._n_features()
         # we allow one more false positive
         print(fri._get_support_mask())
-        assert n_f == selected or selected == n_f+1
+        assert n_f == selected
 
         # Check if all relevant features are selected
         truth = np.ones(n_f)

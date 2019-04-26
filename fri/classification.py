@@ -1,4 +1,4 @@
-import scipy.stats
+import scipy
 from sklearn import preprocessing
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
@@ -17,9 +17,9 @@ class FRIClassification(FRIBase):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
-    iter_psearch : integer ( Default = 10)
+    iter_psearch : integer ( Default = 50)
         Amount of samples used for parameter search.
         Trade off between finer tuned model performance and run time of parameter search.
     n_jobs : int, optional
@@ -55,9 +55,9 @@ class FRIClassification(FRIBase):
     """
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=1, optimum_deviation=0.001,
+    def __init__(self, C=None, optimum_deviation=0.001,
                  random_state=None,
-                 n_jobs=None, n_resampling=3,iter_psearch = 10, verbose=0):
+                 n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
@@ -85,7 +85,8 @@ class FRIClassification(FRIBase):
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e5)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-3, b=1e3)
+            # self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
         else:
             self.tuned_parameters["C"] = [self.C]
 

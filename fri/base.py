@@ -7,6 +7,7 @@ import warnings
 from abc import abstractmethod
 
 import numpy as np
+import scipy.stats as stats
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.externals.joblib import Parallel, delayed
@@ -16,7 +17,7 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
+from .bounds import LowerBound, UpperBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane, DataHandler
 
 
@@ -34,7 +35,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
     iter_psearch : integer ( Default = 10)
         Amount of samples used for parameter search.
@@ -79,7 +80,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     @abstractmethod
     def __init__(self, C=None, optimum_deviation=0.001, optimum_deviation_priv=0.001, optimum_deviation_slack=0.001,
-                 random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
+                 random_state=None, n_jobs=None, n_resampling=40, iter_psearch=30, verbose=0):
         self.random_state = random_state
         self.C = C
         self.gamma = None
@@ -88,9 +89,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.optimum_deviation_slack = optimum_deviation_slack
         self.n_jobs = n_jobs
         self.n_resampling = n_resampling
-        self.iter_psearch = 10 if iter_psearch is None else iter_psearch
+        self.iter_psearch = 20 if iter_psearch is None else iter_psearch
         self.verbose = verbose
 
+        self.optim_model_ = None
+        self.optim_score_ = None
+        self.optim_L1_ = None
+        self.optim_loss_ = None
+        self.allrel_prediction_ = None
+        self.feature_clusters_ = None
+        self.linkage_ = None
+        self.interval_ = None
+        self.tuned_parameters = None
 
     @abstractmethod
     def fit(self, X, y, X_priv=None):
@@ -119,8 +129,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.linkage_ = None
         self.interval_ = None
         self.random_state = check_random_state(self.random_state)
-        # Shadow features always calculated with new feature classification method
-        self.shadow_features = True
 
         y = np.asarray(y)
 
@@ -145,21 +153,18 @@ class FRIBase(BaseEstimator, SelectorMixin):
             print("WARNING: Weak Model performance! score = {}".format(self.optim_score_))
 
         # Calculate bounds
-        rangevector, omegas, biase, shadowrangevector = self._main_opt(X, y, self.optim_loss_,
+        rangevector, omegas, biase = self._main_opt(X, y, self.optim_loss_,
                                                                        self.optim_L1_,
                                                                        self.random_state,
-                                                                       self.shadow_features,
                                                                        X_priv=X_priv, L1_priv=self.optim_L1_priv_)
         # save unmodified intervals (without postprocessing
         self.unmod_interval_ = rangevector.copy()
         # Postprocess bounds
-        rangevector, shadowrangevector = self._postprocessing(self.optim_L1_, rangevector, self.shadow_features,
-                                                              shadowrangevector)
+        rangevector = self._postprocessing(self.optim_L1_, rangevector)
 
         self.interval_ = rangevector
         self._omegas = omegas
         self._biase = biase
-        self._shadowintervals = shadowrangevector
 
         self._get_relevance_mask()
 
@@ -175,7 +180,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None, solverargs=None,
+    def _main_opt(self, X, Y, svmloss, L1, random_state, presetModel=None, solverargs=None,
                   X_priv=None, L1_priv=None):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
@@ -192,7 +197,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
             d = d + d_priv
 
         rangevector = np.zeros((d, 2))
-        shadowrangevector = np.zeros((d, 2))
+        self._shadow_values  = []
         omegas = np.zeros((d, 2, d))
         if self.classes_ is not None:
             class_thresholds = len(self.classes_) - 1
@@ -217,31 +222,24 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         if solverargs is None:
-            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 100}
+            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
         else:
             kwargs = solverargs
 
 
         # Create tasks for worker(s)
         #
-        work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                           presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
-                for di in dims]
-        work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                                presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
-                     for di in dims])
-        if shadow_features:
-            for nr in range(self.n_resampling):
-                work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel, X_priv=X_priv,
-                                              initL1_priv=L1_priv)
-                             for di in dims])
-                work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel, X_priv=X_priv,
-                                              initL1_priv=L1_priv)
-                             for di in dims])
 
-        done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work))
+        def work_generator():
+            for di in dims:
+                yield LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y, presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
+                yield UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y, presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
+            # Random sample n_resampling shadow features by permuting real features and computing upper bound
+            random_choice = random_state.choice(a=np.arange(d),size=self.n_resampling)
+            for i,di in enumerate(random_choice):
+                yield ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,initL1=L1, X=X, Y=Y, sampleNum=i, presetModel=presetModel,  X_priv=X_priv, initL1_priv=L1_priv)
+
+        done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work_generator()))
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
@@ -250,12 +248,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             # Handle shadow values differently (we discard useless values)
             if not hasattr(finished_bound, "isShadow"):
                 prob_i = finished_bound.prob_instance
-                rangevector[di, i] = np.abs(prob_i.problem.value)   
+                rangevector[di, i] = np.abs(prob_i.problem.value)
                 omegas[di, i] = prob_i.omega.value.reshape(d)
                 biase[di, i] = prob_i.b.value
             else:
                 # Get the mean of all shadow samples
-                shadowrangevector[di, i] += (finished_bound.shadow_value / self.n_resampling)
+                self._shadow_values.append(finished_bound.shadow_value)
         if presetModel is not None:
             for i, p in enumerate(presetModel):
                 if np.all(np.isnan(p)):
@@ -263,10 +261,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 else:
                     rangevector[i] = p
 
-        return rangevector, omegas, biase, shadowrangevector
-
-
-
+        return rangevector, omegas, biase
 
 
     def _initEstimator(self, X, Y, X_priv=None):
@@ -283,14 +278,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
             refit = True
 
         gridsearch = RandomizedSearchCV(self.initModel(),
-                                  self.tuned_parameters,
-                                  scoring=scorer,
-                                  refit=refit,
-                                  n_iter=self.iter_psearch,
-                                  n_jobs=self.n_jobs,
-                                  error_score=np.nan,
-                                  return_train_score=False,
-                                  verbose=self.verbose)
+                                        self.tuned_parameters,
+                                        scoring=scorer,
+                                        random_state=self.random_state,
+                                        refit=refit,
+                                        n_iter=self.iter_psearch,
+                                        n_jobs=self.n_jobs,
+                                        error_score=np.nan,
+                                        return_train_score=False,
+                                        verbose=self.verbose)
         if X_priv is not None:
             data = DataHandler(X=X, X_priv=X_priv)
         else:
@@ -322,15 +318,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
             self.optim_L1_priv_ = self.optim_L1_priv_ * (1 + self.optimum_deviation_priv)
             self.optim_loss_ = self.optim_loss_ * (1 + self.optimum_deviation_slack)
 
-    def _postprocessing(self, L1, rangevector, shadow_features, shadowrangevector):
+
+    def _postprocessing(self, L1, rangevector):
         #
         # Postprocessig intervals
         #
         # Correction through shadow features
         assert L1 > 0
-
-        if shadow_features:
-            shadowrangevector = shadowrangevector / L1
 
         # Scale to L1
         rangevector = rangevector / L1
@@ -338,7 +332,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
-        return rangevector, shadowrangevector
+        return rangevector
 
     def _get_relevance_mask(self,
                             fpr=0.01
@@ -353,25 +347,22 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
+
         rangevector = self.interval_
-        shadows = self._shadowintervals
         prediction = np.zeros(rangevector.shape[0], dtype=np.int)
+        maxs = self._shadow_values
+        maxs = np.array(maxs)
+        maxs = maxs / self.optim_L1_
+        n = len(maxs)
 
-        n = self.X_.shape[1]
-        allowed = math.floor(fpr * n)
+        mean = maxs.mean()
+        s = maxs.std()
+        perc = fpr
+        pos = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+        neg = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
-        lower = shadows[:, 0]
-        lower = sorted(lower)[::-1]
-        upper = shadows[:, 1]
-        upper = sorted(upper)[::-1]
-
-        upper_epsilon = upper[allowed + 1]
-        lower_epsilon = lower[allowed + 1]
-        self.epsilons = [lower_epsilon, upper_epsilon]
-
-        # Weakly relevant ones have high upper bounds
-        weakly = rangevector[:, 1] > upper_epsilon
-        strongly = np.equal(shadows[:, 0], 0)
+        weakly = rangevector[:, 1] > neg
+        strongly = rangevector[:, 0] > 0
         both = np.logical_and(weakly, strongly)
 
         prediction[weakly] = 1
@@ -389,7 +380,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         -------
 
         """
-        check_is_fitted(self, "allrel_prediction_")
+        check_is_fitted(self,"allrel_prediction_")
         return sum(self.allrel_prediction_)
 
     def _get_support_mask(self):
@@ -407,68 +398,73 @@ class FRIBase(BaseEstimator, SelectorMixin):
         else:
             raise NotFittedError()
 
-    def _run_with_single_dim_single_value_preset(self, i, preset_i, n_tries=10):
-        """
-        Method to run method once for one restricted feature
-        Parameters
-        ----------
-        i:
-            restricted feature
-        preset_i:
-            restricted range of feature i (set before optimization = preset)
-        n_tries:
-            number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
-        """
-        X = self.X_
-        y = self.y_
-        # Do we have intervals?
-        check_is_fitted(self, "interval_")
-        interval = self.unmod_interval_
-        d = len(interval)
+    def _run_with_single_dim_single_value_preset(self,i, preset_i, n_tries=10):
+            # TODO : Enable preset constraints with LUPI
+            """
+            Method to run method once for one restricted feature
+            Parameters
+            ----------
+            i:
+                restricted feature
+            preset_i:
+                restricted range of feature i (set before optimization = preset)
+            n_tries:
+                number of allowed relaxation steps for the L1 constraint in case of LP infeasible
 
-        constrained_ranges_diff = np.zeros((d, 2))
+            """
 
-        # Init empty preset
-        preset = np.empty(shape=(d, 2))
-        preset.fill(np.nan)
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
 
-        # Add correct sign of this coef
-        signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
-        preset[i] = signed_preset_i
-        # Calculate all bounds with feature i set to min_i
-        l1 = self.optim_L1_
-        loss = self.optim_loss_
-        for j in range(n_tries):
-            # try several times if problem to stringent
-            try:
-                kwargs = {"verbose": False, "solver": "ECOS"}
-                rangevector, _, _, _ = self._main_opt(X, y, loss,
-                                                      l1,
-                                                      self.random_state,
-                                                      False, presetModel=preset,
-                                                      solverargs=kwargs)
-            except NotFeasibleForParameters:
-                preset[i] *= -1
-                # print("Community detection: Constrained run failed, swap sign".format)
-                continue
+            constrained_ranges_diff = np.zeros((d, 2))
+
+            # Init empty preset
+            preset = np.empty(shape=(d, 2))
+            preset.fill(np.nan)
+
+            # Add correct sign of this coef
+            signed_preset_i = np.sign(self._svm_coef[0][i]) * preset_i
+            preset[i] = signed_preset_i
+
+            # Calculate all bounds with feature i set to min_i
+            l1 = self.optim_L1_
+            loss = self.optim_loss_
+
+            for j in range(n_tries):
+                # try several times if problem to stringent
+                try:
+                    kwargs = {"verbose": False, "solver": "ECOS"}
+                    rangevector, _, _ = self._main_opt(X, y, loss,
+                                                          l1,
+                                                          self.random_state,
+                                                          presetModel=preset,
+                                                          solverargs=kwargs)
+                except NotFeasibleForParameters:
+                    preset[i] *= -1
+                    # print("Community detection: Constrained run failed, swap sign".format)
+                    continue
+                else:
+                    #print("solved constrained opt for ", i)
+                    # problem was solvable
+                    break
             else:
-                # print("solved constrained opt for ", i)
-                # problem was solvable
-                break
-        else:
-            raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
+                raise NotFeasibleForParameters("Community detection failed.", "dim {}".format(i))
 
-        # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-        #                                      None)
-        # Get differences for constrained intervals to normal intervals
-        constrained_ranges_diff = self.unmod_interval_ - rangevector
+            # rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
+            #                                      None)
+            # Get differences for constrained intervals to normal intervals
+            constrained_ranges_diff = self.unmod_interval_ - rangevector
 
-        # Current dimension is not constrained, so these values are set accordingly
-        rangevector[i] = preset_i
-        constrained_ranges_diff[i] = 0
+            # Current dimension is not constrained, so these values are set accordingly
+            rangevector[i] = preset_i
+            constrained_ranges_diff[i] = 0
 
-        return rangevector, constrained_ranges_diff
+            return rangevector, constrained_ranges_diff
 
     def constrained_intervals_(self, preset):
         """Method to return relevance intervals which are constrained using preset ranges or values.
@@ -491,53 +487,53 @@ class FRIBase(BaseEstimator, SelectorMixin):
         array like
             Relevance bounds with user constraints 
         """
-        processed = preset * self.optim_L1_  # Revert scaling to L1 norm which is done for our output intervals (see postprocessing)
+        processed = preset*self.optim_L1_ # Revert scaling to L1 norm which is done for our output intervals (see postprocessing)
         return self._run_with_multiple_value_preset(preset=processed)
 
     def _run_with_multiple_value_preset(self, preset=None):
-        """
-        Method to run method with preset values
-        """
-        X = self.X_
-        y = self.y_
-        # Do we have intervals?
-        check_is_fitted(self, "interval_")
-        interval = self.unmod_interval_
-        d = len(interval)
+            """
+            Method to run method with preset values
+            """
+            X = self.X_
+            y = self.y_
+            # Do we have intervals?
+            check_is_fitted(self, "interval_")
+            interval = self.unmod_interval_
+            d = len(interval)
 
-        constrained_ranges_diff = np.zeros((d, 2))
+            constrained_ranges_diff = np.zeros((d, 2))
 
-        # Add correct sign of this coef
-        signed_presets = np.sign(self._svm_coef[0]) * preset.T
-        signed_presets = signed_presets.T
-        # Calculate all bounds with feature presets
-        l1 = self.optim_L1_
-        loss = self.optim_loss_
-        sumofpreset = np.nansum(preset[:, 1])
-        if sumofpreset > l1:
-            print("maximum L1 norm of presets: ", sumofpreset)
-            print("L1 allowed:", l1)
-            print("Presets are not feasible. Try lowering values.")
-            return
-        try:
-            kwargs = {"verbose": False, "solver": "ECOS"}
-            rangevector, _, _, _ = self._main_opt(X, y, loss,
-                                                  l1,
-                                                  self.random_state,
-                                                  False, presetModel=signed_presets,
-                                                  solverargs=kwargs)
-        except NotFeasibleForParameters:
-            print("Presets are not feasible")
-            return
+            # Add correct sign of this coef
+            signed_presets = np.sign(self._svm_coef[0]) * preset.T
+            signed_presets = signed_presets.T
+            # Calculate all bounds with feature presets
+            l1 = self.optim_L1_
+            loss = self.optim_loss_
+            sumofpreset = np.nansum(preset[:,1])
+            if sumofpreset > l1:
+                print("maximum L1 norm of presets: ",sumofpreset)
+                print("L1 allowed:",l1)
+                print("Presets are not feasible. Try lowering values.")
+                return
+            try:
+                kwargs = {"verbose": False, "solver": "ECOS"}
+                rangevector, _, _ = self._main_opt(X, y, loss,
+                                                      l1,
+                                                      self.random_state,
+                                                      presetModel=signed_presets,
+                                                      solverargs=kwargs)
+            except NotFeasibleForParameters:
+                print("Presets are not feasible")
+                return
 
-        constrained_ranges_diff = self.unmod_interval_ - rangevector
 
-        # Current dimension is not constrained, so these values are set accordingly
-        for i, p in enumerate(preset):
-            if np.all(np.isnan(p)):
-                continue
-            else:
-                rangevector[i] = p
-        rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,
-                                              None)
-        return rangevector
+            constrained_ranges_diff = self.unmod_interval_ - rangevector
+
+            # Current dimension is not constrained, so these values are set accordingly
+            for i, p in enumerate(preset):
+                if np.all(np.isnan(p)):
+                    continue
+                else:
+                    rangevector[i] = p
+            rangevector = self._postprocessing(self.optim_L1_, rangevector)
+            return rangevector

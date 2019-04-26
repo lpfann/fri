@@ -1,6 +1,6 @@
 numpy
 scipy>=1.0
 scikit-learn>=0.20
-cvxpy==1.0.18
-ecos==2.0.5
+cvxpy>=1.0.21
+ecos>=2.0.5
 matplotlib

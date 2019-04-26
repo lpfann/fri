@@ -1,8 +1,9 @@
+import scipy
+from sklearn.utils import check_X_y
+
 from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
 from fri.optproblems import BaseRegressionProblem
-from sklearn.utils import check_X_y
-import scipy.stats
 
 
 class FRIRegression(FRIBase):
@@ -16,9 +17,9 @@ class FRIRegression(FRIBase):
         Parameter to determine epsilon region around hyperplane. Related to C.
     random_state : object
         Set seed for random number generation.
-    n_resampling : integer ( Default = 3)
+    n_resampling : integer ( Default = 40)
         Number of probe feature permutations used. 
-    iter_psearch : integer ( Default = 10)
+    iter_psearch : integer ( Default = 50)
         Amount of samples used for parameter search.
         Trade off between finer tuned model performance and run time of parameter search.
     n_jobs : int, optional
@@ -55,13 +56,12 @@ class FRIRegression(FRIBase):
     problemType = BaseRegressionProblem
 
     def __init__(self, C=1, epsilon=None, optimum_deviation=0.001, random_state=None,
-                    n_jobs=None, n_resampling=3,iter_psearch=10, verbose=0):
+                 n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
         super().__init__(C=C, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
         self.epsilon = epsilon
-        self.initModel = L1EpsilonRegressor
 
 
     def fit(self, X, y):
@@ -74,17 +74,20 @@ class FRIRegression(FRIBase):
         y : array_like
             response vector
         """
+        self.initModel = L1EpsilonRegressor
 
         # Define parameters which are optimized in the initial gridsearch
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
         if self.C is None:
-            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7,b=1e5)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-7, b=1e5)
+            # self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
         else:
             self.tuned_parameters["C"] = [self.C]
 
         if self.epsilon is None:
-            self.tuned_parameters["epsilon"] = scipy.stats.reciprocal(a=1e-7,b=1e3)
+            self.tuned_parameters["epsilon"] = scipy.stats.reciprocal(a=1e-7, b=1e3)
+            #self.tuned_parameters["epsilon"] = np.logspace(-5, 2, self.iter_psearch)
         else:
             self.tuned_parameters["epsilon"] = [self.epsilon]
 
