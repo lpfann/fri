@@ -16,9 +16,8 @@ from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-import l1models
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
-from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
+from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane, DataHandler
 
 
 class NotFeasibleForParameters(Exception):
@@ -503,7 +502,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   return_train_score=False,
                                   verbose=self.verbose)
         if X_priv is not None:
-            data = l1models.DataHandler(X=X, X_priv=X_priv)
+            data = DataHandler(X=X, X_priv=X_priv)
         else:
             data = X
 
