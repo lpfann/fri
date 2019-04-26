@@ -1,25 +1,7 @@
-from fri.lupi_data import genLupiData
-from fri.lupi_model import L1LupiHyperplane
-from fri.lupi import FRILupi
+from fri.genData import genClassificationData, genLupiData
+from fri.genData import genClassificationData, genLupiData
 
-from fri.l1models import L1OrdinalRegressor, L1HingeHyperplane
-from fri.genData import genOrdinalRegressionData, genClassificationData
-
-
-
-class DataHandler(object):
-    # Package class to give X and X_priv to gridsearch.fit()
-    def __init__(self, X, X_priv):
-        self.X = X
-        self.X_priv = X_priv
-        self.shape = self.X.shape
-
-    def __getitem__(self, x):
-        return self.X[x], self.X_priv[x]
-
-
-
-X, X_priv, y = genLupiData(n_samples=1000, n_features=4, n_strel=2, n_redundant=2, n_repeated=0,
+X, X_priv, y = genLupiData(genClassificationData, n_samples=1000, n_features=4, n_strel=2, n_redundant=2, n_repeated=0,
                            n_priv_features=2, n_priv_strel=2, n_priv_redundant=0, n_priv_repeated=0)
 
 
@@ -37,6 +19,5 @@ print(score)
 
 '''
 
-f = FRILupi()
-f.fit(X, X_priv, y)
-
+f = FRIClassification()
+f.fit(X, y, X_priv=X_priv)
