@@ -12,11 +12,13 @@ class Bound(object):
 
     """Class for lower and upper relevance bounds"""
 
-    def __init__(self, optim_dim, X, Y, initLoss, initL1, presetModel, problemClass, kwargs):
+    def __init__(self, optim_dim, X, X_priv, Y, initLoss, initL1, initL1_priv, presetModel, problemClass, kwargs):
         self.optim_dim = optim_dim
         self.X = X
+        self.X_priv = X_priv
         self.Y = Y
         self.initL1 = initL1
+        self.initL1_priv = initL1_priv
         self.initLoss = initLoss
         self.optim_dim = optim_dim
         self.presetModel = presetModel
@@ -38,14 +40,16 @@ class LowerBound(Bound):
     """Class for lower bounds """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
-                 presetModel=None):
+                 presetModel=None, X_priv=None, initL1_priv=None):
         # Init Super class, could be used for data manipulation
-        super().__init__(optim_dim, X, Y, initLoss, initL1, presetModel,problemClass,kwargs)
+        super().__init__(optim_dim, X, X_priv, Y, initLoss, initL1, initL1_priv, presetModel, problemClass, kwargs)
 
 
         # Init problem instance usually defined in the main class
-        self.prob_instance = MinProblem(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
-                                        initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+        self.prob_instance = MinProblem(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, X_priv=X_priv,
+                                        Y=self.Y,
+                                        initLoss=initLoss, initL1=initL1, initL1_priv=initL1_priv,
+                                        parameters=problemClass._best_params,
                                         presetModel=presetModel)
 
         # Define bound type for easier indexing after result collection
@@ -67,14 +71,18 @@ class UpperBound(Bound):
     """Class for Upper bounds """
 
     def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
-                 presetModel=None):
-        super().__init__(optim_dim, X, Y, initLoss, initL1, presetModel, problemClass, kwargs)
+                 presetModel=None, X_priv=None, initL1_priv=None):
+        super().__init__(optim_dim, X, X_priv, Y, initLoss, initL1, initL1_priv, presetModel, problemClass, kwargs)
 
-        self.prob_instance1 = MaxProblem1(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
-                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+        self.prob_instance1 = MaxProblem1(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X,
+                                          X_priv=self.X_priv, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, initL1_priv=initL1_priv,
+                                          parameters=problemClass._best_params,
                                           presetModel=presetModel)
-        self.prob_instance2 = MaxProblem2(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X, Y=self.Y,
-                                          initLoss=initLoss, initL1=initL1, parameters=problemClass._best_params,
+        self.prob_instance2 = MaxProblem2(problemClass.problemType, di=optim_dim, kwargs=kwargs, X=self.X,
+                                          X_priv=self.X_priv, Y=self.Y,
+                                          initLoss=initLoss, initL1=initL1, initL1_priv=initL1_priv,
+                                          parameters=problemClass._best_params,
                                           presetModel=presetModel)
 
         self.isUpperBound = True
@@ -101,24 +109,52 @@ class ShadowLowerBound(LowerBound):
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, initL1_priv=None,
+                 X=None, X_priv=None, Y=None,
                  sampleNum=None, presetModel=None):
         # Seed random state with permutation sample number given by parent
         random_state = np.random.RandomState(optim_dim + sampleNum)
-        # Permute dimension optim_dim
-        X_copy = np.copy(X)
-        perm_dim = random_state.permutation(X_copy[:, optim_dim])
 
-        X_copy[:, optim_dim] = perm_dim
+        priv = False
+        # Check if we have priv.Features
+        if X_priv is not None:
+            d_X = X.shape[1]
+            # Check if current bound is priv. feature
+            if optim_dim > d_X:
+                priv = True
 
-        # Optimize for the first (random permutated) column
-        super().__init__(problemClass, optim_dim, kwargs, initLoss, initL1, X_copy, Y, presetModel=presetModel)
+                # Permute priv feature
+                dim_offset = optim_dim - d_X
+                X_priv_copy = np.copy(X_priv)
+                perm_dim = random_state.permutation(X_priv_copy[:, dim_offset])
+                X_priv_copy[:, dim_offset] = perm_dim
+
+                # Init bound with permut. feature
+                super().__init__(problemClass=problemClass, optim_dim=optim_dim, kwargs=kwargs, initLoss=initLoss,
+                                 initL1=initL1,
+                                 initL1_priv=initL1_priv, X=X, X_priv=X_priv_copy, Y=Y, presetModel=presetModel)
+        if not priv:
+            X_copy = np.copy(X)
+            perm_dim = random_state.permutation(X_copy[:, optim_dim])
+            X_copy[:, optim_dim] = perm_dim
+
+            super().__init__(problemClass=problemClass, optim_dim=optim_dim, kwargs=kwargs, initLoss=initLoss,
+                             initL1=initL1,
+                             initL1_priv=initL1_priv, X=X_copy, X_priv=X_priv, Y=Y, presetModel=presetModel)
+
         self.isShadow = True
 
     def relax_problem(self,factor=0.01):
         L1 = self.initL1 * (1+factor)
         loss = self.initLoss * (1+factor)
-        super().__init__(self.problemClass, self.optim_dim, self.kwargs, loss, L1, self.X, self.Y, presetModel=self.presetModel)
+        if self.X_priv is not None:
+            L1_priv = self.initL1_priv * (1 + factor)
+        else:
+            L1_priv = None
+
+        super().__init__(problemClass=self.problemClass, optim_dim=self.optim_dim, kwargs=self.kwargs, initLoss=loss,
+                         initL1=L1,
+                         initL1_priv=L1_priv, X=self.X, X_priv=self.X_priv, Y=self.Y, presetModel=self.presetModel)
 
     def solve(self):
         status = self.prob_instance.solve().problem.status
@@ -142,24 +178,52 @@ class ShadowUpperBound(UpperBound):
         Permute the data to get bounds for random data.
     """
 
-    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, X=None, Y=None,
+    def __init__(self, problemClass=None, optim_dim=None, kwargs=None, initLoss=None, initL1=None, initL1_priv=None,
+                 X=None, X_priv=None, Y=None,
                  sampleNum=None, presetModel=None):
         # Seed random state with permutation sample number given by parent
         random_state = np.random.RandomState(optim_dim + sampleNum)
-        # Permute dimension optim_dim
-        X_copy = np.copy(X)
-        perm_dim = random_state.permutation(X_copy[:, optim_dim])
 
-        X_copy[:, optim_dim] = perm_dim
+        priv = False
+        # Check if we have priv.Features
+        if X_priv is not None:
+            d_X = X.shape[1]
+            # Check if current bound is priv. feature
+            if optim_dim > d_X:
+                priv = True
 
-        # Optimize for the first (random permutated) column
-        super().__init__(problemClass, optim_dim, kwargs, initLoss, initL1, X_copy, Y, presetModel=presetModel)
+                # Permute priv feature
+                dim_offset = optim_dim - d_X
+                X_priv_copy = np.copy(X_priv)
+                perm_dim = random_state.permutation(X_priv_copy[:, dim_offset])
+                X_priv_copy[:, dim_offset] = perm_dim
+
+                # Init bound with permut. feature
+                super().__init__(problemClass=problemClass, optim_dim=optim_dim, kwargs=kwargs, initLoss=initLoss,
+                                 initL1=initL1,
+                                 initL1_priv=initL1_priv, X=X, X_priv=X_priv_copy, Y=Y, presetModel=presetModel)
+        if not priv:
+            X_copy = np.copy(X)
+            perm_dim = random_state.permutation(X_copy[:, optim_dim])
+            X_copy[:, optim_dim] = perm_dim
+
+            super().__init__(problemClass=problemClass, optim_dim=optim_dim, kwargs=kwargs, initLoss=initLoss,
+                             initL1=initL1,
+                             initL1_priv=initL1_priv, X=X_copy, X_priv=X_priv, Y=Y, presetModel=presetModel)
+
         self.isShadow = True
 
-    def relax_problem(self,factor=0.01):
-        L1 = self.initL1 * (1+factor)
-        loss = self.initLoss * (1+factor)
-        super().__init__(self.problemClass, self.optim_dim, self.kwargs, loss, L1, self.X, self.Y, presetModel=self.presetModel)
+    def relax_problem(self, factor=0.01):
+        L1 = self.initL1 * (1 + factor)
+        loss = self.initLoss * (1 + factor)
+        if self.X_priv is not None:
+            L1_priv = self.initL1_priv * (1 + factor)
+        else:
+            L1_priv = None
+
+        super().__init__(problemClass=self.problemClass, optim_dim=self.optim_dim, kwargs=self.kwargs, initLoss=loss,
+                         initL1=L1,
+                         initL1_priv=L1_priv, X=self.X, X_priv=self.X_priv, Y=self.Y, presetModel=self.presetModel)
 
     def solve(self):
         status = [None, None]

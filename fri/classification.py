@@ -1,10 +1,12 @@
-from fri.base import FRIBase
-from fri.l1models import L1HingeHyperplane
-from fri.optproblems import BaseClassificationProblem
+import scipy.stats
 from sklearn import preprocessing
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
-import scipy.stats
+
+from fri.base import FRIBase
+from fri.l1models import L1HingeHyperplane
+from fri.optproblems import BaseClassificationProblem
+
 
 class FRIClassification(FRIBase):
     """Class for performing FRI on classification data.
@@ -61,7 +63,7 @@ class FRIClassification(FRIBase):
                          n_resampling=n_resampling,iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
 
-    def fit(self, X, y):
+    def fit(self, X, y, X_priv=None):
         """ Used for fitting the model on the data.
 
         Parameters
@@ -87,8 +89,16 @@ class FRIClassification(FRIBase):
         else:
             self.tuned_parameters["C"] = [self.C]
 
+        if X_priv is not None:
+            if self.gamma is None:
+                self.tuned_parameters["gamma"] = scipy.stats.reciprocal(a=1e-7, b=1e5)
+            else:
+                self.tuned_parameters["gamma"] = [self.gamma]
+
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
+        if X_priv is not None:
+            X_priv, y = check_X_y(X_priv, y)
         # Store the classes seen during fit
         self.classes_ = unique_labels(y)
 
@@ -98,4 +108,4 @@ class FRIClassification(FRIBase):
         y = preprocessing.LabelEncoder().fit_transform(y)
         y[y == 0] = -1
 
-        super().fit(X, y)
+        super().fit(X, y, X_priv=X_priv)

@@ -2,22 +2,23 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
+import math
 import warnings
 from abc import abstractmethod
 
 import numpy as np
-import math
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
+from sklearn.externals.joblib import Parallel, delayed
 from sklearn.feature_selection.base import SelectorMixin
+from sklearn.metrics import make_scorer
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
-from sklearn.metrics import make_scorer
-from sklearn.externals.joblib import Parallel,delayed
 
 from .bounds import LowerBound, UpperBound, ShadowLowerBound, ShadowUpperBound
 from .l1models import L1OrdinalRegressor, ordinal_scores, L1HingeHyperplane
+
 
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
@@ -77,10 +78,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
+    def __init__(self, C=None, optimum_deviation=0.001, optimum_deviation_priv=0.001, optimum_deviation_slack=0.001,
+                 random_state=None, n_jobs=None, n_resampling=3, iter_psearch=10, verbose=0):
         self.random_state = random_state
         self.C = C
         self.optimum_deviation = optimum_deviation
+        self.optimum_deviation_priv = optimum_deviation_priv
+        self.optimum_deviation_slack = optimum_deviation_slack
         self.n_jobs = n_jobs
         self.n_resampling = n_resampling
         self.iter_psearch = 10 if iter_psearch is None else iter_psearch
@@ -88,7 +92,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
 
     @abstractmethod
-    def fit(self, X, y):
+    def fit(self, X, y, X_priv=None):
         """Summary
             Parameters
             ----------
@@ -96,6 +100,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 Data matrix
             y : array_like
                 Response variable
+            X_priv : (optional)
+                Privileged information
             Returns
             -------
             FRIBase
@@ -105,6 +111,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.optim_model_ = None
         self.optim_score_ = None
         self.optim_L1_ = None
+        self.optim_L1_priv_ = None
         self.optim_loss_ = None
         self.allrel_prediction_ = None
         self.feature_clusters_ = None
@@ -120,7 +127,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.y_ = y
 
         # Use SVM to get optimal solution
-        self._initEstimator(X, y)
+        self._initEstimator(X, y, X_priv=X_priv)
         if self.verbose > 0:
             print("loss", self.optim_loss_)
             print("L1", self.optim_L1_)
@@ -140,7 +147,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector, omegas, biase, shadowrangevector = self._main_opt(X, y, self.optim_loss_,
                                                                        self.optim_L1_,
                                                                        self.random_state,
-                                                                       self.shadow_features)
+                                                                       self.shadow_features,
+                                                                       X_priv=X_priv, L1_priv=self.optim_L1_priv_)
         # save unmodified intervals (without postprocessing
         self.unmod_interval_ = rangevector.copy()
         # Postprocess bounds
@@ -360,7 +368,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
         return bound.solve()
 
-    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None, solverargs=None):
+    def _main_opt(self, X, Y, svmloss, L1, random_state, shadow_features, presetModel=None, solverargs=None,
+                  X_priv=None, L1_priv=None):
         """ Main calculation function.
             LP for each bound and distributes them depending on parallel flag.
         Parameters
@@ -371,6 +380,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             response vector
         """
         n, d = X.shape
+        if X_priv is not None:
+            d_priv = X_priv.shape[1]
+            d = d + d_priv
+
         rangevector = np.zeros((d, 2))
         shadowrangevector = np.zeros((d, 2))
         omegas = np.zeros((d, 2, d))
@@ -405,18 +418,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Create tasks for worker(s)
         #
         work = [LowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                           presetModel=presetModel)
+                           presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
                 for di in dims]
         work.extend([UpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss, initL1=L1, X=X, Y=Y,
-                                presetModel=presetModel)
+                                presetModel=presetModel, X_priv=X_priv, initL1_priv=L1_priv)
                      for di in dims])
         if shadow_features:
             for nr in range(self.n_resampling):
                 work.extend([ShadowLowerBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
+                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel, X_priv=X_priv,
+                                              initL1_priv=L1_priv)
                              for di in dims])
                 work.extend([ShadowUpperBound(problemClass=self, optim_dim=di, kwargs=kwargs, initLoss=svmloss,
-                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel)
+                                              initL1=L1, X=X, Y=Y, sampleNum=nr, presetModel=presetModel, X_priv=X_priv,
+                                              initL1_priv=L1_priv)
                              for di in dims])
 
         done = Parallel(n_jobs=self.n_jobs,verbose=self.verbose)(map(delayed(self._opt_per_thread), work))
@@ -461,7 +476,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return rangevector, shadowrangevector
 
-    def _initEstimator(self, X, Y):
+    class DataHandler(object):
+        # Package class to give X and X_priv to gridsearch.fit()
+        def __init__(self, X, X_priv):
+            self.X = X
+            self.X_priv = X_priv
+            self.shape = self.X.shape
+
+        def __getitem__(self, x):
+            return self.X[x], self.X_priv[x]
+
+    def _initEstimator(self, X, Y, X_priv=None):
         if self.initModel is L1OrdinalRegressor:
             # Use two scores for ordinal regression
             error = ordinal_scores
@@ -483,11 +508,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                   error_score=np.nan,
                                   return_train_score=False,
                                   verbose=self.verbose)
+        if X_priv is not None:
+            data = self.DataHandler(X=X, X_priv=X_priv)
+        else:
+            data = X
 
         # Ignore warnings for extremely bad parameters (when precision=0)
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
-            gridsearch.fit(X, Y)
+            gridsearch.fit(data, Y)
 
         # Save parameters for use in optimization
         self._best_params = gridsearch.best_params_
@@ -500,9 +529,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._svm_bias = self.optim_model_.intercept_
         self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
         self.optim_loss_ = np.abs(self.optim_model_.slack).sum()
+        if X_priv is not None:
+            self._svm_coef_priv = self.optim_model_.coef_priv_
+            self.optim_L1_priv_ = np.linalg.norm(self._svm_coef_priv[0], ord=1)
 
         # Allow worse solutions (relaxation)
         self.optim_L1_ = self.optim_L1_ * (1 + self.optimum_deviation)
+        if X_priv is not None:
+            self.optim_L1_priv_ = self.optim_L1_priv_ * (1 + self.optimum_deviation_priv)
+            self.optim_loss_ = self.optim_loss_ * (1 + self.optimum_deviation_slack)
 
 
     def score(self, X, y):

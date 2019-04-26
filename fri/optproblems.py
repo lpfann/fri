@@ -4,6 +4,7 @@ import cvxpy as cvx
 import numpy as np
 from cvxpy import SolverError
 
+
 class ProblemType(object, metaclass=abc.ABCMeta):
     # Decorator class to add problem type specific constraints and variables to the BaseProblem
     @abc.abstractmethod
@@ -16,17 +17,20 @@ MINLOSS = 0.01
 
 class BaseProblem(object):
     def __init__(self, problemType: ProblemType, di: int = None, kwargs: dict = None,
-                 X: np.ndarray = None, Y: np.ndarray = None, initLoss: float = None, initL1: float = None,
-                 parameters: dict = None,
+                 X: np.ndarray = None, X_priv: np.ndarray = None, Y: np.ndarray = None, initLoss: float = None,
+                 initL1: float = None,
+                 initL1_priv: float = None, parameters: dict = None,
                  presetModel: np.ndarray = None):
         # General data parameters
         self.n = X.shape[0]
         self.d = X.shape[1]
         self.X = X
         self.Y = Y
+        self.X_priv = X_priv
 
         # InitModel Parameters
         self.initL1 = initL1
+        self.initL1_priv = initL1_priv
         self.initLoss = max(MINLOSS, initLoss)
         self.parameters = parameters
 
@@ -37,6 +41,11 @@ class BaseProblem(object):
         self._constraints = []
         self.xp = cvx.Variable(nonneg=True, name="currentDimWeight")  # x' , our opt. value
         self.omega = cvx.Variable(self.d, name="Omega")  # complete linear weight vector
+
+        if X_priv is not None:
+            self.d_priv = X_priv.shape[1]
+            self.omega_priv = cvx.Variable(self.d_priv, name="Omega_Priv")  # complete linear weight vector
+
         if kwargs is None:
             self.kwargs = {}  # Fix (unpacking)error when manually calling bounds without keyword arguments to the solver
         else:
@@ -98,40 +107,45 @@ class BaseProblem(object):
 
 
 class MinProblem(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
-        super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
+    def __init__(self, problemType, di=None, kwargs=None, X=None, X_priv=None, Y=None, initLoss=None, initL1=None,
+                 initL1_priv=None, parameters=None, presetModel=None):
+        super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
+                         initL1_priv=initL1_priv,
                          parameters=parameters, presetModel=presetModel)
 
-        self._constraints.extend(
-            [
-                cvx.abs(self.omega[self.di]) <= self.xp
-            ])
+        if X_priv is None:
+            self._constraints.extend([cvx.abs(self.omega[self.di]) <= self.xp])
+        else:
+            self._constraints.extend([cvx.abs(self.omega_priv[self.di - self.d]) <= self.xp])
 
         self._objective = cvx.Minimize(self.xp)
 
 
 class MaxProblem1(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
-        super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
+    def __init__(self, problemType, di=None, kwargs=None, X=None, X_priv=None, Y=None, initLoss=None, initL1=None,
+                 initL1_priv=None, parameters=None, presetModel=None):
+        super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
+                         initL1_priv=initL1_priv,
                          parameters=parameters,presetModel=presetModel)
-
-        self._constraints.extend(
-            [
-                self.xp <= self.omega[self.di]
-            ])
+        if X_priv is None:
+            self._constraints.extend([self.xp <= self.omega[self.di]])
+        else:
+            self._constraints.extend([self.xp <= self.omega_priv[self.di]])
 
         self._objective = cvx.Maximize(self.xp)
 
 
 class MaxProblem2(BaseProblem):
-    def __init__(self, problemType, di=None, kwargs=None, X=None, Y=None, initLoss=None, initL1=None, parameters=None, presetModel=None):
-        super().__init__(problemType, di=di, kwargs=kwargs, X=X, Y=Y, initLoss=initLoss, initL1=initL1,
+    def __init__(self, problemType, di=None, kwargs=None, X=None, X_priv=None, Y=None, initLoss=None, initL1=None,
+                 initL1_priv=None, parameters=None, presetModel=None):
+        super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
+                         initL1_priv=initL1_priv,
                          parameters=parameters,presetModel=presetModel)
 
-        self._constraints.extend(
-            [
-                self.xp <= -(self.omega[self.di])
-            ])
+        if X_priv is None:
+            self._constraints.extend([self.xp <= -self.omega[self.di]])
+        else:
+            self._constraints.extend([self.xp <= -self.omega_priv[self.di]])
 
         self._objective = cvx.Maximize(self.xp)
 
@@ -143,6 +157,13 @@ class BaseClassificationProblem(ProblemType):
         point_distances = cvx.multiply(baseProblem.Y, baseProblem.X * baseProblem.omega + baseProblem.b)
         baseProblem.loss = cvx.sum(cvx.pos(1 - point_distances))
         baseProblem.weight_norm = cvx.norm(baseProblem.omega, 1)
+
+        if baseProblem.X_priv is not None:
+            baseProblem.b_priv = cvx.Variable()
+            point_distances_priv = baseProblem.X_priv * baseProblem.omega_priv + baseProblem.b_priv
+            baseProblem.loss = cvx.sum(point_distances_priv)
+            baseProblem.weight_norm_priv = cvx.norm(baseProblem.omega_priv, 1)
+            baseProblem._constraints.extend([baseProblem.weight_norm_priv <= baseProblem.initL1_priv])
 
         baseProblem._constraints.extend(
             [

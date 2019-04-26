@@ -5,31 +5,44 @@
 import cvxpy as cvx
 import numpy as np
 from sklearn.base import BaseEstimator
-from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
-from sklearn.metrics import fbeta_score, precision_score, recall_score, classification_report
-from sklearn.preprocessing import StandardScaler, LabelEncoder
-from sklearn.utils import check_X_y,check_array
 from sklearn.exceptions import NotFittedError
+from sklearn.linear_model.base import LinearClassifierMixin, RegressorMixin, LinearModel
+from sklearn.metrics import fbeta_score, classification_report
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.utils import check_X_y, check_array
+
 
 class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     """
     Determine a separating hyperplane using L1-regularization and hinge loss
     """
 
-    def __init__(self, C=1):
+    def __init__(self, C=1, gamma=1):
         self.C = C
+        self.gamma = gamma
 
-    def fit(self, X, y):
+    def fit(self, X, y, X_priv=None):
         self.classes_ = np.unique(y)
         (n, d) = X.shape
         w = cvx.Variable(d)
-        xi = cvx.Variable(n, nonneg=True)
         b = cvx.Variable()
 
+        if X_priv is not None:
+            d_priv = X_priv.shape[1]
+            w_priv = cvx.Variable(d_priv)
+            b_priv = cvx.Variable()
+            L1 = 0.5 * (cvx.norm(w, 1) + self.gamma * cvx.norm(w_priv, 1))
+            slack = self.X_priv * w_priv + b_priv
+            loss = self.C * cvx.sum(slack)
+        else:
+            slack = cvx.Variable(n, nonneg=True)
+            loss = self.C * cvx.sum(slack)
+            L1 = cvx.norm(w, 1)
+
         # Prepare problem.
-        objective = cvx.Minimize(cvx.norm(w, 1) + self.C * cvx.sum(xi))
+        objective = cvx.Minimize(loss + L1)
         constraints = [
-            cvx.multiply(y.T, X * w - b) >= 1 - xi
+            cvx.multiply(y.T, X * w - b) >= 1 - slack
         ]
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
@@ -37,8 +50,11 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
 
         # Prepare output and convert from matrices to flattened arrays.
         self.coef_ = np.array(w.value)[np.newaxis]
+        self.slack = np.asarray(slack.value).flatten()
         self.intercept_ = b.value
-        self.slack = np.asarray(xi.value).flatten()
+        if X_priv is not None:
+            self.coef_priv_ = np.array(w_priv.value)[np.newaxis]
+            self.intercept_priv_ = b_priv.value
 
         return self
 
@@ -257,4 +273,3 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
             return error
         else:
             return score
-
