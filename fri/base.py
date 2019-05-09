@@ -199,11 +199,23 @@ class FRIBase(BaseEstimator, SelectorMixin):
         rangevector = np.zeros((d, 2))
         self._shadow_values  = []
         omegas = np.zeros((d, 2, d))
+
+        ###############################################################################################################
+        if X_priv is not None:
+            omegas = np.zeros((X.shape[1], 2, X.shape[1]))
+            omegas_priv = np.zeros((X_priv.shape[1], 2, X_priv.shape[1]))
+        ###############################################################################################################
+
         if self.classes_ is not None:
             class_thresholds = len(self.classes_) - 1
             biase = np.zeros((d, 2, class_thresholds))
         else:
             biase = np.zeros((d, 2))
+
+        ###############################################################################################################
+        if X_priv is not None:
+            biase_priv = np.zeros((d_priv, 2))
+        ###############################################################################################################
 
         dims = np.arange(d)
         if presetModel is not None:
@@ -249,8 +261,22 @@ class FRIBase(BaseEstimator, SelectorMixin):
             if not hasattr(finished_bound, "isShadow"):
                 prob_i = finished_bound.prob_instance
                 rangevector[di, i] = np.abs(prob_i.problem.value)
-                omegas[di, i] = prob_i.omega.value.reshape(d)
-                biase[di, i] = prob_i.b.value
+
+
+                #######################################################################################################
+                if X_priv is not None:
+                    if di < X.shape[1]:
+                        omegas[di, i] = prob_i.omega.value.reshape(X.shape[1])
+                        biase[di, i] = prob_i.b.value
+                    else:
+                        omegas_priv[di - X.shape[1], i] = prob_i.omega_priv.value.reshape(d_priv)
+                        biase_priv[di - X.shape[1], i] = prob_i.b_priv.value
+                else:
+                    omegas[di, i] = prob_i.omega.value.reshape(d)
+                    biase[di, i] = prob_i.b.value
+                #######################################################################################################
+
+
             else:
                 # Get the mean of all shadow samples
                 self._shadow_values.append(finished_bound.shadow_value)
