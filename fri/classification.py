@@ -55,12 +55,12 @@ class FRIClassification(FRIBase):
     """
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=None, optimum_deviation=0.001,
+    def __init__(self, C=None, gamma=None, optimum_deviation=0.001,
                  random_state=None,
                  n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
-        super().__init__(C=C, random_state=random_state,
+        super().__init__(C=C, gamma=gamma, random_state=random_state,
                          n_jobs=n_jobs,
-                         n_resampling=n_resampling,iter_psearch=iter_psearch,
+                         n_resampling=n_resampling, iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
 
     def fit(self, X, y, X_priv=None):
