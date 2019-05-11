@@ -112,22 +112,13 @@ class MinProblem(BaseProblem):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
                          initL1_priv=initL1_priv,
                          parameters=parameters, presetModel=presetModel)
-        '''
-        if X_priv is None:
-            self._constraints.extend([cvx.abs(self.omega[self.di]) <= self.xp])
-        else:
-            if self.di > self.d:
-                self._constraints.extend([cvx.abs(self.omega_priv[self.di - self.d]) <= self.xp])
-        '''
 
-        ###############################################################################################################
         if self.di < self.d:
             self._constraints.extend([cvx.abs(self.omega[self.di]) <= self.xp])
 
         if X_priv is not None:
             if self.di >= self.d:
                 self._constraints.extend([cvx.abs(self.omega_priv[self.di - self.d]) <= self.xp])
-        ###############################################################################################################
 
 
         self._objective = cvx.Minimize(self.xp)
@@ -139,22 +130,12 @@ class MaxProblem1(BaseProblem):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
                          initL1_priv=initL1_priv,
                          parameters=parameters,presetModel=presetModel)
-        '''
-        if X_priv is None:
-            self._constraints.extend([self.xp <= self.omega[self.di]])
-        else:
-            if self.di > self.d:
-                self._constraints.extend([self.xp <= self.omega_priv[self.di - self.d]])
-        '''
-
-        ###############################################################################################################
         if self.di < self.d:
             self._constraints.extend([self.xp <= self.omega[self.di]])
 
         if X_priv is not None:
             if self.di >= self.d:
                 self._constraints.extend([self.xp <= self.omega_priv[self.di - self.d]])
-        ###############################################################################################################
 
 
         self._objective = cvx.Maximize(self.xp)
@@ -166,22 +147,12 @@ class MaxProblem2(BaseProblem):
         super().__init__(problemType, di=di, kwargs=kwargs, X=X, X_priv=X_priv, Y=Y, initLoss=initLoss, initL1=initL1,
                          initL1_priv=initL1_priv,
                          parameters=parameters,presetModel=presetModel)
-        '''
-        if X_priv is None:
-            self._constraints.extend([self.xp <= -self.omega[self.di]])
-        else:
-            if self.di > self.d:
-                self._constraints.extend([self.xp <= -self.omega_priv[self.di - self.d]])
-        '''
-
-        ###############################################################################################################
         if self.di < self.d:
             self._constraints.extend([self.xp <= -self.omega[self.di]])
 
         if X_priv is not None:
             if self.di >= self.d:
                 self._constraints.extend([self.xp <= -self.omega_priv[self.di - self.d]])
-        ###############################################################################################################
 
 
         self._objective = cvx.Maximize(self.xp)
@@ -205,7 +176,8 @@ class BaseClassificationProblem(ProblemType):
         baseProblem._constraints.extend(
             [
                 baseProblem.weight_norm <= baseProblem.initL1,
-                baseProblem.loss <= baseProblem.initLoss
+                baseProblem.loss <= baseProblem.initLoss,
+                point_distances >= 0
             ])
 
 
