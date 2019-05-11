@@ -353,7 +353,7 @@ def genLupiData(generator, n_priv_features: int = 1,
                 n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
                 partition_priv=None, n_features: int = 2,
                 n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0, partition=None, **kwargs):
+                n_repeated: int = 0, partition=None, random_state=None, **kwargs):
     if generator in [genClassificationData, genRegressionData, genOrdinalRegressionData]:
         _checkParam(n_features=n_features,
                     n_redundant=n_redundant, n_strel=n_strel,
@@ -372,7 +372,7 @@ def genLupiData(generator, n_priv_features: int = 1,
 
         X, y = generator(n_features=n_features,
                          n_redundant=n_redundant, n_strel=n_strel,
-                         n_repeated=n_repeated, partition=partition, **kwargs)
+                         n_repeated=n_repeated, partition=partition, random_state=random_state, **kwargs)
 
         X_priv = np.empty((len(X), n_priv_features))
 
