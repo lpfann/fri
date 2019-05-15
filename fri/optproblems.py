@@ -162,23 +162,41 @@ class BaseClassificationProblem(ProblemType):
     def add_type_specific(self, baseProblem):
         # Problem Specific variables and constraints
         baseProblem.b = cvx.Variable(name="offset")  # shift
+        baseProblem.slack = cvx.Variable(shape=(baseProblem.n))
         point_distances = cvx.multiply(baseProblem.Y, baseProblem.X * baseProblem.omega + baseProblem.b)
-        baseProblem.loss = cvx.sum(cvx.pos(1 - point_distances))
         baseProblem.weight_norm = cvx.norm(baseProblem.omega, 1)
 
         if baseProblem.X_priv is not None:
-            baseProblem.b_priv = cvx.Variable()
-            point_distances_priv = baseProblem.X_priv * baseProblem.omega_priv + baseProblem.b_priv
-            baseProblem.loss = cvx.sum(point_distances_priv)
-            baseProblem.weight_norm_priv = cvx.norm(baseProblem.omega_priv, 1)
-            baseProblem._constraints.extend([baseProblem.weight_norm_priv <= baseProblem.initL1_priv])
 
-        baseProblem._constraints.extend(
-            [
-                baseProblem.weight_norm <= baseProblem.initL1,
-                baseProblem.loss <= baseProblem.initLoss,
-                point_distances >= 0
-            ])
+            # Problem with LUPI features present
+            baseProblem.b_priv = cvx.Variable()
+            baseProblem.priv_function = baseProblem.X_priv * baseProblem.omega_priv + baseProblem.b_priv
+            baseProblem.weight_norm_priv = cvx.norm(baseProblem.omega_priv, 1)
+            baseProblem.loss = baseProblem.parameters["C"] * (cvx.sum(baseProblem.slack)
+                                                              + baseProblem.parameters["beta"] * cvx.sum(
+                        baseProblem.priv_function))
+            baseProblem._constraints.extend(
+                [
+                    point_distances >= 1 - baseProblem.priv_function - baseProblem.slack,
+                    baseProblem.priv_function >= 0,
+                    baseProblem.slack >= 0,
+                    baseProblem.loss <= baseProblem.initLoss,
+
+                    baseProblem.weight_norm_priv <= baseProblem.initL1_priv,
+                    baseProblem.weight_norm <= baseProblem.initL1,
+
+                ])
+        else:
+
+            # Normal Problem without LUPI
+            baseProblem.loss = cvx.sum(baseProblem.slack)
+            baseProblem._constraints.extend(
+                [
+                    point_distances >= 1 - baseProblem.slack,
+                    baseProblem.weight_norm <= baseProblem.initL1,
+                    baseProblem.loss <= baseProblem.initLoss,
+                    baseProblem.slack >= 0
+                ])
 
 
 class BaseRegressionProblem(ProblemType):

@@ -78,11 +78,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
 
     @abstractmethod
-    def __init__(self, C=None, optimum_deviation=0.001, optimum_deviation_priv=0.001, optimum_deviation_slack=0.001,
+    def __init__(self, C=None, gamma=None, beta=None,
+                 optimum_deviation=0.001, optimum_deviation_priv=0.001,
+                 optimum_deviation_slack=0.001,
                  random_state=None, n_jobs=None, n_resampling=40, iter_psearch=30, verbose=0):
         self.random_state = random_state
         self.C = C
-        self.gamma = None
+        self.gamma = gamma
+        self.beta = beta
         self.optimum_deviation = optimum_deviation
         self.optimum_deviation_priv = optimum_deviation_priv
         self.optimum_deviation_slack = optimum_deviation_slack
@@ -160,7 +163,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.unmod_interval_ = rangevector.copy()
 
         # Postprocess bounds
-        rangevector = self._postprocessing(self.optim_L1_, rangevector)
+        # Normalize normal bounds
+        d = self.X_.shape[1]
+        rangevector[:d] = self._postprocessing(self.optim_L1_, rangevector[:d])
+        # Normalize LUPI bounds
+        if X_priv is not None:
+            rangevector[d:] = self._postprocessing(self.optim_L1_priv_, rangevector[d:])
 
         self.interval_ = rangevector
         self._omegas = omegas
@@ -200,11 +208,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._shadow_values  = []
         omegas = np.zeros((d, 2, d))
 
-        ###############################################################################################################
         if X_priv is not None:
             omegas = np.zeros((X.shape[1], 2, X.shape[1]))
             omegas_priv = np.zeros((X_priv.shape[1], 2, X_priv.shape[1]))
-        ###############################################################################################################
 
         if self.classes_ is not None:
             class_thresholds = len(self.classes_) - 1
@@ -212,10 +218,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         else:
             biase = np.zeros((d, 2))
 
-        ###############################################################################################################
         if X_priv is not None:
             biase_priv = np.zeros((d_priv, 2))
-        ###############################################################################################################
 
         dims = np.arange(d)
         if presetModel is not None:
@@ -259,6 +263,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Retrieve results and aggregate values in arrays
         for finished_bound in done:
+            print(finished_bound)
             di = finished_bound.optim_dim
             i = int(finished_bound.isUpperBound)
             # Handle shadow values differently (we discard useless values)
@@ -267,18 +272,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
                 rangevector[di, i] = np.abs(prob_i.problem.value)
 
 
-                #######################################################################################################
                 if X_priv is not None:
                     if di < X.shape[1]:
                         omegas[di, i] = prob_i.omega.value.reshape(X.shape[1])
                         biase[di, i] = prob_i.b.value
                     else:
+                        # TODO: priv fields integrieren
                         omegas_priv[di - X.shape[1], i] = prob_i.omega_priv.value.reshape(d_priv)
                         biase_priv[di - X.shape[1], i] = prob_i.b_priv.value
                 else:
                     omegas[di, i] = prob_i.omega.value.reshape(d)
                     biase[di, i] = prob_i.b.value
-                #######################################################################################################
 
 
             else:
@@ -332,13 +336,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._best_params = gridsearch.best_params_
         self._cv_results = gridsearch.cv_results_
         self.optim_model_ = gridsearch.best_estimator_
-        self.optim_score_ = self.optim_model_.score(X, Y)
+        self.optim_score_ = self.optim_model_.score(data, Y)
         if self.verbose > 0 and self.initModel is L1HingeHyperplane:
             self.classification_report = self.optim_model_.score(X, Y, debug=True)
         self._svm_coef = self.optim_model_.coef_
         self._svm_bias = self.optim_model_.intercept_
         self.optim_L1_ = np.linalg.norm(self._svm_coef[0], ord=1)
-        self.optim_loss_ = np.abs(self.optim_model_.slack).sum()
+        # self.optim_loss_ = np.abs(self.optim_model_.slack).sum()
+        self.optim_loss_ = self.optim_model_.loss_  # TODO: check if loss is working like this
         if X_priv is not None:
             self._svm_coef_priv = self.optim_model_.coef_priv_
             self.optim_L1_priv_ = np.linalg.norm(self._svm_coef_priv[0], ord=1)

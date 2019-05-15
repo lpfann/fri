@@ -27,46 +27,69 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
     Determine a separating hyperplane using L1-regularization and hinge loss
     """
 
-    def __init__(self, C=1, gamma=1):
+    def __init__(self, C=1, gamma=1, beta=1):
+        self.beta = beta
         self.C = C
         self.gamma = gamma
 
     def fit(self, data, y, ):
+
         self.classes_ = np.unique(y)
-        if type(data) is DataHandler:
+        if type(data) is tuple:
+            X = data[0]
+            X_priv = data[1]
+        elif type(data) is DataHandler:
             X = data.X
             X_priv = data.X_priv
         else:
             X = data
             X_priv = None
         (n, d) = X.shape
-        w = cvx.Variable(d)
-        b = cvx.Variable()
+
+        w = cvx.Variable(d, name="w")
+        b = cvx.Variable(name="b")
 
         if X_priv is not None:
             d_priv = X_priv.shape[1]
-            w_priv = cvx.Variable(d_priv)
-            b_priv = cvx.Variable()
-            L1 = 0.5 * (cvx.norm(w, 1) + self.gamma * cvx.norm(w_priv, 1))
-            slack = X_priv * w_priv + b_priv
-            loss = self.C * cvx.sum(slack)
-        else:
-            slack = cvx.Variable(n, nonneg=True)
-            loss = self.C * cvx.sum(slack)
-            L1 = cvx.norm(w, 1)
+            w_priv = cvx.Variable(d_priv, name="w_priv")
+            b_priv = cvx.Variable(name="b_priv")
 
-        # Prepare problem.
+            priv_function = X_priv * w_priv + b_priv
+            slack = cvx.Variable(n)
+
+            L1 = 0.5 * (cvx.norm(w, 1) + self.gamma * cvx.norm(w_priv, 1))
+
+            loss = self.C * (cvx.sum(slack) + self.beta * cvx.sum(priv_function))
+            constraints = [
+                cvx.multiply(y.T, X * w + b) >= 1 - priv_function - slack,
+                priv_function >= 0,
+                slack >= 0,
+            ]
+        else:
+            slack = cvx.Variable(n)
+            # slack = cvx.pos(1 - projection_distance)
+            L1 = cvx.norm(w, 1)
+            loss = self.C * cvx.sum(slack)
+            constraints = [
+                cvx.multiply(y.T, X * w + b) >= 1 - slack,
+                slack >= 0
+            ]
+
         objective = cvx.Minimize(loss + L1)
-        constraints = [
-            cvx.multiply(y.T, X * w - b) >= 1 - slack
-        ]
+
         # Solve problem.
         problem = cvx.Problem(objective, constraints)
-        problem.solve(solver="ECOS", max_iters=5000)
+        problem.solve(solver="ECOS", max_iters=100)
 
         # Prepare output and convert from matrices to flattened arrays.
         self.coef_ = np.array(w.value)[np.newaxis]
         self.slack = np.asarray(slack.value).flatten()
+        self.loss_ = loss.value
+        # print("Loss:", loss.value)
+        # print("L1:", w.value)
+        #        print("L1priv:", w_priv.value)
+        #print("opt value:",problem.value)
+
         self.intercept_ = b.value
         if X_priv is not None:
             self.coef_priv_ = np.array(w_priv.value)[np.newaxis]
@@ -75,6 +98,13 @@ class L1HingeHyperplane(BaseEstimator, LinearClassifierMixin):
         return self
 
     def score(self, X, y, debug=False):
+
+        if type(X) is tuple:
+            # We have priv. Information but we only test on the normal information
+            X = np.copy(X[0])
+        elif type(X) is DataHandler:
+            X = X.X
+
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
 

@@ -55,10 +55,10 @@ class FRIClassification(FRIBase):
     """
     problemType = BaseClassificationProblem
 
-    def __init__(self, C=None, gamma=None, optimum_deviation=0.001,
+    def __init__(self, C=None, gamma=None, beta=None, optimum_deviation=0.001,
                  random_state=None,
                  n_jobs=None, n_resampling=40, iter_psearch=50, verbose=0):
-        super().__init__(C=C, gamma=gamma, random_state=random_state,
+        super().__init__(C=C, gamma=gamma, beta=beta, random_state=random_state,
                          n_jobs=n_jobs,
                          n_resampling=n_resampling, iter_psearch=iter_psearch,
                          verbose=verbose, optimum_deviation=optimum_deviation)
@@ -84,17 +84,22 @@ class FRIClassification(FRIBase):
         # Define parameters which are optimized in the initial gridsearch
         self.tuned_parameters = {}
         # Only use parameter grid when no parameter is given
+        n = X.shape[0]
         if self.C is None:
-            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1e-3, b=1e3)
-            # self.tuned_parameters["C"] = np.logspace(-5, 2, self.iter_psearch)
+            self.tuned_parameters["C"] = scipy.stats.reciprocal(a=1 / n, b=n)
         else:
             self.tuned_parameters["C"] = [self.C]
 
         if X_priv is not None:
             if self.gamma is None:
-                self.tuned_parameters["gamma"] = scipy.stats.reciprocal(a=1e-7, b=1e5)
+                self.tuned_parameters["gamma"] = scipy.stats.reciprocal(a=1 / n, b=n)
             else:
                 self.tuned_parameters["gamma"] = [self.gamma]
+        if self.beta is None:
+            self.tuned_parameters["beta"] = scipy.stats.reciprocal(a=1 / n, b=n)
+        else:
+            self.tuned_parameters["beta"] = [self.beta]
+
 
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
