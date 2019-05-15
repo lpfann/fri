@@ -2,14 +2,13 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-import math
 import warnings
 from abc import abstractmethod
 
 import numpy as np
 import scipy.stats as stats
 from sklearn.base import BaseEstimator
-from sklearn.exceptions import NotFittedError
+from sklearn.exceptions import NotFittedError, UndefinedMetricWarning
 from sklearn.externals.joblib import Parallel, delayed
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.metrics import make_scorer
@@ -159,6 +158,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                                        X_priv=X_priv, L1_priv=self.optim_L1_priv_)
         # save unmodified intervals (without postprocessing
         self.unmod_interval_ = rangevector.copy()
+
         # Postprocess bounds
         rangevector = self._postprocessing(self.optim_L1_, rangevector)
 
@@ -234,7 +234,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Solver Parameters
         """
         if solverargs is None:
-            kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+            if self.verbose >= 10:
+                solver_verbose = True
+            else:
+                solver_verbose = False
+            kwargs = {"verbose": solver_verbose, "solver": "ECOS", "max_iters": 1000}
         else:
             kwargs = solverargs
 
@@ -309,6 +313,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                         random_state=self.random_state,
                                         refit=refit,
                                         n_iter=self.iter_psearch,
+                                        cv=5,
                                         n_jobs=self.n_jobs,
                                         error_score=np.nan,
                                         return_train_score=False,
@@ -320,7 +325,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Ignore warnings for extremely bad parameters (when precision=0)
         with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+            warnings.simplefilter("ignore", category=UndefinedMetricWarning)
             gridsearch.fit(data, Y)
 
         # Save parameters for use in optimization
@@ -384,11 +389,16 @@ class FRIBase(BaseEstimator, SelectorMixin):
         mean = maxs.mean()
         s = maxs.std()
         perc = fpr
+        # Estimate left and right boundaries of prediction interval (PI)
         pos = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
         neg = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
+        # If relevance bounds are outside the PI we assume that they are not coming from random noise
         weakly = rangevector[:, 1] > neg
+        # Pos should always be smaller than 0 and thus we can just check for positivity here
         strongly = rangevector[:, 0] > 0
+
+        # If both relevance bounds are bigger than 0 we assume strongly relevance
         both = np.logical_and(weakly, strongly)
 
         prediction[weakly] = 1

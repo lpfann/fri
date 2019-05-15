@@ -32,9 +32,14 @@ class Bound(object):
         pass
 
     def __repr__(self):
-        return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
-               " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel}), X_priv={self.X_priv.shape}".format(
-            self=self)
+        if self.X_priv is not None:
+            return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
+                   " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel}), X_priv={self.X_priv.shape}".format(
+                self=self)
+        else:
+            return "{self.__class__.__name__}(optim_dim={self.optim_dim}, X.shape={self.X.shape}, Y.shape={self.Y.shape}," \
+                   " initL1={self.initL1}, initLoss={self.initLoss}, presetModel={self.presetModel})".format(
+                self=self)
 
 class LowerBound(Bound):
     """Class for lower bounds """
@@ -64,6 +69,7 @@ class LowerBound(Bound):
         if status in self.acceptableStati:
             return self
         else:
+            print("Status of problem:", status)
             raise fri.base.NotFeasibleForParameters(status, self)
 
 
@@ -95,6 +101,8 @@ class UpperBound(Bound):
 
         valid_problems = list(filter(lambda x: x.problem.status in self.acceptableStati, status))
         if len(valid_problems) == 0:
+            for st in status:
+                print(f"Status of problem: {st.problem.status}")
             raise fri.base.NotFeasibleForParameters("Upper bound has no feasible problems.", self)
 
         max_index = np.argmax([np.abs(x.problem.value) for x in valid_problems])
