@@ -37,7 +37,7 @@ def _checkParam(n_samples: int = 100, n_features: int = 2,
     if n_strel + n_redundant < 1:
         raise ValueError("No informative features.")
     if n_strel == 0 and n_redundant < 2:
-        raise ValueError("Redundant features have per definition more than one member.")
+        raise ValueError("We need more than 1 redundant feature.")
     if partition is not None:
         if sum(partition) != n_redundant:
             raise ValueError("Sum of partition values should yield number of redundant features.")
@@ -376,11 +376,21 @@ def genLupiData(generator, n_priv_features: int = 1,
 
         X_priv = np.empty((len(X), n_priv_features))
 
+        # Build index list of features
         ix = range(n_features)
         ix_priv = []
+        # Pick index for strel features from the beginning of the generated array
         ix_priv.extend(ix[:n_priv_strel])
+        # Pick index for redundant
         ix_priv.extend(ix[n_strel:n_strel + n_priv_redundant])
+        # Pick index for repeated features
         ix_priv.extend(ix[n_strel + n_redundant:n_strel + n_redundant + n_priv_repeated])
+        # Pick index for irrelevant
+        n_irrelevant_priv_features = n_priv_features - n_priv_strel - n_priv_redundant - n_priv_repeated
+        if n_irrelevant_priv_features > 0:
+            ix_priv.extend((ix[
+                            -n_irrelevant_priv_features:]))  # notice the '-', we slice from the back, where irrelevant features are
+
         ix_not_priv = [index for index in ix if index not in ix_priv]
 
         X_priv = X[:, ix_priv]
