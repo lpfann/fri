@@ -4,6 +4,7 @@ import cvxpy as cvx
 import numpy as np
 from cvxpy import SolverError
 
+
 class ProblemType(object, metaclass=abc.ABCMeta):
     # Decorator class to add problem type specific constraints and variables to the BaseProblem
     @abc.abstractmethod

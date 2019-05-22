@@ -1,9 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
+import fri.base
 import numpy as np
 from cvxpy import OPTIMAL, OPTIMAL_INACCURATE
-
-import fri.base
 from fri.optproblems import MinProblem, MaxProblem1, MaxProblem2
 
 

@@ -1,11 +1,10 @@
 import scipy
-from sklearn import preprocessing
-from sklearn.utils import check_X_y
-from sklearn.utils.multiclass import unique_labels
-
 from fri.base import FRIBase
 from fri.l1models import L1HingeHyperplane
 from fri.optproblems import BaseClassificationProblem
+from sklearn import preprocessing
+from sklearn.utils import check_X_y
+from sklearn.utils.multiclass import unique_labels
 
 
 class FRIClassification(FRIBase):

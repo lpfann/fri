@@ -1,9 +1,8 @@
 import scipy
-from sklearn.utils import check_X_y
-
 from fri.base import FRIBase
 from fri.l1models import L1EpsilonRegressor
 from fri.optproblems import BaseRegressionProblem
+from sklearn.utils import check_X_y
 
 
 class FRIRegression(FRIBase):

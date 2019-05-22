@@ -1,10 +1,9 @@
 import numpy as np
 import scipy
-from sklearn.utils import check_X_y
-
 from fri.base import FRIBase
 from fri.l1models import L1OrdinalRegressor
 from fri.optproblems import BaseOrdinalRegressionProblem
+from sklearn.utils import check_X_y
 
 
 class FRIOrdinalRegression(FRIBase):
