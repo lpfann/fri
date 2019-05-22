@@ -10,7 +10,8 @@ class MLProblem(ABC):
         self.chosen_parameters_ = {}
         for p in self.parameters():
             if p in kwargs:
-                self.chosen_parameters_[p] = kwargs[p]
+                if kwargs[p] is not None:
+                    self.chosen_parameters_[p] = kwargs[p]
 
     @classmethod
     @abstractmethod

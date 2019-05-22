@@ -2,13 +2,13 @@ from unittest import TestCase
 
 import numpy as np
 
-from .classification import Classification
-from .fri import FRIBase
+from fri import FRIBase
+from fri.model import classification
 
 
 class TestFRIBase(TestCase):
     def test_fit(self):
-        typeprob = Classification
+        typeprob = classification.Classification
         frib = FRIBase(typeprob, n_jobs=1)
 
         X = np.random.normal(size=(50, 2))

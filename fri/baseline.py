@@ -7,7 +7,7 @@ from numpy.random import mtrand
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import RandomizedSearchCV
 
-from .base import MLProblem
+from fri.model.base import MLProblem
 
 
 class InitModel(ABC, BaseEstimator):

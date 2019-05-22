@@ -5,9 +5,10 @@ from collections import defaultdict
 import cvxpy as cvx
 import joblib
 import numpy as np
+from cvxpy import SolverError
 
-from .base import MLProblem
 from .baseline import InitModel
+from .model.base import MLProblem
 
 
 class BoundModel(ABC):
@@ -113,8 +114,16 @@ class Relevance_CVXProblem(ABC):
         # We init cvx problem here because pickling LP solver objects is problematic
         # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
         self._cvx_problem = cvx.Problem(objective=self.objective, constraints=self.constraints)
-        value = self.cvx_problem.solve(**self.solver_kwargs)
-        if isinstance(value, float):
+        try:
+            self._cvx_problem.solve(**self.solver_kwargs)
+        except SolverError:
+            # We ignore Solver Errors, which are common with our framework:
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            pass
+
+        status = self._cvx_problem.status
+        if status is "optimal":
+            # TODO: add other stati
             self._is_solved = True
         self._cvx_problem = None
         return self
@@ -141,12 +150,12 @@ def generate_relevance_bounds_tasks(dims, data, baseline_model: InitModel, probl
     for di in dims:
         # Add Lower Bound problem to work list
         isLowerBound = True
-        yield bound(isLowerBound, di, data, baseline_model.model_state, baseline_model.constraints)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints)
 
         # Add two problems for Upper bound, we pick a feasible and maximal candidate later
         isLowerBound = False
-        yield bound(isLowerBound, di, data, baseline_model.model_state, baseline_model.constraints, sign=False)
-        yield bound(isLowerBound, di, data, baseline_model.model_state, baseline_model.constraints, sign=True)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints, sign=False)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints, sign=True)
 
 
 def permutate_feature_in_data(data, feature_i, random_state):
@@ -169,8 +178,8 @@ def generate_probe_value_tasks(dims, data, baseline_model, problem_type, n_resam
         data_perm = permutate_feature_in_data(data, di, random_state)
         # We only use upper bounds as probe features
         isLowerBound = False
-        yield bound(isLowerBound, di, data_perm, baseline_model.model_state, baseline_model.constraints, sign=False)
-        yield bound(isLowerBound, di, data_perm, baseline_model.model_state, baseline_model.constraints, sign=True)
+        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, baseline_model.constraints, sign=False)
+        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, baseline_model.constraints, sign=True)
 
 
 def compute_relevance_bounds(data, optimal_model, problem_type, random_state, n_resampling, n_jobs, verbose=None,
@@ -202,7 +211,7 @@ def compute_relevance_bounds(data, optimal_model, problem_type, random_state, n_
         # Retrieve results and aggregate values in dict
         solved_bounds = defaultdict(list)
         for finished_bound in bound_results:
-            print(finished_bound.is_solved)
+
             # Only add bounds with feasible solutions
             if finished_bound.is_solved:
                 solved_bounds[finished_bound.current_feature].append(finished_bound)
@@ -235,10 +244,7 @@ def _create_interval(feature: int, solved_bounds: dict, presetModel: dict = None
         logging.error(f"(Some) relevance bounds for feature {feature} were not solved.")
         raise Exception("Infeasible bound(s).")
     for bound in all_bounds:
-        print(bound)
-        print(bound.isLowerBound)
         value = bound.objective.value
-        print(value)
         if bound.isLowerBound:
             lower_bound = value
         else:

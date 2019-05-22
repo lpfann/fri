@@ -2,12 +2,13 @@ import cvxpy as cvx
 import numpy as np
 from sklearn import preprocessing
 from sklearn.metrics import fbeta_score, classification_report
+from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
+from fri.baseline import InitModel
+from fri.bound import Relevance_CVXProblem
 from .base import MLProblem
-from .baseline import InitModel
-from .bound import Relevance_CVXProblem
 
 
 class Classification(MLProblem):
@@ -88,10 +89,17 @@ class Classification_SVM(InitModel):
     def predict(self, X):
         w = self.model_state["w"]
         b = self.model_state["b"]
-        return np.dot(X, w) + b >= 0
+        y = np.dot(X, w) + b >= 0
+        y = y.astype(int)
+        y[y == 0] = -1
+        return y
 
     def score(self, X, y, verbose=False):
         prediction = self.predict(X)
+
+        # Negative class is set to -1 for decision surface
+        y = LabelEncoder().fit_transform(y)
+        y[y == 0] = -1
 
         # Using weighted f1 score to have a stable score for imbalanced datasets
         score = fbeta_score(y, prediction, beta=1, average="weighted")
@@ -108,10 +116,10 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
             factor = -1
         else:
             factor = 1
+
         self.add_constraint(
             self.feature_relevance <= factor * self.w[self.current_feature]
         )
-
         self._objective = cvx.Maximize(self.feature_relevance)
 
     def _init_objective_LB(self):
@@ -128,11 +136,11 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
         # New Variables
         self.w = cvx.Variable(shape=(self.d), name="w")
         self.b = cvx.Variable(name="b")
-        self.slack = cvx.Variable(shape=(self.n), name="slack")
+        self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
         # New Constraints
         distance_from_plane = cvx.multiply(self.y, self.X * self.w + self.b)
-        self.loss = cvx.sum(1 - distance_from_plane)
+        self.loss = cvx.sum(self.slack)
         self.weight_norm = cvx.norm(self.w, 1)
 
         self.add_constraint(distance_from_plane >= 1 - self.slack)

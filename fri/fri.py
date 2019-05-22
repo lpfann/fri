@@ -11,9 +11,9 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from .base import MLProblem
 from .baseline import find_best_model
 from .bound import compute_relevance_bounds
+from .model.base import MLProblem
 
 
 class NotFeasibleForParameters(Exception):
@@ -23,7 +23,7 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
 
-    def __init__(self, problem_type: MLProblem, random_state=None, n_jobs=-1, verbose=0, **kwargs):
+    def __init__(self, problem_type: MLProblem, random_state=None, n_jobs=1, verbose=0, **kwargs):
 
         # Init problem
         self.problem_type_ = problem_type(**kwargs)
@@ -41,6 +41,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         optimal_model, best_score = find_best_model(self.problem_type_, data,
                                                     self.random_state, hsearch_iter, self.n_jobs,
                                                     self.verbose, **kwargs)
+        self.optim_model_ = optimal_model
 
         relevance_bounds, probe_values = compute_relevance_bounds(data, optimal_model, self.problem_type_,
                                                                   self.random_state,
@@ -65,14 +66,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return self
 
     def _postprocessing(self, L1, rangevector):
-        #
-        # Postprocessig intervals
-        #
         assert L1 > 0
-
         # Scale to L1
         rangevector = rangevector.copy() / L1
-
         # round mins to zero
         rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
