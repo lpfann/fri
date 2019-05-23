@@ -1,9 +1,10 @@
 """
  FRI module for inferring relevance intervals for linear classification and regression data
 """
-from .fri import FRIBase
 from .genData import genRegressionData, genClassificationData, genOrdinalRegressionData
+from .main import FRIBase
 from .model.classification import Classification
+from .model.regression import Regression
 from .plot import plot_intervals
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
@@ -22,8 +23,8 @@ def FRIClassification(**kwargs):
 
 
 def FRIRegression(**kwargs):
-    raise NotImplementedError
-
+    typeprob = Regression
+    return FRIBase(typeprob, **kwargs)
 
 #        typeprob = Regression
 #        return FRIBase(typeprob, **kwargs)

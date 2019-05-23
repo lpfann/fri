@@ -12,7 +12,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
 from .baseline import find_best_model
-from .bound import compute_relevance_bounds
+from .compute import compute_relevance_bounds
 from .model.base import MLProblem
 
 

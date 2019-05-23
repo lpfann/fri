@@ -1,58 +1,46 @@
 import cvxpy as cvx
 import numpy as np
-from sklearn import preprocessing
-from sklearn.metrics import fbeta_score, classification_report
-from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
-from sklearn.utils.multiclass import unique_labels
 
 from fri.baseline import InitModel
+from fri.model.base import Relevance_CVXProblem
 from .base import MLProblem
-from .base import Relevance_CVXProblem
 
 
-class Classification(MLProblem):
+class Regression(MLProblem):
 
     @classmethod
     def parameters(cls):
-        return ["C"]
+        return ["C", "epsilon"]
 
     @classmethod
     def get_init_model(cls):
-        return Classification_SVM
+        return Regression_SVR
 
     @classmethod
     def get_bound_model(cls):
-        return Classification_Relevance_Bound
+        return Regression_Relevance_Bound
 
     def preprocessing(self, data):
         X, y = data
+
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
-
-        # Store the classes seen during fit
-        classes_ = unique_labels(y)
-
-        if len(classes_) > 2:
-            raise ValueError("Only binary class data supported")
-
-        # Negative class is set to -1 for decision surface
-        y = preprocessing.LabelEncoder().fit_transform(y)
-        y[y == 0] = -1
 
         return X, y
 
 
-class Classification_SVM(InitModel):
+class Regression_SVR(InitModel):
 
     @classmethod
     def hyperparameter(cls):
-        return ["C"]
+        return ["C", "epsilon"]
 
     def fit(self, X, y):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]
+        epsilon = self.hyperparam["epsilon"]
 
         w = cvx.Variable(shape=(d), name="w")
         slack = cvx.Variable(shape=(n), name="slack")
@@ -60,7 +48,7 @@ class Classification_SVM(InitModel):
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
         constraints = [
-            cvx.multiply(y.T, X * w + b) >= 1 - slack,
+            cvx.abs(y - (X * w + b)) <= epsilon + slack,
             slack >= 0
         ]
 
@@ -89,26 +77,24 @@ class Classification_SVM(InitModel):
     def predict(self, X):
         w = self.model_state["w"]
         b = self.model_state["b"]
-        y = np.dot(X, w) + b >= 0
-        y = y.astype(int)
-        y[y == 0] = -1
+        y = np.dot(X, w) + b
         return y
 
     def score(self, X, y, verbose=False):
         prediction = self.predict(X)
 
-        # Negative class is set to -1 for decision surface
-        y = LabelEncoder().fit_transform(y)
-        y[y == 0] = -1
+        from sklearn.metrics import r2_score
+        from sklearn.metrics.regression import _check_reg_targets
+
+        _check_reg_targets(y, prediction, None)
 
         # Using weighted f1 score to have a stable score for imbalanced datasets
-        score = fbeta_score(y, prediction, beta=1, average="weighted")
-        if verbose:
-            return classification_report(y, prediction)
+        score = r2_score(y, prediction)
+
         return score
 
 
-class Classification_Relevance_Bound(Relevance_CVXProblem):
+class Regression_Relevance_Bound(Relevance_CVXProblem):
 
     def _init_objective_UB(self):
 
@@ -132,6 +118,7 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
         # Upper constraints from initial model
         l1_w = init_model_constraints["w_l1"]
         init_loss = init_model_constraints["loss"]
+        epsilon = parameters["epsilon"]
 
         # New Variables
         self.w = cvx.Variable(shape=(self.d), name="w")
@@ -139,11 +126,11 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
         self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
         # New Constraints
-        distance_from_plane = cvx.multiply(self.y, self.X * self.w + self.b)
+        distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
         self.loss = cvx.sum(self.slack)
         self.weight_norm = cvx.norm(self.w, 1)
 
-        self.add_constraint(distance_from_plane >= 1 - self.slack)
+        self.add_constraint(distance_from_plane <= epsilon + self.slack)
         self.add_constraint(self.weight_norm <= l1_w)
         self.add_constraint(self.loss <= init_loss)
 
