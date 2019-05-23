@@ -75,40 +75,6 @@ class MLProblem(ABC):
         return bounds
 
 
-class BoundModel(ABC):
-
-    @abstractmethod
-    def __init__(self, cvxproblem, data, parameters, init_constraints):
-        self.cvxproblem_ = cvxproblem
-        self.data = data
-        self.parameters = parameters
-        self.init_constraints = init_constraints
-
-    @abstractmethod
-    def fit(self):
-        pass
-
-    @property
-    def cvxproblem(self):
-        return self.cvxproblem_
-
-    @property
-    def model_parameters(self):
-        return self.model_parameters
-
-    @property
-    def value(self):
-        return self.value
-
-    @abstractmethod
-    def _convert_to_shadow(self):
-        return self
-
-    @abstractmethod
-    def _solve(self):
-        pass
-
-
 class Relevance_CVXProblem(ABC):
 
     def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, parameters: object,
