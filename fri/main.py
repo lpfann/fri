@@ -23,7 +23,7 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
 
-    def __init__(self, problem_type: MLProblem(), random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+    def __init__(self, problem_type: MLProblem, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
                  n_probe_features=50, **kwargs):
 
         # Init problem

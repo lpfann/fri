@@ -11,9 +11,9 @@ from fri.genData import genRegressionData, genClassificationData, genOrdinalRegr
 def randomstate():
     return check_random_state(1337)
 
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
-@pytest.mark.parametrize('n_strong', [0, 1, 2])
 @pytest.mark.parametrize('n_weak', [0, 2, 3])
+@pytest.mark.parametrize('n_strong', [0, 1, 2])
+@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
 def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
@@ -80,7 +80,7 @@ def test_multiprocessing(randomstate):
 
     fri = FRIClassification(random_state=randomstate, n_jobs=1)
     fri.fit(X, y)
-    
+
     fri = FRIClassification(random_state=randomstate, n_jobs=2)
     fri.fit(X, y)
 

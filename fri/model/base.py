@@ -31,7 +31,7 @@ class MLProblem(ABC):
 
     def get_chosen_parameter(self, p):
         try:
-            return self.chosen_parameters_[p]
+            return [self.chosen_parameters_[p]]  # We return list for param search function
         except:
             return scipy.stats.reciprocal(a=1e-3, b=1e3)
 

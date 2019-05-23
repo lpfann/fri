@@ -62,6 +62,7 @@ def FRIClassification(**kwargs):
     )
 
     typeprob = Classification
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
     return call_main_catch_old(typeprob,
                                **kwargs)
 
@@ -73,17 +74,18 @@ def FRIRegression(**kwargs):
     )
 
     typeprob = Regression
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
     return call_main_catch_old(typeprob,
                                **kwargs)
 
 
 def FRIOrdinalRegression(**kwargs):
-    typeprob = OrdinalRegression
     warnings.warn(
         "This class call format is deprecated.",
         DeprecationWarning
     )
-
+    typeprob = OrdinalRegression
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
     return call_main_catch_old(typeprob,
                                **kwargs)
 
