@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import cvxpy as cvx
 import numpy as np
-import scipy
+import scipy.stats
 from cvxpy import SolverError
 
 
@@ -11,10 +11,18 @@ class MLProblem(ABC):
     def __init__(self, **kwargs):
 
         self.chosen_parameters_ = {}
+
         for p in self.parameters():
             if p in kwargs:
                 if kwargs[p] is not None:
                     self.chosen_parameters_[p] = kwargs[p]
+
+        self.relax_factors_ = {}
+        for p in self.relax_factors():
+            if p in kwargs:
+                if kwargs[p] is not None:
+                    self.relax_factors_[p] = kwargs[p]
+
 
     @classmethod
     @abstractmethod
@@ -29,6 +37,25 @@ class MLProblem(ABC):
 
     def get_all_parameters(self):
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+
+    @classmethod
+    @abstractmethod
+    def relax_factors(cls):
+        raise NotImplementedError
+
+    def get_chosen_relax_factors(self, p):
+        try:
+            factor = self.relax_factors_[p]
+        except KeyError:
+            try:
+                factor = self.relax_factors_[p + "_slack"]
+            except KeyError:
+                factor = 0.01
+        assert factor > 0
+        return factor
+
+    def get_all_relax_factors(self):
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 
     @classmethod
     @abstractmethod

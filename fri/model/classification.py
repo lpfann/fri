@@ -25,6 +25,9 @@ class Classification(MLProblem):
     def get_bound_model(cls):
         return Classification_Relevance_Bound
 
+    def relax_factors(cls):
+        return ["loss_slack", "w_l1_slack"]
+
     def preprocessing(self, data):
         X, y = data
         # Check that X and y have correct shape
@@ -94,7 +97,7 @@ class Classification_SVM(InitModel):
         y[y == 0] = -1
         return y
 
-    def score(self, X, y, verbose=False):
+    def score(self, X, y, **kwargs):
         prediction = self.predict(X)
 
         # Negative class is set to -1 for decision surface
@@ -103,7 +106,7 @@ class Classification_SVM(InitModel):
 
         # Using weighted f1 score to have a stable score for imbalanced datasets
         score = fbeta_score(y, prediction, beta=1, average="weighted")
-        if verbose:
+        if "verbose" in kwargs:
             return classification_report(y, prediction)
         return score
 
@@ -133,6 +136,8 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
         l1_w = init_model_constraints["w_l1"]
         init_loss = init_model_constraints["loss"]
 
+        C = parameters["C"]
+
         # New Variables
         self.w = cvx.Variable(shape=(self.d), name="w")
         self.b = cvx.Variable(name="b")
@@ -145,6 +150,6 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
 
         self.add_constraint(distance_from_plane >= 1 - self.slack)
         self.add_constraint(self.weight_norm <= l1_w)
-        self.add_constraint(self.loss <= init_loss)
+        self.add_constraint(C * self.loss <= C * init_loss)
 
         self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")

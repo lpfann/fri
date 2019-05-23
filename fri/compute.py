@@ -67,16 +67,20 @@ def _start_solver(bound: Relevance_CVXProblem):
 def generate_relevance_bounds_tasks(dims, data, baseline_model: InitModel, problem_type: MLProblem):
     # Get problem type specific bound class (classification, regression, etc. ...)
     bound = problem_type.get_bound_model()
+
+    # Use relaxed constraints for improved stability
+    relaxed_const = baseline_model.get_relaxed_constraints(problem_type)
+
     # Instantiate objects for computation later
     for di in dims:
         # Add Lower Bound problem to work list
         isLowerBound = True
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const)
 
         # Add two problems for Upper bound, we pick a feasible and maximal candidate later
         isLowerBound = False
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints, sign=False)
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, baseline_model.constraints, sign=True)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const, sign=False)
+        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const, sign=True)
 
 
 def permutate_feature_in_data(data, feature_i, random_state):
@@ -92,6 +96,10 @@ def permutate_feature_in_data(data, feature_i, random_state):
 def generate_probe_value_tasks(dims, data, baseline_model, problem_type, n_resampling, random_state):
     # Get problem type specific bound class (classification, regression, etc. ...)
     bound = problem_type.get_bound_model()
+
+    # Use relaxed constraints for improved stability
+    relaxed_const = baseline_model.get_relaxed_constraints(problem_type)
+
     # Random sample n_resampling shadow features by permuting real features and computing upper bound
     random_choice = random_state.choice(a=np.arange(len(dims)), size=n_resampling)
     # Instantiate objects
@@ -99,8 +107,8 @@ def generate_probe_value_tasks(dims, data, baseline_model, problem_type, n_resam
         data_perm = permutate_feature_in_data(data, di, random_state)
         # We only use upper bounds as probe features
         isLowerBound = False
-        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, baseline_model.constraints, sign=False)
-        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, baseline_model.constraints, sign=True)
+        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, relaxed_const, sign=False)
+        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, relaxed_const, sign=True)
 
 
 def _create_interval(feature: int, solved_bounds: dict, presetModel: dict = None):

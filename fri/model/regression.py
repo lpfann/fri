@@ -21,6 +21,9 @@ class Regression(MLProblem):
     def get_bound_model(cls):
         return Regression_Relevance_Bound
 
+    def relax_factors(cls):
+        return ["loss_slack", "w_l1_slack"]
+
     def preprocessing(self, data):
         X, y = data
 
@@ -80,7 +83,7 @@ class Regression_SVR(InitModel):
         y = np.dot(X, w) + b
         return y
 
-    def score(self, X, y, verbose=False):
+    def score(self, X, y, **kwargs):
         prediction = self.predict(X)
 
         from sklearn.metrics import r2_score
@@ -118,6 +121,8 @@ class Regression_Relevance_Bound(Relevance_CVXProblem):
         # Upper constraints from initial model
         l1_w = init_model_constraints["w_l1"]
         init_loss = init_model_constraints["loss"]
+
+        C = parameters["C"]
         epsilon = parameters["epsilon"]
 
         # New Variables
@@ -132,6 +137,6 @@ class Regression_Relevance_Bound(Relevance_CVXProblem):
 
         self.add_constraint(distance_from_plane <= epsilon + self.slack)
         self.add_constraint(self.weight_norm <= l1_w)
-        self.add_constraint(self.loss <= init_loss)
+        self.add_constraint(C * self.loss <= C * init_loss)
 
         self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")

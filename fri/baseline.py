@@ -43,7 +43,7 @@ class InitModel(ABC, BaseEstimator):
         pass
 
     @abstractmethod
-    def score(self, X, y, verbose=False):
+    def score(self, X, y, **kwargs):
         pass
 
     @classmethod
@@ -78,9 +78,15 @@ class InitModel(ABC, BaseEstimator):
     def solver_params(cls):
         return {"solver": "ECOS", "max_iters": 5000}
 
+    def get_relaxed_constraints(self, problem_type: MLProblem):
+        return {c: self.relax_constraint(c, v, problem_type) for c, v in self.constraints.items()}
+
+    def relax_constraint(self, key, value, problem_type: MLProblem):
+        return value * (1 + problem_type.get_chosen_relax_factors(key))
+
 
 def find_best_model(problemType: MLProblem, data: Tuple[np.ndarray, np.ndarray], random_state: mtrand.RandomState,
-                    n_iter: int, n_jobs: int, verbose: int = 0, kwargs: dict = None) -> Tuple[object, float]:
+                    n_iter: int, n_jobs: int, verbose: int = 0, kwargs: dict = None) -> Tuple[InitModel, float]:
     model = problemType.get_init_model()
     model = model()
     scorer = model.make_scorer()
@@ -106,3 +112,4 @@ def find_best_model(problemType: MLProblem, data: Tuple[np.ndarray, np.ndarray],
     best_score = best_model.score(X, y)
 
     return best_model, best_score
+

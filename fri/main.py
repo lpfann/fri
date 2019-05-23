@@ -23,29 +23,34 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
 
-    def __init__(self, problem_type: MLProblem, random_state=None, n_jobs=1, verbose=0, **kwargs):
+    def __init__(self, problem_type: MLProblem(), random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+                 n_probe_features=50, **kwargs):
 
         # Init problem
+        self.n_probe_features = n_probe_features
+        self.n_param_search = n_param_search
+
         self.problem_type_ = problem_type(**kwargs)
 
         self.random_state = check_random_state(random_state)
         self.n_jobs = n_jobs
         self.verbose = verbose
 
-    def fit(self, X, y, hsearch_iter=50, n_probe_features=40, **kwargs):
+    def fit(self, X, y, **kwargs):
 
         # Preprocessing
         data = self.problem_type_.preprocessing((X, y))
 
         # Find an optimal, fitted model using hyperparemeter search
         optimal_model, best_score = find_best_model(self.problem_type_, data,
-                                                    self.random_state, hsearch_iter, self.n_jobs,
+                                                    self.random_state, self.n_param_search, self.n_jobs,
                                                     self.verbose, **kwargs)
         self.optim_model_ = optimal_model
 
         relevance_bounds, probe_values = compute_relevance_bounds(data, optimal_model, self.problem_type_,
                                                                   self.random_state,
-                                                                  n_resampling=n_probe_features, n_jobs=self.n_jobs,
+                                                                  n_resampling=self.n_probe_features,
+                                                                  n_jobs=self.n_jobs,
                                                                   verbose=self.verbose)
 
         # Calculate bounds
@@ -70,7 +75,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Scale to L1
         rangevector = rangevector.copy() / L1
         # round mins to zero
-        rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
+        # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
 
         return rangevector
 
@@ -78,7 +83,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
                             relevance_bounds,
                             probe_values,
 
-                            fpr=0.01
+                            fpr=0.00001
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
@@ -93,6 +98,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         n = len(probe_values)
         assert n > 0
+        probe_values = np.asarray(probe_values)
         mean = probe_values.mean()
         s = probe_values.std()
 
