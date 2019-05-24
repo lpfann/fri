@@ -165,6 +165,8 @@ class Relevance_CVXProblem(ABC):
         if status is "optimal":
             # TODO: add other stati
             self._is_solved = True
+
+        self._solver_status = status
         self._cvx_problem = None
         return self
 

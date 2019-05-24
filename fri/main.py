@@ -2,7 +2,7 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-
+import joblib
 import numpy as np
 import scipy.stats as stats
 from sklearn.base import BaseEstimator
@@ -12,7 +12,7 @@ from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
 from fri.baseline import find_best_model
-from fri.compute import compute_relevance_bounds
+from fri.compute import RelevanceBoundsIntervals
 from fri.model.base import MLProblem
 
 
@@ -53,21 +53,14 @@ class FRIBase(BaseEstimator, SelectorMixin):
                                                     self.random_state, self.n_param_search, self.n_jobs,
                                                     self.verbose, **kwargs)
         self.optim_model_ = optimal_model
-        best_hyperparameter = optimal_model.hyperparam
-        best_model_constraints = optimal_model.constraints
 
-        # Relax constraints to improve stability
-        relaxed_constraints = self.problem_type_.get_relaxed_constraints(best_model_constraints)
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, optimal_model,
+                                                                   self.random_state, self.n_probe_features,
+                                                                   self.n_jobs, self.verbose)
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+            relevance_bounds = self._relevance_bounds_computer.compute_relevance_bounds(parallel=parallel)
+            probe_values = self._relevance_bounds_computer._compute_probe_values(parallel=parallel)
 
-        relevance_bounds, probe_values = compute_relevance_bounds(data, best_hyperparameter, relaxed_constraints,
-                                                                  self.problem_type_,
-                                                                  self.random_state,
-                                                                  n_resampling=self.n_probe_features,
-                                                                  n_jobs=self.n_jobs,
-                                                                  verbose=self.verbose,
-                                                                  init_model=self.optim_model_)
-
-        # Calculate bounds
         # save unmodified intervals (without postprocessing
         self.unmod_interval_ = relevance_bounds
 
@@ -157,3 +150,31 @@ class FRIBase(BaseEstimator, SelectorMixin):
             return self.optim_model_.score(X, y)
         else:
             raise NotFittedError()
+
+    def constrained_intervals_(self, preset: dict):
+        """Method to return relevance intervals which are constrained using preset ranges or values.
+
+        Parameters
+        ----------
+        preset : dict like, {i:float} or {i:[float,float]}
+            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
+
+            Example: To set  feature 0 to a fixed value use
+
+            >>> preset = {}
+            >>> preset[0] = 0.1
+
+            or to use the minium releavance bound
+
+            >>> preset[1] = self.interval_[1, 0]
+
+        Returns
+        -------
+        array like
+            Relevance bounds with user constraints
+        """
+
+        # Do we have intervals?
+        check_is_fitted(self, "interval_")
+
+        return self._relevance_bounds_computer._compute_multi_preset_relevance_bounds(preset=preset, normalized=True)
