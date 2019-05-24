@@ -10,7 +10,7 @@ from sklearn.model_selection import RandomizedSearchCV
 
 class InitModel(ABC, BaseEstimator):
 
-    def __init__(self, parameters=None):
+    def __init__(self, **parameters):
         if parameters is None:
             parameters = {}
         self.hyperparam = parameters
