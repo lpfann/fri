@@ -74,16 +74,24 @@ class MLProblem(ABC):
     def postprocessing(self, bounds):
         return bounds
 
+    def get_relaxed_constraints(self, constraints):
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+
+    def relax_constraint(self, key, value):
+        return value * (1 + self.get_chosen_relax_factors(key))
+
 
 class Relevance_CVXProblem(ABC):
 
-    def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, parameters: object,
-                 init_model_constraints: object,
-                 sign: bool = None) -> None:
+    def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, hyperparameters, best_model_constraints,
+                 sign: bool = None, preset_model=None, best_model_state=None) -> None:
         self.isLowerBound = isLowerBound
-        # General data model_state
+
+        # General data
         self.sign = sign
         self.current_feature = current_feature
+        self.preset_model = preset_model
+        self.best_model_state = best_model_state
 
         data = self.preprocessing(data)
         X, y = data
@@ -92,13 +100,15 @@ class Relevance_CVXProblem(ABC):
         self.X = X
         self.y = np.array(y)
 
-        # Initalize constraints
+        # Initialize constraints
         self._constraints = []
         self._objective = None
         self._is_solved = False
-
-        self._init_constraints(parameters, init_model_constraints)
+        self._init_constraints(hyperparameters, best_model_constraints)
         self._init_objective(isLowerBound)
+
+        if self.preset_model is not None:
+            self._add_preset_constraints(self.preset_model, self.best_model_state, best_model_constraints)
 
     def preprocessing(self, data):
         return data
@@ -164,3 +174,37 @@ class Relevance_CVXProblem(ABC):
     @property
     def solver_kwargs(self):
         return {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+
+    def _add_preset_constraints(self, preset_model: dict, best_model_state, best_model_constraints):
+        w = best_model_state["w"]
+        assert w is not None
+
+        for feature, current_preset in preset_model.items():
+            # Skip current feature
+            if feature == self.current_feature:
+                continue
+
+            # Skip unset values
+            if all(np.isnan(current_preset)):
+                continue
+
+            # a weight bigger than the optimal model L1 makes no sense
+            assert abs(current_preset[0]) <= best_model_constraints["w_l1"]
+            assert abs(current_preset[1]) <= best_model_constraints["w_l1"]
+
+            # We add a pair of constraints depending on sign of known coefficient
+            # this makes it possible to solve this as a convex problem
+            if current_preset[0] >= 0:
+                self.add_constraint(
+                    w[feature] >= current_preset[0]
+                )
+                self.add_constraint(
+                    w[feature] <= current_preset[1]
+                )
+            else:
+                self.add_constraint(
+                    w[feature] <= current_preset[0]
+                )
+                self.add_constraint(
+                    w[feature] >= current_preset[1]
+                )

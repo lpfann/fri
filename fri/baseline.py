@@ -7,8 +7,6 @@ from numpy.random import mtrand
 from sklearn.base import BaseEstimator
 from sklearn.model_selection import RandomizedSearchCV
 
-from fri.model.base import MLProblem
-
 
 class InitModel(ABC, BaseEstimator):
 
@@ -48,7 +46,7 @@ class InitModel(ABC, BaseEstimator):
 
     @classmethod
     def make_scorer(self):
-        return None
+        return None, None
 
     @property
     def constraints(self):
@@ -78,22 +76,20 @@ class InitModel(ABC, BaseEstimator):
     def solver_params(cls):
         return {"solver": "ECOS", "max_iters": 5000}
 
-    def get_relaxed_constraints(self, problem_type: MLProblem):
-        return {c: self.relax_constraint(c, v, problem_type) for c, v in self.constraints.items()}
 
-    def relax_constraint(self, key, value, problem_type: MLProblem):
-        return value * (1 + problem_type.get_chosen_relax_factors(key))
-
-
-def find_best_model(problemType: MLProblem, data: Tuple[np.ndarray, np.ndarray], random_state: mtrand.RandomState,
+def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tuple[np.ndarray, np.ndarray],
+                    random_state: mtrand.RandomState,
                     n_iter: int, n_jobs: int, verbose: int = 0, kwargs: dict = None) -> Tuple[InitModel, float]:
-    model = problemType.get_init_model()
-    model = model()
-    scorer = model.make_scorer()
-    refit = scorer is None
+    model = model_template()
+
+    scorer, metric = model.make_scorer()
+    if scorer is None:
+        refit = True
+    else:
+        refit = metric
 
     searcher = RandomizedSearchCV(model,
-                                  problemType.get_all_parameters(),
+                                  hyperparameters,
                                   scoring=scorer,
                                   random_state=random_state,
                                   refit=refit,

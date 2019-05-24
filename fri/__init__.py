@@ -1,24 +1,24 @@
 """
  FRI module for inferring relevance intervals for linear classification and regression data
 """
+import warnings
 from enum import Enum
 
-from .genData import genRegressionData, genClassificationData, genOrdinalRegressionData
-from .main import FRIBase
-from .model.classification import Classification
-from .model.ordinal_regression import OrdinalRegression
-from .model.regression import Regression
-from .plot import plot_intervals
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
+from fri.main import FRIBase
+from fri.model.classification import Classification
+from fri.model.ordinal_regression import OrdinalRegression
+from fri.model.regression import Regression
+from fri.plot import plot_intervals
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
            "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals"]
 
 # Get version from versioneer
-from ._version import get_versions
+from fri._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
-import warnings
 
 
 class ProblemType(Enum):

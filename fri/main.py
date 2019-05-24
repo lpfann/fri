@@ -11,9 +11,9 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from .baseline import find_best_model
-from .compute import compute_relevance_bounds
-from .model.base import MLProblem
+from fri.baseline import find_best_model
+from fri.compute import compute_relevance_bounds
+from fri.model.base import MLProblem
 
 
 class NotFeasibleForParameters(Exception):
@@ -30,28 +30,42 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
 
+        assert issubclass(problem_type, MLProblem)
         self.problem_type_ = problem_type(**kwargs)
 
         self.random_state = check_random_state(random_state)
         self.n_jobs = n_jobs
         self.verbose = verbose
 
+
     def fit(self, X, y, **kwargs):
 
         # Preprocessing
         data = self.problem_type_.preprocessing((X, y))
 
+        # Get predefined template for our init. model
+        init_model_template = self.problem_type_.get_init_model()
+        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+        hyperparameters = self.problem_type_.get_all_parameters()
+
         # Find an optimal, fitted model using hyperparemeter search
-        optimal_model, best_score = find_best_model(self.problem_type_, data,
+        optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
                                                     self.random_state, self.n_param_search, self.n_jobs,
                                                     self.verbose, **kwargs)
         self.optim_model_ = optimal_model
+        best_hyperparameter = optimal_model.hyperparam
+        best_model_constraints = optimal_model.constraints
 
-        relevance_bounds, probe_values = compute_relevance_bounds(data, optimal_model, self.problem_type_,
+        # Relax constraints to improve stability
+        relaxed_constraints = self.problem_type_.get_relaxed_constraints(best_model_constraints)
+
+        relevance_bounds, probe_values = compute_relevance_bounds(data, best_hyperparameter, relaxed_constraints,
+                                                                  self.problem_type_,
                                                                   self.random_state,
                                                                   n_resampling=self.n_probe_features,
                                                                   n_jobs=self.n_jobs,
-                                                                  verbose=self.verbose)
+                                                                  verbose=self.verbose,
+                                                                  init_model=self.optim_model_)
 
         # Calculate bounds
         # save unmodified intervals (without postprocessing

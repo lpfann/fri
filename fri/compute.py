@@ -4,13 +4,13 @@ from collections import defaultdict
 import joblib
 import numpy as np
 
-from .baseline import InitModel
-from .model.base import MLProblem
-from .model.base import Relevance_CVXProblem
+from fri.model.base import MLProblem
+from fri.model.base import Relevance_CVXProblem
 
 
-def compute_relevance_bounds(data, optimal_model, problem_type, random_state, n_resampling, n_jobs, verbose=None,
-                             presetModel=None, solverargs=None):
+def compute_relevance_bounds(data, hyperparameters, constraints, problem_type, random_state, n_resampling, n_jobs,
+                             verbose=None,
+                             presetModel=None, solverargs=None, init_model=None):
     X, y = data  # TODO: handle other data formats
     n, d = X.shape
 
@@ -18,17 +18,12 @@ def compute_relevance_bounds(data, optimal_model, problem_type, random_state, n_
     # e.g. in the case of fixed features we skip those
     dims = get_necessary_dimensions(d, presetModel)
 
-    """
-    Solver Parameters
-    """
-    # TODO: add custom solver arguments depending on baseline model
-    if solverargs is not None:
-        kwargs = solverargs
-    else:
-        kwargs = {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+    init_model_state = init_model.model_state
 
-    work_queue = generate_relevance_bounds_tasks(dims, data, optimal_model, problem_type)
-    probe_queue = generate_probe_value_tasks(dims, data, optimal_model, problem_type, n_resampling, random_state)
+    work_queue = generate_relevance_bounds_tasks(dims, data, hyperparameters, constraints, problem_type, presetModel,
+                                                 init_model_state)
+    probe_queue = generate_probe_value_tasks(dims, data, hyperparameters, constraints, problem_type, n_resampling,
+                                             random_state, presetModel, init_model_state)
 
     with joblib.Parallel(n_jobs=n_jobs, verbose=verbose) as parallel:
 
@@ -64,23 +59,24 @@ def _start_solver(bound: Relevance_CVXProblem):
     return bound.solve()
 
 
-def generate_relevance_bounds_tasks(dims, data, baseline_model: InitModel, problem_type: MLProblem):
+def generate_relevance_bounds_tasks(dims, data, hyperparam, constraints, problem_type: MLProblem, preset_model=None,
+                                    best_model_state=None):
     # Get problem type specific bound class (classification, regression, etc. ...)
     bound = problem_type.get_bound_model()
-
-    # Use relaxed constraints for improved stability
-    relaxed_const = baseline_model.get_relaxed_constraints(problem_type)
 
     # Instantiate objects for computation later
     for di in dims:
         # Add Lower Bound problem to work list
         isLowerBound = True
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const)
+        yield bound(isLowerBound, di, data, hyperparam, constraints, preset_model=preset_model,
+                    best_model_state=best_model_state)
 
         # Add two problems for Upper bound, we pick a feasible and maximal candidate later
         isLowerBound = False
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const, sign=False)
-        yield bound(isLowerBound, di, data, baseline_model.hyperparam, relaxed_const, sign=True)
+        yield bound(isLowerBound, di, data, hyperparam, constraints, sign=False, preset_model=preset_model,
+                    best_model_state=best_model_state)
+        yield bound(isLowerBound, di, data, hyperparam, constraints, sign=True, preset_model=preset_model,
+                    best_model_state=best_model_state)
 
 
 def permutate_feature_in_data(data, feature_i, random_state):
@@ -93,22 +89,24 @@ def permutate_feature_in_data(data, feature_i, random_state):
     return X_copy, y
 
 
-def generate_probe_value_tasks(dims, data, baseline_model, problem_type, n_resampling, random_state):
+def generate_probe_value_tasks(dims, data, hyperparam, constraints, problem_type, n_resampling, random_state,
+                               preset_model=None, best_model_state=None):
     # Get problem type specific bound class (classification, regression, etc. ...)
     bound = problem_type.get_bound_model()
 
-    # Use relaxed constraints for improved stability
-    relaxed_const = baseline_model.get_relaxed_constraints(problem_type)
-
     # Random sample n_resampling shadow features by permuting real features and computing upper bound
     random_choice = random_state.choice(a=np.arange(len(dims)), size=n_resampling)
+
     # Instantiate objects
     for i, di in enumerate(random_choice):
         data_perm = permutate_feature_in_data(data, di, random_state)
+
         # We only use upper bounds as probe features
         isLowerBound = False
-        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, relaxed_const, sign=False)
-        yield bound(isLowerBound, di, data_perm, baseline_model.hyperparam, relaxed_const, sign=True)
+        yield bound(isLowerBound, di, data_perm, hyperparam, constraints, sign=False, preset_model=preset_model,
+                    best_model_state=best_model_state)
+        yield bound(isLowerBound, di, data_perm, hyperparam, constraints, sign=True, preset_model=preset_model,
+                    best_model_state=best_model_state)
 
 
 def _create_interval(feature: int, solved_bounds: dict, presetModel: dict = None):
@@ -134,7 +132,7 @@ def _create_interval(feature: int, solved_bounds: dict, presetModel: dict = None
     return lower_bound, upper_bound
 
 
-def get_necessary_dimensions(d, presetModel):
+def get_necessary_dimensions(d: int, presetModel: dict):
     dims = np.arange(d)
     if presetModel is not None:
         # Exclude fixed (preset) dimensions from being run

@@ -1,5 +1,6 @@
 import cvxpy as cvx
 import numpy as np
+from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
 from fri.baseline import InitModel
@@ -125,6 +126,13 @@ class OrdinalRegression_SVM(InitModel):
 
         return score
 
+    def make_scorer(self):
+        # Use multiple scores for ordinal regression
+        mze = make_scorer(ordinal_scores, error_type="mze")
+        mae = make_scorer(ordinal_scores, error_type="mae")
+        mmae = make_scorer(ordinal_scores, error_type="mmae")
+        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+        return scorer, "mmae"
 
 def ordinal_scores(y, prediction, error_type, return_error=False):
     """Score function for ordinal problems.
