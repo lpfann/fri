@@ -1,8 +1,8 @@
-import numpy as np
 import pytest
+import numpy as np
 
-from fri.model.ordinal_regression import ordinal_scores as score
-
+from pytest import approx
+from fri.l1models import ordinal_scores as score
 
 @pytest.fixture()
 def data():
