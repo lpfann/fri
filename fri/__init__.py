@@ -7,12 +7,20 @@ from enum import Enum
 from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 from fri.main import FRIBase
 from fri.model.classification import Classification
+from fri.model.lupi_classification import LUPI_Classification
 from fri.model.ordinal_regression import OrdinalRegression
 from fri.model.regression import Regression
 from fri.plot import plot_intervals
 
+
+class ProblemType(Enum):
+    CLASSIFICATION = Classification
+    REGRESSION = Regression
+    ORDINALREGRESSION = OrdinalRegression
+    LUPI_CLASSIFICATION = LUPI_Classification
+
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
-           "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals"]
+           "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals", ProblemType]
 
 # Get version from versioneer
 from fri._version import get_versions
@@ -21,10 +29,7 @@ del get_versions
 
 
 
-class ProblemType(Enum):
-    CLASSIFICATION = Classification
-    REGRESSION = Regression
-    ORDINALREGRESSION = OrdinalRegression
+
 
 
 def FRI(problem: ProblemType, **kwargs):
@@ -46,6 +51,8 @@ def FRI(problem: ProblemType, **kwargs):
             problemtype = Classification
         elif problem == "ordinalregression" or problem == "ordreg":
             problemtype = OrdinalRegression
+        elif problem == "lupi_classification" or problem == "lupi_class":
+            problemtype = LUPI_Classification
         else:
             names = [enum.name.lower() for enum in ProblemType]
 

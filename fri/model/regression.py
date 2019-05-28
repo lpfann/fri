@@ -24,7 +24,7 @@ class Regression(MLProblem):
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, **kwargs):
         X, y = data
 
         # Check that X and y have correct shape
@@ -39,7 +39,7 @@ class Regression_SVR(InitModel):
     def hyperparameter(cls):
         return ["C", "epsilon"]
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]

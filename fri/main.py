@@ -2,9 +2,6 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-import joblib
-import numpy as np
-import scipy.stats as stats
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
@@ -37,11 +34,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_jobs = n_jobs
         self.verbose = verbose
 
-
-    def fit(self, X, y, **kwargs):
+    def fit(self, X, y, lupi_features=None, **kwargs):
+        self.lupi_features_ = lupi_features
 
         # Preprocessing
-        data = self.problem_type_.preprocessing((X, y))
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
 
         # Get predefined template for our init. model
         init_model_template = self.problem_type_.get_init_model()
@@ -51,46 +48,24 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Find an optimal, fitted model using hyperparemeter search
         optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
                                                     self.random_state, self.n_param_search, self.n_jobs,
-                                                    self.verbose, **kwargs)
+                                                    self.verbose, lupi_features=lupi_features, **kwargs)
         self.optim_model_ = optimal_model
 
         self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, optimal_model,
                                                                    self.random_state, self.n_probe_features,
                                                                    self.n_jobs, self.verbose)
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-            relevance_bounds = self._relevance_bounds_computer.compute_relevance_bounds(parallel=parallel)
-            probe_values = self._relevance_bounds_computer._compute_probe_values(parallel=parallel)
-
-        # save unmodified intervals (without postprocessing
-        self.unmod_interval_ = relevance_bounds
-
-        # Postprocess bounds
-        norm_relevance_bounds = self._postprocessing(optimal_model.L1_factor, relevance_bounds)
-
-        self.interval_ = norm_relevance_bounds
-        # self._omegas = omegas # TODO: add model model_state to object
-        # self._biase = biase
-
-        norm_probe_values = self._postprocessing(optimal_model.L1_factor, probe_values)
-        self._get_relevance_mask(norm_relevance_bounds, norm_probe_values)
+        if lupi_features is None:
+            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_intervals()
+        else:
+            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+                lupi_features=lupi_features)
+        self._get_relevance_mask(feature_classes)
 
         # Return the classifier
         return self
 
-    def _postprocessing(self, L1, rangevector):
-        assert L1 > 0
-        # Scale to L1
-        rangevector = rangevector.copy() / L1
-        # round mins to zero
-        # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
-
-        return rangevector
-
     def _get_relevance_mask(self,
-                            relevance_bounds,
-                            probe_values,
-
-                            fpr=0.00001
+                            prediction,
                             ):
         """Determines relevancy using feature relevance interval values
         Parameters
@@ -102,25 +77,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         boolean array
             Relevancy prediction for each feature
         """
-
-        n = len(probe_values)
-        assert n > 0
-        probe_values = np.asarray(probe_values)
-        mean = probe_values.mean()
-        s = probe_values.std()
-
-        # We calculate only the upper prediction interval bound because the lower one should be smaller than 0 all the time
-        perc = fpr
-        ### lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
-        upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
-
-        weakly = relevance_bounds[:, 1] > upper_boundary
-        strongly = relevance_bounds[:, 0] > 0
-        both = np.logical_and(weakly, strongly)
-
-        prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
-        prediction[weakly] = 1
-        prediction[both] = 2
 
         self.relevance_classes_ = prediction
         self.allrel_prediction_ = prediction > 0

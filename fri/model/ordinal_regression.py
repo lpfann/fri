@@ -25,7 +25,7 @@ class OrdinalRegression(MLProblem):
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, **kwargs):
         X, y = data
 
         # Check that X and y have correct shape
@@ -43,7 +43,7 @@ class OrdinalRegression_SVM(InitModel):
     def hyperparameter(cls):
         return ["C"]
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]

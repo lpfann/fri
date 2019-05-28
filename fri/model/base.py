@@ -68,7 +68,7 @@ class MLProblem(ABC):
         pass
 
     @abstractmethod
-    def preprocessing(self, data):
+    def preprocessing(self, data, lupi_features=None):
         return data
 
     def postprocessing(self, bounds):
@@ -93,12 +93,8 @@ class Relevance_CVXProblem(ABC):
         self.preset_model = preset_model
         self.best_model_state = best_model_state
 
-        data = self.preprocessing(data)
-        X, y = data
-        self.n = X.shape[0]
-        self.d = X.shape[1]
-        self.X = X
-        self.y = np.array(y)
+        self.preprocessing_data(data, best_model_state)
+
 
         # Initialize constraints
         self._constraints = []
@@ -110,8 +106,12 @@ class Relevance_CVXProblem(ABC):
         if self.preset_model is not None:
             self._add_preset_constraints(self.preset_model, self.best_model_state, best_model_constraints)
 
-    def preprocessing(self, data):
-        return data
+    def preprocessing_data(self, data, best_model_state):
+        X, y = data
+        self.n = X.shape[0]
+        self.d = X.shape[1]
+        self.X = X
+        self.y = np.array(y)
 
     @property
     def constraints(self):

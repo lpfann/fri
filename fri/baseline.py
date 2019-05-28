@@ -33,7 +33,7 @@ class InitModel(ABC, BaseEstimator):
         return self
 
     @abstractmethod
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         pass
 
     @abstractmethod
@@ -79,7 +79,8 @@ class InitModel(ABC, BaseEstimator):
 
 def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tuple[np.ndarray, np.ndarray],
                     random_state: mtrand.RandomState,
-                    n_iter: int, n_jobs: int, verbose: int = 0, kwargs: dict = None) -> Tuple[InitModel, float]:
+                    n_iter: int, n_jobs: int, verbose: int = 0, lupi_features=None, kwargs: dict = None) -> Tuple[
+    InitModel, float]:
     model = model_template()
 
     scorer, metric = model.make_scorer()
@@ -102,7 +103,7 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
     # Ignore warnings for extremely bad model_state (when precision=0)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        searcher.fit(X, y)
+        searcher.fit(X, y, lupi_features=lupi_features)
 
     best_model = searcher.best_estimator_
     best_score = best_model.score(X, y)
