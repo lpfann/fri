@@ -1,5 +1,6 @@
 import warnings
 from abc import ABC, abstractmethod
+from pprint import pprint
 from typing import Tuple
 
 import numpy as np
@@ -105,8 +106,20 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
         warnings.simplefilter("ignore")
         searcher.fit(X, y, lupi_features=lupi_features)
 
-    best_model = searcher.best_estimator_
+    best_model: InitModel = searcher.best_estimator_
     best_score = best_model.score(X, y)
 
+    if verbose > 0:
+        print("*" * 20, "Best found baseline model", "*" * 20)
+        pprint(best_model)
+        print("score: ", best_score)
+        for k, v in best_model.constraints.items():
+            pprint((f"{k}: {v}"))
+        for k, v in best_model.model_state.items():
+            if hasattr(v, "shape"):
+                pprint((f"{k}: shape {v.shape}"))
+            else:
+                pprint((f"{k}: {v}"))
+        print("*" * 30)
     return best_model, best_score
 
