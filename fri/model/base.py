@@ -83,6 +83,26 @@ class MLProblem(ABC):
 
 class Relevance_CVXProblem(ABC):
 
+    def __str__(self) -> str:
+        if self.isLowerBound:
+            lower = "Lower"
+        else:
+            lower = "Upper"
+        if self.sign == True:
+            sign = "(+)"
+        elif self.sign == False:
+            sign = "(-)"
+        else:
+            sign = ""
+        name = f"{sign}{lower}_{self.current_feature}_{self.__class__.__name__}"
+        state = ""
+        for s in self.init_hyperparameters.items():
+            state += f"{s[0]}:{s[1]}, "
+        for s in self.init_model_constraints.items():
+            state += f"{s[0]}:{s[1]}, "
+        state = "(" + state[:-2] + ")"
+        return name + state
+
     def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, hyperparameters, best_model_constraints,
                  sign: bool = None, preset_model=None, best_model_state=None) -> None:
         self.isLowerBound = isLowerBound
@@ -105,6 +125,9 @@ class Relevance_CVXProblem(ABC):
 
         if self.preset_model is not None:
             self._add_preset_constraints(self.preset_model, self.best_model_state, best_model_constraints)
+
+        self.init_hyperparameters = hyperparameters
+        self.init_model_constraints = best_model_constraints
 
     def preprocessing_data(self, data, best_model_state):
         X, y = data
