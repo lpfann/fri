@@ -101,11 +101,16 @@ class Relevance_CVXProblem(ABC):
         for s in self.init_model_constraints.items():
             state += f"{s[0]}:{s[1]}, "
         state = "(" + state[:-2] + ")"
-        return name + state
+        if self.isProbe:
+            prefix = "Probe_"
+        else:
+            prefix = ""
+        return prefix + name + state
 
     def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, hyperparameters, best_model_constraints,
-                 sign: bool = None, preset_model=None, best_model_state=None) -> None:
+                 sign: bool = False, preset_model=None, best_model_state=None, isProbe=False) -> None:
         self.isLowerBound = isLowerBound
+        self.isProbe = isProbe
 
         # General data
         self.sign = sign
@@ -114,7 +119,6 @@ class Relevance_CVXProblem(ABC):
         self.best_model_state = best_model_state
 
         self.preprocessing_data(data, best_model_state)
-
 
         # Initialize constraints
         self._constraints = []
