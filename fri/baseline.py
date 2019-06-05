@@ -75,7 +75,7 @@ class InitModel(ABC, BaseEstimator):
 
     @property
     def solver_params(cls):
-        return {"solver": "ECOS", "max_iters": 5000}
+        return {"solver": "ECOS"}
 
 
 def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tuple[np.ndarray, np.ndarray],
@@ -95,6 +95,7 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
                                   scoring=scorer,
                                   random_state=random_state,
                                   refit=refit,
+                                  cv=5,
                                   n_iter=n_iter,
                                   n_jobs=n_jobs,
                                   error_score=np.nan,

@@ -42,30 +42,42 @@ class RelevanceBoundsIntervals(object):
         X, _ = self.data  # TODO: handle other data formats
         all_d = X.shape[1]
         normal_d = all_d - lupi_features
-        normal_dims = _get_necessary_dimensions(normal_d, presetModel)
-        lupi_dims = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
 
         # Compute relevance bounds and probes for normal features and LUPI
         with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-            relevance_bounds = self.compute_relevance_bounds(normal_dims, parallel=parallel)
-            probe_values = self.compute_probe_values(normal_dims, parallel=parallel)
-            relevance_bounds_priv = self.compute_relevance_bounds(lupi_dims, parallel=parallel)
-            probe_values_priv = self.compute_probe_values(lupi_dims, parallel=parallel)
+            d_n = _get_necessary_dimensions(normal_d, presetModel)
+            rb = self.compute_relevance_bounds(d_n, parallel=parallel)
+            pr = self.compute_probe_values(d_n, parallel=parallel)
 
-        # Normalize and classify features for normal features
-        norm_bounds = _postprocessing(self.best_init_model.L1_factor, relevance_bounds)
-        norm_probe_values = _postprocessing(self.best_init_model.L1_factor, probe_values)
-        feature_classes = feature_classification(norm_probe_values, norm_bounds)
+            d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
+            rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
+            pr_l = self.compute_probe_values(d_l, parallel=parallel)
 
-        # Normalize and classify features for lupi
-        norm_bounds_priv = _postprocessing(self.best_init_model.constraints["w_priv_l1"], relevance_bounds_priv)
-        norm_probe_values_priv = _postprocessing(self.best_init_model.L1_factor, probe_values_priv)
-        feature_classes_priv = feature_classification(norm_probe_values_priv, norm_bounds_priv)
+        #
+        # Postprocess
+        #
 
-        self.unmod_interval_ = np.concatenate([relevance_bounds, relevance_bounds_priv])
-        self.interval_ = np.concatenate([norm_bounds, norm_bounds_priv])
-        feature_classes = np.concatenate([feature_classes, feature_classes_priv])
-        return self.interval_, feature_classes
+        # Get Scaling Parameters
+        l1 = self.init_constraints["w_l1"]
+        l1_priv = self.init_constraints["w_priv_l1"]
+
+        # Normalize Normal and Lupi features
+        rb_norm = _postprocessing(l1, rb)
+        rb_l_norm = _postprocessing(l1_priv, rb_l)
+        interval_ = np.concatenate([rb_norm, rb_l_norm])
+
+        # Normalize Probes
+        pr_norm = _postprocessing(l1, pr)
+        pr_l_norm = _postprocessing(l1_priv, pr_l)
+
+        #
+        #
+        # Classify features
+        fc = feature_classification(pr_norm, rb_norm)
+        fc_l = feature_classification(pr_l_norm, rb_l_norm)
+        fc_both = np.concatenate([fc, fc_l])
+
+        return interval_, fc_both
 
     def get_normalized_intervals(self, presetModel=None):
         # We define a list of all the features we want to compute relevance bounds for
@@ -81,12 +93,10 @@ class RelevanceBoundsIntervals(object):
 
         # Postprocess bounds
         norm_bounds = _postprocessing(self.best_init_model.L1_factor, relevance_bounds)
-        self.interval_ = norm_bounds
         norm_probe_values = _postprocessing(self.best_init_model.L1_factor, probe_values)
-        feature_classes = feature_classification(norm_probe_values, self.interval_)
+        feature_classes = feature_classification(norm_probe_values, norm_bounds)
 
-        self.unmod_interval_ = relevance_bounds
-        return self.interval_, feature_classes
+        return norm_bounds, feature_classes
 
     def compute_relevance_bounds(self, dims, parallel=None, presetModel=None, solverargs=None):
         init_model_state = self.best_init_model.model_state
@@ -115,11 +125,10 @@ class RelevanceBoundsIntervals(object):
             interval_i = _create_interval(abs_index, solved_bounds, presetModel)
             intervals[rel_index] = interval_i
 
-        self.raw_intervals_ = intervals
 
         return intervals  # TODO: add model model_state (omega, bias) to return value
 
-    def compute_probe_values(self, dims, n_resampling=50, parallel=None, presetModel=None, max_loops=3):
+    def compute_probe_values(self, dims, parallel=None, presetModel=None, max_loops=0):
         # Get model parameters
         init_model_state = self.best_init_model.model_state
 
@@ -132,23 +141,24 @@ class RelevanceBoundsIntervals(object):
         i = 0
         probe_values = []
         while not enough_samples:
-            # Genarate
+            # Generate
             probe_queue = self._generate_probe_value_tasks(dims, self.data,
-                                                           n_resampling,
+                                                           self.n_resampling,
                                                            self.random_state, presetModel, init_model_state)
+            # Compute solution
             probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
             probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
 
             n_probes = len(probe_values)
-            if n_resampling > MIN_N_PROBE_FEATURES > n_probes:
+            if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
                 print(f"Only {n_probes} probe features were feasible.")
-                i += 1
             else:
                 enough_samples = True
-            if i == max_loops:
-                break
+            if i >= max_loops:
+                enough_samples = True
+            i += 1
 
-        return probe_values
+        return np.array(probe_values)
 
     def _generate_relevance_bounds_tasks(self, dims, data, preset_model=None,
                                          best_model_state=None):
@@ -178,7 +188,7 @@ class RelevanceBoundsIntervals(object):
         bound = self.problem_type.get_bound_model()
 
         # Random sample n_resampling shadow features by permuting real features and computing upper bound
-        random_choice = random_state.choice(a=np.arange(len(dims)), size=n_resampling)
+        random_choice = random_state.choice(a=dims, size=n_resampling)
 
         # Instantiate objects
         for i, di in enumerate(random_choice):
@@ -186,12 +196,12 @@ class RelevanceBoundsIntervals(object):
 
             # We only use upper bounds as probe features
             isLowerBound = False
-            yield bound(isLowerBound, di, data_perm, self.best_hyperparameters, self.init_constraints, sign=False,
-                        preset_model=preset_model,
-                        best_model_state=best_model_state)
             yield bound(isLowerBound, di, data_perm, self.best_hyperparameters, self.init_constraints, sign=True,
                         preset_model=preset_model,
-                        best_model_state=best_model_state)
+                        best_model_state=best_model_state, isProbe=True)
+            yield bound(isLowerBound, di, data_perm, self.best_hyperparameters, self.init_constraints, sign=False,
+                        preset_model=preset_model,
+                        best_model_state=best_model_state, isProbe=True)
 
     def _compute_single_preset_relevance_bounds(self, i: int, signed_preset_i: [float, float]):
         """
@@ -313,25 +323,33 @@ def _create_interval(feature: int, solved_bounds: dict, presetModel: dict = None
 
 def _postprocessing(L1, rangevector):
     assert L1 > 0
-    # Scale to L1
-    rangevector = rangevector.copy() / L1
-    # round mins to zero
-    # rangevector[np.abs(rangevector) < 1 * 10 ** -4] = 0
-
-    return rangevector
+    scaled = rangevector.copy() / L1
+    return scaled
 
 
-def feature_classification(probe_values, relevance_bounds, fpr=1e-5):
+def feature_classification(probe_values, relevance_bounds, fpr=1e-2, verbose=0):
     n = len(probe_values)
-    assert n > 0
 
+    if n == 0:
+        # If all probes were infeasible we expect an empty list
+        # If they are infeasible it also means that only strongly relevant features were in the data
+        # As such we just set the prediction without considering the statistic
+        prediction = np.empty(relevance_bounds.shape[0])
+        prediction[:] = 2
+        return prediction
+
+    # Create prediction interval statistics based on randomly permutated probel features (based on real features)
     probe_values = np.asarray(probe_values)
     mean = probe_values.mean()
     s = probe_values.std()
+
     # We calculate only the upper prediction interval bound because the lower one should be smaller than 0 all the time
     perc = fpr
     ### lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
     upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+
+    if verbose > 0:
+        print(f"FS threshold: {upper_boundary}, Mean:{mean}")
 
     weakly = relevance_bounds[:, 1] > upper_boundary
     strongly = relevance_bounds[:, 0] > 0
