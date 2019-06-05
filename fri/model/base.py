@@ -33,7 +33,14 @@ class MLProblem(ABC):
         try:
             return [self.chosen_parameters_[p]]  # We return list for param search function
         except:
-            return scipy.stats.reciprocal(a=1e-3, b=1e3)
+            # TODO: rewrite the parameter logic
+            # TODO: move this to subclass
+            if p == "scaling_lupi_w":
+                return scipy.stats.reciprocal(a=1e-10, b=1e1)
+            if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e1, b=1e10)
+            else:
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
     def get_all_parameters(self):
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
@@ -177,6 +184,10 @@ class Relevance_CVXProblem(ABC):
     def is_solved(self):
         return self._is_solved
 
+    @property
+    def accepted_status(self):
+        return ["optimal", "optimal_inaccurate"]
+
     def solve(self) -> object:
         # We init cvx problem here because pickling LP solver objects is problematic
         # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
@@ -189,8 +200,7 @@ class Relevance_CVXProblem(ABC):
             pass
 
         status = self._cvx_problem.status
-        if status is "optimal":
-            # TODO: add other stati
+        if status in self.accepted_status:
             self._is_solved = True
 
         self._solver_status = status
@@ -202,7 +212,7 @@ class Relevance_CVXProblem(ABC):
 
     @property
     def solver_kwargs(self):
-        return {"verbose": False, "solver": "ECOS", "max_iters": 1000}
+        return {"verbose": False, "solver": "ECOS"}
 
     def _add_preset_constraints(self, preset_model: dict, best_model_state, best_model_constraints):
         w = best_model_state["w"]
