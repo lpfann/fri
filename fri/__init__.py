@@ -28,11 +28,8 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-
-
-
-
-def FRI(problem: ProblemType, **kwargs):
+def FRI(problem: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+        n_probe_features=50, **kwargs):
     """
 
     Parameters
@@ -58,7 +55,9 @@ def FRI(problem: ProblemType, **kwargs):
 
             print(f"Parameter 'problem' was not recognized or unset. Try one of {names}.")
             return None
-    return FRIBase(problemtype, **kwargs)
+    return FRIBase(problemtype, random_state=random_state, n_jobs=n_jobs, verbose=verbose,
+                   n_param_search=n_param_search,
+                   n_probe_features=n_probe_features, **kwargs)
 
 
 
