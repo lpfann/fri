@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.random.mtrand import RandomState
 from sklearn.datasets import make_regression
 from sklearn.utils import check_random_state
 from sklearn.utils import shuffle
@@ -6,10 +7,8 @@ from sklearn.utils import shuffle
 
 def _combFeat(n, size, strRelFeat, randomstate):
     # Split each strongly relevant feature into linear combination of it
-    weakFeats = np.zeros((n, size))
-    for x in range(size):
-        cofact = 2 * randomstate.rand() - 1
-        weakFeats[:, x] = cofact * strRelFeat
+    weakFeats = np.tile(strRelFeat, (size, 1)).T
+    weakFeats = randomstate.normal(loc=0, scale=1, size=size) + weakFeats
     return weakFeats
 
 
@@ -45,10 +44,12 @@ def _checkParam(n_samples: int = 100, n_features: int = 2,
             raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
 
 
-def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100, n_features: int = 2,
+def _fillVariableSpace(X_informative, random_state: RandomState, n_samples: int = 100, n_features: int = 2,
                        n_redundant: int = 0, n_strel: int = 1,
                        n_repeated: int = 0,
                        noise: float = 1, partition=None, **kwargs):
+    if partition is not None:
+        assert n_redundant == np.sum(partition)
     X = np.zeros((int(n_samples), int(n_features)))
     X[:, :n_strel] = X_informative[:, :n_strel]
     holdout = X_informative[:, n_strel:]
@@ -70,6 +71,24 @@ def _fillVariableSpace(X_informative, random_state: object, n_samples: int = 100
 
     return X
 
+
+def generate_binary_classification_problem(n_samples: int, features: int, random_state: RandomState = None,
+                                           data_range=1):
+    """ Generate data uniformly distributed in a square and perfectly separated by the hyperplane given by normal_vector and b.
+    Keyword arguments:
+    n_samples -- number of samples required (default 100)
+    n_features -- number of features required
+    normal_vector -- the normal vector of the separating hyperplane
+    data_range -- data is distributed between -data_range and data_range (default 10)
+
+    """
+    random_state = check_random_state(random_state)
+
+    data = random_state.normal(size=(n_samples, features), scale=data_range)
+    labels = np.sum(data, 1) > 0
+    labels = labels.astype(int)
+    labels[labels == 0] = -1
+    return data, labels
 
 def genClassificationData(n_samples: int = 100, n_features: int = 2,
                           n_redundant: int = 0, n_strel: int = 1,
@@ -124,40 +143,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    def genStrongRelFeatures(n_samples, strRel, random_state,
-                              margin=1,
-                              data_range=10):
-        """ Generate data uniformly distributed in a square and perfectly separated by the hyperplane given by normal_vector and b.
-        Keyword arguments:
-        n_samples -- number of samples required (default 100)
-        n_features -- number of features required
-        normal_vector -- the normal vector of the separating hyperplane
-        margin -- intrusion-free margin of the optimal separating hyperplane (default 1)
-        data_range -- data is distributed between -data_range and data_range (default 10)
-        
-        """
-        min_relevance = 0.2 # Minimum relevance for a feature
-        normal_vector = random_state.uniform(min_relevance, 1, int(strRel)) # Generate absolute values
-        normal_vector *= random_state.choice([1, -1], int(strRel)) #  Add random sign for each relevance
-        b = random_state.uniform(-1, 1) # Hyperplane offset (bias) from origin
-        
-        # Sample data uniformly.
-        data = random_state.uniform(-data_range, data_range,
-                                    (n_samples, int(strRel))) + b
 
-        # Re-roll margin intrusions.
-        intruders = np.abs(np.inner(normal_vector, data) - b) < margin
-        while np.sum(intruders) > 0:
-            data[intruders] = random_state.uniform(
-                -data_range, data_range, (np.sum(intruders), int(strRel))) + b
-            intruders = np.abs(np.inner(normal_vector, data) - b) < margin
-
-        # Label data according to placement relative to the hyperplane induced by normal_vector and b.
-        labels = np.ones(n_samples)
-        labels[np.inner(normal_vector, data) - b > 0] = 1
-        labels[np.inner(normal_vector, data) - b < 0] = -1
-        
-        return data, labels
 
     X = np.zeros((n_samples, n_features))
 
@@ -170,7 +156,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     else:
         part_size = 0
 
-    X_informative, Y = genStrongRelFeatures(n_samples, n_strel + part_size, random_state)
+    X_informative, Y = generate_binary_classification_problem(n_samples, n_strel + part_size, random_state)
 
     X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
                            n_redundant=n_redundant, n_strel=n_strel,
