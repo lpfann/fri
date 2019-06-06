@@ -39,6 +39,8 @@ class MLProblem(ABC):
                 return scipy.stats.reciprocal(a=1e-10, b=1e1)
             if p == "scaling_lupi_loss":
                 return scipy.stats.reciprocal(a=1e1, b=1e10)
+            if p == "C":
+                return scipy.stats.reciprocal(a=1e-10, b=1e3)
             else:
                 return scipy.stats.reciprocal(a=1e-5, b=1e5)
 

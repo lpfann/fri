@@ -120,6 +120,8 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
             if hasattr(v, "shape"):
                 pprint((f"{k}: shape {v.shape}"))
             else:
+                if "slack" in k:
+                    continue
                 pprint((f"{k}: {v}"))
         print("*" * 30)
     return best_model, best_score

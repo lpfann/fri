@@ -73,8 +73,8 @@ class RelevanceBoundsIntervals(object):
         #
         #
         # Classify features
-        fc = feature_classification(pr_norm, rb_norm)
-        fc_l = feature_classification(pr_l_norm, rb_l_norm)
+        fc = feature_classification(pr_norm, rb_norm, verbose=self.verbose)
+        fc_l = feature_classification(pr_l_norm, rb_l_norm, verbose=self.verbose)
         fc_both = np.concatenate([fc, fc_l])
 
         return interval_, fc_both
@@ -94,7 +94,7 @@ class RelevanceBoundsIntervals(object):
         # Postprocess bounds
         norm_bounds = _postprocessing(self.best_init_model.L1_factor, relevance_bounds)
         norm_probe_values = _postprocessing(self.best_init_model.L1_factor, probe_values)
-        feature_classes = feature_classification(norm_probe_values, norm_bounds)
+        feature_classes = feature_classification(norm_probe_values, norm_bounds, verbose=self.verbose)
 
         return norm_bounds, feature_classes
 
@@ -327,7 +327,7 @@ def _postprocessing(L1, rangevector):
     return scaled
 
 
-def feature_classification(probe_values, relevance_bounds, fpr=1e-2, verbose=0):
+def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
     n = len(probe_values)
 
     if n == 0:
@@ -349,6 +349,8 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-2, verbose=0):
     upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:
+        print("**** Feature Selection ****")
+        print(f"Using {n} probe features")
         print(f"FS threshold: {upper_boundary}, Mean:{mean}")
 
     weakly = relevance_bounds[:, 1] > upper_boundary
