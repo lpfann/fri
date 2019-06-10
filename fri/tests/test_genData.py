@@ -49,10 +49,9 @@ def test_wrong_values(wrong_param):
 def test_genClassification(strong, weak, repeated, flip_y):
     n_samples = 10
     n_features = 100
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
+    args = {"n_samples": n_samples, "n_features": n_features, "n_strel": strong, "n_redundant": weak,
+            "n_repeated": repeated, "flip_y": flip_y}
 
-    args["flip_y"] = flip_y
     gen = genClassificationData
     if flip_y == 1:
         with pytest.raises(ValueError):
@@ -80,10 +79,9 @@ def test_genClassification(strong, weak, repeated, flip_y):
 def test_genRegression(strong, weak, repeated, noise):
     n_samples = 10
     n_features = 100
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
+    args = {"n_samples": n_samples, "n_features": n_features, "n_strel": strong, "n_redundant": weak,
+            "n_repeated": repeated, "noise": noise}
 
-    args["noise"] = noise
     gen = genRegressionData
 
     if strong == 0 and weak < 2:
@@ -108,11 +106,9 @@ def test_genRegression(strong, weak, repeated, noise):
 @pytest.mark.parametrize('bins', [3, 4, 10, 20])
 def test_genOrdinalRegression(strong, weak, repeated, noise, bins, n_samples):
     n_features = 100
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": strong, "n_redundant": weak, "n_repeated": repeated}
+    args = {"n_samples": n_samples, "n_features": n_features, "n_strel": strong, "n_redundant": weak,
+            "n_repeated": repeated, "noise": noise, "n_target_bins": bins}
 
-    args["noise"] = noise
-    args["n_target_bins"] = bins
     gen = genOrdinalRegressionData
 
     if strong == 0 and weak < 2:

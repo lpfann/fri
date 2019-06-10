@@ -13,29 +13,14 @@ def randomstate():
     return check_random_state(1337)
 
 
-def test_normal():
-    lupi_features = 2
-    X, X_priv, y = genLupiData(genClassificationData, n_samples=1000, n_features=4, n_strel=3, n_redundant=1,
-                               n_repeated=0,
-                               n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
-
-    f = FRI("lupi_classification")
-    X = StandardScaler().fit(X).transform(X)
-    X_priv = StandardScaler().fit(X_priv).transform(X_priv)
-    combined = np.hstack([X, X_priv])
-
-    f.fit(combined, y, lupi_features=lupi_features)
-    assert f.interval_ is not None
-
-
 def test_strongly_relevant(randomstate):
     lupi_features = 1
-    X, X_priv, y = genLupiData(genClassificationData, random_state=randomstate, n_samples=500, n_features=1, n_strel=1,
+    X, X_priv, y = genLupiData(genClassificationData, random_state=randomstate, n_samples=200, n_features=1, n_strel=1,
                                n_redundant=0,
                                n_repeated=0,
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
-    f = FRI(fri.ProblemType.LUPI_CLASSIFICATION, n_probe_features=3, n_jobs=1, n_param_search=100,
+    f = FRI(fri.ProblemType.LUPI_CLASSIFICATION, n_probe_features=3, n_jobs=1, n_param_search=5,
             random_state=randomstate)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)

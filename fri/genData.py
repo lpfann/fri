@@ -382,3 +382,15 @@ def genLupiData(generator, n_priv_features: int = 1,
         X_priv = X[:, ix_priv]
         X = X[:, ix_not_priv]
         return X, X_priv, y
+
+
+def quick_generate(problem, **kwargs):
+    if problem is "regression":
+        gen = genRegressionData
+    elif problem is "classification":
+        gen = genClassificationData
+    elif problem is "ordreg":
+        gen = genOrdinalRegressionData
+    else:
+        raise ValueError("Unknown problem type. Try 'regression', 'classification' or 'ordreg'")
+    return gen(**kwargs)

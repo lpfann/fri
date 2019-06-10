@@ -137,7 +137,7 @@ class Relevance_CVXProblem(ABC):
         self._init_objective(isLowerBound)
 
         if self.preset_model is not None:
-            self._add_preset_constraints(self.preset_model, self.best_model_state, best_model_constraints)
+            self._add_preset_constraints(self.preset_model, best_model_constraints)
 
         self.init_hyperparameters = hyperparameters
         self.init_model_constraints = best_model_constraints
@@ -216,9 +216,7 @@ class Relevance_CVXProblem(ABC):
     def solver_kwargs(self):
         return {"verbose": False, "solver": "ECOS"}
 
-    def _add_preset_constraints(self, preset_model: dict, best_model_state, best_model_constraints):
-        w = best_model_state["w"]
-        assert w is not None
+    def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
 
         for feature, current_preset in preset_model.items():
             # Skip current feature
@@ -237,15 +235,15 @@ class Relevance_CVXProblem(ABC):
             # this makes it possible to solve this as a convex problem
             if current_preset[0] >= 0:
                 self.add_constraint(
-                    w[feature] >= current_preset[0]
+                    self.w[feature] >= current_preset[0]
                 )
                 self.add_constraint(
-                    w[feature] <= current_preset[1]
+                    self.w[feature] <= current_preset[1]
                 )
             else:
                 self.add_constraint(
-                    w[feature] <= current_preset[0]
+                    self.w[feature] <= current_preset[0]
                 )
                 self.add_constraint(
-                    w[feature] >= current_preset[1]
+                    self.w[feature] >= current_preset[1]
                 )

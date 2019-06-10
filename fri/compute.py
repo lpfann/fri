@@ -88,8 +88,8 @@ class RelevanceBoundsIntervals(object):
         dims = _get_necessary_dimensions(d, presetModel)
 
         with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-            relevance_bounds = self.compute_relevance_bounds(dims, parallel=parallel)
-            probe_values = self.compute_probe_values(dims, parallel=parallel)
+            relevance_bounds = self.compute_relevance_bounds(dims, parallel=parallel, presetModel=presetModel)
+            probe_values = self.compute_probe_values(dims, parallel=parallel, presetModel=presetModel)
 
         # Postprocess bounds
         norm_bounds = _postprocessing(self.best_init_model.L1_factor, relevance_bounds)
@@ -164,6 +164,9 @@ class RelevanceBoundsIntervals(object):
                                          best_model_state=None):
         # Get problem type specific bound class (classification, regression, etc. ...)
         bound = self.problem_type.get_bound_model()
+        # Do not compute bounds for fixed features
+        if preset_model is not None:
+            dims = [di for di in dims if di not in preset_model]
 
         # Instantiate objects for computation later
         for di in dims:
@@ -203,7 +206,7 @@ class RelevanceBoundsIntervals(object):
                         preset_model=preset_model,
                         best_model_state=best_model_state, isProbe=True)
 
-    def _compute_single_preset_relevance_bounds(self, i: int, signed_preset_i: [float, float]):
+    def compute_single_preset_relevance_bounds(self, i: int, signed_preset_i: [float, float]):
         """
         Method to run method once for one restricted feature
         Parameters
@@ -214,36 +217,35 @@ class RelevanceBoundsIntervals(object):
             restricted range of feature i (set before optimization = preset)
 
         """
-        preset = {}
-        preset[i] = signed_preset_i
+        preset = {i: signed_preset_i}
 
-        rangevector = self._compute_multi_preset_relevance_bounds(preset)
+        rangevector = self.compute_multi_preset_relevance_bounds(preset)
 
         return rangevector
 
-    def _compute_multi_preset_relevance_bounds(self, preset=None, normalized=True):
+    def compute_multi_preset_relevance_bounds(self, preset, normalized=True, lupi_features=0):
         """
         Method to run method with preset values
+
+        Parameters
+        ----------
+        lupi_features
         """
         X, y = self.data
 
         # The user is working with normalized values while we compute them unscaled
         if normalized:
             for k, v in preset.items():
-                preset[k] = v * self.best_init_model.L1_factor
+                preset[k] = np.asarray(v) * self.best_init_model.L1_factor
 
         # Add sign to presets
         preset = self._add_sign_to_preset(preset)
 
         # Calculate all bounds with feature i set to min_i
-        rangevector = self.compute_relevance_bounds(presetModel=preset)
-
-        # Current dimension is not constrained, so these values are set accordingly
-        for i, p in enumerate(preset):
-            if np.all(np.isnan(p)):
-                continue
-            else:
-                rangevector[i] = p
+        if lupi_features > 0:
+            rangevector, f_classes = self.get_normalized_lupi_intervals(lupi_features, presetModel=preset)
+        else:
+            rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
 
         return rangevector
 
@@ -282,19 +284,13 @@ class RelevanceBoundsIntervals(object):
         return signed_presets
 
 
-def _get_necessary_dimensions(d: int, presetModel: dict, start=0):
+def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
-    if presetModel is not None:
-        # Exclude fixed (preset) dimensions from being run
-        for di, preset in enumerate(presetModel):
-            # Nans are unset and ignored
-            if np.isnan(preset[0]):
-                continue
-            else:
-                # Check for difference between upper and lower bound,
-                # when very small difference assume fixed value and skip computation later
-                if np.diff(np.abs(preset)) <= 0.0001:
-                    np.delete(dims, di)
+
+    # if presetModel is not None:
+    #    # Exclude fixed (preset) dimensions from being redundantly computed
+    #    dims = [di for di in dims if di not in presetModel.keys()]
+    # TODO: check the removal of this block
     return dims
 
 

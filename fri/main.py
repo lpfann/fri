@@ -117,8 +117,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             Example: To set  feature 0 to a fixed value use
 
-            >>> preset = {}
-            >>> preset[0] = 0.1
+            >>> preset = {0: 0.1}
 
             or to use the minium releavance bound
 
@@ -133,4 +132,5 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
-        return self._relevance_bounds_computer._compute_multi_preset_relevance_bounds(preset=preset, normalized=True)
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(preset=preset, normalized=True,
+                                                                                     lupi_features=self.lupi_features_)

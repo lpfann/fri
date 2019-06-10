@@ -4,7 +4,7 @@
 import warnings
 from enum import Enum
 
-from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate
 from fri.main import FRIBase
 from fri.model.classification import Classification
 from fri.model.lupi_classification import LUPI_Classification
@@ -19,7 +19,8 @@ class ProblemType(Enum):
     ORDINALREGRESSION = OrdinalRegression
     LUPI_CLASSIFICATION = LUPI_Classification
 
-__all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
+
+__all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData", "quick_generate",
            "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals", ProblemType]
 
 # Get version from versioneer
@@ -45,7 +46,7 @@ def FRI(problem: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_se
         if problem == "classification" or problem == "class":
             problemtype = Classification
         elif problem == "regression" or problem == "reg":
-            problemtype = Classification
+            problemtype = Regression
         elif problem == "ordinalregression" or problem == "ordreg":
             problemtype = OrdinalRegression
         elif problem == "lupi_classification" or problem == "lupi_class":
