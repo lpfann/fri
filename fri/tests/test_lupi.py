@@ -105,8 +105,8 @@ def test_strongly_relevant_regression(randomstate):
                                n_repeated=0,
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
-    f = FRI(fri.ProblemType.LUPI_REGRESSION, n_probe_features=3, n_jobs=1, n_param_search=5,
-            random_state=randomstate)
+    f = FRI(fri.ProblemType.LUPI_REGRESSION, n_probe_features=3, n_jobs=1, n_param_search=50,
+            random_state=randomstate, verbose=1)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
     combined = np.hstack([X, X_priv])
