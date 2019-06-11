@@ -8,6 +8,7 @@ from fri.genData import genRegressionData, genClassificationData, genOrdinalRegr
 from fri.main import FRIBase
 from fri.model.classification import Classification
 from fri.model.lupi_classification import LUPI_Classification
+from fri.model.lupi_regression import LUPI_Regression
 from fri.model.ordinal_regression import OrdinalRegression
 from fri.model.regression import Regression
 from fri.plot import plot_intervals
@@ -18,6 +19,7 @@ class ProblemType(Enum):
     REGRESSION = Regression
     ORDINALREGRESSION = OrdinalRegression
     LUPI_CLASSIFICATION = LUPI_Classification
+    LUPI_REGRESSION = LUPI_Regression
 
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData", "quick_generate",
