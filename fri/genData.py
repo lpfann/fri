@@ -381,7 +381,7 @@ def genLupiData(generator, n_priv_features: int = 1,
 
         X_priv = X[:, ix_priv]
         X = X[:, ix_not_priv]
-        return X, X_priv, y
+        return X, X_priv, y.astype(int)
 
 
 def quick_generate(problem, **kwargs):

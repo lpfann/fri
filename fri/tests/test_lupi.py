@@ -5,7 +5,7 @@ from sklearn.utils import check_random_state
 
 import fri
 from fri import FRI
-from fri.genData import genClassificationData, genLupiData, genRegressionData
+from fri.genData import genClassificationData, genLupiData, genRegressionData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -147,6 +147,27 @@ def test_strongly_relevant_regression(randomstate):
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
     f = FRI(fri.ProblemType.LUPI_REGRESSION, n_probe_features=3, n_jobs=1, n_param_search=100,
+            random_state=randomstate, verbose=1)
+    X = StandardScaler().fit(X).transform(X)
+    X_priv = StandardScaler().fit(X_priv).transform(X_priv)
+    combined = np.hstack([X, X_priv])
+
+    f.fit(combined, y, lupi_features=lupi_features)
+    assert f.interval_ is not None
+    print(f.interval_)
+    assert f.interval_[0, 0] > 0, "Normal SRel feature lower bound error"
+    assert f.interval_[1, 0] > 0, "Priv SRel feature lower bound error"
+
+
+def test_strongly_relevant_ordregression(randomstate):
+    lupi_features = 1
+    X, X_priv, y = genLupiData(genOrdinalRegressionData, random_state=randomstate, n_samples=200, n_features=1,
+                               n_strel=1,
+                               n_redundant=0,
+                               n_repeated=0,
+                               n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
+
+    f = FRI(fri.ProblemType.LUPI_ORDREGRESSION, n_probe_features=3, n_jobs=1, n_param_search=100,
             random_state=randomstate, verbose=1)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
