@@ -2,12 +2,12 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from fri.baseline import InitModel
-from .base import MLProblem
-from .base import Relevance_CVXProblem
+from base_cvxproblem import Relevance_CVXProblem
+from base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class LUPI_Regression(MLProblem):
+class LUPI_Regression(ProblemType):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._lupi_features = None
@@ -20,12 +20,12 @@ class LUPI_Regression(MLProblem):
     def parameters(cls):
         return ["C", "epsilon", "scaling_lupi_w"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return LUPI_Regression_SVM
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return LUPI_Regression_Relevance_Bound
 
     def relax_factors(cls):
@@ -52,12 +52,12 @@ class LUPI_Regression(MLProblem):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=False,
-                                     preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=True,
-                                     preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
+        yield self.get_cvxproblem_template()(False, di, data, best_hyperparameters, init_constraints, sign=False,
+                                             preset_model=preset_model,
+                                             best_model_state=best_model_state, isProbe=isProbe)
+        yield self.get_cvxproblem_template()(False, di, data, best_hyperparameters, init_constraints, sign=True,
+                                             preset_model=preset_model,
+                                             best_model_state=best_model_state, isProbe=isProbe)
 
     def aggregate_max_candidates(self, max_problems_candidates):
         return super().aggregate_max_candidates(max_problems_candidates)

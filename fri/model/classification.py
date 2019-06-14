@@ -6,23 +6,23 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from fri.baseline import InitModel
-from .base import MLProblem
-from .base import Relevance_CVXProblem
+from base_cvxproblem import Relevance_CVXProblem
+from base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class Classification(MLProblem):
+class Classification(ProblemType):
 
     @classmethod
     def parameters(cls):
         return ["C"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return Classification_SVM
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return Classification_Relevance_Bound
 
     def relax_factors(cls):
