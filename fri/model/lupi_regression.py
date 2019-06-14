@@ -52,12 +52,12 @@ class LUPI_Regression(MLProblem):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=False,
-                                     preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=True,
-                                     preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
+        lupi_features = best_model_state["lupi_features"]
+        if di
+            for sign, pos in zip([True, False], [True, False]):
+                yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints,
+                                             preset_model=preset_model,
+                                             best_model_state=best_model_state, isProbe=isProbe, sign=sign, pos=pos)
 
     def aggregate_max_candidates(self, max_problems_candidates):
         return super().aggregate_max_candidates(max_problems_candidates)
@@ -217,7 +217,7 @@ class LUPI_Regression_Relevance_Bound(Relevance_CVXProblem):
 
         return super().preprocessing_data((X, y), best_model_state)
 
-    def _init_objective_UB(self, sign=None, **kwargs):
+    def _init_objective_UB(self, sign=None, pos=None, **kwargs):
 
         # We have two models basically with different indexes
         if self.current_feature < self.d:
@@ -226,14 +226,16 @@ class LUPI_Regression_Relevance_Bound(Relevance_CVXProblem):
                 self.feature_relevance <= sign * self.w[self.current_feature]
             )
         else:
-            # LUPI model, we need to ofset the index
+            # LUPI model, we need to offset the index
             relative_index = self.current_feature - self.d
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w_priv_pos[relative_index],
-            )
-            self.add_constraint(
-                self.feature_relevance <= -1 * sign * self.w_priv_neg[relative_index],
-            )
+            if pos:
+                self.add_constraint(
+                    self.feature_relevance <= sign * self.w_priv_pos[relative_index],
+                )
+            else:
+                self.add_constraint(
+                    self.feature_relevance <= -1 * sign * self.w_priv_neg[relative_index],
+                )
 
         self._objective = cvx.Maximize(self.feature_relevance)
 
