@@ -10,7 +10,7 @@ from sklearn.utils.validation import check_is_fitted
 
 from fri.compute import RelevanceBoundsIntervals
 from fri.model.base_type import ProblemType
-from parameter_searcher import find_best_model
+from fri.parameter_searcher import find_best_model
 
 
 class NotFeasibleForParameters(Exception):

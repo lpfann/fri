@@ -6,9 +6,10 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from base_initmodel import InitModel
-from base_lupi import LUPI_Relevance_CVXProblem, split_dataset
+from .base_initmodel import InitModel
+from .base_lupi import LUPI_Relevance_CVXProblem, split_dataset
 from .base_type import ProblemType
+from .classification import Classification_Relevance_Bound
 
 
 class LUPI_Classification(ProblemType):
@@ -196,7 +197,7 @@ class LUPI_Classification_SVM(InitModel):
         return score
 
 
-class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem):
+class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem, Classification_Relevance_Bound):
 
     def _init_objective_UB_LUPI(self, sign=None, **kwargs):
         self.add_constraint(

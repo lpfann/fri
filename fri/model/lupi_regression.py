@@ -2,10 +2,10 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from base_initmodel import InitModel
-from base_type import ProblemType
 from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset
 from fri.model.regression import Regression_Relevance_Bound
+from .base_initmodel import InitModel
+from .base_type import ProblemType
 
 
 class LUPI_Regression(ProblemType):
@@ -53,17 +53,17 @@ class LUPI_Regression(ProblemType):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        isPriv = False  # Is it a lupi feature where we need additional candidate problems?
+        ispriv = False  # Is it a lupi feature where we need additional candidate problems?
 
-        for sign in [True, False]:
+        for sign in [-1, 1]:
             problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                    preset_model=preset_model,
                                                    best_model_state=best_model_state, isProbe=isProbe)
             problem.init_objective_UB(sign=sign)
-            isPriv = problem.isPriv
+            ispriv = problem.isPriv
             yield problem
 
-        if problem.isPriv:
+        if ispriv:
             for pos in [True, False]:
                 problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                        preset_model=preset_model,
@@ -224,7 +224,7 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
             )
         else:
             self.add_constraint(
-                self.feature_relevance <= -1 * sign * self.w_priv_neg[self.lupi_index],
+                self.feature_relevance <= sign * self.w_priv_neg[self.lupi_index],
             )
 
         self._objective = cvx.Maximize(self.feature_relevance)

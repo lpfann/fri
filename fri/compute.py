@@ -5,8 +5,8 @@ import joblib
 import numpy as np
 from scipy import stats
 
-from base_cvxproblem import Relevance_CVXProblem
-from base_initmodel import InitModel
+from fri.model.base_cvxproblem import Relevance_CVXProblem
+from fri.model.base_initmodel import InitModel
 from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
 
@@ -128,7 +128,7 @@ class RelevanceBoundsIntervals(object):
 
         return intervals  # TODO: add model model_state (omega, bias) to return value
 
-    def compute_probe_values(self, dims, parallel=None, presetModel=None, max_loops=3):
+    def compute_probe_values(self, dims, parallel=None, presetModel=None, max_loops=0):
         # Get model parameters
         init_model_state = self.best_init_model.model_state
 

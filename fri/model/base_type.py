@@ -99,7 +99,7 @@ class ProblemType(ABC):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        for sign in [True, False]:
+        for sign in [-1, 1]:
             problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                    preset_model=preset_model,
                                                    best_model_state=best_model_state)

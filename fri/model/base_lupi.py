@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from base_cvxproblem import Relevance_CVXProblem
+from .base_cvxproblem import Relevance_CVXProblem
 
 
 class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):

@@ -6,8 +6,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from base_cvxproblem import Relevance_CVXProblem
-from base_initmodel import InitModel
+from fri.model.base_cvxproblem import Relevance_CVXProblem
+from fri.model.base_initmodel import InitModel
 from .base_type import ProblemType
 
 

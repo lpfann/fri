@@ -6,7 +6,7 @@ import numpy as np
 from numpy.random import mtrand
 from sklearn.model_selection import RandomizedSearchCV
 
-from base_initmodel import InitModel
+from fri.model.base_initmodel import InitModel
 
 
 def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tuple[np.ndarray, np.ndarray],
