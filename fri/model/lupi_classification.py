@@ -217,28 +217,24 @@ class LUPI_Classification_Relevance_Bound(Relevance_CVXProblem):
 
         return super().preprocessing_data((X, y), best_model_state)
 
-    def _init_objective_UB(self):
+    def _init_objective_UB(self, sign=None, **kwargs):
 
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
         # We have two models basically with different indexes
         if self.current_feature < self.d:
             # Normal model, we use w and normal index
             self.add_constraint(
-                self.feature_relevance <= factor * self.w[self.current_feature]
+                self.feature_relevance <= sign * self.w[self.current_feature]
             )
         else:
             # LUPI model, we need to ofset the index
             relative_index = self.current_feature - self.d
             self.add_constraint(
-                self.feature_relevance <= factor * self.w_priv[relative_index]
+                self.feature_relevance <= sign * self.w_priv[relative_index]
             )
 
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def _init_objective_LB(self, **kwargs):
         # We have two models basically with different indexes
         if self.current_feature < self.d:
             # Normal model, we use w and normal index

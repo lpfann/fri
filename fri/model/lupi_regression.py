@@ -50,6 +50,18 @@ class LUPI_Regression(MLProblem):
 
         return X, y
 
+    def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, isProbe=False):
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=False,
+                                     preset_model=preset_model,
+                                     best_model_state=best_model_state, isProbe=isProbe)
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=True,
+                                     preset_model=preset_model,
+                                     best_model_state=best_model_state, isProbe=isProbe)
+
+    def aggregate_max_candidates(self, max_problems_candidates):
+        return super().aggregate_max_candidates(max_problems_candidates)
+
 
 class LUPI_Regression_SVM(InitModel):
 
@@ -205,31 +217,27 @@ class LUPI_Regression_Relevance_Bound(Relevance_CVXProblem):
 
         return super().preprocessing_data((X, y), best_model_state)
 
-    def _init_objective_UB(self):
+    def _init_objective_UB(self, sign=None, **kwargs):
 
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
         # We have two models basically with different indexes
         if self.current_feature < self.d:
             # Normal model, we use w and normal index
             self.add_constraint(
-                self.feature_relevance <= factor * self.w[self.current_feature]
+                self.feature_relevance <= sign * self.w[self.current_feature]
             )
         else:
             # LUPI model, we need to ofset the index
             relative_index = self.current_feature - self.d
             self.add_constraint(
-                self.feature_relevance <= factor * self.w_priv_pos[relative_index],
+                self.feature_relevance <= sign * self.w_priv_pos[relative_index],
             )
             self.add_constraint(
-                self.feature_relevance <= -1 * factor * self.w_priv_neg[relative_index],
+                self.feature_relevance <= -1 * sign * self.w_priv_neg[relative_index],
             )
 
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def _init_objective_LB(self, **kwargs):
         # We have two models basically with different indexes
         if self.current_feature < self.d:
             # Normal model, we use w and normal index

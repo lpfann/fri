@@ -99,19 +99,14 @@ class Regression_SVR(InitModel):
 
 class Regression_Relevance_Bound(Relevance_CVXProblem):
 
-    def _init_objective_UB(self):
-
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
+    def _init_objective_UB(self, sign=None, **kwargs):
 
         self.add_constraint(
-            self.feature_relevance <= factor * self.w[self.current_feature]
+            self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def _init_objective_LB(self, **kwargs):
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )

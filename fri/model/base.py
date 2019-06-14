@@ -99,12 +99,13 @@ class MLProblem(ABC):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=False,
+
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints,
                                      preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
-        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=True,
+                                     best_model_state=best_model_state, isProbe=isProbe, sign=False)
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints,
                                      preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
+                                     best_model_state=best_model_state, isProbe=isProbe, sign=True)
 
     def aggregate_min_candidates(self, min_problems_candidates):
         assert len(min_problems_candidates) == 1
@@ -128,13 +129,7 @@ class Relevance_CVXProblem(ABC):
             lower = "Lower"
         else:
             lower = "Upper"
-        if self.sign == True:
-            sign = "(+)"
-        elif self.sign == False:
-            sign = "(-)"
-        else:
-            sign = ""
-        name = f"{sign}{lower}_{self.current_feature}_{self.__class__.__name__}"
+        name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
         state = ""
         for s in self.init_hyperparameters.items():
             state += f"{s[0]}:{s[1]}, "
@@ -148,12 +143,11 @@ class Relevance_CVXProblem(ABC):
         return prefix + name + state
 
     def __init__(self, isLowerBound: bool, current_feature: int, data: tuple, hyperparameters, best_model_constraints,
-                 sign: bool = False, preset_model=None, best_model_state=None, isProbe=False) -> None:
+                 preset_model=None, best_model_state=None, isProbe=False, **kwargs) -> None:
         self.isLowerBound = isLowerBound
         self.isProbe = isProbe
 
         # General data
-        self.sign = sign
         self.current_feature = current_feature
         self.preset_model = preset_model
         self.best_model_state = best_model_state
@@ -165,7 +159,7 @@ class Relevance_CVXProblem(ABC):
         self._objective = None
         self._is_solved = False
         self._init_constraints(hyperparameters, best_model_constraints)
-        self._init_objective(isLowerBound)
+        self._init_objective(isLowerBound, **kwargs)
 
         if self.preset_model is not None:
             self._add_preset_constraints(self.preset_model, best_model_constraints)
@@ -195,18 +189,18 @@ class Relevance_CVXProblem(ABC):
     def _init_constraints(self, parameters, init_model_constraints):
         pass
 
-    def _init_objective(self, isLowerBound):
+    def _init_objective(self, isLowerBound, **kwargs):
         if isLowerBound:
-            self._init_objective_LB()
+            self._init_objective_LB(**kwargs)
         else:
-            self._init_objective_UB()
+            self._init_objective_UB(**kwargs)
 
     @abstractmethod
-    def _init_objective_UB(self):
+    def _init_objective_UB(self, **kwargs):
         pass
 
     @abstractmethod
-    def _init_objective_LB(self):
+    def _init_objective_LB(self, **kwargs):
         pass
 
     @property
