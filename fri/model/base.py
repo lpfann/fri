@@ -91,6 +91,35 @@ class MLProblem(ABC):
     def relax_constraint(self, key, value):
         return value * (1 + self.get_chosen_relax_factors(key))
 
+    def generate_lower_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model):
+        yield self.get_bound_model()(True, di, data, best_hyperparameters, init_constraints,
+                                     preset_model=preset_model,
+                                     best_model_state=best_model_state)
+
+    def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, isProbe=False):
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=False,
+                                     preset_model=preset_model,
+                                     best_model_state=best_model_state, isProbe=isProbe)
+        yield self.get_bound_model()(False, di, data, best_hyperparameters, init_constraints, sign=True,
+                                     preset_model=preset_model,
+                                     best_model_state=best_model_state, isProbe=isProbe)
+
+    def aggregate_min_candidates(self, min_problems_candidates):
+        assert len(min_problems_candidates) == 1
+        bound = min_problems_candidates[0]
+        value = bound.objective.value
+        return value
+
+    def aggregate_max_candidates(self, max_problems_candidates):
+        upper_bound = 0
+        for candidate in max_problems_candidates:
+            value = candidate.objective.value
+            if value > upper_bound:
+                upper_bound = value
+        return upper_bound
+
 
 class Relevance_CVXProblem(ABC):
 
