@@ -2,9 +2,10 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from base_cvxproblem import Relevance_CVXProblem
 from base_initmodel import InitModel
-from .base_type import ProblemType
+from base_type import ProblemType
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset
+from fri.model.regression import Regression_Relevance_Bound
 
 
 class LUPI_Regression(ProblemType):
@@ -52,12 +53,24 @@ class LUPI_Regression(ProblemType):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        yield self.get_cvxproblem_template()(False, di, data, best_hyperparameters, init_constraints, sign=False,
-                                             preset_model=preset_model,
-                                             best_model_state=best_model_state, isProbe=isProbe)
-        yield self.get_cvxproblem_template()(False, di, data, best_hyperparameters, init_constraints, sign=True,
-                                             preset_model=preset_model,
-                                     best_model_state=best_model_state, isProbe=isProbe)
+        isPriv = False  # Is it a lupi feature where we need additional candidate problems?
+
+        for sign in [True, False]:
+            problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
+                                                   preset_model=preset_model,
+                                                   best_model_state=best_model_state, isProbe=isProbe)
+            problem.init_objective_UB(sign=sign)
+            isPriv = problem.isPriv
+            yield problem
+
+        if problem.isPriv:
+            for pos in [True, False]:
+                problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
+                                                       preset_model=preset_model,
+                                                       best_model_state=best_model_state, isProbe=isProbe)
+                problem.init_objective_UB(sign=sign, pos=pos)
+                yield problem
+
 
     def aggregate_max_candidates(self, max_problems_candidates):
         return super().aggregate_max_candidates(max_problems_candidates)
@@ -196,63 +209,25 @@ class LUPI_Regression_SVM(InitModel):
         return score
 
 
-def split_dataset(X_combined, lupi_features):
-    assert X_combined.shape[1] > lupi_features
-    X = X_combined[:, :-lupi_features]
-    X_priv = X_combined[:, -lupi_features:]
-    return X, X_priv
+class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Relevance_Bound):
 
-
-class LUPI_Regression_Relevance_Bound(Relevance_CVXProblem):
-
-    def preprocessing_data(self, data, best_model_state):
-        lupi_features = best_model_state["lupi_features"]
-
-        X_combined, y = data
-        X, X_priv = split_dataset(X_combined, lupi_features)
-        self.X_priv = X_priv
-
-        assert lupi_features == X_priv.shape[1]
-        self.d_priv = lupi_features
-
-        return super().preprocessing_data((X, y), best_model_state)
-
-    def _init_objective_UB(self, sign=None, pos=None, **kwargs):
-
-        # We have two models basically with different indexes
-        if self.current_feature < self.d:
-            # Normal model, we use w and normal index
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w[self.current_feature]
-            )
-        else:
-            # LUPI model, we need to offset the index
-            relative_index = self.current_feature - self.d
-            if pos:
-                self.add_constraint(
-                    self.feature_relevance <= sign * self.w_priv_pos[relative_index],
-                )
-            else:
-                self.add_constraint(
-                    self.feature_relevance <= -1 * sign * self.w_priv_neg[relative_index],
-                )
-
-        self._objective = cvx.Maximize(self.feature_relevance)
-
-    def _init_objective_LB(self, **kwargs):
-        # We have two models basically with different indexes
-        if self.current_feature < self.d:
-            # Normal model, we use w and normal index
-            self.add_constraint(
-                cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
-            )
-        else:
-            # LUPI model, we need to ofset the index
-            relative_index = self.current_feature - self.d
-            self.add_constraint(cvx.abs(self.w_priv_pos[relative_index]) <= self.feature_relevance)
-            self.add_constraint(cvx.abs(self.w_priv_neg[relative_index]) <= self.feature_relevance)
+    def _init_objective_LB_LUPI(self, **kwargs):
+        self.add_constraint(cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance)
+        self.add_constraint(cvx.abs(self.w_priv_neg[self.lupi_index]) <= self.feature_relevance)
 
         self._objective = cvx.Minimize(self.feature_relevance)
+
+    def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
+        if pos:
+            self.add_constraint(
+                self.feature_relevance <= sign * self.w_priv_pos[self.lupi_index],
+            )
+        else:
+            self.add_constraint(
+                self.feature_relevance <= -1 * sign * self.w_priv_neg[self.lupi_index],
+            )
+
+        self._objective = cvx.Maximize(self.feature_relevance)
 
     def _init_constraints(self, parameters, init_model_constraints):
         # Upper constraints from best initial model

@@ -92,7 +92,7 @@ class ProblemType(ABC):
         problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                preset_model=preset_model,
                                                best_model_state=best_model_state)
-        problem._init_objective_LB()
+        problem.init_objective_LB()
         problem.isLowerBound = True
         problem.isProbe = isProbe
         yield problem
@@ -103,7 +103,7 @@ class ProblemType(ABC):
             problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                    preset_model=preset_model,
                                                    best_model_state=best_model_state)
-            problem._init_objective_UB(sign=sign)
+            problem.init_objective_UB(sign=sign)
             problem.isLowerBound = False
             problem.isProbe = isProbe
             yield problem

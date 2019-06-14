@@ -6,8 +6,8 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from base_cvxproblem import Relevance_CVXProblem
 from base_initmodel import InitModel
+from base_lupi import LUPI_Relevance_CVXProblem, split_dataset
 from .base_type import ProblemType
 
 
@@ -196,58 +196,18 @@ class LUPI_Classification_SVM(InitModel):
         return score
 
 
-def split_dataset(X_combined, lupi_features):
-    assert X_combined.shape[1] > lupi_features
-    X = X_combined[:, :-lupi_features]
-    X_priv = X_combined[:, -lupi_features:]
-    return X, X_priv
+class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem):
 
-
-class LUPI_Classification_Relevance_Bound(Relevance_CVXProblem):
-
-    def preprocessing_data(self, data, best_model_state):
-        lupi_features = best_model_state["lupi_features"]
-
-        X_combined, y = data
-        X, X_priv = split_dataset(X_combined, lupi_features)
-        self.X_priv = X_priv
-
-        assert lupi_features == X_priv.shape[1]
-        self.d_priv = lupi_features
-
-        return super().preprocessing_data((X, y), best_model_state)
-
-    def _init_objective_UB(self, sign=None, **kwargs):
-
-        # We have two models basically with different indexes
-        if self.current_feature < self.d:
-            # Normal model, we use w and normal index
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w[self.current_feature]
-            )
-        else:
-            # LUPI model, we need to ofset the index
-            relative_index = self.current_feature - self.d
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w_priv[relative_index]
-            )
-
+    def _init_objective_UB_LUPI(self, sign=None, **kwargs):
+        self.add_constraint(
+            self.feature_relevance <= sign * self.w_priv[self.lupi_index]
+        )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self, **kwargs):
-        # We have two models basically with different indexes
-        if self.current_feature < self.d:
-            # Normal model, we use w and normal index
-            self.add_constraint(
-                cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
-            )
-        else:
-            # LUPI model, we need to ofset the index
-            relative_index = self.current_feature - self.d
-            self.add_constraint(
-                cvx.abs(self.w_priv[relative_index]) <= self.feature_relevance
-            )
-
+    def _init_objective_LB_LUPI(self, **kwargs):
+        self.add_constraint(
+            cvx.abs(self.w_priv[self.lupi_index]) <= self.feature_relevance
+        )
         self._objective = cvx.Minimize(self.feature_relevance)
 
     def _init_constraints(self, parameters, init_model_constraints):

@@ -27,7 +27,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
 
-        assert issubclass(problem_type, ProblemType)
+        # assert issubclass(problem_type, ProblemType)
         self.problem_type_ = problem_type(**kwargs)
 
         self.random_state = check_random_state(random_state)

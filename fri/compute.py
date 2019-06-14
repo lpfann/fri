@@ -128,7 +128,7 @@ class RelevanceBoundsIntervals(object):
 
         return intervals  # TODO: add model model_state (omega, bias) to return value
 
-    def compute_probe_values(self, dims, parallel=None, presetModel=None, max_loops=0):
+    def compute_probe_values(self, dims, parallel=None, presetModel=None, max_loops=3):
         # Get model parameters
         init_model_state = self.best_init_model.model_state
 
@@ -147,7 +147,15 @@ class RelevanceBoundsIntervals(object):
                                                            self.random_state, presetModel, init_model_state)
             # Compute solution
             probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
-            probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+            # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+
+            candidates = defaultdict(list)
+            for candidate in probe_results:
+                # Only add bounds with feasible solutions
+                if candidate.is_solved:
+                    candidates[candidate.current_feature].append(candidate)
+            for j in candidates.values():
+                probe_values.append(self.problem_type.aggregate_max_candidates(j))
 
             n_probes = len(probe_values)
             if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:

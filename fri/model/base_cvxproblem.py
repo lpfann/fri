@@ -72,11 +72,11 @@ class Relevance_CVXProblem(ABC):
         pass
 
     @abstractmethod
-    def _init_objective_UB(self, **kwargs):
+    def init_objective_UB(self, **kwargs):
         pass
 
     @abstractmethod
-    def _init_objective_LB(self, **kwargs):
+    def init_objective_LB(self, **kwargs):
         pass
 
     @property

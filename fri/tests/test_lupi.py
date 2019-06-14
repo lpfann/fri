@@ -20,7 +20,7 @@ def test_strongly_relevant_class(randomstate):
                                n_repeated=0,
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
-    f = FRI(fri.ProblemType.LUPI_CLASSIFICATION, n_probe_features=3, n_jobs=1, n_param_search=5,
+    f = FRI(fri.ProblemName.LUPI_CLASSIFICATION, n_probe_features=3, n_jobs=1, n_param_search=5,
             random_state=randomstate)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
@@ -62,7 +62,7 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
     n_features = 8
 
     gen = genClassificationData
-    model = FRI(fri.ProblemType.LUPI_CLASSIFICATION, random_state=randomstate, verbose=1, n_param_search=50)
+    model = FRI(fri.ProblemName.LUPI_CLASSIFICATION, random_state=randomstate, verbose=1, n_param_search=50)
 
     n_priv_features = n_priv_strong + n_priv_weak
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
@@ -105,7 +105,7 @@ def test_lupi_model_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, ran
     n_features = max(8, n_strong + n_weak)
 
     gen = genRegressionData
-    model = FRI(fri.ProblemType.LUPI_REGRESSION, random_state=randomstate, verbose=1, n_param_search=50)
+    model = FRI(fri.ProblemName.LUPI_REGRESSION, random_state=randomstate, verbose=1, n_param_search=50)
 
     n_priv_features = n_priv_strong + n_priv_weak
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
@@ -146,7 +146,7 @@ def test_strongly_relevant_regression(randomstate):
                                n_repeated=0,
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
-    f = FRI(fri.ProblemType.LUPI_REGRESSION, n_probe_features=3, n_jobs=1, n_param_search=100,
+    f = FRI(fri.ProblemName.LUPI_REGRESSION, n_probe_features=3, n_jobs=1, n_param_search=100,
             random_state=randomstate, verbose=1)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
