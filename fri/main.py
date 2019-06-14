@@ -8,9 +8,9 @@ from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
 
-from fri.baseline import find_best_model
 from fri.compute import RelevanceBoundsIntervals
-from fri.model.base import MLProblem
+from fri.model.base_type import ProblemType
+from parameter_searcher import find_best_model
 
 
 class NotFeasibleForParameters(Exception):
@@ -20,14 +20,14 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
 
-    def __init__(self, problem_type: MLProblem, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+    def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
                  n_probe_features=50, **kwargs):
 
         # Init problem
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
 
-        assert issubclass(problem_type, MLProblem)
+        assert issubclass(problem_type, ProblemType)
         self.problem_type_ = problem_type(**kwargs)
 
         self.random_state = check_random_state(random_state)
@@ -41,7 +41,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
 
         # Get predefined template for our init. model
-        init_model_template = self.problem_type_.get_init_model()
+        init_model_template = self.problem_type_.get_initmodel_template
         # Get hyperparameters which are predefined to our model template and can be seleted by user choice
         hyperparameters = self.problem_type_.get_all_parameters()
 

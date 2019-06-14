@@ -5,9 +5,9 @@ import joblib
 import numpy as np
 from scipy import stats
 
-from fri.baseline import InitModel
-from fri.model.base import MLProblem
-from fri.model.base import Relevance_CVXProblem
+from base_cvxproblem import Relevance_CVXProblem
+from base_initmodel import InitModel
+from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
 
 MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
@@ -21,7 +21,7 @@ def _start_solver_worker(bound: Relevance_CVXProblem):
 
 
 class RelevanceBoundsIntervals(object):
-    def __init__(self, data, problem_type: MLProblem, best_init_model: InitModel, random_state, n_resampling, n_jobs,
+    def __init__(self, data, problem_type: ProblemType, best_init_model: InitModel, random_state, n_resampling, n_jobs,
                  verbose):
         self.data = data
         self.problem_type = problem_type

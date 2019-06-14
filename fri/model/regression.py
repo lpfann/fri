@@ -2,23 +2,23 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from fri.baseline import InitModel
-from fri.model.base import Relevance_CVXProblem
-from .base import MLProblem
+from base_cvxproblem import Relevance_CVXProblem
+from base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class Regression(MLProblem):
+class Regression(ProblemType):
 
     @classmethod
     def parameters(cls):
         return ["C", "epsilon"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return Regression_SVR
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return Regression_Relevance_Bound
 
     def relax_factors(cls):

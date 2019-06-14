@@ -6,12 +6,12 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from fri.baseline import InitModel
-from .base import MLProblem
-from .base import Relevance_CVXProblem
+from base_cvxproblem import Relevance_CVXProblem
+from base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class LUPI_Classification(MLProblem):
+class LUPI_Classification(ProblemType):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._lupi_features = None
@@ -24,12 +24,12 @@ class LUPI_Classification(MLProblem):
     def parameters(cls):
         return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return LUPI_Classification_SVM
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return LUPI_Classification_Relevance_Bound
 
     def relax_factors(cls):
