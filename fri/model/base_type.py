@@ -111,13 +111,13 @@ class ProblemType(ABC):
     def aggregate_min_candidates(self, min_problems_candidates):
         assert len(min_problems_candidates) == 1
         bound = min_problems_candidates[0]
-        value = bound.objective.value
+        value = bound.solved_relevance
         return value
 
     def aggregate_max_candidates(self, max_problems_candidates):
         upper_bound = 0
         for candidate in max_problems_candidates:
-            value = candidate.objective.value
+            value = candidate.solved_relevance
             if value > upper_bound:
                 upper_bound = value
         return upper_bound

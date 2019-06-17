@@ -26,9 +26,10 @@ class Relevance_CVXProblem(ABC):
         return prefix + name + state
 
     def __init__(self, current_feature: int, data: tuple, hyperparameters, best_model_constraints, preset_model=None,
-                 best_model_state=None, **kwargs) -> None:
+                 best_model_state=None, isProbe=None, **kwargs) -> None:
+        self._feature_relevance = None
         self.isLowerBound = None
-        self.isProbe = None
+        self.isProbe = isProbe
 
         # General data
         self.current_feature = current_feature
@@ -67,6 +68,15 @@ class Relevance_CVXProblem(ABC):
     def objective(self):
         return self._objective
 
+    @property
+    def solved_relevance(self):
+        if self.is_solved:
+            return self.objective.value
+        elif self.isProbe:
+            return 0
+        else:
+            raise Exception("Problem not solved. No feature relevance computed.")
+
     @abstractmethod
     def _init_constraints(self, parameters, init_model_constraints):
         pass
@@ -85,7 +95,8 @@ class Relevance_CVXProblem(ABC):
 
     @property
     def is_solved(self):
-        return self._is_solved
+        if self._solver_status in self.accepted_status:
+            return True
 
     @property
     def accepted_status(self):
@@ -102,12 +113,9 @@ class Relevance_CVXProblem(ABC):
             # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
             pass
 
-        status = self._cvx_problem.status
-        if status in self.accepted_status:
-            self._is_solved = True
+        self._solver_status = self._cvx_problem.status
 
-        self._solver_status = status
-        self._cvx_problem = None
+        # self._cvx_problem = None
         return self
 
     def _retrieve_result(self):
