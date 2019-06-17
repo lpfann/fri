@@ -2,11 +2,13 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
+from sklearn.metrics import r2_score
+from sklearn.metrics.regression import _check_reg_targets
 from sklearn.utils import check_X_y
 
 from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
 from fri.model.regression import Regression_Relevance_Bound
-from .base_initmodel import InitModel
+from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
 
@@ -75,7 +77,7 @@ class LUPI_Regression(ProblemType):
         return super().aggregate_max_candidates(max_problems_candidates)
 
 
-class LUPI_Regression_SVM(InitModel):
+class LUPI_Regression_SVM(LUPI_InitModel):
 
     @classmethod
     def hyperparameter(cls):
@@ -124,7 +126,7 @@ class LUPI_Regression_SVM(InitModel):
 
         constraints = [
             y - X * w - b <= epsilon + priv_function_pos,
-            X * w + b - y <= epsilon + priv_function_neg,
+            X * w - b - y <= epsilon + priv_function_neg,
             priv_function_pos >= 0,
             priv_function_neg >= 0,
         ]
@@ -139,24 +141,24 @@ class LUPI_Regression_SVM(InitModel):
             "w": w.value,
             "w_priv_pos": w_priv_pos.value,
             "w_priv_neg": w_priv_neg.value,
-            "w_priv": w_priv_pos.value + w_priv_neg.value,
             "b": b.value,
             "b_priv_pos": b_priv_pos.value,
             "b_priv_neg": b_priv_neg.value,
-            "b_priv": b_priv_pos.value + b_priv_neg.value,
             "lupi_features": lupi_features  # Number of lupi features in the dataset TODO: Move this somewhere else
         }
 
         w_l1 = np.linalg.norm(w.value, ord=1)
         w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
         w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
+        # We take the mean to combine all submodels (for priv) into a single normalization factor
+        w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1) / 2
         self.constraints = {
             "loss_priv": priv_loss.value,
             "loss": loss.value,
             "w_l1": w_l1,
+            "w_priv_l1": w_priv_l1,
             "w_priv_pos_l1": w_priv_pos_l1,
             "w_priv_neg_l1": w_priv_neg_l1,
-            "w_priv_l1": w_priv_pos_l1 + w_priv_neg_l1
         }
         return self
 
@@ -190,20 +192,16 @@ class LUPI_Regression_SVM(InitModel):
         #b += b_priv
 
         # Simple hyperplane classification rule
-        y = np.dot(X, w) + b - (np.dot(X_priv, w_priv) + b_priv)
+        # y = np.dot(X, w) + b - (np.dot(X_priv, w_priv_pos) + b_priv_pos) - (np.dot(X_priv, w_priv_neg) + b_priv_neg)
+        y = np.dot(X, w) - b
 
         return y
 
     def score(self, X, y, **kwargs):
         prediction = self.predict(X)
-
-        from sklearn.metrics import r2_score
-        from sklearn.metrics.regression import _check_reg_targets
-
         _check_reg_targets(y, prediction, None)
 
-        # Using weighted f1 score to have a stable score for imbalanced datasets
-        score = r2_score(y, prediction)
+        score = np.abs(r2_score(y, prediction))
 
         return score
 
@@ -258,7 +256,7 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
         weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
 
         self.add_constraint(self.y - self.X * w - b <= epsilon + priv_function_pos)
-        self.add_constraint(self.X * w + b - self.y <= epsilon + priv_function_neg )
+        self.add_constraint(self.X * w - b - self.y <= epsilon + priv_function_neg )
         self.add_constraint(priv_function_pos >= 0)
         self.add_constraint(priv_function_neg >= 0)
         self.add_constraint(loss <= init_loss)

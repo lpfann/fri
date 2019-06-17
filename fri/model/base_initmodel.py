@@ -65,8 +65,18 @@ class InitModel(ABC, BaseEstimator):
             return self.constraints["w_l1"]
         except:
             raise NotImplementedError(
-                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weigts (e.g. w).")
+                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w).")
 
     @property
     def solver_params(cls):
         return {"solver": "ECOS"}
+
+
+class LUPI_InitModel(InitModel):
+    @property
+    def L1_factor_priv(self):
+        try:
+            return self.constraints["w_priv_l1"]
+        except:
+            raise NotImplementedError(
+                "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv).")
