@@ -102,10 +102,9 @@ class ProblemType(ABC):
         for sign in [-1, 1]:
             problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                    preset_model=preset_model,
-                                                   best_model_state=best_model_state)
+                                                   best_model_state=best_model_state, isProbe=isProbe)
             problem.init_objective_UB(sign=sign)
             problem.isLowerBound = False
-            problem.isProbe = isProbe
             yield problem
 
     def aggregate_min_candidates(self, min_problems_candidates):

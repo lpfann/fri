@@ -56,3 +56,11 @@ def split_dataset(X_combined, lupi_features):
     X = X_combined[:, :-lupi_features]
     X_priv = X_combined[:, -lupi_features:]
     return X, X_priv
+
+
+def is_lupi_feature(di, data, best_model_state):
+    lupi_features = best_model_state["lupi_features"]
+    X_combined, _ = data
+    d = X_combined.shape[1] - lupi_features
+    lupi_index = di - d
+    return lupi_index >= 0

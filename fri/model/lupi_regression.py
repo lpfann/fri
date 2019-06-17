@@ -1,8 +1,10 @@
+from itertools import product
+
 import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
 from fri.model.regression import Regression_Relevance_Bound
 from .base_initmodel import InitModel
 from .base_type import ProblemType
@@ -53,18 +55,15 @@ class LUPI_Regression(ProblemType):
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, isProbe=False):
-        ispriv = False  # Is it a lupi feature where we need additional candidate problems?
+        is_priv = is_lupi_feature(di, data,
+                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
-        for sign in [-1, 1]:
-            problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                                   preset_model=preset_model,
-                                                   best_model_state=best_model_state, isProbe=isProbe)
-            problem.init_objective_UB(sign=sign)
-            ispriv = problem.isPriv
-            yield problem
-
-        if ispriv:
-            for pos in [True, False]:
+        if not is_priv:
+            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
+                                                            data, di,
+                                                            preset_model, isProbe=False)
+        else:
+            for sign, pos in product([1, -1], [True, False]):
                 problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                        preset_model=preset_model,
                                                        best_model_state=best_model_state, isProbe=isProbe)

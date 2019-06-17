@@ -153,9 +153,12 @@ class RelevanceBoundsIntervals(object):
             for candidate in probe_results:
                 # Only add bounds with feasible solutions
                 if candidate.is_solved:
-                    candidates[candidate.current_feature].append(candidate)
-            for j in candidates.values():
-                probe_values.append(self.problem_type.aggregate_max_candidates(j))
+                    # candidates[candidate.current_feature].append(candidate)
+                    probe_values.append(candidate.solved_relevance)
+            # TODO: add ID to enable correct aggregation
+            # We dont aggregate candidate values to complete bounds to achieve a better statistical sampling ratio
+            # for j in candidates.values():
+            #    probe_values.append(self.problem_type.aggregate_max_candidates(j))
 
             n_probes = len(probe_values)
             if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
@@ -317,9 +320,9 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
     n = len(probe_values)
 
     if n == 0:
-        # If all probes were infeasible we expect an empty list
-        # If they are infeasible it also means that only strongly relevant features were in the data
-        # As such we just set the prediction without considering the statistic
+        #    # If all probes were infeasible we expect an empty list
+        #    # If they are infeasible it also means that only strongly relevant features were in the data
+        #    # As such we just set the prediction without considering the statistics
         prediction = np.empty(relevance_bounds.shape[0])
         prediction[:] = 2
         return prediction
@@ -327,16 +330,20 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
     # Create prediction interval statistics based on randomly permutated probel features (based on real features)
     probe_values = np.asarray(probe_values)
     mean = probe_values.mean()
-    s = probe_values.std()
+    if mean == 0 or n < 10:
+        upper_boundary = mean
+    else:
+        s = probe_values.std()
 
-    # We calculate only the upper prediction interval bound because the lower one should be smaller than 0 all the time
-    perc = fpr
-    ### lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
-    upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+        # We calculate only the upper prediction interval bound because the lower one should be smaller than 0 all the time
+        perc = fpr
+        ### lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+        upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:
         print("**** Feature Selection ****")
         print(f"Using {n} probe features")
+        print(probe_values)
         print(f"FS threshold: {upper_boundary}, Mean:{mean}")
 
     weakly = relevance_bounds[:, 1] > upper_boundary

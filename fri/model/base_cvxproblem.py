@@ -41,7 +41,6 @@ class Relevance_CVXProblem(ABC):
         # Initialize constraints
         self._constraints = []
         self._objective = None
-        self._is_solved = False
         self._init_constraints(hyperparameters, best_model_constraints)
 
         if self.preset_model is not None:
@@ -97,6 +96,8 @@ class Relevance_CVXProblem(ABC):
     def is_solved(self):
         if self._solver_status in self.accepted_status:
             return True
+        else:
+            return False
 
     @property
     def accepted_status(self):
