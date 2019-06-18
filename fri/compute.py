@@ -330,7 +330,7 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
     # Create prediction interval statistics based on randomly permutated probel features (based on real features)
     probe_values = np.asarray(probe_values)
     mean = probe_values.mean()
-    if mean == 0 or n < 10:
+    if mean == 0:
         upper_boundary = mean
     else:
         s = probe_values.std()
@@ -343,7 +343,6 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
     if verbose > 0:
         print("**** Feature Selection ****")
         print(f"Using {n} probe features")
-        print(probe_values)
         print(f"FS threshold: {upper_boundary}, Mean:{mean}")
 
     weakly = relevance_bounds[:, 1] > upper_boundary
