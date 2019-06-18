@@ -34,9 +34,9 @@ class ProblemType(ABC):
             # if p == "scaling_lupi_w":
             #     return scipy.stats.reciprocal(a=1e-10, b=1e1)
             if p == "scaling_lupi_loss":
-            #     # value 0>p<1 causes standard svm solution
-            #     # p>1 encourages usage of lupi function
-            return scipy.stats.reciprocal(a=1e-5, b=1e10)
+                # value 0>p<1 causes standard svm solution
+                # p>1 encourages usage of lupi function
+                return scipy.stats.reciprocal(a=1e-5, b=1e10)
             if p == "C":
                 return scipy.stats.reciprocal(a=1e-10, b=1e3)
             if p == "epsilon":
