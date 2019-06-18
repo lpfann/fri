@@ -316,7 +316,7 @@ def _postprocessing(L1, rangevector):
     return scaled
 
 
-def feature_classification(probe_values, relevance_bounds, fpr=1e-3, verbose=0):
+def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
     n = len(probe_values)
 
     if n == 0:
