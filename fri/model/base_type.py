@@ -33,14 +33,16 @@ class ProblemType(ABC):
             # # TODO: move this to subclass
             # if p == "scaling_lupi_w":
             #     return scipy.stats.reciprocal(a=1e-10, b=1e1)
-            # if p == "scaling_lupi_loss":
+            if p == "scaling_lupi_loss":
             #     # value 0>p<1 causes standard svm solution
             #     # p>1 encourages usage of lupi function
-            #     return scipy.stats.reciprocal(a=1e1, b=1e10)
-            # if p == "C":
-            #     return scipy.stats.reciprocal(a=1e-10, b=1e3)
-            # else:
-            return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            return scipy.stats.reciprocal(a=1e-5, b=1e10)
+            if p == "C":
+                return scipy.stats.reciprocal(a=1e-10, b=1e3)
+            if p == "epsilon":
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            else:
+                return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
     def get_all_parameters(self):
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
@@ -57,7 +59,7 @@ class ProblemType(ABC):
             try:
                 factor = self.relax_factors_[p + "_slack"]
             except KeyError:
-                factor = 0.01
+                factor = 0.1
         assert factor > 0
         return factor
 

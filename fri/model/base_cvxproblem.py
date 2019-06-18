@@ -115,7 +115,6 @@ class Relevance_CVXProblem(ABC):
             pass
 
         self._solver_status = self._cvx_problem.status
-
         # self._cvx_problem = None
         return self
 
