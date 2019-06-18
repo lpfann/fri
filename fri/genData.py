@@ -235,7 +235,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
                            n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated,
                            noise=noise, partition=partition)
-
+    y = np.squeeze(y)
     return X, y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
