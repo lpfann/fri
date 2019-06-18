@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.random.mtrand import RandomState
-from sklearn.datasets import make_regression
 from sklearn.utils import check_random_state
 from sklearn.utils import shuffle
 
@@ -173,7 +172,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                      n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
+                      n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
                       partition=None) -> object:
     """Generate synthetic regression data
     
@@ -210,8 +209,6 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    X = np.zeros((int(n_samples), int(n_features)))
-
     # Find partitions which defíne the weakly relevant subsets
     if partition is None and n_redundant > 0:
         partition = [n_redundant]
@@ -221,22 +218,25 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     else:
         part_size = 0
 
-    X_informative, Y = make_regression(n_features=int(n_strel + part_size),
-                                       n_samples=int(n_samples),
-                                       noise=0,
-                                       n_informative=int(n_strel + part_size),
-                                       random_state=random_state,
-                                       shuffle=False)
+    n_informative = n_strel + part_size
 
-    X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
+    X = random_state.randn(n_samples, n_informative)
+    ground_truth = np.zeros((n_informative, 1))
+    ground_truth[:n_informative, :] = 0.3
+    bias = 0
+
+    y = np.dot(X, ground_truth) + bias
+
+    # Add noise
+    if noise > 0.0:
+        y += random_state.normal(scale=noise, size=y.shape)
+
+    X = _fillVariableSpace(X, random_state, n_samples=n_samples, n_features=n_features,
                            n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated,
                            noise=noise, partition=partition)
-    
-    # Add gaussian noise to data
-    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
 
-    return X, Y
+    return X, y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
                              n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
