@@ -184,16 +184,15 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
         b = self.model_state["b"]
-        w_priv = self.model_state["w_priv"]
-        b_priv = self.model_state["b_priv"]
+        w_priv_pos = self.model_state["w_priv_pos"]
+        b_priv_pos = self.model_state["b_priv_pos"]
+        w_priv_neg = self.model_state["w_priv_neg"]
+        b_priv_neg = self.model_state["b_priv_neg"]
 
-        # Combine both models
-        # w = np.concatenate([w, w_priv])
-        #b += b_priv
-
-        # Simple hyperplane classification rule
-        # y = np.dot(X, w) + b - (np.dot(X_priv, w_priv_pos) + b_priv_pos) - (np.dot(X_priv, w_priv_neg) + b_priv_neg)
-        y = np.dot(X, w) - b
+        f = np.dot(X, w) + b
+        priv_pos = np.dot(X_priv, w_priv_pos) + b_priv_pos
+        priv_neg = np.dot(X_priv, w_priv_neg) + b_priv_neg
+        y = f + priv_pos + priv_neg
 
         return y
 
