@@ -3,8 +3,8 @@ import numpy as np
 from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
-from base_cvxproblem import Relevance_CVXProblem
-from base_initmodel import InitModel
+from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
 from .base_type import ProblemType
 
 

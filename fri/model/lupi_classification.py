@@ -158,12 +158,18 @@ class LUPI_Classification_SVM(InitModel):
         """
         X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
+        w_priv = self.model_state["w_priv"]
         b = self.model_state["b"]
-        w_p = self.model_state["w_priv"]
-        b_p = self.model_state["b_priv"]
+        b_priv = self.model_state["b_priv"]
+
+        # Combine both models
+        # w = np.concatenate([w, w_priv])
+        # b += b_priv
 
         # Simple hyperplane classification rule
-        y = np.dot(X, w) + b >= 0
+        f = np.dot(X, w) + b
+        priv = np.dot(X_priv, w_priv) + b_priv
+        y = f + priv >= 0
         y = y.astype(int)
 
         # Format binary as signed unit vector

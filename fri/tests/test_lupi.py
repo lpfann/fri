@@ -62,7 +62,7 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
     n_features = 8
 
     gen = genClassificationData
-    model = FRI(fri.ProblemName.LUPI_CLASSIFICATION, random_state=randomstate, verbose=1, n_param_search=50)
+    model = FRI(fri.ProblemName.LUPI_CLASSIFICATION, random_state=randomstate, verbose=1, n_param_search=10, n_jobs=-1)
 
     n_priv_features = n_priv_strong + n_priv_weak
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
@@ -80,6 +80,7 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
 
     # Check the interval output
     interval = model.interval_
+    print(interval)
     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
     assert len(interval) == X.shape[1] + X_priv.shape[1]
 

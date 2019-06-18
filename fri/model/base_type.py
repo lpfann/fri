@@ -29,18 +29,18 @@ class ProblemType(ABC):
         try:
             return [self.chosen_parameters_[p]]  # We return list for param search function
         except:
-            # TODO: rewrite the parameter logic
-            # TODO: move this to subclass
-            if p == "scaling_lupi_w":
-                return scipy.stats.reciprocal(a=1e-10, b=1e1)
-            if p == "scaling_lupi_loss":
-                # value 0>p<1 causes standard svm solution
-                # p>1 encourages usage of lupi function
-                return scipy.stats.reciprocal(a=1e1, b=1e10)
-            if p == "C":
-                return scipy.stats.reciprocal(a=1e-10, b=1e3)
-            else:
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            # # TODO: rewrite the parameter logic
+            # # TODO: move this to subclass
+            # if p == "scaling_lupi_w":
+            #     return scipy.stats.reciprocal(a=1e-10, b=1e1)
+            # if p == "scaling_lupi_loss":
+            #     # value 0>p<1 causes standard svm solution
+            #     # p>1 encourages usage of lupi function
+            #     return scipy.stats.reciprocal(a=1e1, b=1e10)
+            # if p == "C":
+            #     return scipy.stats.reciprocal(a=1e-10, b=1e3)
+            # else:
+            return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
     def get_all_parameters(self):
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
