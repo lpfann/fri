@@ -104,18 +104,15 @@ class LUPI_Classification_SVM(InitModel):
         function = X * w + b
         priv_function = X_priv * w_priv + b_priv
 
-        # Difference per point to lupi function
-        priv_difference = cvx.multiply(y.T, priv_function) + slack
-
         # Combined loss of lupi function and normal slacks, scaled by two constants
-        loss = C * (scaling_lupi_loss * cvx.sum(slack) + cvx.sum(priv_difference))
+        loss = C * (cvx.sum(slack) + scaling_lupi_loss * cvx.sum(priv_function))
 
         # L1 norm regularization of both functions with 1 scaling constant
         weight_regularization = 0.5 * (cvx.norm(w, 1) + scaling_lupi_w * cvx.norm(w_priv, 1))
 
         constraints = [
-            cvx.multiply(y.T, function) >= 1 - cvx.multiply(y.T, priv_function) - slack,
-            priv_difference >= 0,
+            cvx.multiply(y, function) >= 1 - cvx.multiply(y, priv_function) - slack,
+            priv_function >= 0,
             slack >= 0,
         ]
         objective = cvx.Minimize(loss + weight_regularization)
@@ -159,20 +156,11 @@ class LUPI_Classification_SVM(InitModel):
         ----------
         X : numpy.ndarray
         """
-        # TODO: remove this when not needed
-        ## Check if passed dataset X is combined with PI features or if only non-PI features are present.
-        # if X.shape[1] > self.lupi_features:
-        #    # Take only the non PI features
-        #    X = X[:, :-self.lupi_features]
-
+        X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
-        w_priv = self.model_state["w_priv"]
         b = self.model_state["b"]
-        b_priv = self.model_state["b_priv"]
-
-        # Combine both models
-        w = np.concatenate([w, w_priv])
-        b += b_priv
+        w_p = self.model_state["w_priv"]
+        b_p = self.model_state["b_priv"]
 
         # Simple hyperplane classification rule
         y = np.dot(X, w) + b >= 0
@@ -228,15 +216,14 @@ class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem, Classificat
         slack = cvx.Variable(shape=(self.n), name="slack")
 
         # New Constraints
-        distance_from_plane = cvx.multiply(self.y.T, self.X * w + b)
+        function = cvx.multiply(self.y, self.X * w + b)
         priv_function = self.X_priv * w_priv + b_priv
-        priv_loss = cvx.multiply(self.y.T, priv_function) + slack
-        loss = C * (cvx.sum(priv_loss) + scaling_lupi_loss * cvx.sum(slack))
+        loss = C * (cvx.sum(slack) + scaling_lupi_loss * cvx.sum(priv_function))
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv = cvx.norm(w_priv, 1)
 
-        self.add_constraint(distance_from_plane >= 1 - cvx.multiply(self.y.T, priv_function) - slack)
-        self.add_constraint(priv_loss >= 0)
+        self.add_constraint(function >= 1 - cvx.multiply(self.y, priv_function) - slack)
+        self.add_constraint(priv_function >= 0)
         self.add_constraint(slack >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
