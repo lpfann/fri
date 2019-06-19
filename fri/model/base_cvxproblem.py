@@ -80,6 +80,7 @@ class Relevance_CVXProblem(ABC):
     def probeID(self):
         return self._probeID
 
+    @property
     def isProbe(self):
         return self.probeID >= 0
 

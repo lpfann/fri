@@ -315,6 +315,9 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
     n = len(probe_values)
 
     if n == 0:
+        if verbose > 0:
+            print("**** Feature Selection ****")
+            print("All probes were infeasible. All features considered relevant.")
         #    # If all probes were infeasible we expect an empty list
         #    # If they are infeasible it also means that only strongly relevant features were in the data
         #    # As such we just set the prediction without considering the statistics
