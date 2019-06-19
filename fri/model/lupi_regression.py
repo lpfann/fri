@@ -56,19 +56,18 @@ class LUPI_Regression(ProblemType):
         return X, y
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, isProbe=False):
+                                     preset_model, probeID=-1):
         is_priv = is_lupi_feature(di, data,
                                   best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
         if not is_priv:
             yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di,
-                                                            preset_model, isProbe=False)
+                                                            data, di, preset_model, probeID=-1)
         else:
             for sign, pos in product([1, -1], [True, False]):
                 problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                        preset_model=preset_model,
-                                                       best_model_state=best_model_state, isProbe=isProbe)
+                                                       best_model_state=best_model_state, probeID=probeID)
                 problem.init_objective_UB(sign=sign, pos=pos)
                 yield problem
 

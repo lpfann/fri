@@ -90,21 +90,20 @@ class ProblemType(ABC):
         return value * (1 + self.get_chosen_relax_factors(key))
 
     def generate_lower_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, isProbe=False):
+                                     preset_model):
         problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                preset_model=preset_model,
                                                best_model_state=best_model_state)
         problem.init_objective_LB()
         problem.isLowerBound = True
-        problem.isProbe = isProbe
         yield problem
 
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, isProbe=False):
+                                     preset_model, probeID=-1):
         for sign in [-1, 1]:
             problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
                                                    preset_model=preset_model,
-                                                   best_model_state=best_model_state, isProbe=isProbe)
+                                                   best_model_state=best_model_state, probeID=probeID)
             problem.init_objective_UB(sign=sign)
             problem.isLowerBound = False
             yield problem

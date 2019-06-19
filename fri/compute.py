@@ -181,13 +181,11 @@ class RelevanceBoundsIntervals(object):
         for di in dims:
             # Add Lower Bound problem(s) to work list
             yield from self.problem_type.generate_lower_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state,
-                                                                      data, di, preset_model)
+                                                                      best_model_state, data, di, preset_model)
 
             # Add problem(s) for Upper bound
             yield from self.problem_type.generate_upper_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state,
-                                                                      data, di, preset_model)
+                                                                      best_model_state, data, di, preset_model)
 
     def _generate_probe_value_tasks(self, dims, data, n_resampling, random_state,
                                     preset_model=None, best_model_state=None):
@@ -200,8 +198,8 @@ class RelevanceBoundsIntervals(object):
 
             # We only use upper bounds as probe features
             yield from self.problem_type.generate_upper_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state,
-                                                                      data_perm, di, preset_model, isProbe=True)
+                                                                      best_model_state, data_perm, di, preset_model,
+                                                                      probeID=i)
 
     def _create_interval(self, feature: int, solved_bounds: dict, presetModel: dict = None):
         # Return preset values for fixed features

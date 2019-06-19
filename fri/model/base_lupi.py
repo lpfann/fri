@@ -6,9 +6,9 @@ from .base_cvxproblem import Relevance_CVXProblem
 class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
 
     def __init__(self, current_feature: int, data: tuple, hyperparameters, best_model_constraints, preset_model=None,
-                 best_model_state=None, **kwargs) -> None:
+                 best_model_state=None, probeID=None) -> None:
         super().__init__(current_feature, data, hyperparameters, best_model_constraints, preset_model, best_model_state,
-                         **kwargs)
+                         probeID)
 
     def preprocessing_data(self, data, best_model_state):
         lupi_features = best_model_state["lupi_features"]

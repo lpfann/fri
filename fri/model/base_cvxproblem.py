@@ -20,16 +20,16 @@ class Relevance_CVXProblem(ABC):
             state += f"{s[0]}:{s[1]}, "
         state = "(" + state[:-2] + ")"
         if self.isProbe:
-            prefix = "Probe_"
+            prefix = f"Probe_{self.probeID}"
         else:
             prefix = ""
         return prefix + name + state
 
     def __init__(self, current_feature: int, data: tuple, hyperparameters, best_model_constraints, preset_model=None,
-                 best_model_state=None, isProbe=None, **kwargs) -> None:
+                 best_model_state=None, probeID=None, **kwargs) -> None:
+        self._probeID = probeID
         self._feature_relevance = None
         self.isLowerBound = None
-        self.isProbe = isProbe
 
         # General data
         self.current_feature = current_feature
@@ -75,6 +75,13 @@ class Relevance_CVXProblem(ABC):
             return 0
         else:
             raise Exception("Problem not solved. No feature relevance computed.")
+
+    @property
+    def probeID(self):
+        return self._probeID
+
+    def isProbe(self):
+        return self.probeID >= 0
 
     @abstractmethod
     def _init_constraints(self, parameters, init_model_constraints):
