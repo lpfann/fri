@@ -62,7 +62,7 @@ class LUPI_Regression(ProblemType):
 
         if not is_priv:
             yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model, probeID=-1)
+                                                            data, di, preset_model, probeID=probeID)
         else:
             for sign, pos in product([1, -1], [True, False]):
                 problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,

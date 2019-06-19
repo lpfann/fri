@@ -381,11 +381,11 @@ def genLupiData(generator, n_priv_features: int = 1,
 
         if rettruth:
             # Create truth vector
-            truth = np.zeros(n_features)
+            truth = np.zeros(c_features)
             rel_X = n_strel + n_redundant + n_repeated
             truth[:rel_X] = 1
             rel_X_priv = n_priv_strel + n_priv_redundant + n_priv_repeated
-            truth[n_features - 1:n_features - 1 + rel_X_priv] = 1
+            truth[n_features:n_features + rel_X_priv] = 1
             return X, X_priv, y, truth.astype(bool)
         
         return X, X_priv, y

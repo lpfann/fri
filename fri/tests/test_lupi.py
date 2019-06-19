@@ -68,10 +68,10 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
                        n_priv_features=n_priv_features,
                        n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
-                       n_repeated=0, random_state=randomstate
+                       n_repeated=0, random_state=randomstate, rettruth=True
                        )
 
-    X, X_priv, y = data
+    X, X_priv, y, truth = data
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
     combined = np.hstack([X, X_priv])
@@ -92,9 +92,8 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
 
     # Check if all relevant features are selected
-    # truth = np.ones(n_f)
-    # TODO: rework truth vector check for lupi_features test
-    # assert all(fri._get_support_mask()[:n_f] == truth)
+    assert np.all(model._get_support_mask() == truth)
+
 
 
 @pytest.mark.parametrize('n_strong', [2, 4])
@@ -138,7 +137,7 @@ def test_lupi_model_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, ran
     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
 
     # Check if all relevant features are selected
-    assert all(model._get_support_mask() == truth)
+    assert np.all(model._get_support_mask() == truth)
 
 def test_strongly_relevant_regression(randomstate):
     lupi_features = 1

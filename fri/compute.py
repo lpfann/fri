@@ -153,12 +153,9 @@ class RelevanceBoundsIntervals(object):
             for candidate in probe_results:
                 # Only add bounds with feasible solutions
                 if candidate.is_solved:
-                    # candidates[candidate.current_feature].append(candidate)
-                    probe_values.append(candidate.solved_relevance)
-            # TODO: add ID to enable correct aggregation
-            # We dont aggregate candidate values to complete bounds to achieve a better statistical sampling ratio
-            # for j in candidates.values():
-            #    probe_values.append(self.problem_type.aggregate_max_candidates(j))
+                    candidates[candidate.probeID].append(candidate)
+            for j in candidates.values():
+                probe_values.append(self.problem_type.aggregate_max_candidates(j))
 
             n_probes = len(probe_values)
             if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
