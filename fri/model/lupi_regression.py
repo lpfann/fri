@@ -151,7 +151,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
         w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
         # We take the mean to combine all submodels (for priv) into a single normalization factor
-        w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1) / 2
+        w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1)
         self.constraints = {
             "loss_priv": priv_loss.value,
             "loss": loss.value,
@@ -215,13 +215,9 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
 
     def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
         if pos:
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w_priv_pos[self.lupi_index],
-            )
+            self.add_constraint(self.feature_relevance <= sign * self.w_priv_pos[self.lupi_index])
         else:
-            self.add_constraint(
-                self.feature_relevance <= sign * self.w_priv_neg[self.lupi_index],
-            )
+            self.add_constraint(self.feature_relevance <= sign * self.w_priv_neg[self.lupi_index])
 
         self._objective = cvx.Maximize(self.feature_relevance)
 
@@ -230,9 +226,9 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
         l1_w = init_model_constraints["w_l1"]
         l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
         l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
+        l1_priv_w = init_model_constraints["w_priv_l1"]
         init_loss = init_model_constraints["loss"]
         # Parameters from best model
-        C = parameters["C"]
         epsilon = parameters["epsilon"]
 
         # New Variables
@@ -243,25 +239,25 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
         w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_pos")
         b_priv_neg = cvx.Variable(name="bias_priv_pos")
 
-        # Define functions for better readability
         priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
         priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
         priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
-        # New Constraints
 
         loss = C * priv_loss
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
         weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
+        weight_norm_priv = (weight_norm_priv_pos + weight_norm_priv_neg)
 
-        self.add_constraint(self.y - self.X * w - b <= epsilon + priv_function_pos)
-        self.add_constraint(self.X * w - b - self.y <= epsilon + priv_function_neg )
+        self.add_constraint(self.y - self.X * w - b <= epsilon + priv_function_pos + slack)
+        self.add_constraint(self.X * w + b - self.y <= epsilon + priv_function_neg + slack)
         self.add_constraint(priv_function_pos >= 0)
         self.add_constraint(priv_function_neg >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
-        self.add_constraint(weight_norm_priv_pos <= l1_priv_w_pos)
-        self.add_constraint(weight_norm_priv_neg <= l1_priv_w_neg)
+        self.add_constraint(weight_norm_priv <= l1_priv_w)
+        # self.add_constraint(weight_norm_priv_pos <= l1_priv_w_pos)
+        # self.add_constraint(weight_norm_priv_neg <= l1_priv_w_neg)
 
         # Save values for object use later
         self.w = w
