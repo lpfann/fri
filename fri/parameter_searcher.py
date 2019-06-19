@@ -1,4 +1,9 @@
 import warnings
+
+from sklearn.exceptions import FitFailedWarning
+
+warnings.filterwarnings(action="ignore", category=FitFailedWarning)
+
 from pprint import pprint
 from typing import Tuple
 
