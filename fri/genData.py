@@ -339,7 +339,7 @@ def genLupiData(generator, n_priv_features: int = 1,
                 n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
                 partition_priv=None, n_features: int = 2,
                 n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0, partition=None, random_state=None, **kwargs):
+                n_repeated: int = 0, partition=None, random_state=None, rettruth=False, **kwargs):
     if generator in [genClassificationData, genRegressionData, genOrdinalRegressionData]:
         _checkParam(n_features=n_features,
                     n_redundant=n_redundant, n_strel=n_strel,
@@ -348,39 +348,46 @@ def genLupiData(generator, n_priv_features: int = 1,
                         n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
                         n_priv_repeated=n_priv_repeated,
                         partition_priv=partition_priv)
-
-        n_features += n_priv_features
-        n_strel += n_priv_strel
-        n_redundant += n_priv_redundant
-        n_repeated += n_priv_repeated
+        c_features = n_features + n_priv_features
+        c_strel = n_strel + n_priv_strel
+        c_redundant = n_redundant + n_priv_redundant
+        c_repeated = n_repeated + n_priv_repeated
         if partition_priv is not None:
             partition = partition_priv.extend(partition)  # Take priv partitions first for later indexing
 
-        X, y = generator(n_features=n_features,
-                         n_redundant=n_redundant, n_strel=n_strel,
-                         n_repeated=n_repeated, partition=partition, random_state=random_state, **kwargs)
-
-        X_priv = np.empty((len(X), n_priv_features))
+        X, y = generator(n_features=c_features,
+                         n_redundant=c_redundant, n_strel=c_strel,
+                         n_repeated=c_repeated, partition=partition, random_state=random_state, **kwargs)
 
         # Build index list of features
-        ix = range(n_features)
+        ix = range(c_features)
         ix_priv = []
         # Pick index for strel features from the beginning of the generated array
         ix_priv.extend(ix[:n_priv_strel])
         # Pick index for redundant
-        ix_priv.extend(ix[n_strel:n_strel + n_priv_redundant])
+        ix_priv.extend(ix[c_strel:c_strel + n_priv_redundant])
         # Pick index for repeated features
-        ix_priv.extend(ix[n_strel + n_redundant:n_strel + n_redundant + n_priv_repeated])
+        ix_priv.extend(ix[c_strel + c_redundant:c_strel + c_redundant + n_priv_repeated])
         # Pick index for irrelevant
         n_irrelevant_priv_features = n_priv_features - n_priv_strel - n_priv_redundant - n_priv_repeated
         if n_irrelevant_priv_features > 0:
-            ix_priv.extend((ix[
-                            -n_irrelevant_priv_features:]))  # notice the '-', we slice from the back, where irrelevant features are
+            # notice the '-', we slice from the back, where irrelevant features are
+            ix_priv.extend((ix[-n_irrelevant_priv_features:]))
 
         ix_not_priv = [index for index in ix if index not in ix_priv]
 
         X_priv = X[:, ix_priv]
         X = X[:, ix_not_priv]
+
+        if rettruth:
+            # Create truth vector
+            truth = np.zeros(n_features)
+            rel_X = n_strel + n_redundant + n_repeated
+            truth[:rel_X] = 1
+            rel_X_priv = n_priv_strel + n_priv_redundant + n_priv_repeated
+            truth[n_features - 1:n_features - 1 + rel_X_priv] = 1
+            return X, X_priv, y, truth.astype(bool)
+        
         return X, X_priv, y
 
 
