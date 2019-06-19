@@ -102,11 +102,12 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
 @pytest.mark.parametrize('n_priv_strong', [1, 2])
 @pytest.mark.parametrize('n_priv_weak', [0, 2])
 def test_lupi_model_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, randomstate):
-    n_samples = 500
+    n_samples = 100
     n_features = 10
 
     gen = genRegressionData
     model = FRI(fri.ProblemName.LUPI_REGRESSION, random_state=randomstate, verbose=1, n_param_search=20,
+                n_jobs=-1,
                 n_probe_features=20)
 
     n_priv_features = n_priv_strong + n_priv_weak
@@ -143,12 +144,13 @@ def test_lupi_model_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, ran
 
 def test_strongly_relevant_regression(randomstate):
     lupi_features = 1
-    X, X_priv, y = genLupiData(genRegressionData, random_state=randomstate, n_samples=500, n_features=2, n_strel=2,
+    X, X_priv, y = genLupiData(genRegressionData, random_state=randomstate, n_samples=100, n_features=1, n_strel=1,
                                n_redundant=0,
                                n_repeated=0,
                                n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
 
-    f = FRI(fri.ProblemName.LUPI_REGRESSION, n_probe_features=10, n_jobs=1, n_param_search=20, C=None,
+    f = FRI(fri.ProblemName.LUPI_REGRESSION, n_probe_features=10, n_jobs=-1,
+            n_param_search=100,
             random_state=randomstate, verbose=1)
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)

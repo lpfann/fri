@@ -125,12 +125,12 @@ class LUPI_Regression_SVM(LUPI_InitModel):
                     cvx.norm(w, 1) + scaling_lupi_w * (cvx.norm(w_priv_pos, 1) + cvx.norm(w_priv_neg, 1)))
 
         constraints = [
-            y - X * w - b <= epsilon + priv_function_pos,
-            X * w - b - y <= epsilon + priv_function_neg,
+            y - X * w - b <= epsilon + priv_function_pos + slack,
+            X * w + b - y <= epsilon + priv_function_neg + slack,
             priv_function_pos >= 0,
             priv_function_neg >= 0,
         ]
-        objective = cvx.Minimize(loss + weight_regularization)
+        objective = cvx.Minimize(C * loss + weight_regularization)
 
         # Solve problem.
         solver_params = self.solver_params
