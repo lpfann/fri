@@ -31,7 +31,7 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
                                   scoring=scorer,
                                   random_state=random_state,
                                   refit=refit,
-                                  cv=5,
+                                  cv=3,
                                   n_iter=n_iter,
                                   n_jobs=n_jobs,
                                   error_score=np.nan,
@@ -45,7 +45,6 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
 
     best_model: InitModel = searcher.best_estimator_
     best_score = best_model.score(X, y)
-
     if verbose > 0:
         print("*" * 20, "Best found baseline model", "*" * 20)
         pprint(best_model)
