@@ -20,7 +20,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
     optimum_deviation = 0.01
     C = None
     noise=0
-    iter_psearch = 40
+    iter_psearch = 50
 
     if problem is "regression":
         gen = genRegressionData

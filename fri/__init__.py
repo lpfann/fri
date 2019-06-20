@@ -15,7 +15,7 @@ from fri.model.regression import Regression
 from fri.plot import plot_intervals
 
 
-class ProblemType(Enum):
+class ProblemName(Enum):
     CLASSIFICATION = Classification
     REGRESSION = Regression
     ORDINALREGRESSION = OrdinalRegression
@@ -25,7 +25,7 @@ class ProblemType(Enum):
 
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData", "quick_generate",
-           "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals", ProblemType]
+           "FRIClassification", "FRIRegression", "FRIOrdinalRegression", "plot_intervals", ProblemName]
 
 # Get version from versioneer
 from fri._version import get_versions
@@ -33,18 +33,18 @@ __version__ = get_versions()['version']
 del get_versions
 
 
-def FRI(problem: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+def FRI(problem: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
         n_probe_features=50, **kwargs):
     """
 
     Parameters
     ----------
-    problem : ProblemType or str
+    problem : ProblemName or str
     Type of problem at hand.
     E.g. "classification", "regression", "ordinalregression"
     """
 
-    if isinstance(problem, ProblemType):
+    if isinstance(problem, ProblemName):
         problemtype = problem.value
     else:
         if problem == "classification" or problem == "class":
@@ -56,7 +56,7 @@ def FRI(problem: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_se
         elif problem == "lupi_classification" or problem == "lupi_class":
             problemtype = LUPI_Classification
         else:
-            names = [enum.name.lower() for enum in ProblemType]
+            names = [enum.name.lower() for enum in ProblemName]
 
             print(f"Parameter 'problem' was not recognized or unset. Try one of {names}.")
             return None

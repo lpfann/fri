@@ -1,6 +1,5 @@
 import numpy as np
 from numpy.random.mtrand import RandomState
-from sklearn.datasets import make_regression
 from sklearn.utils import check_random_state
 from sklearn.utils import shuffle
 
@@ -173,7 +172,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
 
 
 def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                      n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
+                      n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
                       partition=None) -> object:
     """Generate synthetic regression data
     
@@ -210,8 +209,6 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-    X = np.zeros((int(n_samples), int(n_features)))
-
     # Find partitions which defíne the weakly relevant subsets
     if partition is None and n_redundant > 0:
         partition = [n_redundant]
@@ -221,22 +218,25 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     else:
         part_size = 0
 
-    X_informative, Y = make_regression(n_features=int(n_strel + part_size),
-                                       n_samples=int(n_samples),
-                                       noise=0,
-                                       n_informative=int(n_strel + part_size),
-                                       random_state=random_state,
-                                       shuffle=False)
+    n_informative = n_strel + part_size
 
-    X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
+    X = random_state.randn(n_samples, n_informative)
+    ground_truth = np.zeros((n_informative, 1))
+    ground_truth[:n_informative, :] = 0.3
+    bias = 0
+
+    y = np.dot(X, ground_truth) + bias
+
+    # Add noise
+    if noise > 0.0:
+        y += random_state.normal(scale=noise, size=y.shape)
+
+    X = _fillVariableSpace(X, random_state, n_samples=n_samples, n_features=n_features,
                            n_redundant=n_redundant, n_strel=n_strel,
                            n_repeated=n_repeated,
                            noise=noise, partition=partition)
-    
-    # Add gaussian noise to data
-    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
-
-    return X, Y
+    y = np.squeeze(y)
+    return X, y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
                              n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
@@ -339,7 +339,7 @@ def genLupiData(generator, n_priv_features: int = 1,
                 n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
                 partition_priv=None, n_features: int = 2,
                 n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0, partition=None, random_state=None, **kwargs):
+                n_repeated: int = 0, partition=None, random_state=None, rettruth=False, **kwargs):
     if generator in [genClassificationData, genRegressionData, genOrdinalRegressionData]:
         _checkParam(n_features=n_features,
                     n_redundant=n_redundant, n_strel=n_strel,
@@ -348,40 +348,47 @@ def genLupiData(generator, n_priv_features: int = 1,
                         n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
                         n_priv_repeated=n_priv_repeated,
                         partition_priv=partition_priv)
-
-        n_features += n_priv_features
-        n_strel += n_priv_strel
-        n_redundant += n_priv_redundant
-        n_repeated += n_priv_repeated
+        c_features = n_features + n_priv_features
+        c_strel = n_strel + n_priv_strel
+        c_redundant = n_redundant + n_priv_redundant
+        c_repeated = n_repeated + n_priv_repeated
         if partition_priv is not None:
             partition = partition_priv.extend(partition)  # Take priv partitions first for later indexing
 
-        X, y = generator(n_features=n_features,
-                         n_redundant=n_redundant, n_strel=n_strel,
-                         n_repeated=n_repeated, partition=partition, random_state=random_state, **kwargs)
-
-        X_priv = np.empty((len(X), n_priv_features))
+        X, y = generator(n_features=c_features,
+                         n_redundant=c_redundant, n_strel=c_strel,
+                         n_repeated=c_repeated, partition=partition, random_state=random_state, **kwargs)
 
         # Build index list of features
-        ix = range(n_features)
+        ix = range(c_features)
         ix_priv = []
         # Pick index for strel features from the beginning of the generated array
         ix_priv.extend(ix[:n_priv_strel])
         # Pick index for redundant
-        ix_priv.extend(ix[n_strel:n_strel + n_priv_redundant])
+        ix_priv.extend(ix[c_strel:c_strel + n_priv_redundant])
         # Pick index for repeated features
-        ix_priv.extend(ix[n_strel + n_redundant:n_strel + n_redundant + n_priv_repeated])
+        ix_priv.extend(ix[c_strel + c_redundant:c_strel + c_redundant + n_priv_repeated])
         # Pick index for irrelevant
         n_irrelevant_priv_features = n_priv_features - n_priv_strel - n_priv_redundant - n_priv_repeated
         if n_irrelevant_priv_features > 0:
-            ix_priv.extend((ix[
-                            -n_irrelevant_priv_features:]))  # notice the '-', we slice from the back, where irrelevant features are
+            # notice the '-', we slice from the back, where irrelevant features are
+            ix_priv.extend((ix[-n_irrelevant_priv_features:]))
 
         ix_not_priv = [index for index in ix if index not in ix_priv]
 
         X_priv = X[:, ix_priv]
         X = X[:, ix_not_priv]
-        return X, X_priv, y.astype(int)
+
+        if rettruth:
+            # Create truth vector
+            truth = np.zeros(c_features)
+            rel_X = n_strel + n_redundant + n_repeated
+            truth[:rel_X] = 1
+            rel_X_priv = n_priv_strel + n_priv_redundant + n_priv_repeated
+            truth[n_features:n_features + rel_X_priv] = 1
+            return X, X_priv, y, truth.astype(bool)
+        
+        return X, X_priv, y
 
 
 def quick_generate(problem, **kwargs):

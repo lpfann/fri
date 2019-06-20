@@ -2,23 +2,23 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from fri.baseline import InitModel
-from fri.model.base import Relevance_CVXProblem
-from .base import MLProblem
+from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class Regression(MLProblem):
+class Regression(ProblemType):
 
     @classmethod
     def parameters(cls):
         return ["C", "epsilon"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return Regression_SVR
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return Regression_Relevance_Bound
 
     def relax_factors(cls):
@@ -99,19 +99,13 @@ class Regression_SVR(InitModel):
 
 class Regression_Relevance_Bound(Relevance_CVXProblem):
 
-    def _init_objective_UB(self):
-
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
-
+    def init_objective_UB(self, sign=None, **kwargs):
         self.add_constraint(
-            self.feature_relevance <= factor * self.w[self.current_feature]
+            self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def init_objective_LB(self, **kwargs):
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )
