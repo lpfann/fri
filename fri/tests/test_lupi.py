@@ -191,7 +191,7 @@ def test_lupi_model_ord_regression(n_strong, n_weak, n_priv_strong, n_priv_weak,
     n_features = max(8, n_strong + n_weak)
 
     gen = genOrdinalRegressionData
-    model = FRI(fri.ProblemType.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50)
+    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50)
 
     n_priv_features = n_priv_strong + n_priv_weak
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,

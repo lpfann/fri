@@ -118,18 +118,25 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         priv_function_neg = X_priv * w_priv_neg + b_priv_neg
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
-        priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
-        loss = scaling_lupi_loss * priv_loss + cvx.sum(slack)
+        priv_loss_pos = cvx.sum(priv_function_pos)
+        priv_loss_neg = cvx.sum(priv_function_neg)
+        priv_loss = priv_loss_pos + priv_loss_neg
+        slack_loss = cvx.sum(slack)
+        loss = scaling_lupi_loss * priv_loss + slack_loss
         # L1 norm regularization of both functions with 1 scaling constant
-        weight_regularization = 1 / 2 * cvx.norm(w, 1) \
-                                + 1 / 4 * scaling_lupi_w * (cvx.norm(w_priv_pos, 1) + cvx.norm(w_priv_neg, 1))
+        weight_regularization = 0.5 * (
+                    cvx.norm(w, 1) + scaling_lupi_w * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1)))
 
         constraints = [
             y - X * w - b <= epsilon + priv_function_pos,
             X * w + b - y <= epsilon + priv_function_neg,
             priv_function_pos >= 0,
             priv_function_neg >= 0,
+            priv_loss_pos >= 0,
+            priv_loss_neg >= 0,
+            slack_loss >= 0,
             slack >= 0,
+            loss >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
 
@@ -138,6 +145,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         problem = cvx.Problem(objective, constraints)
         problem.solve(**solver_params)
 
+
         self.model_state = {
             "w": w.value,
             "w_priv_pos": w_priv_pos.value,
@@ -145,16 +153,17 @@ class LUPI_Regression_SVM(LUPI_InitModel):
             "b": b.value,
             "b_priv_pos": b_priv_pos.value,
             "b_priv_neg": b_priv_neg.value,
-            "lupi_features": lupi_features  # Number of lupi features in the dataset TODO: Move this somewhere else
-        }
+            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
 
+        }
         w_l1 = np.linalg.norm(w.value, ord=1)
         w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
         w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
         # We take the mean to combine all submodels (for priv) into a single normalization factor
         w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1)
         self.constraints = {
-            "loss_priv": priv_loss.value,
+            "loss_priv": (priv_loss.value, priv_loss_pos.value, priv_loss_neg.value),
+            "loss_slack": slack_loss.value,
             "loss": loss.value,
             "w_l1": w_l1,
             "w_priv_l1": w_priv_l1,
@@ -165,7 +174,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
     @property
     def solver_params(cls):
-        return {"solver": "ECOS", "verbose": True}
+        return {"solver": "ECOS", "verbose": False}
 
     def predict(self, X):
         """

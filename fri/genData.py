@@ -239,7 +239,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     return X, y
 
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                             n_repeated: int = 0, noise: float = 0.1, random_state: object = None,
+                             n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
                              partition=None, n_target_bins: int = 3):
 
     """
