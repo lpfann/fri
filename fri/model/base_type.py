@@ -31,12 +31,12 @@ class ProblemType(ABC):
         except:
             # # TODO: rewrite the parameter logic
             # # TODO: move this to subclass
-            # if p == "scaling_lupi_w":
-            #     return scipy.stats.reciprocal(a=1e-10, b=1e1)
+            if p == "scaling_lupi_w":
+                return scipy.stats.reciprocal(a=1e-10, b=1)
             if p == "scaling_lupi_loss":
                 # value 0>p<1 causes standard svm solution
                 # p>1 encourages usage of lupi function
-                return scipy.stats.reciprocal(a=1e-5, b=1e10)
+                return scipy.stats.reciprocal(a=1e-10, b=1)
             if p == "C":
                 return scipy.stats.reciprocal(a=1e-10, b=1e3)
             if p == "epsilon":
@@ -115,9 +115,6 @@ class ProblemType(ABC):
         return value
 
     def aggregate_max_candidates(self, max_problems_candidates):
-        upper_bound = 0
-        for candidate in max_problems_candidates:
-            value = candidate.solved_relevance
-            if value > upper_bound:
-                upper_bound = value
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+        upper_bound = max(vals)
         return upper_bound
