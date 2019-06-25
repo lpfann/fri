@@ -23,7 +23,7 @@ class LUPI_Regression(ProblemType):
 
     @classmethod
     def parameters(cls):
-        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "epsilon", "scaling_lupi_w"]
 
     @property
     def get_initmodel_template(cls):
@@ -80,7 +80,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
     @classmethod
     def hyperparameter(cls):
-        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "epsilon", "scaling_lupi_w"]
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -102,7 +102,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         C = self.hyperparam["C"]
         epsilon = self.hyperparam["epsilon"]
         scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        # scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
@@ -111,7 +111,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         b_priv_pos = cvx.Variable(name="bias_priv_pos")
         w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
         b_priv_neg = cvx.Variable(name="bias_priv_neg")
-        slack = cvx.Variable(shape=(n), name="slack")
+        #slack = cvx.Variable(shape=(n), name="slack")
 
         # Define functions for better readability
         priv_function_pos = X_priv * w_priv_pos + b_priv_pos
@@ -121,22 +121,24 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         priv_loss_pos = cvx.sum(priv_function_pos)
         priv_loss_neg = cvx.sum(priv_function_neg)
         priv_loss = priv_loss_pos + priv_loss_neg
-        slack_loss = cvx.sum(slack)
-        loss = scaling_lupi_loss * priv_loss + slack_loss
+        # slack_loss = cvx.sum(slack)
+        # loss = scaling_lupi_loss * priv_loss
+        loss = priv_loss
+
         # L1 norm regularization of both functions with 1 scaling constant
         weight_regularization = 0.5 * (
-                    cvx.norm(w, 1) + scaling_lupi_w * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1)))
+                cvx.norm(w, 1) + scaling_lupi_w * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1)))
 
         constraints = [
             y - X * w - b <= epsilon + priv_function_pos,
             X * w + b - y <= epsilon + priv_function_neg,
             priv_function_pos >= 0,
             priv_function_neg >= 0,
-            priv_loss_pos >= 0,
-            priv_loss_neg >= 0,
-            slack_loss >= 0,
-            slack >= 0,
-            loss >= 0,
+            # priv_loss_pos >= 0,
+            # priv_loss_neg >= 0,
+            # slack_loss >= 0,
+            # slack >= 0,
+            #loss >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
 
@@ -147,6 +149,9 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
 
         self.model_state = {
+            "signs_pos": priv_function_pos.value > 0,
+            "signs_neg": priv_function_neg.value > 0,
+
             "w": w.value,
             "w_priv_pos": w_priv_pos.value,
             "w_priv_neg": w_priv_neg.value,
@@ -162,8 +167,8 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         # We take the mean to combine all submodels (for priv) into a single normalization factor
         w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1)
         self.constraints = {
-            "loss_priv": (priv_loss.value, priv_loss_pos.value, priv_loss_neg.value),
-            "loss_slack": slack_loss.value,
+            "priv_loss": priv_loss.value,
+            #"loss_slack": slack_loss.value,
             "loss": loss.value,
             "w_l1": w_l1,
             "w_priv_l1": w_priv_l1,
@@ -186,23 +191,11 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         ----------
         X : numpy.ndarray
         """
-        # TODO: remove this when not needed
-        ## Check if passed dataset X is combined with PI features or if only non-PI features are present.
-        # if X.shape[1] > self.lupi_features:
-        #    # Take only the non PI features
-        #    X = X[:, :-self.lupi_features]
         X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
         b = self.model_state["b"]
-        w_priv_pos = self.model_state["w_priv_pos"]
-        b_priv_pos = self.model_state["b_priv_pos"]
-        w_priv_neg = self.model_state["w_priv_neg"]
-        b_priv_neg = self.model_state["b_priv_neg"]
 
-        f = np.dot(X, w) + b
-        priv_pos = np.dot(X_priv, w_priv_pos) + b_priv_pos
-        priv_neg = np.dot(X_priv, w_priv_neg) + b_priv_neg
-        y = f + priv_pos + priv_neg
+        y = np.dot(X, w) + b
 
         return y
 
@@ -233,13 +226,10 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
     def _init_constraints(self, parameters, init_model_constraints):
         # Upper constraints from best initial model
         l1_w = init_model_constraints["w_l1"]
-        l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
-        l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
-        l1_priv_w = init_model_constraints["w_priv_l1"]
+        self.l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
+        self.l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
         init_loss = init_model_constraints["loss"]
-        # Parameters from best model
         epsilon = parameters["epsilon"]
-        scaling_lupi_loss = parameters["scaling_lupi_loss"]
 
         # New Variables
         w = cvx.Variable(shape=(self.d), name="w")
@@ -248,28 +238,23 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
         b_priv_pos = cvx.Variable(name="bias_priv_pos")
         w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_neg")
         b_priv_neg = cvx.Variable(name="bias_priv_neg")
-        slack = cvx.Variable(shape=(self.n), name="slack")
 
         priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
         priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
         priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
-
-        loss = scaling_lupi_loss * priv_loss + cvx.sum(slack)
+        loss = priv_loss
         weight_norm = cvx.norm(w, 1)
-        weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
-        weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
-        weight_norm_priv = (weight_norm_priv_pos + weight_norm_priv_neg)
+        self.weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
+        self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
 
-        self.add_constraint(self.y - self.X * w - b <= epsilon + priv_function_pos + slack)
-        self.add_constraint(self.X * w + b - self.y <= epsilon + priv_function_neg + slack)
+        self.add_constraint(self.y - self.X * w - b <= epsilon + priv_function_pos)
+        self.add_constraint(self.X * w + b - self.y <= epsilon + priv_function_neg)
         self.add_constraint(priv_function_pos >= 0)
         self.add_constraint(priv_function_neg >= 0)
-        self.add_constraint(slack >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
-        self.add_constraint(weight_norm_priv <= l1_priv_w)
-        # self.add_constraint(weight_norm_priv_pos <= l1_priv_w_pos)
-        # self.add_constraint(weight_norm_priv_neg <= l1_priv_w_neg)
+        self.add_constraint(self.weight_norm_priv_pos <= self.l1_priv_w_pos)
+        self.add_constraint(self.weight_norm_priv_neg <= self.l1_priv_w_neg)
 
         # Save values for object use later
         self.w = w
