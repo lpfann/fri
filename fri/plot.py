@@ -1,6 +1,6 @@
 import matplotlib
 
-matplotlib.use('Agg')
+matplotlib.use('TkAgg')
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
@@ -55,9 +55,9 @@ def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=Tru
     # Bar colors
     if classes is None:
         new_classes = np.zeros(N).astype(int)
-        color = [color_palette_3[c] for c in new_classes]
+        color = [color_palette_3[c.astpye(int)] for c in new_classes]
     else:
-        color = [color_palette_3[c] for c in classes]
+        color = [color_palette_3[c.astype(int)] for c in classes]
 
     # Plot the bars
     bars = ax.bar(ind, height, width, bottom=lower_vals, tick_label=ticks, align="center", edgecolor=["black"] * N,
@@ -146,6 +146,33 @@ def plot_intervals(model, ticklabels=None):
         plotIntervals(model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_)
     else:
         print("Intervals not computed. Try running fit() function first.")
+
+
+def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
+    """Plot the relevance intervals.
+
+        Parameters
+        ----------
+        model : FRI model
+            Needs to be fitted before.
+        ticklabels : list of str, optional
+            Strs for ticklabels on x-axis (features)
+        lupi_ticklabels : list of str, optional
+            Strs for lupi ticklabels on x-axis (lupi features)
+        """
+    n_features = model.interval_.shape[0] - model.lupi_features_
+    data_interval_ = model.interval_[0:n_features,:]
+    lupi_interval_ = model.interval_[n_features:,:]
+
+    data_relevance_classes_ = model.relevance_classes_[0:n_features]
+    lupi_relevance_classes_ = model.relevance_classes_[n_features:]
+
+    if model.interval_ is not None:
+        plotIntervals(data_interval_, ticklabels=ticklabels, classes=data_relevance_classes_)
+        plotIntervals(lupi_interval_, ticklabels=lupi_ticklabels, classes=lupi_relevance_classes_)
+    else:
+        print("Intervals not computed. Try running fit() function first.")
+
 
 
 def interactive_scatter_embed(embedding, mode="markers", txt=None):
