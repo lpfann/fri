@@ -38,7 +38,7 @@ class ProblemType(ABC):
                 # p>1 encourages usage of lupi function
                 return scipy.stats.reciprocal(a=1e-10, b=1)
             if p == "C":
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+                return scipy.stats.reciprocal(a=1e-8, b=1e8)
             if p == "epsilon":
                 return [0, 0.001, 0.01, 0.1, 1, 10, 100]
             else:
