@@ -57,6 +57,25 @@ class LUPI_OrdinalRegression(ProblemType):
 
         return X, y
 
+    def generate_lower_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model):
+        is_priv = is_lupi_feature(di, data,
+                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
+
+        if not is_priv:
+            yield from super().generate_lower_bound_problem(best_hyperparameters, init_constraints, best_model_state,
+                                                            data, di, preset_model)
+        else:
+            bin_boundaries = best_model_state["bin_boundaries"]
+            # for sign, pos in product([1, -1], range(bin_boundaries)):
+            for sign in [1, -1]:
+                problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
+                                                       preset_model=preset_model,
+                                                       best_model_state=best_model_state)
+                problem.init_objective_LB(sign=sign)
+                problem.isLowerBound = True
+                yield problem
+
     def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, probeID=-1):
         is_priv = is_lupi_feature(di, data,
@@ -115,33 +134,33 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         w_priv = cvx.Variable(shape=(n_boundaries, self.lupi_features), name="w_priv")
         d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
-        def priv_function(j, k):
-            indices = np.where(y == get_original_bin_name[k])
-            return X_priv[indices] * w_priv[j, :] + d_priv[j]
+        def priv_function(boundary, bin):
+            indices = np.where(y == get_original_bin_name[bin])
+            return X_priv[indices] * w_priv[boundary, :] + d_priv[boundary]
 
         # L1 norm regularization of both functions with 1 scaling constant
         w_priv_l1 = cvx.norm(w_priv, 1)
+        w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
         w_l1 = cvx.norm(w, 1)
         weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
 
         constraints = []
         loss = 0
-        for j in range(n_boundaries):
-            # Add constraints for slack into right neighboring bins
-            for k in range(0, j + 1):
-                indices = np.where(y == get_original_bin_name[k])
-                constraints.append(X[indices] * w - b_s[j] <= -1 + priv_function(j, k))
-                constraints.append(priv_function(j, k) >= 0)
-                loss += cvx.sum(priv_function(j, k))
-
+        for i_boundary in range(0, n_boundaries):
             # Add constraints for slack into left neighboring bins
-            for k in range(j + 1, n_bins):
-                indices = np.where(y == get_original_bin_name[k])
-                constraints.append(X[indices] * w - b_s[j] >= +1 - priv_function(j, k))
-                constraints.append(priv_function(j, k) >= 0)
-                loss += cvx.sum(priv_function(j, k))
+            for left_bin in range(0, i_boundary + 1):
+                indices = np.where(y == get_original_bin_name[left_bin])
+                constraints.append(X[indices] * w - b_s[i_boundary] <= -1 + priv_function(i_boundary, left_bin))
+                constraints.append(priv_function(i_boundary, left_bin) >= 0)
+                loss += cvx.sum(priv_function(i_boundary, left_bin))
 
-        # loss = C * loss
+            # Add constraints for slack into right neighboring bins
+            for right_bin in range(i_boundary + 1, n_bins):
+                indices = np.where(y == get_original_bin_name[right_bin])
+                constraints.append(X[indices] * w - b_s[i_boundary] >= +1 - priv_function(i_boundary, right_bin))
+                constraints.append(priv_function(i_boundary, right_bin) >= 0)
+                loss += cvx.sum(priv_function(i_boundary, right_bin))
+
         objective = cvx.Minimize(C * loss + weight_regularization)
 
         # Solve problem.
@@ -156,6 +175,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
             "b_s": b_s,
             "w_priv": w_priv.value,
             "d_priv": d_priv.value,
+
             "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
             "bin_boundaries": n_boundaries
         }
@@ -163,6 +183,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         self.constraints = {
             "loss": loss.value,
             "w_l1": w_l1.value,
+            "w_priv_vec_l1": w_priv_vec_l1.value,
             "w_priv_l1": w_priv_l1.value
         }
         return self
@@ -181,12 +202,11 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         indices = np.sum(scores.T - bin_thresholds >= 0, -1)
         return self.classes_[indices]
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, error_type="mmae", **kwargs):
 
         X, y = check_X_y(X, y)
 
         prediction = self.predict(X)
-        error_type = kwargs.get("error_type", "mmae")
         score = ordinal_scores(y, prediction, error_type)
 
         return score
@@ -222,23 +242,24 @@ def get_bin_mapping(y):
 
 class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
 
+    def _init_objective_LB_LUPI(self, sign=None, bin_index=None, **kwargs):
+
+        self.add_constraint(sign * self.w_priv[:, self.lupi_index] <= self.feature_relevance)
+
+        self._objective = cvx.Minimize(self.feature_relevance)
+
     def _init_objective_UB_LUPI(self, sign=None, bin_index=None, **kwargs):
 
         self.add_constraint(self.feature_relevance <= sign * self.w_priv[bin_index, self.lupi_index])
 
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB_LUPI(self, sign=None, bin_index=None, **kwargs):
-
-        self.add_constraint(cvx.abs(self.w_priv[:, self.lupi_index]) <= self.feature_relevance)
-
-        self._objective = cvx.Minimize(self.feature_relevance)
-
     def _init_constraints(self, parameters, init_model_constraints):
 
         # Upper constraints from initial model
         init_w_l1 = init_model_constraints["w_l1"]
         init_w_priv_l1 = init_model_constraints["w_priv_l1"]
+        init_w_priv_vec_l1 = init_model_constraints["w_priv_vec_l1"]
         init_loss = init_model_constraints["loss"]
 
         get_original_bin_name, n_bins = get_bin_mapping(self.y)
@@ -251,35 +272,37 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
         w_priv = cvx.Variable(shape=(n_boundaries, self.d_priv), name="w_priv")
         d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
-        def priv_function(j, k):
-            indices = np.where(self.y == get_original_bin_name[k])
-            return self.X_priv[indices] * w_priv[j, :] + d_priv[j]
-
-        # L1 norm regularization of both functions with 1 scaling constant
         w_priv_l1 = cvx.norm(w_priv, 1)
+        w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
+
+        def priv_function(j, indices):
+            return self.X_priv[indices] * w_priv[j, :] + d_priv[j]
+        # L1 norm regularization of both functions with 1 scaling constant
         w_l1 = cvx.norm(w, 1)
 
-        constraints = []
         loss = 0
-        for j in range(n_boundaries):
-            # Add constraints for slack into right neighboring bins
-            for k in range(0, j + 1):
-                indices = np.where(self.y == get_original_bin_name[k])
-                constraints.append(self.X[indices] * w - b_s[j] <= -1 + priv_function(j, k))
-                constraints.append(priv_function(j, k) >= 0)
-                loss += cvx.sum(priv_function(j, k))
-
+        for i_boundary in range(0, n_boundaries):
             # Add constraints for slack into left neighboring bins
-            for k in range(j + 1, n_bins):
-                indices = np.where(self.y == get_original_bin_name[k])
-                constraints.append(self.X[indices] * w - b_s[j] >= +1 - priv_function(j, k))
-                constraints.append(priv_function(j, k) >= 0)
-                loss += cvx.sum(priv_function(j, k))
+            for left_bin in range(0, i_boundary + 1):
+                indices = np.where(self.y == get_original_bin_name[left_bin])
+                f_priv = priv_function(i_boundary, indices)
+                self.add_constraint(
+                    self.X[indices] * w - b_s[i_boundary] <= -1 + f_priv)
+                self.add_constraint(f_priv >= 0)
+                loss += cvx.sum(f_priv)
 
-        for c in constraints:
-            self.add_constraint(c)
-        self.add_constraint(w_priv_l1 <= init_w_priv_l1)
+            # Add constraints for slack into right neighboring bins
+            for right_bin in range(i_boundary + 1, n_bins):
+                indices = np.where(self.y == get_original_bin_name[right_bin])
+                f_priv = priv_function(i_boundary, indices)
+                self.add_constraint(
+                    self.X[indices] * w - b_s[i_boundary] >= +1 - f_priv)
+                self.add_constraint(f_priv >= 0)
+                loss += cvx.sum(f_priv)
+            #self.add_constraint(w_priv_vec_l1[i_boundary] <= init_w_priv_vec_l1[i_boundary])
+
         self.add_constraint(w_l1 <= init_w_l1)
+        self.add_constraint(w_priv_l1 <= init_w_priv_l1)
         self.add_constraint(loss <= init_loss)
 
         self.w = w

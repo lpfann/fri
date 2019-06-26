@@ -26,7 +26,7 @@ class Relevance_CVXProblem(ABC):
         return prefix + name + state
 
     def __init__(self, current_feature: int, data: tuple, hyperparameters, best_model_constraints, preset_model=None,
-                 best_model_state=None, probeID=None, **kwargs) -> None:
+                 best_model_state=None, probeID=-1, **kwargs) -> None:
         self._probeID = probeID
         self._feature_relevance = None
         self.isLowerBound = None
@@ -116,6 +116,7 @@ class Relevance_CVXProblem(ABC):
         # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
         self._cvx_problem = cvx.Problem(objective=self.objective, constraints=self.constraints)
         try:
+            # print("Solve", self)
             self._cvx_problem.solve(**self.solver_kwargs)
         except SolverError:
             # We ignore Solver Errors, which are common with our framework:
