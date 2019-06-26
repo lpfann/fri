@@ -109,12 +109,11 @@ class ProblemType(ABC):
             yield problem
 
     def aggregate_min_candidates(self, min_problems_candidates):
-        assert len(min_problems_candidates) == 1
-        bound = min_problems_candidates[0]
-        value = bound.solved_relevance
-        return value
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        min_value = min(vals)
+        return min_value
 
     def aggregate_max_candidates(self, max_problems_candidates):
         vals = [candidate.solved_relevance for candidate in max_problems_candidates]
-        upper_bound = max(vals)
-        return upper_bound
+        max_value = max(vals)
+        return max_value
