@@ -178,20 +178,22 @@ def test_strongly_relevant_ordregression(randomstate):
     f.fit(combined, y, lupi_features=lupi_features)
     assert f.interval_ is not None
     print(f.interval_)
+    print(f.allrel_prediction_)
     assert f.interval_[0, 0] > 0, "Normal SRel feature lower bound error"
     assert f.interval_[1, 0] > 0, "Priv SRel feature lower bound error"
 
 
-@pytest.mark.parametrize('n_strong', [5, 10])
+@pytest.mark.parametrize('n_strong', [2, 4])
 @pytest.mark.parametrize('n_weak', [0, 2])
-@pytest.mark.parametrize('n_priv_strong', [1, 2])
+@pytest.mark.parametrize('n_priv_strong', [1])
 @pytest.mark.parametrize('n_priv_weak', [0, 2])
 def test_lupi_model_ord_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, randomstate):
     n_samples = 500
     n_features = max(8, n_strong + n_weak)
 
     gen = genOrdinalRegressionData
-    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50)
+    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50,
+                n_probe_features=100, n_jobs=-1)
 
     n_priv_features = n_priv_strong + n_priv_weak
     data = genLupiData(gen, n_priv_strel=n_priv_strong, n_priv_redundant=n_priv_weak,
