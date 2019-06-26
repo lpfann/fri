@@ -22,7 +22,7 @@ class LUPI_OrdinalRegression(ProblemType):
 
     @classmethod
     def parameters(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     @property
     def get_initmodel_template(cls):
@@ -82,7 +82,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
     @classmethod
     def hyperparameter(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -106,14 +106,14 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
 
         get_original_bin_name, n_bins = get_bin_mapping(y)
-        J = n_bins - 1
+        n_boundaries = n_bins - 1
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
-        b_s = cvx.Variable(shape=(J), name="bias")
+        b_s = cvx.Variable(shape=(n_boundaries), name="bias")
 
-        w_priv = cvx.Variable(shape=(J, self.lupi_features), name="w_priv")
-        d_priv = cvx.Variable(shape=(J), name="bias_priv")
+        w_priv = cvx.Variable(shape=(n_boundaries, self.lupi_features), name="w_priv")
+        d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
         def priv_function(j, k):
             indices = np.where(y == get_original_bin_name[k])
@@ -126,9 +126,9 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
         constraints = []
         loss = 0
-        for j in range(J):
+        for j in range(n_boundaries):
             # Add constraints for slack into right neighboring bins
-            for k in range(0, j):
+            for k in range(0, j + 1):
                 indices = np.where(y == get_original_bin_name[k])
                 constraints.append(X[indices] * w - b_s[j] <= -1 + priv_function(j, k))
                 constraints.append(priv_function(j, k) >= 0)
@@ -157,7 +157,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
             "w_priv": w_priv.value,
             "d_priv": d_priv.value,
             "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
-            "bin_boundaries": J
+            "bin_boundaries": n_boundaries
         }
 
         self.constraints = {
@@ -168,12 +168,8 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         return self
 
     def predict(self, X):
-        # TODO: remove this when not needed
-        # Check if passed dataset X is combined with PI features or if only non-PI features are present.
-        if X.shape[1] > self.lupi_features:
-            # Take only the non PI features
-            X = X[:, :-self.lupi_features]
 
+        X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
         b_s = self.model_state["b_s"]
 
@@ -246,14 +242,14 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
         init_loss = init_model_constraints["loss"]
 
         get_original_bin_name, n_bins = get_bin_mapping(self.y)
-        J = n_bins - 1
+        n_boundaries = n_bins - 1
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(self.d), name="w")
-        b_s = cvx.Variable(shape=(J), name="bias")
+        b_s = cvx.Variable(shape=(n_boundaries), name="bias")
 
-        w_priv = cvx.Variable(shape=(J, self.d_priv), name="w_priv")
-        d_priv = cvx.Variable(shape=(J), name="bias_priv")
+        w_priv = cvx.Variable(shape=(n_boundaries, self.d_priv), name="w_priv")
+        d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
         def priv_function(j, k):
             indices = np.where(self.y == get_original_bin_name[k])
@@ -265,9 +261,9 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
 
         constraints = []
         loss = 0
-        for j in range(J):
+        for j in range(n_boundaries):
             # Add constraints for slack into right neighboring bins
-            for k in range(0, j):
+            for k in range(0, j + 1):
                 indices = np.where(self.y == get_original_bin_name[k])
                 constraints.append(self.X[indices] * w - b_s[j] <= -1 + priv_function(j, k))
                 constraints.append(priv_function(j, k) >= 0)
