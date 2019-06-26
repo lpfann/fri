@@ -11,6 +11,7 @@ from fri.model.lupi_classification import LUPI_Classification
 from fri.model.lupi_ordinal_regression import LUPI_OrdinalRegression
 from fri.model.lupi_regression import LUPI_Regression
 from fri.model.ordinal_regression import OrdinalRegression
+from fri.model.ordinal_regression_imp import OrdinalRegression_Imp
 from fri.model.regression import Regression
 from fri.plot import plot_intervals
 
@@ -19,6 +20,7 @@ class ProblemName(Enum):
     CLASSIFICATION = Classification
     REGRESSION = Regression
     ORDINALREGRESSION = OrdinalRegression
+    ORDINALREGRESSION_IMP = OrdinalRegression_Imp
     LUPI_CLASSIFICATION = LUPI_Classification
     LUPI_REGRESSION = LUPI_Regression
     LUPI_ORDREGRESSION = LUPI_OrdinalRegression
