@@ -4,6 +4,8 @@ import fri
 from fri import FRI
 from fri.plot import plot_intervals, plotIntervals, plot_lupi_intervals
 
+from fri.genData import genLupiData
+
 
 # Clean labels as privileged information
 
@@ -50,7 +52,7 @@ def synthetic_2(n, d, b):
 
     return (X, Xs, y)
 
-
+'''
 X, Xs, y = synthetic_1(100, 4, 4)
 data = np.hstack([X, Xs[:,np.newaxis]])
 
@@ -59,3 +61,20 @@ f = FRI(fri.ProblemName.LUPI_ORDREGRESSION, n_probe_features=3, n_jobs=1, n_para
 f.fit(data, y, lupi_features=1)
 
 plot_lupi_intervals(f)
+
+'''
+
+X, Xs, y = genLupiData(problemType='ordinalRegression', lupiType='cleanLabels', n_samples=500, n_priv_irrel=0, n_priv_redundant=0,
+                       n_irrel=2, n_redundant=0, n_strel=4, random_state=1337, n_target_bins=3)
+
+
+
+
+data = np.hstack([X, Xs])
+
+f = FRI(fri.ProblemName.LUPI_ORDREGRESSION, n_probe_features=50, n_jobs=-1, n_param_search=30, verbose=1)
+
+f.fit(data, y, lupi_features=1)
+
+plot_lupi_intervals(f)
+

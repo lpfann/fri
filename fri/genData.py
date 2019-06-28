@@ -313,13 +313,9 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
     return X, Y
 
 
-def _checkLupiParam(n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
+def _checkLupiParam(n_priv_redundant: int = 0, n_priv_repeated: int = 0,
                     partition_priv=None):
 
-    if n_priv_strel + n_priv_redundant < 1:
-        raise ValueError("No informative priv. features.")
-    if n_priv_strel == 0 and n_priv_redundant < 2:
-        raise ValueError("Redundant features have per definition more than one member (per group).")
     if partition_priv is not None:
         if sum(partition_priv) != n_priv_redundant:
             raise ValueError("Sum of partition_priv values should yield number of redundant features.")
@@ -328,7 +324,7 @@ def _checkLupiParam(n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_rep
 
 
 
-def genCleanLabelsLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, n_strel: int = 1,
+def genCleanLabelsLupiData(problemType, n_samples: int = 100, n_strel: int = 1,
                              noise: float = 0.0, random_state: object = None, n_target_bins: int = 3):
 
 
@@ -341,8 +337,7 @@ def genCleanLabelsLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, 
 
     w = random_state.normal(size=n_strel)
 
-    X = random_state.normal(size=(n_samples, n_strel + n_irrel))
-
+    X = random_state.normal(size=(n_samples, n_strel))
 
     e = random_state.normal(size=n_samples, scale=scale)
     Xs = np.dot(X[:, :n_strel], w)
@@ -363,7 +358,7 @@ def genCleanLabelsLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, 
 
 
 
-def genCleanFeaturesLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, n_strel: int = 1,
+def genCleanFeaturesLupiData(problemType, n_samples: int = 100, n_strel: int = 1,
                              noise: float = 0.0, random_state: object = None, n_target_bins: int = 3):
 
 
@@ -379,8 +374,6 @@ def genCleanFeaturesLupiData(problemType, n_samples: int = 100, n_irrel: int = 0
     Xs = random_state.normal(size=(n_samples, n_strel))
     e = np.random.normal(size=(n_samples, n_strel), scale=scale)
     X = Xs + e
-    X_irr = random_state.normal(size=(n_samples, n_irrel))
-    X = np.hstack([X, X_irr])
 
     scores = np.dot(Xs, w)[:, np.newaxis]
 
@@ -397,39 +390,109 @@ def genCleanFeaturesLupiData(problemType, n_samples: int = 100, n_irrel: int = 0
     return (X, Xs, y)
 
 
-def genLupiData(problemType, lupiType, n_samples, n_priv_features: int = 1,
-                n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
+def genLupiData(problemType, lupiType, n_samples, n_priv_irrel: int = 0,
+                n_priv_redundant: int = 0, n_priv_repeated: int = 0,
                 partition_priv=None, n_irrel: int = 0,
                 n_redundant: int = 0, n_strel: int = 1,
                 n_repeated: int = 0, partition=None, random_state=None, noise: float = 0.0, rettruth=False, n_target_bins: int = 3,
                 **kwargs):
 
+    random_state = check_random_state(random_state)
+
     _checkParam(n_redundant=n_redundant, n_strel=n_strel,
                 n_repeated=n_repeated, partition=partition, **kwargs)
-    _checkLupiParam(n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
+    _checkLupiParam(n_priv_redundant=n_priv_redundant,
                     n_priv_repeated=n_priv_repeated,
                     partition_priv=partition_priv)
 
     if lupiType == 'cleanLabels':
-        Xx, Xs, y = genCleanFeaturesLupiData(problemType=problemType, n_samples=n_samples, n_irrel=n_irrel, noise=noise,
+        Xx, Xs, y = genCleanLabelsLupiData(problemType=problemType, n_samples=n_samples, n_strel=n_strel, noise=noise,
                                             random_state=random_state, n_target_bins=n_target_bins)
+
+        if partition_priv is None and n_priv_redundant > 0:
+            partition_priv = [n_priv_redundant]
+            part_size_priv = 1
+        elif partition_priv is not None:
+            part_size_priv = len(partition_priv)
+        else:
+            part_size_priv = 0
+
+        n_priv_strel = 1
+        n_priv_features = n_priv_strel + n_priv_redundant + n_priv_repeated
+        X_priv_irrel = random_state.normal(size=(n_samples, n_priv_irrel))
+
+        if n_priv_redundant > 0:
+            X_priv_informative = np.hstack([Xs[:,np.newaxis], Xs[:,np.newaxis]])
+        else:
+            X_priv_informative = Xs[:,np.newaxis]
+
+        X_priv = _fillVariableSpace(X_priv_informative, random_state=random_state, n_samples=n_samples, n_features=n_priv_features,
+                       n_redundant=n_priv_redundant, n_strel=n_priv_strel,
+                       n_repeated=n_priv_repeated, partition=partition_priv)
+
+        X_priv_final = np.hstack([X_priv, X_priv_irrel])
+
+
     elif lupiType == 'cleanFeatures':
-        Xx, Xs, y = genCleanFeaturesLupiData(problemType=problemType, n_samples=n_samples, n_irrel=n_irrel, noise=noise,
+        Xx, Xs, y = genCleanFeaturesLupiData(problemType=problemType, n_samples=n_samples, n_strel=n_strel, noise=noise,
                                             random_state=random_state, n_target_bins=n_target_bins)
 
 
-    n_features = n_strel + n_irrel + n_redundant + n_repeated
+        if partition_priv is None and n_priv_redundant > 0:
+            partition_priv = [n_priv_redundant]
+            part_size_priv = 1
+        elif partition_priv is not None:
+            part_size_priv = len(partition_priv)
+        else:
+            part_size_priv = 0
 
-    X_weak_generation = random_state.normal(size=(n_samples, 1))
-    X_informative = np.hstack([Xx, X_weak_generation])
+        n_priv_strel = n_strel
+        n_priv_features = n_priv_strel + n_priv_redundant + n_priv_repeated
+        X_priv_irrel = random_state.normal(size=(n_samples, n_priv_irrel))
+
+        if n_priv_redundant > 0:
+            X_priv_informative = np.hstack([Xs, Xs[:,0][:,np.newaxis]])
+        else:
+            X_priv_informative = Xs
+
+        X_priv = _fillVariableSpace(X_priv_informative, random_state=random_state, n_samples=n_samples,
+                                    n_features=n_priv_features,
+                                    n_redundant=n_priv_redundant, n_strel=n_priv_strel,
+                                    n_repeated=n_priv_repeated, partition=partition_priv)
+
+        X_priv_final = np.hstack([X_priv, X_priv_irrel])
+
+
+
+
+    if partition is None and n_redundant > 0:
+        partition = [n_redundant]
+        part_size = 1
+    elif partition is not None:
+        part_size = len(partition)
+    else:
+        part_size = 0
+
+    n_features = n_strel + n_redundant + n_repeated
+
+    X_irrel = random_state.normal(size=(n_samples, n_irrel))
+
+    if n_redundant > 0:
+        X_informative = np.hstack([Xx, Xx[:,0][:,np.newaxis]])
+    else:
+        X_informative = Xx
 
     X = _fillVariableSpace(X_informative, random_state=random_state, n_samples=n_samples, n_features=n_features,
                        n_redundant=n_redundant, n_strel=n_strel,
                        n_repeated=n_repeated, partition=partition)
 
+    X_final = np.hstack([X, X_irrel])
 
 
-    return X, Xs, y
+
+
+
+    return X_final, X_priv_final, y
 
 
 def quick_generate(problem, **kwargs):
