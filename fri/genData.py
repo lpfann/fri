@@ -20,18 +20,14 @@ def _repeatFeat(feats, i, randomstate):
     return feats[:, i_pick]
 
 
-def _checkParam(n_samples: int = 100, n_features: int = 2,
+def _checkParam(n_samples: int = 100,
                 n_redundant: int = 0, n_strel: int = 1,
                 n_repeated: int = 0,
                 flip_y: float = 0, noise: float = 1, partition=None, **kwargs):
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
-    if not 0 < n_features:
-        raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
-    if not n_redundant + n_repeated + n_strel <= n_features:
-        raise ValueError("Inconsistent number of features")
     if n_strel + n_redundant < 1:
         raise ValueError("No informative features.")
     if n_strel == 0 and n_redundant < 2:
@@ -192,7 +188,7 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
         Noise of the created samples around ground truth.
     random_state : object, optional
         Randomstate object used for generation.
-    
+
     Returns
     -------
     X : array of shape [n_samples, n_features]
@@ -317,13 +313,9 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
     return X, Y
 
 
-def _checkLupiParam(n_priv_features: int = 1,
-                    n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
+def _checkLupiParam(n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
                     partition_priv=None):
-    if not 0 < n_priv_features:
-        raise ValueError("We need at least one privileged feature.")
-    if not n_priv_redundant + n_priv_repeated + n_priv_strel <= n_priv_features:
-        raise ValueError("Inconsistent number of priv. features")
+
     if n_priv_strel + n_priv_redundant < 1:
         raise ValueError("No informative priv. features.")
     if n_priv_strel == 0 and n_priv_redundant < 2:
@@ -335,60 +327,109 @@ def _checkLupiParam(n_priv_features: int = 1,
             raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
 
 
-def genLupiData(generator, n_priv_features: int = 1,
+
+def genCleanLabelsLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, n_strel: int = 1,
+                             noise: float = 0.0, random_state: object = None, n_target_bins: int = 3):
+
+
+    random_state = check_random_state(random_state)
+
+    if noise > 0.0:
+        scale = noise
+    else:
+        scale = 0.1
+
+    w = random_state.normal(size=n_strel)
+
+    X = random_state.normal(size=(n_samples, n_strel + n_irrel))
+
+
+    e = random_state.normal(size=n_samples, scale=scale)
+    Xs = np.dot(X[:, :n_strel], w)
+
+    scores = (Xs + e)[:, np.newaxis]
+
+
+    if problemType == 'ordinalRegression':
+        bs = np.append(np.sort(random_state.normal(size=n_target_bins - 1)), np.inf)
+        y = np.sum(scores - bs >= 0, -1)
+    elif problemType == 'regression':
+        y = scores
+    elif problemType == 'classification':
+        y = (scores > 0).astype(int)
+
+
+    return (X, Xs, y)
+
+
+
+def genCleanFeaturesLupiData(problemType, n_samples: int = 100, n_irrel: int = 0, n_strel: int = 1,
+                             noise: float = 0.0, random_state: object = None, n_target_bins: int = 3):
+
+
+    random_state = check_random_state(random_state)
+
+    if noise > 0.0:
+        scale = noise
+    else:
+        scale = 0.1
+
+    w = random_state.normal(size=n_strel)
+
+    Xs = random_state.normal(size=(n_samples, n_strel))
+    e = np.random.normal(size=(n_samples, n_strel), scale=scale)
+    X = Xs + e
+    X_irr = random_state.normal(size=(n_samples, n_irrel))
+    X = np.hstack([X, X_irr])
+
+    scores = np.dot(Xs, w)[:, np.newaxis]
+
+
+    if problemType == 'ordinalRegression':
+        bs = np.append(np.sort(random_state.normal(size=n_target_bins - 1)), np.inf)
+        y = np.sum(scores - bs >= 0, -1)
+    elif problemType == 'regression':
+        y = scores
+    elif problemType == 'classification':
+        y = (scores > 0).astype(int)
+
+
+    return (X, Xs, y)
+
+
+def genLupiData(problemType, lupiType, n_samples, n_priv_features: int = 1,
                 n_priv_redundant: int = 0, n_priv_strel: int = 1, n_priv_repeated: int = 0,
-                partition_priv=None, n_features: int = 2,
+                partition_priv=None, n_irrel: int = 0,
                 n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0, partition=None, random_state=None, rettruth=False, **kwargs):
-    if generator in [genClassificationData, genRegressionData, genOrdinalRegressionData]:
-        _checkParam(n_features=n_features,
-                    n_redundant=n_redundant, n_strel=n_strel,
-                    n_repeated=n_repeated, partition=partition, **kwargs)
-        _checkLupiParam(n_priv_features=n_priv_features,
-                        n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
-                        n_priv_repeated=n_priv_repeated,
-                        partition_priv=partition_priv)
-        c_features = n_features + n_priv_features
-        c_strel = n_strel + n_priv_strel
-        c_redundant = n_redundant + n_priv_redundant
-        c_repeated = n_repeated + n_priv_repeated
-        if partition_priv is not None:
-            partition = partition_priv.extend(partition)  # Take priv partitions first for later indexing
+                n_repeated: int = 0, partition=None, random_state=None, noise: float = 0.0, rettruth=False, n_target_bins: int = 3,
+                **kwargs):
 
-        X, y = generator(n_features=c_features,
-                         n_redundant=c_redundant, n_strel=c_strel,
-                         n_repeated=c_repeated, partition=partition, random_state=random_state, **kwargs)
+    _checkParam(n_redundant=n_redundant, n_strel=n_strel,
+                n_repeated=n_repeated, partition=partition, **kwargs)
+    _checkLupiParam(n_priv_redundant=n_priv_redundant, n_priv_strel=n_priv_strel,
+                    n_priv_repeated=n_priv_repeated,
+                    partition_priv=partition_priv)
 
-        # Build index list of features
-        ix = range(c_features)
-        ix_priv = []
-        # Pick index for strel features from the beginning of the generated array
-        ix_priv.extend(ix[:n_priv_strel])
-        # Pick index for redundant
-        ix_priv.extend(ix[c_strel:c_strel + n_priv_redundant])
-        # Pick index for repeated features
-        ix_priv.extend(ix[c_strel + c_redundant:c_strel + c_redundant + n_priv_repeated])
-        # Pick index for irrelevant
-        n_irrelevant_priv_features = n_priv_features - n_priv_strel - n_priv_redundant - n_priv_repeated
-        if n_irrelevant_priv_features > 0:
-            # notice the '-', we slice from the back, where irrelevant features are
-            ix_priv.extend((ix[-n_irrelevant_priv_features:]))
+    if lupiType == 'cleanLabels':
+        Xx, Xs, y = genCleanFeaturesLupiData(problemType=problemType, n_samples=n_samples, n_irrel=n_irrel, noise=noise,
+                                            random_state=random_state, n_target_bins=n_target_bins)
+    elif lupiType == 'cleanFeatures':
+        Xx, Xs, y = genCleanFeaturesLupiData(problemType=problemType, n_samples=n_samples, n_irrel=n_irrel, noise=noise,
+                                            random_state=random_state, n_target_bins=n_target_bins)
 
-        ix_not_priv = [index for index in ix if index not in ix_priv]
 
-        X_priv = X[:, ix_priv]
-        X = X[:, ix_not_priv]
+    n_features = n_strel + n_irrel + n_redundant + n_repeated
 
-        if rettruth:
-            # Create truth vector
-            truth = np.zeros(c_features)
-            rel_X = n_strel + n_redundant + n_repeated
-            truth[:rel_X] = 1
-            rel_X_priv = n_priv_strel + n_priv_redundant + n_priv_repeated
-            truth[n_features:n_features + rel_X_priv] = 1
-            return X, X_priv, y, truth.astype(bool)
-        
-        return X, X_priv, y
+    X_weak_generation = random_state.normal(size=(n_samples, 1))
+    X_informative = np.hstack([Xx, X_weak_generation])
+
+    X = _fillVariableSpace(X_informative, random_state=random_state, n_samples=n_samples, n_features=n_features,
+                       n_redundant=n_redundant, n_strel=n_strel,
+                       n_repeated=n_repeated, partition=partition)
+
+
+
+    return X, Xs, y
 
 
 def quick_generate(problem, **kwargs):
