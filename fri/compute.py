@@ -302,12 +302,12 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-
-
-
-def _postprocessing(L1, rangevector):
+def _postprocessing(L1, rangevector, round_to_zero=True):
     assert L1 > 0
     scaled = rangevector.copy() / L1
+
+    if round_to_zero:
+        scaled[scaled <= 1e-5] = 0
     return scaled
 
 

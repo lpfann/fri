@@ -87,7 +87,7 @@ def test_lupi_model_class(n_strong, n_weak, n_priv_strong, n_priv_weak, randomst
     n_f = n_strong + n_weak + n_priv_strong + n_priv_weak  # Number of relevant features
 
     # Check how many are selected
-    selected = model._n_features()
+    selected = model._n_selected_features()
     print(model._get_support_mask())
     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
 
@@ -132,7 +132,7 @@ def test_lupi_model_regression(n_strong, n_weak, n_priv_strong, n_priv_weak, ran
     n_f = n_strong + n_weak + n_priv_strong + n_priv_weak  # Number of relevant features
 
     # Check how many are selected
-    selected = model._n_features()
+    selected = model._n_selected_features()
     print(model._get_support_mask())
     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
 
@@ -218,7 +218,7 @@ def test_lupi_model_ord_regression(n_strong, n_weak, n_priv_strong, n_priv_weak,
     n_f = n_strong + n_weak + n_priv_strong + n_priv_weak  # Number of relevant features
 
     # Check how many are selected
-    selected = model._n_features()
+    selected = model._n_selected_features()
     print(model._get_support_mask())
     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
 

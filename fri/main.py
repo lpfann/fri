@@ -12,6 +12,11 @@ from fri.compute import RelevanceBoundsIntervals
 from fri.model.base_type import ProblemType
 from fri.parameter_searcher import find_best_model
 
+RELEVANCE_MAPPING = {
+    0: "Irrelevant",
+    1: "Weak relevant",
+    2: "Strong relevant"
+}
 
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
@@ -34,8 +39,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_jobs = n_jobs
         self.verbose = verbose
 
-    def fit(self, X, y, lupi_features=None, **kwargs):
+    def fit(self, X, y, lupi_features=0, **kwargs):
         self.lupi_features_ = lupi_features
+        self.n_samples_ = X.shape[0]
+        self.n_features_ = X.shape[1] - lupi_features
 
         # Preprocessing
         data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
@@ -80,11 +87,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
         """
 
         self.relevance_classes_ = prediction
+        self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
         self.allrel_prediction_ = prediction > 0
 
         return self.allrel_prediction_
 
-    def _n_features(self):
+    def _n_selected_features(self):
         """
 
         Returns the number of selected features.
@@ -135,3 +143,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(preset=preset, normalized=True,
                                                                                      lupi_features=self.lupi_features_)
+
+    def print_interval_with_class(self):
+        """
+
+        Pretty print the relevance intervals and determined feature relevance class
+
+        """
+        if self.interval_ is None:
+            print("Model is not fitted.")
+
+        print("############## Relevance bounds ##############\n"
+              "feature: [LB -- UB], relevance class")
+        for i in range(self.n_features_ + self.lupi_features_):
+            if i == self.n_features_:
+                print("########## LUPI Relevance bounds")
+            print(f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+                  f" {self.relevance_classes_string_[i]}")

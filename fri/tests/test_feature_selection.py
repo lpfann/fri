@@ -61,7 +61,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
         n_f =  n_strong + n_weak # Number of relevant features
 
         # Check how many are selected
-        selected = model._n_features()
+        selected = model._n_selected_features()
         # we allow one more false positive
         print(model._get_support_mask())
         print(model.interval_)
