@@ -122,7 +122,8 @@ class OrdinalRegression_SVM(InitModel):
 
         prediction = self.predict(X)
         error_type = kwargs.get("error_type", "mmae")
-        score = ordinal_scores(y, prediction, error_type)
+        return_error = kwargs.get("return_error", "False")
+        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
         return score
 
