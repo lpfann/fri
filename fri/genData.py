@@ -369,9 +369,12 @@ def _checkLupiParam(problemType, lupiType, n_strel, n_weakrel, n_priv_weakrel, p
             raise ValueError("The entries in the partition list must be greater or equal to 2.")
     if partition_priv is not None:
         if sum(partition_priv) != n_priv_weakrel:
-            raise ValueError("The sum over the entries in the partition_priv list must be equal to the parameter 'n_weakrel'.")
+            raise ValueError("The sum over the entries in the partition_priv list must be equal to the parameter 'n_priv_weakrel'.")
         if 0 in partition_priv or 1 in partition_priv:
             raise ValueError("The entries in the partition_priv list must be greater or equal to 2.")
+    if lupiType == 'cleanLabels' and n_priv_weakrel > 0:
+        raise ValueError("The 'cleanLabels' data has only one strongly relevant feature by nature, this can be repeated ('n_priv_repeated'),"
+                         "or useless information can be added ('n_priv_irrel') but it can not be weakend => n_priv_weakrel hast to be 0.")
 
 
 def _genWeakFeatures(n_weakrel, X, random_state, partition):
@@ -434,10 +437,10 @@ def _genRepeatedFeatures(n_repeated, X, random_state):
     return X_repeated
 
 
-def _genCleanLabelsLupiData(problemType, n_samples, n_strel, noise, random_state, n_ordinal_bins):
+def _genCleanLabelsLupiData(problemType, n_samples, n_informative, noise, random_state, n_ordinal_bins):
 
     """
-        Generate strongly relevant problem data (X_strel) alongside one strongly relevant privileged feature (X_priv_strel),
+        Generate strongly relevant problem data (X_informative) alongside one strongly relevant privileged feature (X_priv_strel),
         the privileged feature consists of the clean (real) y-labels for the problem data. The actually returned
         y-values (y) are noisy and differ in form based on the problemType.
 
@@ -447,7 +450,7 @@ def _genCleanLabelsLupiData(problemType, n_samples, n_strel, noise, random_state
             Must be one of ['classification', 'regression', 'ordinalRegression'], defines the y-values of the problem
         n_samples : int
             Number of samples to be created
-        n_strel : int
+        n_informative : int
             Number of strongly relevant features to be created
         noise : float
             Noise of the created samples around ground truth
@@ -458,10 +461,10 @@ def _genCleanLabelsLupiData(problemType, n_samples, n_strel, noise, random_state
             Only has an effect if problemType == 'ordinalRegression'
     """
 
-    w = random_state.normal(size=n_strel)
-    X_strel = random_state.normal(size=(n_samples, n_strel))
+    w = random_state.normal(size=n_informative)
+    X_informative = random_state.normal(size=(n_samples, n_informative))
     e = random_state.normal(size=n_samples, scale=noise)
-    X_priv_strel = np.dot(X_strel[:, :n_strel], w)
+    X_priv_strel = np.dot(X_informative[:, :n_informative], w)
     scores = (X_priv_strel + e)[:, np.newaxis]
 
     if problemType == 'classification':
@@ -472,7 +475,7 @@ def _genCleanLabelsLupiData(problemType, n_samples, n_strel, noise, random_state
         bs = np.append(np.sort(random_state.normal(size=n_ordinal_bins - 1)), np.inf)
         y = np.sum(scores - bs >= 0, -1)
 
-    return (X_strel, X_priv_strel[:, np.newaxis], y)
+    return (X_informative, X_priv_strel[:, np.newaxis], y)
 
 
 def _genCleanFeaturesLupiData(problemType, n_samples, n_strel, noise, random_state, n_ordinal_bins):
@@ -587,16 +590,17 @@ def genLupiData(problemType: str, lupiType: str, n_samples: int = 100, random_st
 
     if lupiType == 'cleanLabels':
 
+        n_informative = n_strel + n_weakrel
+
         # X_strel : array of shape [n_samples, n_strel], contains the strongly relevant data features
         # X_priv_strel : array of shape [n_samples], contains the strongly relevant privileged data feature
         # y : array of shape [n_samples], contains the target values to the problem
-        X_strel, X_priv_strel, y = _genCleanLabelsLupiData(problemType=problemType, n_samples=n_samples, n_strel=n_strel,
+        X_informative, X_priv_strel, y = _genCleanLabelsLupiData(problemType=problemType, n_samples=n_samples, n_informative=n_informative,
                                                            noise=noise, random_state=random_state, n_ordinal_bins=n_ordinal_bins)
 
-        X_priv_weakrel = _genWeakFeatures(n_priv_weakrel, X_priv_strel, random_state, partition_priv)
         X_priv_repeated = _genRepeatedFeatures(n_priv_repeated, X_priv_strel, random_state)
         X_priv_irrel = random_state.normal(size=(n_samples, n_priv_irrel))
-        X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated, X_priv_irrel])
+        X_priv = np.hstack([X_priv_strel, X_priv_repeated, X_priv_irrel])
 
     elif lupiType == 'cleanFeatures':
 
@@ -612,7 +616,8 @@ def genLupiData(problemType: str, lupiType: str, n_samples: int = 100, random_st
         X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated, X_priv_irrel])
 
 
-    X_weakrel = _genWeakFeatures(n_weakrel, X_strel, random_state, partition)
+    X_strel = X_informative[:, :n_strel]
+    X_weakrel = _genWeakFeatures(n_weakrel, X_informative[:, n_strel:], random_state, partition)
     X_repeated = _genRepeatedFeatures(n_repeated, X_strel, random_state)
     X_irrel = random_state.normal(size=(n_samples, n_irrel))
     X = np.hstack([X_strel, X_weakrel, X_repeated, X_irrel])

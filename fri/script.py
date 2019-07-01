@@ -65,8 +65,8 @@ plot_lupi_intervals(f)
 randomstate = np.random.seed(123)
 X, Xs, y = genLupiData(problemType='ordinalRegression', lupiType='cleanLabels', n_samples=500,
                        n_strel=4, n_weakrel=4, n_repeated=1, n_irrel=1,
-                       n_priv_weakrel=4, n_priv_repeated=1, n_priv_irrel=1,
-                       partition=[2, 2], partition_priv=[2, 2], random_state=randomstate)
+                       n_priv_weakrel=0, n_priv_repeated=1, n_priv_irrel=1,
+                       random_state=randomstate)
 
 
 
@@ -75,6 +75,6 @@ data = np.hstack([X, Xs])
 f = FRI(fri.ProblemName.LUPI_ORDREGRESSION, n_probe_features=50, n_jobs=-1, n_param_search=30, verbose=1,
         random_state=randomstate)
 
-f.fit(data, y, lupi_features=5)
+f.fit(data, y, lupi_features=3)
 f.print_interval_with_class()
 plot_lupi_intervals(f)
