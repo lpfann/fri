@@ -62,7 +62,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, optimal_model,
                                                                    self.random_state, self.n_probe_features,
                                                                    self.n_jobs, self.verbose)
-        if lupi_features is None:
+        if lupi_features == 0:
             self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_intervals()
         else:
             self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(

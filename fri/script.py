@@ -2,7 +2,7 @@ import numpy as np
 
 import fri
 from fri import FRI
-from fri.genData import genLupiData
+from fri.genData import genLupiData, genOrdinalRegressionData
 from fri.plot import plot_lupi_intervals
 
 
@@ -62,19 +62,27 @@ f.fit(data, y, lupi_features=1)
 plot_lupi_intervals(f)
 
 '''
+'''
 randomstate = np.random.seed(123)
 X, Xs, y = genLupiData(problemType='ordinalRegression', lupiType='cleanLabels', n_samples=500,
-                       n_strel=4, n_weakrel=4, n_repeated=1, n_irrel=1,
-                       n_priv_weakrel=0, n_priv_repeated=1, n_priv_irrel=1,
+                       n_strel=4, n_weakrel=2, n_repeated=0, n_irrel=0,
+                       n_priv_weakrel=0, n_priv_repeated=0, n_priv_irrel=0,
                        random_state=randomstate)
 
 
+'''
+X, y = genOrdinalRegressionData()
 
-data = np.hstack([X, Xs])
-
+#data = np.hstack([X, Xs])
+'''
 f = FRI(fri.ProblemName.LUPI_ORDREGRESSION, n_probe_features=50, n_jobs=-1, n_param_search=30, verbose=1,
         random_state=randomstate)
 
 f.fit(data, y, lupi_features=3)
 f.print_interval_with_class()
 plot_lupi_intervals(f)
+'''
+
+f2 = FRI(fri.ProblemName.ORDINALREGRESSION, n_probe_features=50, n_jobs=1, n_param_search=30)
+
+f2.fit(X, y)
