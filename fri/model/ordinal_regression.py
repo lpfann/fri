@@ -116,13 +116,11 @@ class OrdinalRegression_SVM(InitModel):
         indices = np.sum(scores.T - bin_thresholds >= 0, -1)
         return self.classes_[indices]
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
         X, y = check_X_y(X, y)
 
         prediction = self.predict(X)
-        error_type = kwargs.get("error_type", "mmae")
-        return_error = kwargs.get("return_error", "False")
         score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
         return score
