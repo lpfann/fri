@@ -115,7 +115,7 @@ class OrdinalRegression_Imp_Relevance_Bound(OrdinalRegression_Relevance_Bound):
                 loss += cvx.sum(slack_right[j][k, indices][0])
 
         self.add_constraint(w_l1 <= init_w_l1)
-        self.add_constraint(C * loss <= init_loss)
+        self.add_constraint(loss <= init_loss)
 
         self.w = w
         self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
