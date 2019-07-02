@@ -60,7 +60,8 @@ class ProblemType(ABC):
                 factor = self.relax_factors_[p + "_slack"]
             except KeyError:
                 factor = 0.1
-        assert factor > 0
+        if factor < 0 or factor > 1:
+            raise ValueError("Slack Factor out of bounds: [0 ... 1]")
         return factor
 
     def get_all_relax_factors(self):
