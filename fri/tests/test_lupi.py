@@ -15,10 +15,8 @@ def randomstate():
 
 def test_strongly_relevant_class(randomstate):
     lupi_features = 1
-    X, X_priv, y = genLupiData(genClassificationData, random_state=randomstate, n_samples=200, n_features=1, n_strel=1,
-                               n_redundant=0,
-                               n_repeated=0,
-                               n_priv_features=lupi_features, n_priv_strel=1, n_priv_redundant=0, n_priv_repeated=0)
+    X, X_priv, y = genLupiData("classification", 'cleanFeatures', random_state=randomstate, n_samples=200, n_strel=1,
+                               n_repeated=0, n_priv_weakrel=0, n_priv_repeated=0)
 
     f = FRI(fri.ProblemName.LUPI_CLASSIFICATION, n_probe_features=3, n_jobs=1, n_param_search=5,
             random_state=randomstate)
