@@ -76,7 +76,7 @@ X, Xs, y = genLupiData(problemType='ordinalRegression', lupiType='cleanLabels', 
 
 randomstate = np.random.seed(123)
 X, Xs, y = genCleanFeaturesAsPrivData(problemType='ordinalRegression', n_samples=500,
-                                      n_strel=4, n_weakrel=2, n_repeated=1, n_irrel=1,
+                                      n_strel=4, n_weakrel_groups=2, n_repeated=1, n_irrel=1,
                                       random_state=randomstate)
 
 

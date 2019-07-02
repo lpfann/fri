@@ -628,7 +628,7 @@ def genLupiData(problemType: str, lupiType: str, n_samples: int = 100, random_st
 
 
 def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_state: object = None, noise: float = 0.1, n_ordinal_bins: int = 3,
-                 n_strel: int = 1, n_weakrel: int = 0, n_repeated: int = 0, n_irrel: int = 0):
+                               n_strel: int = 1, n_weakrel_groups: int = 0, n_repeated: int = 0, n_irrel: int = 0):
     """
             Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
 
@@ -647,8 +647,8 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
                 Only has an effect if problemType == 'ordinalRegression'
             n_strel : int, optional
                 Number of features which are mandatory for the underlying model (strongly relevant)
-            n_weakrel : int, optional
-                Number of features which are part of redundant subsets (weakly relevant)
+            n_weakrel_groups : int, optional
+                Number of 2 feature groups which are part of redundant subsets (weakly relevant)
             n_repeated : int, optional
                 Number of features which are clones of existing ones.
             n_irrel : int, optional
@@ -672,14 +672,14 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
 
     random_state = check_random_state(random_state)
 
-    n_informative = n_strel + n_weakrel
+    n_informative = n_strel + n_weakrel_groups
     w = random_state.normal(size=n_informative)
     X_informative = random_state.normal(size=(n_samples, n_informative))
     X_priv_strel = X_informative[:, :n_strel]
 
-    X_priv_weakrel = np.zeros([n_samples, n_weakrel * 2])
+    X_priv_weakrel = np.zeros([n_samples, n_weakrel_groups * 2])
     idx = 0
-    for i in range(n_weakrel):
+    for i in range(n_weakrel_groups):
         X_priv_weakrel[:, idx:idx+2] = np.tile(X_informative[:, n_strel + i], (2, 1)).T + random_state.normal(loc=0, scale=1, size=2)
         idx += 2
 
