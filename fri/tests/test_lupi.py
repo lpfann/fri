@@ -1,11 +1,11 @@
+import fri
 import numpy as np
 import pytest
+from fri import FRI
+from fri.genData import genClassificationData, genLupiData, genRegressionData, genOrdinalRegressionData, \
+    genCleanFeaturesAsPrivData
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
-
-import fri
-from fri import FRI
-from fri.genData import genClassificationData, genLupiData, genRegressionData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -224,3 +224,23 @@ def test_lupi_model_ord_regression(n_strong, n_weak, n_priv_strong, n_priv_weak,
     # truth = np.ones(n_f)
     # TODO: rework truth vector check for lupi_features test
     # assert all(fri._get_support_mask()[:n_f] == truth)
+
+
+def test_strongly_relevant_ordregression_exp(randomstate):
+    lupi_features = 7
+    X, X_priv, y = genCleanFeaturesAsPrivData(problemType='ordinalRegression', n_samples=500,
+                                              n_strel=4, n_weakrel_groups=2, n_repeated=0, n_irrel=1,
+                                              random_state=randomstate)
+
+    f = FRI(fri.ProblemName.LUPI_ORDREGRESSION, n_probe_features=3, n_jobs=-1, n_param_search=50,
+            random_state=randomstate, verbose=1)
+    X = StandardScaler().fit(X).transform(X)
+    X_priv = StandardScaler().fit(X_priv).transform(X_priv)
+    combined = np.hstack([X, X_priv])
+
+    f.fit(combined, y, lupi_features=lupi_features)
+    assert f.interval_ is not None
+    print(f.interval_)
+    print(f.allrel_prediction_)
+    assert f.interval_[0, 0] > 0, "Normal SRel feature lower bound error"
+    assert f.interval_[1, 0] > 0, "Priv SRel feature lower bound error"
