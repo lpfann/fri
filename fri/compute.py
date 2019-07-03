@@ -325,7 +325,7 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
         prediction[:] = 2
         return prediction
 
-    # Create prediction interval statistics based on randomly permutated probel features (based on real features)
+    # Create prediction interval statistics based on randomly permutated probe features (based on real features)
     probe_values = np.asarray(probe_values)
     mean = probe_values.mean()
     if mean == 0:
@@ -333,9 +333,9 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
     else:
         s = probe_values.std()
 
-        # We calculate only the upper prediction interval bound because the lower one should be smaller than 0 all the time
+        # We calculate only the upper prediction interval bound. (one sided test)
         perc = fpr
-        ### lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
+        # lower_boundary = mean + stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
         upper_boundary = mean - stats.t(df=n - 1).ppf(perc) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:

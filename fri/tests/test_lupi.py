@@ -129,7 +129,7 @@ def test_lupi_model_ord_regression(n_strong, n_weak, randomstate):
     n_samples = 500
 
     model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50,
-                n_probe_features=150, n_jobs=-1)
+                n_probe_features=50, n_jobs=-1)
 
     data = genCleanFeaturesAsPrivData("ordinalRegression", n_strel=n_strong, n_weakrel_groups=n_weak,
                                       n_samples=n_samples, n_irrel=2, noise=0.05,
