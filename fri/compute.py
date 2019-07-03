@@ -52,7 +52,7 @@ class RelevanceBoundsIntervals(object):
             d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
             rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
             probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
-            probe_priv_lower = self.compute_probe_values(d_l, True, parallel=parallel)
+            probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
         probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
         #
         # Postprocess
@@ -68,10 +68,10 @@ class RelevanceBoundsIntervals(object):
         interval_ = np.concatenate([rb_norm, rb_l_norm])
 
         # Normalize Probes
-        for probe in probes:
-            probe = _postprocessing(l1_priv, probe)
-        # pr_norm = _postprocessing(l1, pr)
-        # pr_l_norm = _postprocessing(l1_priv, pr_l)
+        probe_lower = _postprocessing(l1, probe_lower)
+        probe_upper = _postprocessing(l1, probe_upper)
+        probe_priv_lower = _postprocessing(l1_priv, probe_priv_lower)
+        probe_priv_upper = _postprocessing(l1_priv, probe_priv_upper)
 
         #
         #
