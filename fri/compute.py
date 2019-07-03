@@ -150,9 +150,8 @@ class RelevanceBoundsIntervals(object):
         probe_values = []
         while not enough_samples:
             # Generate
-            probe_queue = self._generate_probe_value_tasks(dims, self.data,
-                                                           self.n_resampling,
-                                                           self.random_state, presetModel, init_model_state)
+            probe_queue = self._generate_probe_value_tasks(self.data, dims, True, self.n_resampling, self.random_state,
+                                                           presetModel, init_model_state)
             # Compute solution
             probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
             # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
@@ -197,8 +196,13 @@ class RelevanceBoundsIntervals(object):
                                                                                               self.init_constraints,
                                                                                               best_model_state, data, di, preset_model)
 
-    def _generate_probe_value_tasks(self, dims, data, n_resampling, random_state,
-                                    preset_model=None, best_model_state=None):
+    def _generate_probe_value_tasks(self, data, dims, isUpper, n_resampling, random_state, preset_model=None,
+                                    best_model_state=None):
+        if isUpper:
+            factory = self.problem_type.get_cvxproblem_template.generate_upper_bound_problem
+        else:
+            factory = self.problem_type.get_cvxproblem_template.generate_lower_bound_problem
+
         # Random sample n_resampling shadow features by permuting real features and computing upper bound
         random_choice = random_state.choice(a=dims, size=n_resampling)
 
@@ -207,10 +211,9 @@ class RelevanceBoundsIntervals(object):
             data_perm = permutate_feature_in_data(data, di, random_state)
 
             # We only use upper bounds as probe features
-            yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(self.best_hyperparameters,
-                                                                                              self.init_constraints,
-                                                                                              best_model_state, data_perm, di, preset_model,
-                                                                                              probeID=i)
+            yield from factory(self.best_hyperparameters, self.init_constraints,
+                               best_model_state, data_perm, di, preset_model,
+                               probeID=i)
 
     def _create_interval(self, feature: int, solved_bounds: dict, presetModel: dict = None):
         # Return preset values for fixed features
