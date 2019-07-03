@@ -23,7 +23,7 @@ class LUPI_Classification(ProblemType):
 
     @classmethod
     def parameters(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     @property
     def get_initmodel_template(cls):
@@ -70,7 +70,7 @@ class LUPI_Classification_SVM(InitModel):
 
     @classmethod
     def hyperparameter(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -91,29 +91,26 @@ class LUPI_Classification_SVM(InitModel):
         # Get parameters from CV model without any feature contstraints
         C = self.hyperparam["C"]
         scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
         w_priv = cvx.Variable(lupi_features, name="w_priv")
         b = cvx.Variable(name="bias")
         b_priv = cvx.Variable(name="bias_priv")
-        slack = cvx.Variable(shape=(n), name="slack")
 
         # Define functions for better readability
         function = X * w + b
         priv_function = X_priv * w_priv + b_priv
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
-        loss = cvx.sum(slack) + scaling_lupi_loss * cvx.sum(priv_function)
+        loss = cvx.sum(priv_function)
 
         # L1 norm regularization of both functions with 1 scaling constant
         weight_regularization = 0.5 * (cvx.norm(w, 1) + scaling_lupi_w * cvx.norm(w_priv, 1))
 
         constraints = [
-            cvx.multiply(y, function) >= 1 - cvx.multiply(y, priv_function) - slack,
+            cvx.multiply(y, function) >= 1 - cvx.multiply(y, priv_function),
             priv_function >= 0,
-            slack >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
 
@@ -126,13 +123,11 @@ class LUPI_Classification_SVM(InitModel):
         w_priv = w_priv.value
         b = b.value
         b_priv = b_priv.value
-        slack = np.asarray(slack.value).flatten()
         self.model_state = {
             "w": w,
             "w_priv": w_priv,
             "b": b,
             "b_priv": b_priv,
-            "slack": slack,
             "lupi_features": lupi_features  # Number of lupi features in the dataset TODO: Move this somewhere else
         }
 
@@ -194,26 +189,22 @@ class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem, Classificat
         l1_w = init_model_constraints["w_l1"]
         l1_priv_w = init_model_constraints["w_priv_l1"]
         init_loss = init_model_constraints["loss"]
-        # Parameters from best model
-        scaling_lupi_loss = parameters["scaling_lupi_loss"]
 
         # New Variables
         w = cvx.Variable(shape=(self.d), name="w")
         w_priv = cvx.Variable(shape=(self.d_priv), name="w_priv")
         b = cvx.Variable(name="b")
         b_priv = cvx.Variable(name="b_priv")
-        slack = cvx.Variable(shape=(self.n), name="slack")
 
         # New Constraints
         function = cvx.multiply(self.y, self.X * w + b)
         priv_function = self.X_priv * w_priv + b_priv
-        loss = cvx.sum(slack) + scaling_lupi_loss * cvx.sum(priv_function)
+        loss = cvx.sum(priv_function)
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv = cvx.norm(w_priv, 1)
 
-        self.add_constraint(function >= 1 - cvx.multiply(self.y, priv_function) - slack)
+        self.add_constraint(function >= 1 - cvx.multiply(self.y, priv_function))
         self.add_constraint(priv_function >= 0)
-        self.add_constraint(slack >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
         self.add_constraint(weight_norm_priv <= l1_priv_w)
