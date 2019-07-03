@@ -2,11 +2,11 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
-from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
@@ -139,8 +139,9 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
             return X_priv[indices] * w_priv[boundary, :] + d_priv[boundary]
 
         # L1 norm regularization of both functions with 1 scaling constant
-        w_priv_l1 = cvx.norm(w_priv, 1)
+        # w_priv_l1 = cvx.norm(w_priv, 1)
         w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
+        w_priv_l1 = cvx.sum(w_priv_vec_l1)
         w_l1 = cvx.norm(w, 1)
         weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
 
@@ -272,9 +273,8 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
         w_priv = cvx.Variable(shape=(n_boundaries, self.d_priv), name="w_priv")
         d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
-        w_priv_l1 = cvx.norm(w_priv, 1)
         w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
-
+        w_priv_l1 = cvx.sum(w_priv_vec_l1)
         def priv_function(j, indices):
             return self.X_priv[indices] * w_priv[j, :] + d_priv[j]
         # L1 norm regularization of both functions with 1 scaling constant
