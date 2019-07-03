@@ -3,12 +3,11 @@ from collections import defaultdict
 
 import joblib
 import numpy as np
-from scipy import stats
-
 from fri.model.base_cvxproblem import Relevance_CVXProblem
 from fri.model.base_initmodel import InitModel
 from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
+from scipy import stats
 
 MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
 
@@ -302,13 +301,14 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-def _postprocessing(L1, rangevector, round_to_zero=True):
-    assert L1 > 0
-    scaled = rangevector.copy() / L1
+def _postprocessing(L1, rangevector, normalize=False, round_to_zero=True):
+    if normalize:
+        assert L1 > 0
+        rangevector = rangevector.copy() / L1
 
     if round_to_zero:
-        scaled[scaled <= 1e-5] = 0
-    return scaled
+        rangevector[rangevector <= 1e-11] = 0
+    return rangevector
 
 
 def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
