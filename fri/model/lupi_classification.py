@@ -106,10 +106,12 @@ class LUPI_Classification_SVM(InitModel):
         loss = cvx.sum(priv_function)
 
         # L1 norm regularization of both functions with 1 scaling constant
-        weight_regularization = 0.5 * (cvx.norm(w, 1) + scaling_lupi_w * cvx.norm(w_priv, 1))
+        w_l1 = cvx.norm(w, 1)
+        w_priv_l1 = cvx.norm(w_priv, 1)
+        weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
 
         constraints = [
-            cvx.multiply(y, function) >= 1 - cvx.multiply(y, priv_function),
+            cvx.multiply(y.T, function) >= 1 - cvx.multiply(y.T, priv_function),
             priv_function >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
@@ -132,8 +134,8 @@ class LUPI_Classification_SVM(InitModel):
         }
 
         loss = loss.value
-        w_l1 = np.linalg.norm(w, ord=1)
-        w_priv_l1 = np.linalg.norm(w_priv, ord=1)
+        w_l1 = w_l1.value
+        w_priv_l1 = w_priv_l1.value
         self.constraints = {
             "loss": loss,
             "w_l1": w_l1,
@@ -197,13 +199,13 @@ class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem, Classificat
         b_priv = cvx.Variable(name="b_priv")
 
         # New Constraints
-        function = cvx.multiply(self.y, self.X * w + b)
+        function = cvx.multiply(self.y.T, self.X * w + b)
         priv_function = self.X_priv * w_priv + b_priv
         loss = cvx.sum(priv_function)
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv = cvx.norm(w_priv, 1)
 
-        self.add_constraint(function >= 1 - cvx.multiply(self.y, priv_function))
+        self.add_constraint(function >= 1 - cvx.multiply(self.y.T, priv_function))
         self.add_constraint(priv_function >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
