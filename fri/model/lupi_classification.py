@@ -147,29 +147,13 @@ class LUPI_Classification_SVM(InitModel):
         return self
 
     def predict(self, X):
-        """
-        Method to predict points using svm classification rule.
-        We use both normal and priv. features.
-        This function is mainly used for CV purposes to find the best parameters according to score.
-
-        Parameters
-        ----------
-        X : numpy.ndarray
-        """
         X, X_priv = split_dataset(X, self.lupi_features)
         w = self.model_state["w"]
-        w_priv = self.model_state["w_priv"]
         b = self.model_state["b"]
-        b_priv = self.model_state["b_priv"]
-
-        # Combine both models
-        # w = np.concatenate([w, w_priv])
-        # b += b_priv
 
         # Simple hyperplane classification rule
         f = np.dot(X, w) + b
-        priv = np.dot(X_priv, w_priv) + b_priv
-        y = f + priv >= 0
+        y = f >= 0
         y = y.astype(int)
 
         # Format binary as signed unit vector
