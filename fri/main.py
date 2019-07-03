@@ -2,15 +2,14 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
+from fri.compute import RelevanceBoundsIntervals
+from fri.model.base_type import ProblemType
+from fri.parameter_searcher import find_best_model
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
-
-from fri.compute import RelevanceBoundsIntervals
-from fri.model.base_type import ProblemType
-from fri.parameter_searcher import find_best_model
 
 RELEVANCE_MAPPING = {
     0: "Irrelevant",
@@ -26,7 +25,7 @@ class NotFeasibleForParameters(Exception):
 class FRIBase(BaseEstimator, SelectorMixin):
 
     def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=20,
-                 n_probe_features=50, **kwargs):
+                 n_probe_features=30, **kwargs):
 
         # Init problem
         self.n_probe_features = n_probe_features
