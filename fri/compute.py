@@ -69,7 +69,7 @@ class RelevanceBoundsIntervals(object):
 
         # Normalize Probes
         for probe in probes:
-            probe = _postprocessing(probe)
+            probe = _postprocessing(l1_priv, probe)
         # pr_norm = _postprocessing(l1, pr)
         # pr_l_norm = _postprocessing(l1_priv, pr_l)
 

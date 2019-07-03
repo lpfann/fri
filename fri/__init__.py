@@ -36,7 +36,7 @@ del get_versions
 
 
 def FRI(problem: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
-        n_probe_features=50, loss_slack=0.01, w_l1_slack=0.01, **kwargs):
+        n_probe_features=50, **kwargs):
     """
 
     Parameters
@@ -64,7 +64,7 @@ def FRI(problem: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_se
             return None
     return FRIBase(problemtype, random_state=random_state, n_jobs=n_jobs, verbose=verbose,
                    n_param_search=n_param_search,
-                   n_probe_features=n_probe_features, loss_slack=loss_slack, w_l1_slack=w_l1_slack, **kwargs)
+                   n_probe_features=n_probe_features, **kwargs)
 
 
 
@@ -103,7 +103,7 @@ def FRIOrdinalRegression(**kwargs):
                                **kwargs)
 
 
-def call_main_catch_old(typeprob, optimum_deviation=0.001, n_resampling=20, iter_psearch=30, **kwargs):
+def call_main_catch_old(typeprob, optimum_deviation=0.001, n_resampling=40, iter_psearch=30, **kwargs):
     return FRIBase(typeprob, w1_l1_slack=optimum_deviation,
                    n_probe_features=n_resampling,
                    n_param_search=iter_psearch,
