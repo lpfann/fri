@@ -346,8 +346,9 @@ def feature_classification(probe_values, relevance_bounds, fpr=1e-4, verbose=0):
     weakly = relevance_bounds[:, 1] > upper_boundary
     strongly = relevance_bounds[:, 0] > 0
     both = np.logical_and(weakly, strongly)
+    either = np.logical_or(weakly, strongly)
     prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
-    prediction[weakly] = 1
+    prediction[either] = 1
     prediction[both] = 2
 
     return prediction
