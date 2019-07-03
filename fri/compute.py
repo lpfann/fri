@@ -154,7 +154,7 @@ class RelevanceBoundsIntervals(object):
                 if candidate.is_solved:
                     candidates[candidate.probeID].append(candidate)
             for j in candidates.values():
-                probe_values.append(self.problem_type.aggregate_max_candidates(j))
+                probe_values.append(self.problem_type.get_cvxproblem_template.aggregate_max_candidates(j))
 
             n_probes = len(probe_values)
             if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
@@ -176,12 +176,14 @@ class RelevanceBoundsIntervals(object):
         # Instantiate objects for computation later
         for di in dims:
             # Add Lower Bound problem(s) to work list
-            yield from self.problem_type.generate_lower_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state, data, di, preset_model)
+            yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(self.best_hyperparameters,
+                                                                                              self.init_constraints,
+                                                                                              best_model_state, data, di, preset_model)
 
             # Add problem(s) for Upper bound
-            yield from self.problem_type.generate_upper_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state, data, di, preset_model)
+            yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(self.best_hyperparameters,
+                                                                                              self.init_constraints,
+                                                                                              best_model_state, data, di, preset_model)
 
     def _generate_probe_value_tasks(self, dims, data, n_resampling, random_state,
                                     preset_model=None, best_model_state=None):
@@ -193,9 +195,10 @@ class RelevanceBoundsIntervals(object):
             data_perm = permutate_feature_in_data(data, di, random_state)
 
             # We only use upper bounds as probe features
-            yield from self.problem_type.generate_upper_bound_problem(self.best_hyperparameters, self.init_constraints,
-                                                                      best_model_state, data_perm, di, preset_model,
-                                                                      probeID=i)
+            yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(self.best_hyperparameters,
+                                                                                              self.init_constraints,
+                                                                                              best_model_state, data_perm, di, preset_model,
+                                                                                              probeID=i)
 
     def _create_interval(self, feature: int, solved_bounds: dict, presetModel: dict = None):
         # Return preset values for fixed features
@@ -209,8 +212,8 @@ class RelevanceBoundsIntervals(object):
         if len(all_bounds) < 2:
             logging.error(f"(Some) relevance bounds for feature {feature} were not solved.")
             raise Exception("Infeasible bound(s).")
-        lower_bound = self.problem_type.aggregate_min_candidates(min_problems_candidates)
-        upper_bound = self.problem_type.aggregate_max_candidates(max_problems_candidates)
+        lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(min_problems_candidates)
+        upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(max_problems_candidates)
         return lower_bound, upper_bound
 
     def compute_single_preset_relevance_bounds(self, i: int, signed_preset_i: [float, float]):
