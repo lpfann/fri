@@ -93,6 +93,12 @@ class LUPI_OrdinalRegression(ProblemType):
                 problem.init_objective_UB(sign=sign, bin_index=pos)
                 yield problem
 
+    def aggregate_min_candidates(self, min_problems_candidates):
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        # We take the max of mins because we need the necessary contribution over all functions
+        min_value = max(vals)
+        return min_value
+
     def aggregate_max_candidates(self, max_problems_candidates):
         return super().aggregate_max_candidates(max_problems_candidates)
 
@@ -246,7 +252,6 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
     def _init_objective_LB_LUPI(self, sign=None, bin_index=None, **kwargs):
 
         self.add_constraint(sign * self.w_priv[:, self.lupi_index] <= self.feature_relevance)
-
         self._objective = cvx.Minimize(self.feature_relevance)
 
     def _init_objective_UB_LUPI(self, sign=None, bin_index=None, **kwargs):
