@@ -1,5 +1,5 @@
-import numpy as np
 import pytest
+from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
 from sklearn import linear_model
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
@@ -7,8 +7,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import LinearSVR
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import assert_equal
-
-from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData, genLupiData
 
 
 @pytest.fixture(scope="function")
@@ -190,66 +188,3 @@ def test_partition(problem, randomstate, partition):
     assert_equal(len(X), n_samples)
     assert_equal(X.shape[1], n_features)
 
-
-def test_genLupi():
-    n_samples = 100
-    n_features = 10
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": 2, "n_redundant": 2, "n_repeated": 0}
-
-    gen = genLupiData
-
-    X, X_priv, y = gen(genClassificationData, n_priv_features=5,
-                       n_priv_redundant=2, n_priv_strel=2, n_priv_repeated=1,
-                       partition_priv=None, **args)
-
-    # Equal length
-    assert_equal(len(X), len(y))
-    assert_equal(len(X_priv), len(y))
-    # Correct parameters
-    assert_equal(len(X), n_samples)
-    assert_equal(X.shape[1], n_features)
-    assert_equal(X_priv.shape[1], 5)
-
-
-def test_genLupi_correlation(randomstate):
-    n_samples = 100
-    n_features = 10
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": 1, "n_redundant": 2, "n_repeated": 0}
-
-    gen = genLupiData
-
-    X, X_priv, y = gen(genClassificationData, n_priv_features=5,
-                       n_priv_redundant=2, n_priv_strel=2, n_priv_repeated=0,
-                       partition_priv=None, random_state=randomstate, **args)
-    corr = np.corrcoef(X, rowvar=False)
-    corr = np.abs(corr)
-    print(corr)
-    assert corr[0, 1] < 0.2
-    assert corr[0, 2] < 0.2
-    assert corr[0, 5] < 0.2
-    assert corr[1, 2] > 0.9
-
-    corr = np.corrcoef(X_priv, rowvar=False)
-    corr = np.abs(corr)
-    assert corr[0, 1] < 0.2
-    assert corr[0, 2] < 0.2
-    assert corr[0, 4] < 0.2
-    assert corr[2, 3] > 0.9
-
-
-def test_genClassification_correlation(randomstate):
-    n_samples = 100
-    n_features = 10
-    args = {"n_samples": n_samples, "n_features": n_features,
-            "n_strel": 1, "n_redundant": 2, "n_repeated": 0}
-
-    X, y = genClassificationData(random_state=randomstate, **args)
-    corr = np.corrcoef(X, rowvar=False)
-    corr = np.abs(corr)
-    print(corr)
-    assert corr[0, 1] < 0.2
-    assert corr[0, 2] < 0.2
-    assert corr[0, 5] < 0.2
-    assert corr[1, 2] > 0.9

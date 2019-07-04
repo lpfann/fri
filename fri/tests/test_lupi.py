@@ -15,7 +15,7 @@ def randomstate():
 @pytest.mark.parametrize('problem', [fri.ProblemName.LUPI_CLASSIFICATION, fri.ProblemName.LUPI_REGRESSION,
                                      fri.ProblemName.LUPI_ORDREGRESSION])
 def test_error_class(problem):
-    X, X_priv, y = genCleanFeaturesAsPrivData(n_samples=500, n_strel=3)
+    X, X_priv, y = genCleanFeaturesAsPrivData(problem, n_samples=500, n_strel=3)
 
     f = FRI(problem)
 

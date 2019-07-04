@@ -1,6 +1,3 @@
-"""
- FRI module for inferring relevance intervals for linear classification and regression data
-"""
 import logging
 
 logging.basicConfig(level=logging.INFO)
