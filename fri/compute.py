@@ -43,7 +43,7 @@ class RelevanceBoundsIntervals(object):
         normal_d = all_d - lupi_features
 
         # Compute relevance bounds and probes for normal features and LUPI
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
             d_n = _get_necessary_dimensions(normal_d, presetModel)
             rb = self.compute_relevance_bounds(d_n, parallel=parallel)
             probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
@@ -90,7 +90,7 @@ class RelevanceBoundsIntervals(object):
         # e.g. in the case of fixed features we skip those
         dims = _get_necessary_dimensions(d, presetModel)
 
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
             relevance_bounds = self.compute_relevance_bounds(dims, parallel=parallel, presetModel=presetModel)
             probe_values_upper = self.compute_probe_values(dims, isUpper=True, parallel=parallel,
                                                            presetModel=presetModel)
@@ -169,7 +169,7 @@ class RelevanceBoundsIntervals(object):
 
             n_probes = len(probe_values)
             if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
-                print(f"isUpper:{isUpper}: Only {n_probes} probe features were feasible.")
+                logging.debug(f"isUpper:{isUpper}: Only {n_probes} probe features were feasible.")
             else:
                 enough_samples = True
             if i >= max_loops:
@@ -330,15 +330,14 @@ def _postprocessing(L1, rangevector, normalize=False, round_to_zero=True):
 
 
 def feature_classification(probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0):
-    print("**** Feature Selection ****")
+    logging.info("**** Feature Selection ****")
+    logging.debug("Generating Lower Probe Statistic")
+    lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
+    logging.debug("Generating Upper Probe Statistic")
+    upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
 
-    lower_stat = create_probe_statistic(probes_low, fpr, verbose)
-    upper_stat = create_probe_statistic(probes_up, fpr, verbose)
-
-    weakly = np.logical_not(
-        np.logical_and(upper_stat[0] <= relevance_bounds[:, 1], relevance_bounds[:, 1] <= upper_stat[1]))
-    strongly = np.logical_not(
-        np.logical_and(lower_stat[0] <= relevance_bounds[:, 0], relevance_bounds[:, 0] <= lower_stat[1]))
+    weakly = relevance_bounds[:, 1] > upper_stat[1]
+    strongly = relevance_bounds[:, 0] > lower_stat[1]
     both = np.logical_and(weakly, strongly)
     prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
     prediction[weakly] = 1
@@ -350,9 +349,10 @@ def feature_classification(probes_low, probes_up, relevance_bounds, fpr=1e-4, ve
 def create_probe_statistic(probe_values, fpr, verbose=0):
     # Create prediction interval statistics based on randomly permutated probe features (based on real features)
     n = len(probe_values)
+
     if n == 0:
         if verbose > 0:
-            print("All probes were infeasible. All features considered relevant.")
+            logging.info("All probes were infeasible. All features considered relevant.")
         #    # If all probes were infeasible we expect an empty list
         #    # If they are infeasible it also means that only strongly relevant features were in the data
         #    # As such we just set the prediction without considering the statistics
@@ -363,13 +363,13 @@ def create_probe_statistic(probe_values, fpr, verbose=0):
 
     if mean == 0:
         lower_threshold, upper_threshold = mean, mean
+        s = 0
     else:
         s = probe_values.std()
         lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
         upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:
-        print(f"Using {n} probe features")
-        print(f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}")
+        logging.info(f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}")
 
     return lower_threshold, upper_threshold
