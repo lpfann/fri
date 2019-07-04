@@ -43,7 +43,7 @@ class RelevanceBoundsIntervals(object):
         normal_d = all_d - lupi_features
 
         # Compute relevance bounds and probes for normal features and LUPI
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
             d_n = _get_necessary_dimensions(normal_d, presetModel)
             rb = self.compute_relevance_bounds(d_n, parallel=parallel)
             probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
@@ -90,7 +90,7 @@ class RelevanceBoundsIntervals(object):
         # e.g. in the case of fixed features we skip those
         dims = _get_necessary_dimensions(d, presetModel)
 
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
             relevance_bounds = self.compute_relevance_bounds(dims, parallel=parallel, presetModel=presetModel)
             probe_values_upper = self.compute_probe_values(dims, isUpper=True, parallel=parallel,
                                                            presetModel=presetModel)
@@ -308,7 +308,7 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-def _postprocessing(L1, rangevector, normalize=False, round_to_zero=True):
+def _postprocessing(L1, rangevector, normalize=True, round_to_zero=True):
     if normalize:
         assert L1 > 0
         rangevector = rangevector.copy() / L1
