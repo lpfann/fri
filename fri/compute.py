@@ -136,7 +136,7 @@ class RelevanceBoundsIntervals(object):
 
         return intervals  # TODO: add model model_state (omega, bias) to return value
 
-    def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None, max_loops=0):
+    def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
         # Get model parameters
         init_model_state = self.best_init_model.model_state
 
@@ -144,37 +144,28 @@ class RelevanceBoundsIntervals(object):
         if parallel is None:
             parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
-        # Run loop until we got enough samples
-        enough_samples = False
-        i = 0
+        # Generate
+        probe_queue = self._generate_probe_value_tasks(self.data, dims, isUpper, self.n_resampling, self.random_state,
+                                                       presetModel, init_model_state)
+        # Compute solution
+        probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
+        # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+
+        candidates = defaultdict(list)
+        for candidate in probe_results:
+            # Only add bounds with feasible solutions
+            if candidate.is_solved:
+                candidates[candidate.probeID].append(candidate)
         probe_values = []
-        while not enough_samples:
-            # Generate
-            probe_queue = self._generate_probe_value_tasks(self.data, dims, True, self.n_resampling, self.random_state,
-                                                           presetModel, init_model_state)
-            # Compute solution
-            probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
-            # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
-
-            candidates = defaultdict(list)
-            for candidate in probe_results:
-                # Only add bounds with feasible solutions
-                if candidate.is_solved:
-                    candidates[candidate.probeID].append(candidate)
-            for j in candidates.values():
+        for probes_for_ID in candidates.values():
                 if isUpper:
-                    probe_values.append(self.problem_type.get_cvxproblem_template.aggregate_max_candidates(j))
+                    probe_values.append(
+                        self.problem_type.get_cvxproblem_template.aggregate_max_candidates(probes_for_ID))
                 else:
-                    probe_values.append(self.problem_type.get_cvxproblem_template.aggregate_min_candidates(j))
+                    probe_values.append(
+                        self.problem_type.get_cvxproblem_template.aggregate_min_candidates(probes_for_ID))
 
-            n_probes = len(probe_values)
-            if self.n_resampling > MIN_N_PROBE_FEATURES > n_probes:
-                logging.debug(f"isUpper:{isUpper}: Only {n_probes} probe features were feasible.")
-            else:
-                enough_samples = True
-            if i >= max_loops:
-                enough_samples = True
-            i += 1
+        n_probes = len(probe_values)
 
         return np.array(probe_values)
 
@@ -370,6 +361,6 @@ def create_probe_statistic(probe_values, fpr, verbose=0):
         upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:
-        logging.info(f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}")
+        print(f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}")
 
     return lower_threshold, upper_threshold

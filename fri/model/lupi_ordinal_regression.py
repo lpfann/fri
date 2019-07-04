@@ -210,20 +210,20 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
 
     @classmethod
     def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model):
+                                     preset_model, probeID=-1):
         is_priv = is_lupi_feature(di, data,
                                   best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
         if not is_priv:
             yield from super().generate_lower_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model)
+                                                            data, di, preset_model, probeID=probeID)
         else:
             bin_boundaries = best_model_state["bin_boundaries"]
             # for sign, pos in product([1, -1], range(bin_boundaries)):
             for sign in [1, -1]:
                 problem = cls(di, data, best_hyperparameters, init_constraints,
                               preset_model=preset_model,
-                              best_model_state=best_model_state)
+                              best_model_state=best_model_state, probeID=probeID)
                 problem.init_objective_LB(sign=sign)
                 problem.isLowerBound = True
                 yield problem

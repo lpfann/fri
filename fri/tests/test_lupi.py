@@ -147,6 +147,7 @@ def test_lupi_model_ord_regression(n_strong, n_weak, randomstate):
     # Check the interval output
     interval = model.interval_
     print(interval)
+    model.print_interval_with_class()
     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
     assert len(interval) == X.shape[1] + X_priv.shape[1]
 

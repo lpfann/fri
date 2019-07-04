@@ -168,10 +168,10 @@ class Relevance_CVXProblem(ABC):
 
     @classmethod
     def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model):
+                                     preset_model, probeID=-1):
         problem = cls(di, data, best_hyperparameters, init_constraints,
                       preset_model=preset_model,
-                      best_model_state=best_model_state)
+                      best_model_state=best_model_state, probeID=probeID)
         problem.init_objective_LB()
         problem.isLowerBound = True
         yield problem
