@@ -89,6 +89,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
         self.allrel_prediction_ = prediction > 0
 
+        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[:self.n_features_]
+        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_:]
+        self.relevance_classes_nonpriv_ = self.relevance_classes_[:self.n_features_]
+        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_:]
+
         return self.allrel_prediction_
 
     def _n_selected_features(self):
