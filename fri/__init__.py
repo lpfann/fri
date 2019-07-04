@@ -1,6 +1,9 @@
 """
  FRI module for inferring relevance intervals for linear classification and regression data
 """
+import logging
+
+logging.basicConfig(level=logging.INFO)
 import warnings
 from enum import Enum
 
