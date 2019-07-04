@@ -688,7 +688,7 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
 
     X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated, X_priv_irrel])
 
-    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise)
+    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise*np.std(X_priv))
     X = X_priv + e
     scores = np.dot(X_informative, w)[:, np.newaxis]
 
