@@ -71,8 +71,6 @@ class Relevance_CVXProblem(ABC):
     def solved_relevance(self):
         if self.is_solved:
             return self.objective.value
-        elif self.isProbe:
-            return 0
         else:
             raise Exception("Problem not solved. No feature relevance computed.")
 
@@ -165,3 +163,36 @@ class Relevance_CVXProblem(ABC):
                 self.add_constraint(
                     self.w[feature] >= current_preset[1]
                 )
+
+    @classmethod
+    def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, probeID=-1):
+        problem = cls(di, data, best_hyperparameters, init_constraints,
+                      preset_model=preset_model,
+                      best_model_state=best_model_state, probeID=probeID)
+        problem.init_objective_LB()
+        problem.isLowerBound = True
+        yield problem
+
+    @classmethod
+    def generate_upper_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, probeID=-1):
+        for sign in [-1, 1]:
+            problem = cls(di, data, best_hyperparameters, init_constraints,
+                          preset_model=preset_model,
+                          best_model_state=best_model_state, probeID=probeID)
+            problem.init_objective_UB(sign=sign)
+            problem.isLowerBound = False
+            yield problem
+
+    @classmethod
+    def aggregate_min_candidates(cls, min_problems_candidates):
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        min_value = min(vals)
+        return min_value
+
+    @classmethod
+    def aggregate_max_candidates(cls, max_problems_candidates):
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+        max_value = max(vals)
+        return max_value

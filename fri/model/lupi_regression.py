@@ -2,12 +2,12 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.regression import Regression_Relevance_Bound
 from sklearn.metrics import r2_score
 from sklearn.metrics.regression import _check_reg_targets
 from sklearn.utils import check_X_y
 
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
-from fri.model.regression import Regression_Relevance_Bound
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
@@ -55,25 +55,7 @@ class LUPI_Regression(ProblemType):
 
         return X, y
 
-    def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
-        is_priv = is_lupi_feature(di, data,
-                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
-        if not is_priv:
-            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model, probeID=probeID)
-        else:
-            for sign, pos in product([1, -1], [True, False]):
-                problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                                       preset_model=preset_model,
-                                                       best_model_state=best_model_state, probeID=probeID)
-                problem.init_objective_UB(sign=sign, pos=pos)
-                yield problem
-
-
-    def aggregate_max_candidates(self, max_problems_candidates):
-        return super().aggregate_max_candidates(max_problems_candidates)
 
 
 class LUPI_Regression_SVM(LUPI_InitModel):
@@ -208,6 +190,23 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
 
 class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Relevance_Bound):
+    @classmethod
+    def generate_upper_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, probeID=-1):
+        is_priv = is_lupi_feature(di, data,
+                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
+
+        if not is_priv:
+            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
+                                                            data, di, preset_model, probeID=probeID)
+        else:
+            for sign, pos in product([1, -1], [True, False]):
+                problem = cls(di, data, best_hyperparameters, init_constraints,
+                              preset_model=preset_model,
+                              best_model_state=best_model_state, probeID=probeID)
+                problem.init_objective_UB(sign=sign, pos=pos)
+                yield problem
+
 
     def _init_objective_LB_LUPI(self, **kwargs):
         self.add_constraint(cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance)

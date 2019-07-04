@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
-from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_random_state
-
 from fri import FRI, ProblemName
 from fri.genData import genOrdinalRegressionData
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import check_random_state
 
 
 @pytest.fixture(scope="function")
@@ -65,8 +64,7 @@ def test_model_no_irrelevant(randomstate):
     X_orig = StandardScaler().fit(X_orig).transform(X_orig)
     X = X_orig
 
-    model = FRI(ProblemName.ORDINALREGRESSION_IMP, random_state=randomstate, verbose=1, n_jobs=1, n_param_search=10,
-                loss_slack=0.0, w_l1_slack=0.0)
+    model = FRI(ProblemName.ORDINALREGRESSION_IMP, random_state=randomstate, verbose=1, n_jobs=1, n_param_search=10)
     model.fit(X, y, )
     assert model.optim_model_.score(X, y) > 0.9
     # Check the interval output

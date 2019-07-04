@@ -1,3 +1,4 @@
+import fri
 import numpy as np
 from numpy.random.mtrand import RandomState
 from sklearn.utils import check_random_state
@@ -22,12 +23,16 @@ def _repeatFeat(feats, i, randomstate):
 
 def _checkParam(n_samples: int = 100,
                 n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0,
+                n_repeated: int = 0, n_features=1,
                 flip_y: float = 0, noise: float = 1, partition=None, **kwargs):
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
+    if not 0 < n_features:
+        raise ValueError("We need at least one feature.")
     if not 0 <= flip_y < 1:
         raise ValueError("Flip percentage has to be between 0 and 1.")
+    if not n_redundant + n_repeated + n_strel <= n_features:
+        raise ValueError("Inconsistent number of features")
     if n_strel + n_redundant < 1:
         raise ValueError("No informative features.")
     if n_strel == 0 and n_redundant < 2:
@@ -688,15 +693,15 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
 
     X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated, X_priv_irrel])
 
-    e = np.random.normal(size=(n_samples, X_priv.shape[1]), scale=noise)
+    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise*np.std(X_priv))
     X = X_priv + e
     scores = np.dot(X_informative, w)[:, np.newaxis]
 
-    if problemType == 'classification':
+    if problemType == 'classification' or problemType == fri.ProblemName.LUPI_CLASSIFICATION:
         y = (scores > 0).astype(int)
-    elif problemType == 'regression':
+    elif problemType == 'regression' or problemType == fri.ProblemName.LUPI_REGRESSION:
         y = scores
-    elif problemType == 'ordinalRegression':
+    elif problemType == 'ordinalRegression' or problemType == fri.ProblemName.LUPI_ORDREGRESSION:
         bs = np.append(np.sort(random_state.normal(size=n_ordinal_bins - 1)), np.inf)
         y = np.sum(scores - bs >= 0, -1)
 

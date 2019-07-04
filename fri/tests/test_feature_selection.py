@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
-from sklearn.preprocessing import StandardScaler
-from sklearn.utils import check_random_state
-
 from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
 from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
+from sklearn.preprocessing import StandardScaler
+from sklearn.utils import check_random_state
 
 
 @pytest.fixture(scope="function")
@@ -65,6 +64,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
         # we allow one more false positive
         print(model._get_support_mask())
         print(model.interval_)
+        print(model.print_interval_with_class())
         assert n_f == selected
 
         # Check if all relevant features are selected
@@ -72,20 +72,19 @@ def test_model(problem, n_strong, n_weak, randomstate):
         assert all(model._get_support_mask()[:n_f] == truth)
 
 def test_multiprocessing(randomstate):
-    data = genClassificationData(n_samples=500, n_features=10, n_redundant=2, n_strel=2, random_state=randomstate)
+    data = genClassificationData(n_samples=100, n_features=3, n_redundant=2, n_strel=1, random_state=randomstate)
 
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
+    model = FRIClassification(random_state=randomstate, n_jobs=1)
+    model.fit(X, y, )
 
-    fri = FRIClassification(random_state=randomstate, n_jobs=1)
-    fri.fit(X, y, )
+    model = FRIClassification(random_state=randomstate, n_jobs=2)
+    model.fit(X, y, )
 
-    fri = FRIClassification(random_state=randomstate, n_jobs=2)
-    fri.fit(X, y, )
-
-    fri = FRIClassification(random_state=randomstate, n_jobs=-1)
-    fri.fit(X, y, )
+    model = FRIClassification(random_state=randomstate, n_jobs=-1)
+    model.fit(X, y, )
 
 def test_nonbinaryclasses(randomstate):
     n = 90

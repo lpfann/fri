@@ -2,11 +2,11 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
-from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
@@ -57,44 +57,9 @@ class LUPI_OrdinalRegression(ProblemType):
 
         return X, y
 
-    def generate_lower_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model):
-        is_priv = is_lupi_feature(di, data,
-                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
-        if not is_priv:
-            yield from super().generate_lower_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model)
-        else:
-            bin_boundaries = best_model_state["bin_boundaries"]
-            # for sign, pos in product([1, -1], range(bin_boundaries)):
-            for sign in [1, -1]:
-                problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                                       preset_model=preset_model,
-                                                       best_model_state=best_model_state)
-                problem.init_objective_LB(sign=sign)
-                problem.isLowerBound = True
-                yield problem
 
-    def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
-        is_priv = is_lupi_feature(di, data,
-                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
 
-        if not is_priv:
-            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model, probeID=probeID)
-        else:
-            bin_boundaries = best_model_state["bin_boundaries"]
-            for sign, pos in product([1, -1], range(bin_boundaries)):
-                problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                                       preset_model=preset_model,
-                                                       best_model_state=best_model_state, probeID=probeID)
-                problem.init_objective_UB(sign=sign, bin_index=pos)
-                yield problem
-
-    def aggregate_max_candidates(self, max_problems_candidates):
-        return super().aggregate_max_candidates(max_problems_candidates)
 
 
 class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
@@ -139,8 +104,9 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
             return X_priv[indices] * w_priv[boundary, :] + d_priv[boundary]
 
         # L1 norm regularization of both functions with 1 scaling constant
-        w_priv_l1 = cvx.norm(w_priv, 1)
+        # w_priv_l1 = cvx.norm(w_priv, 1)
         w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
+        w_priv_l1 = cvx.sum(w_priv_vec_l1)
         w_l1 = cvx.norm(w, 1)
         weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
 
@@ -242,10 +208,55 @@ def get_bin_mapping(y):
 
 class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
 
+    @classmethod
+    def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, probeID=-1):
+        is_priv = is_lupi_feature(di, data,
+                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
+
+        if not is_priv:
+            yield from super().generate_lower_bound_problem(best_hyperparameters, init_constraints, best_model_state,
+                                                            data, di, preset_model, probeID=probeID)
+        else:
+            bin_boundaries = best_model_state["bin_boundaries"]
+            # for sign, pos in product([1, -1], range(bin_boundaries)):
+            for sign in [1, -1]:
+                problem = cls(di, data, best_hyperparameters, init_constraints,
+                              preset_model=preset_model,
+                              best_model_state=best_model_state, probeID=probeID)
+                problem.init_objective_LB(sign=sign)
+                problem.isLowerBound = True
+                yield problem
+
+    @classmethod
+    def generate_upper_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
+                                     preset_model, probeID=-1):
+        is_priv = is_lupi_feature(di, data,
+                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
+
+        if not is_priv:
+            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
+                                                            data, di, preset_model, probeID=probeID)
+        else:
+            bin_boundaries = best_model_state["bin_boundaries"]
+            for sign, pos in product([1, -1], range(bin_boundaries)):
+                problem = cls(di, data, best_hyperparameters, init_constraints,
+                              preset_model=preset_model,
+                              best_model_state=best_model_state, probeID=probeID)
+                problem.init_objective_UB(sign=sign, bin_index=pos)
+                yield problem
+
+    @classmethod
+    def aggregate_min_candidates(cls, min_problems_candidates):
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        # We take the max of mins because we need the necessary contribution over all functions
+        min_value = max(vals)
+        return min_value
+
+
     def _init_objective_LB_LUPI(self, sign=None, bin_index=None, **kwargs):
 
         self.add_constraint(sign * self.w_priv[:, self.lupi_index] <= self.feature_relevance)
-
         self._objective = cvx.Minimize(self.feature_relevance)
 
     def _init_objective_UB_LUPI(self, sign=None, bin_index=None, **kwargs):
@@ -272,9 +283,8 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
         w_priv = cvx.Variable(shape=(n_boundaries, self.d_priv), name="w_priv")
         d_priv = cvx.Variable(shape=(n_boundaries), name="bias_priv")
 
-        w_priv_l1 = cvx.norm(w_priv, 1)
         w_priv_vec_l1 = cvx.norm(w_priv, 1, axis=1)
-
+        w_priv_l1 = cvx.sum(w_priv_vec_l1)
         def priv_function(j, indices):
             return self.X_priv[indices] * w_priv[j, :] + d_priv[j]
         # L1 norm regularization of both functions with 1 scaling constant

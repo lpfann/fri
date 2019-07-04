@@ -32,17 +32,18 @@ class ProblemType(ABC):
             # # TODO: rewrite the parameter logic
             # # TODO: move this to subclass
             if p == "scaling_lupi_w":
-                return scipy.stats.reciprocal(a=1e-10, b=1)
-            if p == "scaling_lupi_loss":
-                # value 0>p<1 causes standard svm solution
-                # p>1 encourages usage of lupi function
-                return scipy.stats.reciprocal(a=1e-10, b=1)
+                return [0.1, 1, 10]
+                # return scipy.stats.reciprocal(a=1e-15, b=1e10)
+            # if p == "scaling_lupi_loss":
+            #    # value 0>p<1 causes standard svm solution
+            #    # p>1 encourages usage of lupi function
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
             if p == "C":
-                return scipy.stats.reciprocal(a=1e-8, b=1e8)
+                return scipy.stats.reciprocal(a=1e-1, b=1e5)
             if p == "epsilon":
                 return [0, 0.001, 0.01, 0.1, 1, 10, 100]
             else:
-                return scipy.stats.reciprocal(a=1e-15, b=1e15)
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 
     def get_all_parameters(self):
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
@@ -60,8 +61,8 @@ class ProblemType(ABC):
                 factor = self.relax_factors_[p + "_slack"]
             except KeyError:
                 factor = 0.1
-        if factor < 0 or factor > 1:
-            raise ValueError("Slack Factor out of bounds: [0 ... 1]")
+        if factor < 0:
+            raise ValueError("Slack Factor multiplier is positive!")
         return factor
 
     def get_all_relax_factors(self):
@@ -90,31 +91,3 @@ class ProblemType(ABC):
     def relax_constraint(self, key, value):
         return value * (1 + self.get_chosen_relax_factors(key))
 
-    def generate_lower_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model):
-        problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                               preset_model=preset_model,
-                                               best_model_state=best_model_state)
-        problem.init_objective_LB()
-        problem.isLowerBound = True
-        yield problem
-
-    def generate_upper_bound_problem(self, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
-        for sign in [-1, 1]:
-            problem = self.get_cvxproblem_template(di, data, best_hyperparameters, init_constraints,
-                                                   preset_model=preset_model,
-                                                   best_model_state=best_model_state, probeID=probeID)
-            problem.init_objective_UB(sign=sign)
-            problem.isLowerBound = False
-            yield problem
-
-    def aggregate_min_candidates(self, min_problems_candidates):
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
-        min_value = min(vals)
-        return min_value
-
-    def aggregate_max_candidates(self, max_problems_candidates):
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
-        max_value = max(vals)
-        return max_value
