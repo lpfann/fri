@@ -308,7 +308,7 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-def _postprocessing(L1, rangevector, normalize=True, round_to_zero=True):
+def _postprocessing(L1, rangevector, normalize=False, round_to_zero=True):
     if normalize:
         assert L1 > 0
         rangevector = rangevector.copy() / L1

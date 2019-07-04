@@ -58,10 +58,6 @@ class LUPI_OrdinalRegression(ProblemType):
         return X, y
 
 
-
-
-
-
 class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
     @classmethod
@@ -262,7 +258,6 @@ class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalR
     def _init_objective_UB_LUPI(self, sign=None, bin_index=None, **kwargs):
 
         self.add_constraint(self.feature_relevance <= sign * self.w_priv[bin_index, self.lupi_index])
-
         self._objective = cvx.Maximize(self.feature_relevance)
 
     def _init_constraints(self, parameters, init_model_constraints):

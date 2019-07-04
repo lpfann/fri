@@ -32,7 +32,7 @@ class ProblemType(ABC):
             # # TODO: rewrite the parameter logic
             # # TODO: move this to subclass
             if p == "scaling_lupi_w":
-                return [0.1, 1, 10]
+                return [0.1, 1, 10, 100, 1000]
                 # return scipy.stats.reciprocal(a=1e-15, b=1e10)
             # if p == "scaling_lupi_loss":
             #    # value 0>p<1 causes standard svm solution
