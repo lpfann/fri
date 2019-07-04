@@ -71,8 +71,6 @@ class Relevance_CVXProblem(ABC):
     def solved_relevance(self):
         if self.is_solved:
             return self.objective.value
-        # elif self.isProbe:
-        #    return 0
         else:
             raise Exception("Problem not solved. No feature relevance computed.")
 

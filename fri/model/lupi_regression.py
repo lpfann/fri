@@ -207,8 +207,6 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
                 problem.init_objective_UB(sign=sign, pos=pos)
                 yield problem
 
-    def aggregate_max_candidates(self, max_problems_candidates):
-        return super().aggregate_max_candidates(max_problems_candidates)
 
     def _init_objective_LB_LUPI(self, **kwargs):
         self.add_constraint(cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance)

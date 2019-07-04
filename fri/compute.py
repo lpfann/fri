@@ -165,8 +165,6 @@ class RelevanceBoundsIntervals(object):
                     probe_values.append(
                         self.problem_type.get_cvxproblem_template.aggregate_min_candidates(probes_for_ID))
 
-        n_probes = len(probe_values)
-
         return np.array(probe_values)
 
     def _generate_relevance_bounds_tasks(self, dims, data, preset_model=None,
