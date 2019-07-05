@@ -180,16 +180,21 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
 
     # Score based on macro-averaged mean absolute error
     elif error_type == "mmae":
-        sum = 0
-        for i in range(n_bins):
-            samples = y == i
-            n_samples = np.sum(samples)
-            if n_samples > 0:
-                bin_error = mae(prediction[samples], y[samples]) / n_samples
-                sum += bin_error
+        if max_dist == 0:  # Only one class available, we dont need to average
+            # Use MZE
+            error = mze(prediction, y) / n
+            score = 1 - error
+        else:
+            sum = 0
+            for i in range(n_bins):
+                samples = y == i
+                n_samples = np.sum(samples)
+                if n_samples > 0:
+                    bin_error = mae(prediction[samples], y[samples]) / n_samples
+                    sum += bin_error
 
-        error = sum / n_bins
-        score = (max_dist - error) / max_dist
+            error = sum / n_bins
+            score = (max_dist - error) / max_dist
     else:
         raise ValueError("error_type {} not available!'".format(error_type))
 
