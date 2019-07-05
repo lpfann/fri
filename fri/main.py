@@ -45,22 +45,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_samples_ = X.shape[0]
         self.n_features_ = X.shape[1] - lupi_features
 
-        # Preprocessing
+        self.optim_model_, best_score = self._fit_baseline(X, y, lupi_features, **kwargs)
+
         data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-        # Get predefined template for our init. model
-        init_model_template = self.problem_type_.get_initmodel_template
-
-        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
-        hyperparameters = self.problem_type_.get_all_parameters()
-        search_samples = len(hyperparameters) * self.n_param_search
-        # Find an optimal, fitted model using hyperparemeter search
-        optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
-                                                    self.random_state, search_samples, self.n_jobs,
-                                                    self.verbose, lupi_features=lupi_features, **kwargs)
-        self.optim_model_ = optimal_model
-
-        self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, optimal_model,
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, self.optim_model_,
                                                                    self.random_state, self.n_probe_features,
                                                                    self.n_jobs, self.verbose, normalize=self.normalize)
         if lupi_features == 0:
@@ -72,6 +60,21 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         # Return the classifier
         return self
+
+    def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
+
+        # Preprocessing
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        # Get predefined template for our init. model
+        init_model_template = self.problem_type_.get_initmodel_template
+        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+        hyperparameters = self.problem_type_.get_all_parameters()
+        search_samples = len(hyperparameters) * self.n_param_search
+        # Find an optimal, fitted model using hyperparemeter search
+        optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
+                                                    self.random_state, search_samples, self.n_jobs,
+                                                    self.verbose, lupi_features=lupi_features, **kwargs)
+        return optimal_model, best_score
 
     def _get_relevance_mask(self,
                             prediction,
