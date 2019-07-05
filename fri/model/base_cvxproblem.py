@@ -41,6 +41,7 @@ class Relevance_CVXProblem(ABC):
         # Initialize constraints
         self._constraints = []
         self._objective = None
+        self.w = None
         self._init_constraints(hyperparameters, best_model_constraints)
 
         if self.preset_model is not None:

@@ -2,14 +2,15 @@
     Abstract class providing base for classification and regression classes specific to data.
 
 """
-from fri.compute import RelevanceBoundsIntervals
-from fri.model.base_type import ProblemType
-from fri.parameter_searcher import find_best_model
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
+
+from fri.compute import RelevanceBoundsIntervals
+from fri.model.base_type import ProblemType
+from fri.parameter_searcher import find_best_model
 
 RELEVANCE_MAPPING = {
     0: "Irrelevant",
@@ -25,7 +26,7 @@ class NotFeasibleForParameters(Exception):
 class FRIBase(BaseEstimator, SelectorMixin):
 
     def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=20,
-                 n_probe_features=30, **kwargs):
+                 n_probe_features=30, normalize=True, **kwargs):
 
         # Init problem
         self.n_probe_features = n_probe_features
@@ -37,6 +38,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.random_state = check_random_state(random_state)
         self.n_jobs = n_jobs
         self.verbose = verbose
+        self.normalize = normalize
 
     def fit(self, X, y, lupi_features=0, **kwargs):
         self.lupi_features_ = lupi_features
@@ -60,7 +62,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
         self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, optimal_model,
                                                                    self.random_state, self.n_probe_features,
-                                                                   self.n_jobs, self.verbose)
+                                                                   self.n_jobs, self.verbose, normalize=self.normalize)
         if lupi_features == 0:
             self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_intervals()
         else:

@@ -38,16 +38,35 @@ del get_versions
 
 
 def FRI(problem: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
-        n_probe_features=80, slack_regularization=0.1, slack_loss=0.1, **kwargs):
+        n_probe_features=80, slack_regularization=0.1, slack_loss=0.1, normalize=True, **kwargs):
     """
 
     Parameters
     ----------
-    problem : ProblemName or str
-    Type of problem at hand.
-    E.g. "classification", "regression", "ordinalregression"
-    """
+    problem: ProblemName or str
+        Type of Problem
+    random_state: object or int
+        Random state object or int
+    n_jobs: int or None
+        Number of threads or -1 for automatic.
+    verbose: int
+        Verbosity if > 0
+    n_param_search: int
+        Number of parameter samples in random search for hyperparameters.
+    n_probe_features: int
+        Number of probes to generate to improve feature selection.
+    slack_regularization: float
+        Allow deviation from optimal L1 norm.
+    slack_loss: float
+        Allow deviation of loss.
+    normalize: boolean
+        Normalize relevace bounds to range of [0,1] depending on L1 norm.
 
+
+    Returns
+    -------
+
+    """
     if isinstance(problem, ProblemName):
         problemtype = problem.value
     else:
@@ -69,6 +88,7 @@ def FRI(problem: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_se
                    n_probe_features=n_probe_features,
                    w_l1_slack=slack_regularization,
                    loss_slack=slack_loss,
+                   normalize=normalize,
                    **kwargs)
 
 

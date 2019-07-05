@@ -3,11 +3,12 @@ from collections import defaultdict
 
 import joblib
 import numpy as np
+from scipy import stats
+
 from fri.model.base_cvxproblem import Relevance_CVXProblem
 from fri.model.base_initmodel import InitModel
 from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
-from scipy import stats
 
 MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
 
@@ -21,7 +22,7 @@ def _start_solver_worker(bound: Relevance_CVXProblem):
 
 class RelevanceBoundsIntervals(object):
     def __init__(self, data, problem_type: ProblemType, best_init_model: InitModel, random_state, n_resampling, n_jobs,
-                 verbose):
+                 verbose, normalize=True):
         self.data = data
         self.problem_type = problem_type
         self.verbose = verbose
@@ -30,6 +31,7 @@ class RelevanceBoundsIntervals(object):
         self.random_state = random_state
         self.best_init_model = best_init_model
         self.best_hyperparameters = best_init_model.hyperparam
+        self.normalize = normalize
 
         # Relax constraints to improve stability
         relaxed_constraints = problem_type.get_relaxed_constraints(best_init_model.constraints)
@@ -63,15 +65,15 @@ class RelevanceBoundsIntervals(object):
         l1_priv = self.init_constraints["w_priv_l1"]
 
         # Normalize Normal and Lupi features
-        rb_norm = _postprocessing(l1, rb)
-        rb_l_norm = _postprocessing(l1_priv, rb_l)
+        rb_norm = self._postprocessing(l1, rb)
+        rb_l_norm = self._postprocessing(l1_priv, rb_l)
         interval_ = np.concatenate([rb_norm, rb_l_norm])
 
         # Normalize Probes
-        probe_lower = _postprocessing(l1, probe_lower)
-        probe_upper = _postprocessing(l1, probe_upper)
-        probe_priv_lower = _postprocessing(l1_priv, probe_priv_lower)
-        probe_priv_upper = _postprocessing(l1_priv, probe_priv_upper)
+        probe_lower = self._postprocessing(l1, probe_lower)
+        probe_upper = self._postprocessing(l1, probe_upper)
+        probe_priv_lower = self._postprocessing(l1_priv, probe_priv_lower)
+        probe_priv_upper = self._postprocessing(l1_priv, probe_priv_upper)
 
         #
         #
@@ -98,9 +100,9 @@ class RelevanceBoundsIntervals(object):
                                                            presetModel=presetModel)
 
         # Postprocess bounds
-        norm_bounds = _postprocessing(self.best_init_model.L1_factor, relevance_bounds)
-        norm_probe_values_upper = _postprocessing(self.best_init_model.L1_factor, probe_values_upper)
-        norm_probe_values_lower = _postprocessing(self.best_init_model.L1_factor, probe_values_lower)
+        norm_bounds = self._postprocessing(self.best_init_model.L1_factor, relevance_bounds)
+        norm_probe_values_upper = self._postprocessing(self.best_init_model.L1_factor, probe_values_upper)
+        norm_probe_values_lower = self._postprocessing(self.best_init_model.L1_factor, probe_values_lower)
         feature_classes = feature_classification(norm_probe_values_lower, norm_probe_values_upper, norm_bounds,
                                                  verbose=self.verbose)
 
@@ -237,7 +239,7 @@ class RelevanceBoundsIntervals(object):
 
         return rangevector
 
-    def compute_multi_preset_relevance_bounds(self, preset, normalized=True, lupi_features=0):
+    def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
         """
         Method to run method with preset values
 
@@ -248,7 +250,7 @@ class RelevanceBoundsIntervals(object):
         X, y = self.data
 
         # The user is working with normalized values while we compute them unscaled
-        if normalized:
+        if self.normalize:
             for k, v in preset.items():
                 preset[k] = np.asarray(v) * self.best_init_model.L1_factor
 
@@ -297,6 +299,14 @@ class RelevanceBoundsIntervals(object):
 
         return signed_presets
 
+    def _postprocessing(self, L1, rangevector, round_to_zero=True):
+        if self.normalize:
+            assert L1 > 0
+            rangevector = rangevector.copy() / L1
+
+        if round_to_zero:
+            rangevector[rangevector <= 1e-11] = 0
+        return rangevector
 
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
@@ -308,14 +318,7 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-def _postprocessing(L1, rangevector, normalize=False, round_to_zero=True):
-    if normalize:
-        assert L1 > 0
-        rangevector = rangevector.copy() / L1
 
-    if round_to_zero:
-        rangevector[rangevector <= 1e-11] = 0
-    return rangevector
 
 
 def feature_classification(probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0):
