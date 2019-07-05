@@ -1,8 +1,9 @@
-import fri
 import numpy as np
 from numpy.random.mtrand import RandomState
 from sklearn.utils import check_random_state
 from sklearn.utils import shuffle
+
+import fri
 
 
 def _combFeat(n, size, strRelFeat, randomstate):
@@ -630,9 +631,8 @@ def genLupiData(problemType: str, lupiType: str, n_samples: int = 100, random_st
     return X, X_priv, y
 
 
-
-
-def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_state: object = None, noise: float = 0.1, n_ordinal_bins: int = 3,
+def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_state: object = None, noise: float = 0.1,
+                               n_ordinal_bins: int = 3,
                                n_strel: int = 1, n_weakrel_groups: int = 0, n_repeated: int = 0, n_irrel: int = 0):
     """
             Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
@@ -695,17 +695,21 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
 
     e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise*np.std(X_priv))
     X = X_priv + e
-    scores = np.dot(X_informative, w)[:, np.newaxis]
+    scores = np.dot(X_informative, w)
 
     if problemType == 'classification' or problemType == fri.ProblemName.LUPI_CLASSIFICATION:
-        y = (scores > 0).astype(int)
+        y = scores > 0
     elif problemType == 'regression' or problemType == fri.ProblemName.LUPI_REGRESSION:
         y = scores
     elif problemType == 'ordinalRegression' or problemType == fri.ProblemName.LUPI_ORDREGRESSION:
-        bs = np.append(np.sort(random_state.normal(size=n_ordinal_bins - 1)), np.inf)
+        step = 1 / (n_ordinal_bins)
+        quantiles = [i * step for i in range(1, n_ordinal_bins)]
+        bs = np.quantile(scores, quantiles)
+        bs = np.append(bs, np.inf)
+        scores = scores[:, np.newaxis]
         y = np.sum(scores - bs >= 0, -1)
 
-    return (X, X_priv, y)
+    return (X, X_priv, y.squeeze())
 
 
 
