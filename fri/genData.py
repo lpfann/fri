@@ -688,7 +688,7 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
     X_priv_weakrel = np.zeros([n_samples, n_weakrel_groups * 2])
     idx = 0
     for i in range(n_weakrel_groups):
-        X_priv_weakrel[:, idx:idx+2] = np.tile(X_informative[:, n_strel + i], (2, 1)).T + random_state.normal(loc=0, scale=1, size=2)
+        X_priv_weakrel[:, idx:idx+2] = np.tile(X_informative[:, n_strel + i], (2, 1)).T + random_state.normal(loc=0, scale=np.std(X_informative[:, n_strel + i]), size=2)
         idx += 2
 
     X_priv_repeated = _genRepeatedFeatures(n_repeated, np.hstack([X_priv_strel, X_priv_weakrel]), random_state)
