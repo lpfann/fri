@@ -633,7 +633,8 @@ def genLupiData(problemType: str, lupiType: str, n_samples: int = 100, random_st
 
 def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_state: object = None, noise: float = 0.1,
                                n_ordinal_bins: int = 3,
-                               n_strel: int = 1, n_weakrel_groups: int = 0, n_repeated: int = 0, n_irrel: int = 0):
+                               n_strel: int = 1, n_weakrel_groups: int = 0, n_repeated: int = 0, n_irrel: int = 0,
+                               label_noise=0.0):
     """
             Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
 
@@ -658,6 +659,8 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
                 Number of features which are clones of existing ones.
             n_irrel : int, optional
                 Number of features which are irrelevant to the underlying model
+            label_noise: float, optional
+                Percentage of labels which get permutated.
 
 
             Returns
@@ -708,6 +711,10 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
         bs = np.append(bs, np.inf)
         scores = scores[:, np.newaxis]
         y = np.sum(scores - bs >= 0, -1)
+
+    if label_noise > 0:
+        sample = random_state.choice(len(y), int(len(y) * label_noise))
+        y[sample] = random_state.permutation(y[sample])
 
     return (X, X_priv, y.squeeze())
 
