@@ -1,10 +1,11 @@
-import fri
 import numpy as np
 import pytest
-from fri import FRI
-from fri.genData import genCleanFeaturesAsPrivData
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
+
+import fri
+from fri import FRI
+from fri.genData import genCleanFeaturesAsPrivData
 
 
 @pytest.fixture(scope="function")
@@ -183,18 +184,19 @@ def test_strongly_relevant_ordregression_exp(randomstate):
 @pytest.mark.parametrize('n_strong', [1, 2])
 @pytest.mark.parametrize('n_weak', [0, 1, 2])
 def test_lupi_model_ord_regression_exp(n_strong, n_weak, randomstate):
-    n_samples = 500
+    n_samples = 300
 
-    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION_EXP, random_state=randomstate, verbose=1, n_param_search=100,
-                n_probe_features=20, n_jobs=-1)
+    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION_EXP, random_state=randomstate, verbose=1, n_param_search=50,
+                n_probe_features=70, n_jobs=-1)
 
     data = genCleanFeaturesAsPrivData("ordinalRegression", n_strel=n_strong, n_weakrel_groups=n_weak,
-                                      n_samples=n_samples, n_irrel=2, noise=0.005,
+                                      n_samples=n_samples, n_irrel=2, noise=0.1,
                                       n_repeated=0, random_state=randomstate
                                       )
 
     X, X_priv, y = data
-    n_priv_features = X.shape[1]
+
+    n_priv_features = X_priv.shape[1]
     X = StandardScaler().fit(X).transform(X)
     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
     combined = np.hstack([X, X_priv])
