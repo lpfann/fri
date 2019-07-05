@@ -1,7 +1,7 @@
 import cvxpy as cvx
 import numpy as np
 
-from .lupi_ordinal_regression import get_bin_mapping
+from .lupi_ordinal_regression_imp import get_bin_mapping
 from .ordinal_regression import OrdinalRegression, OrdinalRegression_SVM, OrdinalRegression_Relevance_Bound
 
 

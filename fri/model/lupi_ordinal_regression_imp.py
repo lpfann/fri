@@ -2,16 +2,16 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
-from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.ordinal_regression import OrdinalRegression_Relevance_Bound, ordinal_scores
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
 
-class LUPI_OrdinalRegression(ProblemType):
+class LUPI_OrdinalRegression_IMP(ProblemType):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._lupi_features = None
@@ -26,11 +26,11 @@ class LUPI_OrdinalRegression(ProblemType):
 
     @property
     def get_initmodel_template(cls):
-        return LUPI_OrdinalRegression_SVM
+        return LUPI_OrdinalRegression_SVM_IMP
 
     @property
     def get_cvxproblem_template(cls):
-        return LUPI_OrdinalRegression_Relevance_Bound
+        return LUPI_OrdinalRegression_Relevance_Bound_IMP
 
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
@@ -58,7 +58,7 @@ class LUPI_OrdinalRegression(ProblemType):
         return X, y
 
 
-class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
+class LUPI_OrdinalRegression_SVM_IMP(LUPI_InitModel):
 
     @classmethod
     def hyperparameter(cls):
@@ -202,7 +202,7 @@ def get_bin_mapping(y):
     return get_old_bin, n_bins
 
 
-class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
+class LUPI_OrdinalRegression_Relevance_Bound_IMP(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
 
     @classmethod
     def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,

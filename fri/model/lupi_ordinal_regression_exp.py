@@ -11,7 +11,7 @@ from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
 
-class LUPI_OrdinalRegression_EXP(ProblemType):
+class LUPI_OrdinalRegression(ProblemType):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._lupi_features = None
@@ -26,11 +26,11 @@ class LUPI_OrdinalRegression_EXP(ProblemType):
 
     @property
     def get_initmodel_template(cls):
-        return LUPI_OrdinalRegression_EXP_SVM
+        return LUPI_OrdinalRegression_SVM
 
     @property
     def get_cvxproblem_template(cls):
-        return LUPI_OrdinalRegression_EXP_Relevance_Bound
+        return LUPI_OrdinalRegression_Relevance_Bound
 
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
@@ -58,7 +58,7 @@ class LUPI_OrdinalRegression_EXP(ProblemType):
         return X, y
 
 
-class LUPI_OrdinalRegression_EXP_SVM(LUPI_InitModel):
+class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
     @classmethod
     def hyperparameter(cls):
@@ -205,7 +205,7 @@ def get_bin_mapping(y):
     return get_old_bin, n_bins
 
 
-class LUPI_OrdinalRegression_EXP_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
+class LUPI_OrdinalRegression_Relevance_Bound(LUPI_Relevance_CVXProblem, OrdinalRegression_Relevance_Bound):
     @classmethod
     def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
                                      preset_model, probeID=-1):
