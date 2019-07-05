@@ -692,9 +692,8 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
         idx += 2
 
     X_priv_repeated = _genRepeatedFeatures(n_repeated, np.hstack([X_priv_strel, X_priv_weakrel]), random_state)
-    X_priv_irrel = random_state.normal(size=(n_samples, n_irrel))
 
-    X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated, X_priv_irrel])
+    X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated])
 
     e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise*np.std(X_priv))
     X = X_priv + e
@@ -711,6 +710,10 @@ def genCleanFeaturesAsPrivData(problemType: str, n_samples: int = 100, random_st
         bs = np.append(bs, np.inf)
         scores = scores[:, np.newaxis]
         y = np.sum(scores - bs >= 0, -1)
+
+    if n_irrel > 0:
+        X = np.hstack([X, random_state.normal(size=(n_samples, n_irrel))])
+        X_priv = np.hstack([X_priv, random_state.normal(size=(n_samples, n_irrel))])
 
     if label_noise > 0:
         sample = random_state.choice(len(y), int(len(y) * label_noise))
