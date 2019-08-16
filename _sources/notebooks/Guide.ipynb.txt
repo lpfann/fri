@@ -1,0 +1,761 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "# Quick start guide\n"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Installation\n",
+    "### Stable\n",
+    "Fri can be installed via the Python Package Index (PyPI).\n",
+    "\n",
+    "If you have `pip` installed just execute the command\n",
+    "\n",
+    "    pip install fri\n",
+    "   \n",
+    "to get the newest stable version.\n",
+    "\n",
+    "The dependencies should be installed and checked automatically.\n",
+    "If you have problems installing please open issue at our [tracker](https://github.com/lpfann/fri/issues/new).\n",
+    "\n",
+    "### Development\n",
+    "To install a bleeding edge dev version of `FRI` you can clone the GitHub repository using\n",
+    "\n",
+    "    git clone git@github.com:lpfann/fri.git\n",
+    "\n",
+    "and then check out the `dev` branch: `git checkout dev`.\n",
+    "\n",
+    "To check if everything works as intented you can use `pytest` to run the unit tests.\n",
+    "Just run the command\n",
+    "\n",
+    "    pytest\n",
+    "\n",
+    "in the main project folder"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Requirement already satisfied: fri in /home/lpfannschmidt/workbench/fri (3.4.0+2.g1eb5429.dirty)\n",
+      "Requirement already satisfied: numpy in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (1.15.1)\n",
+      "Requirement already satisfied: scipy>=0.19 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (1.1.0)\n",
+      "Requirement already satisfied: scikit-learn>=0.18 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (0.19.2)\n",
+      "Requirement already satisfied: cvxpy==1.0.8 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (1.0.8)\n",
+      "Requirement already satisfied: ecos==2.0.5 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (2.0.5)\n",
+      "Requirement already satisfied: matplotlib in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from fri) (2.2.3)\n",
+      "Requirement already satisfied: scs>=1.1.3 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (2.0.2)\n",
+      "Requirement already satisfied: toolz in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (0.9.0)\n",
+      "Requirement already satisfied: multiprocess in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (0.70.6.1)\n",
+      "Requirement already satisfied: osqp in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (0.4.1)\n",
+      "Requirement already satisfied: fastcache in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (1.0.2)\n",
+      "Requirement already satisfied: six in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from cvxpy==1.0.8->fri) (1.11.0)\n",
+      "Requirement already satisfied: cycler>=0.10 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from matplotlib->fri) (0.10.0)\n",
+      "Requirement already satisfied: pyparsing!=2.0.4,!=2.1.2,!=2.1.6,>=2.0.1 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from matplotlib->fri) (2.2.0)\n",
+      "Requirement already satisfied: python-dateutil>=2.1 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from matplotlib->fri) (2.7.3)\n",
+      "Requirement already satisfied: pytz in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from matplotlib->fri) (2018.5)\n",
+      "Requirement already satisfied: kiwisolver>=1.0.1 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from matplotlib->fri) (1.0.1)\n",
+      "Requirement already satisfied: dill>=0.2.8.1 in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from multiprocess->cvxpy==1.0.8->fri) (0.2.8.2)\n",
+      "Requirement already satisfied: future in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from osqp->cvxpy==1.0.8->fri) (0.16.0)\n",
+      "Requirement already satisfied: setuptools in /home/lpfannschmidt/anaconda3/lib/python3.7/site-packages (from kiwisolver>=1.0.1->matplotlib->fri) (40.2.0)\n"
+     ]
+    }
+   ],
+   "source": [
+    "# For the purpose of viewing this notebook online we install the library directly with pip\n",
+    "!pip install fri"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "## Using FRI\n",
+    "Now we showcase the workflow of using FRI on a simple classification problem.\n",
+    "\n",
+    "### Data\n",
+    "To have something to work with, we need some data first.\n",
+    "`fri` includes a generation method for binary classification and regression data.\n",
+    "\n",
+    "In our case we need some classification data."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from fri import genClassificationData"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We want to create a small set with a few features.\n",
+    "\n",
+    "Because we want to showcase the all-relevant feature selection, we generate multiple strongly and weakly relevant features."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "n = 100\n",
+    "features = 6\n",
+    "strongly_relevant = 2\n",
+    "weakly_relevant = 2"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Generating dataset with d=6,n=100,strongly=2,weakly=2, partition of weakly=None\n"
+     ]
+    }
+   ],
+   "source": [
+    "X,y = genClassificationData(n_samples=n,\n",
+    "                            n_features=features,\n",
+    "                            n_strel=strongly_relevant,\n",
+    "                            n_redundant=weakly_relevant,\n",
+    "                            random_state=123)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The method also prints out the parameters again."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(100, 6)"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X.shape"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We created a binary classification set with 6 features of which 2 are strongly relevant and 2 weakly relevant."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Preprocess\n",
+    "Because our method expects mean centered data we need to standardize it first.\n",
+    "This centers the values around 0 and deviation to the standard deviation"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from sklearn.preprocessing import StandardScaler\n",
+    "X_scaled = StandardScaler().fit_transform(X)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Model\n",
+    "Now we need to creata a Model. \n",
+    "We use the `FRIClassification` class.\n",
+    "\n",
+    "For regression one would use `FRIRegression`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from fri import FRIClassification\n",
+    "fri_model = FRIClassification()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "FRIClassification(C=None, debug=False, n_resampling=3,\n",
+       "         optimum_deviation=0.001, parallel=False, random_state=None)"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We used no parameters for creation so the defaults are active.\n",
+    "\n",
+    "`C=None` means, that `FRI` itself chooses the regularization parameter `C` using crossvalidation on a fixed grid.\n",
+    "\n",
+    "By default, parallel computation is also disabled but can be enabled using `parallel=True`."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Fitting to data\n",
+    "Now we can just fit the model to the data using `scikit-learn` like commands."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fri_model.fit(X_scaled,y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The resulting feature relevance bounds are saved in the `interval_` variable."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[0.45993233, 0.46169499],\n",
+       "       [0.26954548, 0.27159876],\n",
+       "       [0.        , 0.25802293],\n",
+       "       [0.        , 0.25802293],\n",
+       "       [0.00516909, 0.00711219],\n",
+       "       [0.00446591, 0.00694219]])"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.interval_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(6, 2)"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.interval_.shape"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The bounds are grouped in 2d sublists for each feature.\n",
+    "\n",
+    "\n",
+    "To acess the relevance bounds for feature 2 we would use"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([0.        , 0.25802293])"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.interval_[2]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "The relevance classes are saved in the corresponding variable `relevance_classes_`:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([2, 2, 1, 1, 0, 0])"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.relevance_classes_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "`2` denotes strongly relevant features, `1` weakly relevant and `0` irrelevant."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Plot results\n",
+    "\n",
+    "The bounds in numerical form are useful for postprocesing.\n",
+    "If we want a human to look at it, we recommend the plot function `plot_relevance_bars`.\n",
+    "\n",
+    "We can also color the bars according to `relevance_classes_`"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x216 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "# Import plot function\n",
+    "from fri.plot import plot_relevance_bars\n",
+    "import matplotlib.pyplot as plt\n",
+    "%matplotlib inline\n",
+    "# Create new figure, where we can put an axis on\n",
+    "fig, ax = plt.subplots(1, 1,figsize=(6,3))\n",
+    "# plot the bars on the axis, colored according to fri\n",
+    "out = plot_relevance_bars(ax,fri_model.interval_,classes=fri_model.relevance_classes_)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "In the plot we can see both strongly relevant features 1 and 2 not allowing much change in their contribution.\n",
+    "Feature 3 and 4 are highly correlated and show therefore a big variance.\n",
+    "Noise features 5 and 6 show some necessary contribution which can be accounted to numerical instabilities of the solver."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Print internal Parameters\n",
+    "\n",
+    "If we want to take at internal parameters, we can use the `debug` flag in the model creation."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fri_model = FRIClassification(debug=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "loss 0.517120931358002\n",
+      "L1 6.743126681372926\n",
+      "offset 0.32474176019022094\n",
+      "C 1\n",
+      "score 1.0\n",
+      "coef:\n",
+      "[[ 3.10516847]\n",
+      " [-1.82001413]\n",
+      " [ 0.86614471]\n",
+      " [-0.86614471]\n",
+      " [-0.03919911]\n",
+      " [-0.03971916]]\n"
+     ]
+    }
+   ],
+   "source": [
+    "fri_model.fit(X_scaled,y)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "This prints out the parameters of the baseline model `loss` (sum of slack), `L1` ($L_1$ norm of weight vector) and `offset` (from the origin).\n",
+    "`coef` shows the coefficients of the baseline model.\n",
+    "\n",
+    "One can also see the best `C` according to gridsearch and the training score of the model in `score`.\n",
+    "\n",
+    "These values can also be accessed by the object variables."
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Print out hyperparameter found by GridSearchCV:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "1"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.tuned_C_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "or the baseline parameters:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "6.743126681372926"
+      ]
+     },
+     "execution_count": 18,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "fri_model.optim_L1_"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "### Setting constraints manually\n",
+    "Our model also allows to compute relevance bounds when the user sets a given range for the features.\n",
+    "\n",
+    "#### Presets\n",
+    "Presets are encoded using a array in the same shape as the `interval_` variable.\n",
+    "Each value represents the user given minimum and maximum contribution of the feature.\n",
+    "If one would set both values to be the same, we interpret this feature as fixed.\n",
+    "\n",
+    "Additionally, entries with `np.nan` are interpreted as not-set or free."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np\n",
+    "preset = np.full_like(fri_model.interval_,np.nan,dtype=np.double)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Now we have a preset array without any constraints:"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 20,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[nan, nan],\n",
+       "       [nan, nan],\n",
+       "       [nan, nan],\n",
+       "       [nan, nan],\n",
+       "       [nan, nan],\n",
+       "       [nan, nan]])"
+      ]
+     },
+     "execution_count": 20,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "preset"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Example\n",
+    "As an example, let us constrain feature 3 from our example to the minimum relevance bound.\n",
+    "\n",
+    "Note the different indexing using numpy (3 -> 2)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 21,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "preset[2] = fri_model.interval_[2, 0]"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "We use the function `constrained_intervals_`.\n",
+    "\n",
+    "Note: we need to fit the model before we can use this function.\n",
+    "We already did that, so we are fine."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 22,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "constrained_interval = fri_model.constrained_intervals_(preset=preset)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 23,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[0.45993233, 0.46169499],\n",
+       "       [0.26954548, 0.27159876],\n",
+       "       [0.        , 0.        ],\n",
+       "       [0.25608488, 0.25802293],\n",
+       "       [0.00516909, 0.00711219],\n",
+       "       [0.00446591, 0.0069422 ]])"
+      ]
+     },
+     "execution_count": 23,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "constrained_interval"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Feature 3 is set to its minimum (at 0).\n",
+    "\n",
+    "How does it look visually?"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 24,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x216 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "fig, ax = plt.subplots(1, 1,figsize=(6,3))\n",
+    "out = plot_relevance_bars(ax, constrained_interval)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Feature 3 is reduced to its minimum (no contribution).\n",
+    "\n",
+    "In turn, its correlated partner feature 4 had to take its maximum contribution."
+   ]
+  }
+ ],
+ "metadata": {
+  "anaconda-cloud": {},
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.0"
+  },
+  "varInspector": {
+   "cols": {
+    "lenName": 16,
+    "lenType": 16,
+    "lenVar": 40
+   },
+   "kernels_config": {
+    "python": {
+     "delete_cmd_postfix": "",
+     "delete_cmd_prefix": "del ",
+     "library": "var_list.py",
+     "varRefreshCmd": "print(var_dic_list())"
+    },
+    "r": {
+     "delete_cmd_postfix": ") ",
+     "delete_cmd_prefix": "rm(",
+     "library": "var_list.r",
+     "varRefreshCmd": "cat(var_dic_list()) "
+    }
+   },
+   "types_to_exclude": [
+    "module",
+    "function",
+    "builtin_function_or_method",
+    "instance",
+    "_Feature"
+   ],
+   "window_display": false
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}
