@@ -22,11 +22,11 @@ class ProblemName(Enum):
     CLASSIFICATION = fri.model.Classification
     REGRESSION = fri.model.Regression
     ORDINALREGRESSION = fri.model.OrdinalRegression
-    ORDINALREGRESSION_IMP = fri.model.OrdinalRegression_Imp
+    # ORDINALREGRESSION_IMP = fri.model.OrdinalRegression_Imp
     LUPI_CLASSIFICATION = fri.model.LUPI_Classification
     LUPI_REGRESSION = fri.model.LUPI_Regression
     LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
-    LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
+    #LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
 
 
 def FRI(problemName: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
