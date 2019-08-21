@@ -3,7 +3,7 @@
 FRI on Regression data
 ========================================================
 
-An example plot created using :class:`fri.fri.FRIRegression` on Regression data
+An example plot of `FRI` output on regression data
 """
 
 
@@ -14,8 +14,9 @@ X,y = genRegressionData(n_samples=100, n_features=6, n_strel=2, n_redundant=2,
 from sklearn.preprocessing import StandardScaler
 X_scaled = StandardScaler().fit_transform(X)
 
-from fri import FRIRegression
-fri_model = FRIRegression()
+from fri import FRI, ProblemName
+
+fri_model = FRI(ProblemName.REGRESSION)
 fri_model.fit(X_scaled,y)
 
 from fri.plot import plot_relevance_bars

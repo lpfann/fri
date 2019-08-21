@@ -27,8 +27,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
     def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=20,
                  n_probe_features=30, normalize=True, **kwargs):
+        """
 
-        # Init problem
+        Parameters
+        ----------
+        problem_type : abc.ABCMeta
+        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+        n_jobs : int
+        verbose : int
+        n_param_search : int
+        n_probe_features : int
+        normalize : bool
+        kwargs :
+        """
+        # Init problemName
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
 
@@ -159,13 +171,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Pretty print the relevance intervals and determined feature relevance class
 
         """
+        output = ""
         if self.interval_ is None:
-            print("Model is not fitted.")
+            output += "Model is not fitted."
 
-        print("############## Relevance bounds ##############\n"
-              "feature: [LB -- UB], relevance class")
+        output += "############## Relevance bounds ##############\n"
+        output += "feature: [LB -- UB], relevance class\n"
         for i in range(self.n_features_ + self.lupi_features_):
             if i == self.n_features_:
-                print("########## LUPI Relevance bounds")
-            print(f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
-                  f" {self.relevance_classes_string_[i]}")
+                output += "########## LUPI Relevance bounds\n"
+            output += f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+            output += f" {self.relevance_classes_string_[i]}\n"
+        return output
