@@ -22,6 +22,7 @@ Contents
   background
   license
   api/user
+  test
   GitHub <https://github.com/lpfann/fri>
 
 

@@ -322,7 +322,7 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
 
 
 def feature_classification(probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0):
-    logging.info("**** Feature Selection ****")
+    logging.debug("**** Feature Selection ****")
     logging.debug("Generating Lower Probe Statistic")
     lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
     logging.debug("Generating Upper Probe Statistic")

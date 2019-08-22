@@ -74,6 +74,8 @@ sphinx_gallery_conf = {
 # generate autosummary even if no references
 autosummary_generate = True
 
+autoclass_content = 'both'
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -120,7 +122,7 @@ release = fri.__version__
 
 # The reST default role (used for this markup: `text`) to use for all
 # documents.
-# default_role = None
+default_role = "any"
 
 # If true, '()' will be appended to :func: etc. cross-reference text.
 # add_function_parentheses = True
@@ -327,4 +329,7 @@ def setup(app):
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"http://docs.python.org/": None}
+intersphinx_mapping = {'python':("http://docs.python.org/3", None),
+                        'numpy':("https://docs.scipy.org/doc/numpy/", None),
+                        'sklearn': ('http://scikit-learn.org/stable',(None, './_intersphinx/sklearn-objects.inv'))
+                        }

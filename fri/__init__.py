@@ -29,61 +29,58 @@ class ProblemName(Enum):
     #LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
 
 
-def FRI(problemName: ProblemName, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
+class FRI(FRIBase):
+
+    def __init__(self, problemName: object, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
         n_probe_features=80, slack_regularization=0.1, slack_loss=0.1, normalize=True, **kwargs):
-    """
+        """
+        Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.
 
-    Parameters
-    ----------
-    problemName: :class:`~ProblemName` or str
-        Type of Problem
-    random_state: object or int
-        Random state object or int
-    n_jobs: int or None
-        Number of threads or -1 for automatic.
-    verbose: int
-        Verbosity if > 0
-    n_param_search: int
-        Number of parameter samples in random search for hyperparameters.
-    n_probe_features: int
-        Number of probes to generate to improve feature selection.
-    slack_regularization: float
-        Allow deviation from optimal L1 norm.
-    slack_loss: float
-        Allow deviation of loss.
-    normalize: boolean
-        Normalize relevace bounds to range of [0,1] depending on L1 norm.
+        Parameters
+        ----------
+        problemName: `ProblemName` or str
+            Type of Problem as enum value or explicit string (e.g. "classification")
+        random_state: object or int
+            Random state object or int
+        n_jobs: int or None
+            Number of threads or -1 for automatic.
+        verbose: int
+            Verbosity if > 0
+        n_param_search: int
+            Number of parameter samples in random search for hyperparameters.
+        n_probe_features: int
+            Number of probes to generate to improve feature selection.
+        slack_regularization: float
+            Allow deviation from optimal L1 norm.
+        slack_loss: float
+            Allow deviation of loss.
+        normalize: boolean
+            Normalize relevace bounds to range of [0,1] depending on L1 norm.
 
-
-    Returns
-    -------
-    `FRIBase`
-        Model initalized with type in `problemName`.
-
-    """
-    if isinstance(problemName, ProblemName):
-        problemtype = problemName.value
-    else:
-        if problemName == "classification" or problemName == "class":
-            problemtype = ProblemName.CLASSIFICATION
-        elif problemName == "regression" or problemName == "reg":
-            problemtype = ProblemName.REGRESSION
-        elif problemName == "ordinalregression" or problemName == "ordreg":
-            problemtype = ProblemName.ORDINALREGRESSION
-        elif problemName == "lupi_classification" or problemName == "lupi_class":
-            problemtype = ProblemName.LUPI_CLASSIFICATION
+        """
+        if isinstance(problemName, ProblemName):
+            problemtype = problemName.value
         else:
-            names = [enum.name.lower() for enum in ProblemName]
+            if problemName == "classification" or problemName == "class":
+                problemtype = ProblemName.CLASSIFICATION
+            elif problemName == "regression" or problemName == "reg":
+                problemtype = ProblemName.REGRESSION
+            elif problemName == "ordinalregression" or problemName == "ordreg":
+                problemtype = ProblemName.ORDINALREGRESSION
+            elif problemName == "lupi_classification" or problemName == "lupi_class":
+                problemtype = ProblemName.LUPI_CLASSIFICATION
 
+        if problemtype is None:
+            names = [enum.name.lower() for enum in ProblemName]
             print(f"Parameter 'problemName' was not recognized or unset. Try one of {names}.")
-            return None
-    return FRIBase(problemtype, random_state=random_state, n_jobs=n_jobs, verbose=verbose,
-                   n_param_search=n_param_search,
-                   n_probe_features=n_probe_features,
-                   w_l1_slack=slack_regularization,
-                   loss_slack=slack_loss,
-                   normalize=normalize,
-                   **kwargs)
+        else:
+            super().__init__(problemtype, random_state=random_state, n_jobs=n_jobs, verbose=verbose,
+                             n_param_search=n_param_search,
+                             n_probe_features=n_probe_features,
+                             w_l1_slack=slack_regularization,
+                             loss_slack=slack_loss,
+                             normalize=normalize,
+                             **kwargs)
 
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",

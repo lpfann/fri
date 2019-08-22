@@ -1,7 +1,3 @@
-"""
-    Abstract class providing base for classification and regression classes specific to data.
-
-"""
 from sklearn.base import BaseEstimator
 from sklearn.exceptions import NotFittedError
 from sklearn.feature_selection.base import SelectorMixin
@@ -39,8 +35,25 @@ class FRIBase(BaseEstimator, SelectorMixin):
         n_probe_features : int
         normalize : bool
         kwargs :
+
+        Attributes
+        ----------
+        interval_ : array-like
+         Feature relevance Intervals
+
+        optim_model_ : `InitModel`
+        Baseline model fitted on data
+
+        relevance_classes_ : list(int)
+        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+
+        relevance_classes_string_ : list(str)
+        Classes of relevance encoded as string
+
+        allrel_prediction_ : list(int)
+        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
         """
-        # Init problemName
+
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
 
@@ -52,7 +65,32 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.verbose = verbose
         self.normalize = normalize
 
+
+        self.interval_ = None
+        self.optim_model_ = None
+        self.relevance_classes_ = None
+        self.relevance_classes_string_ = None
+        self.allrel_prediction_ = None
+
     def fit(self, X, y, lupi_features=0, **kwargs):
+        """
+        Method to fit model on data.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+        y : numpy.ndarray
+        lupi_features : int
+            Amount of features which are considered privileged information in `X`.
+            The data is expected to be structured in a way that all lupi features are at the end of the set.
+            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+        kwargs : dict
+            Dictionary of additional keyword arguments depending on the `model`.
+
+        Returns
+        -------
+        `FRIBase`
+        """
         self.lupi_features_ = lupi_features
         self.n_samples_ = X.shape[0]
         self.n_features_ = X.shape[1] - lupi_features
@@ -132,13 +170,26 @@ class FRIBase(BaseEstimator, SelectorMixin):
         return self.allrel_prediction_
 
     def score(self, X, y):
+        """
+        Using fitted model predict points for `X` and compare to truth `y`.
+
+        Parameters
+        ----------
+        X : numpy.ndarray
+        y : numpy.ndarray
+
+        Returns
+        -------
+        Model specific score (0 is worst, 1 is best)
+        """
         if self.optim_model_:
             return self.optim_model_.score(X, y)
         else:
             raise NotFittedError()
 
-    def constrained_intervals_(self, preset: dict):
-        """Method to return relevance intervals which are constrained using preset ranges or values.
+    def constrained_intervals(self, preset: dict):
+        """
+        Method to return relevance intervals which are constrained using preset ranges or values.
 
         Parameters
         ----------
@@ -162,7 +213,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
-        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(preset=preset, normalized=True,
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(preset=preset,
                                                                                      lupi_features=self.lupi_features_)
 
     def print_interval_with_class(self):
