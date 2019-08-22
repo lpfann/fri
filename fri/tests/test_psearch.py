@@ -2,7 +2,7 @@ import pytest
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
-from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
+from fri import FRI, ProblemName
 from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 
 
@@ -18,16 +18,16 @@ def test_psearch(problem, C, iter_psearch):
 
     if problem is "regression":
         gen = genRegressionData
-        model = FRIRegression(random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
-                              optimum_deviation=optimum_deviation)
+        model = FRI(ProblemName.REGRESSION, random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
+                    optimum_deviation=optimum_deviation)
     elif problem is "classification":
         gen = genClassificationData
-        model = FRIClassification(random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
-                                  optimum_deviation=optimum_deviation)
+        model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
+                    optimum_deviation=optimum_deviation)
     elif problem is "ordreg":
         gen = genOrdinalRegressionData
-        model = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
-                                     optimum_deviation=optimum_deviation)
+        model = FRI(ProblemName.ORDINALREGRESSION, random_state=randomstate, verbose=1, C=C, iter_psearch=iter_psearch,
+                    optimum_deviation=optimum_deviation)
 
     data = gen(n_samples=n_samples, n_features=n_features, n_redundant=2, n_strel=2,
                n_repeated=0, random_state=randomstate)

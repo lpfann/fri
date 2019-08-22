@@ -1,9 +1,10 @@
 import numpy as np
 import pytest
-from fri import FRIClassification, FRIRegression, FRIOrdinalRegression
-from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
+
+from fri import FRI, ProblemName
+from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData
 
 
 @pytest.fixture(scope="function")
@@ -16,23 +17,18 @@ def randomstate():
 def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
-    optimum_deviation = 0.01
-    C = None
-    noise=0
-    iter_psearch = 50
 
     if problem is "regression":
         gen = genRegressionData
-        model = FRIRegression(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation,
-                              iter_psearch=iter_psearch)
+        model = FRI(ProblemName.REGRESSION, random_state=randomstate, verbose=1)
+
     elif problem is "classification":
         gen = genClassificationData
-        model = FRIClassification(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation,
-                                  iter_psearch=iter_psearch)
+        model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, verbose=1)
     elif problem is "ordreg":
         gen = genOrdinalRegressionData
-        model = FRIOrdinalRegression(random_state=randomstate, verbose=1, C=C, optimum_deviation=optimum_deviation,
-                                     iter_psearch=iter_psearch)
+        model = FRI(ProblemName.ORDINALREGRESSION, random_state=randomstate, verbose=1)
+
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
             gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
@@ -40,7 +36,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
     else:
         data = gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
-                   n_repeated=0,noise=noise, random_state=randomstate)
+                   n_repeated=0, noise=0, random_state=randomstate)
 
         X_orig, y = data
         X_orig = StandardScaler().fit(X_orig).transform(X_orig)
@@ -77,13 +73,13 @@ def test_multiprocessing(randomstate):
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
-    model = FRIClassification(random_state=randomstate, n_jobs=1)
+    model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=1)
     model.fit(X, y, )
 
-    model = FRIClassification(random_state=randomstate, n_jobs=2)
+    model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=2)
     model.fit(X, y, )
 
-    model = FRIClassification(random_state=randomstate, n_jobs=-1)
+    model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=-1)
     model.fit(X, y, )
 
 def test_nonbinaryclasses(randomstate):
@@ -95,6 +91,6 @@ def test_nonbinaryclasses(randomstate):
     thirdclass = [3] * 30
     y = np.array([firstclass, secondclass, thirdclass]).ravel()
 
-    fri = FRIClassification()
+    fri = FRI(ProblemName.CLASSIFICATION)
     with pytest.raises(ValueError):
         fri.fit(X, y, )
