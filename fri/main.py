@@ -201,7 +201,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
 
             >>> preset = {0: 0.1}
 
-            or to use the minium releavance bound
+            or to use the minimum relevance bound
 
             >>> preset[1] = self.interval_[1, 0]
 
