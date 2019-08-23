@@ -16,13 +16,14 @@ You can also run the guide directly without setup online [here](https://colab.re
 
 
 ## Installation
+`FRI` requires __Python 3.6+__. 
 
-If you just want to use the __stable__ version from `PyPI` use
+For a __stable__ version from `PyPI` use
 ```shell
 $ pip install fri
 ```
 
-To install the __development__ version clone the repo and execute:
+To install the __development__ version clone the repository and execute inside the project folder:
 ```shell
 $ pip install -e .
 ```
@@ -33,7 +34,7 @@ Please refer to the [documentation](https://fri.lpfann.me) for advice.
 To test if the library was installed correctly you can use the `pytest` command to run all included tests.
 
 ```shell
-$ pip install pytest
+$ pip install -e .[tests]
 ```
 then simply run
 ```shell
