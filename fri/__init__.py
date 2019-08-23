@@ -30,7 +30,7 @@ LUPI_MODELS = [
     ProblemName.LUPI_CLASSIFICATION, ProblemName.LUPI_REGRESSION, ProblemName.LUPI_ORDREGRESSION
 ]
 
-from fri.toydata import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate
+from fri.toydata import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate, genLupiData
 from fri.main import FRIBase
 from fri.plot import plot_intervals
 
@@ -92,7 +92,7 @@ class FRI(FRIBase):
 
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
-           "quick_generate", "plot_intervals", "ProblemName", "FRI", "LUPI_MODELS", "NORMAL_MODELS"]
+           "quick_generate", "plot_intervals", "ProblemName", "FRI", "LUPI_MODELS", "NORMAL_MODELS", "genLupiData"]
 
 # def FRIClassification(**kwargs):
 #     warnings.warn(

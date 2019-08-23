@@ -4,8 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 import fri
-from fri import FRI
-from toydata.gen_data import genCleanFeaturesAsPrivData
+from fri import FRI, genLupiData
 
 
 @pytest.fixture(scope="function")
@@ -13,10 +12,9 @@ def randomstate():
     return check_random_state(1337)
 
 
-@pytest.mark.parametrize('problem', [fri.ProblemName.LUPI_CLASSIFICATION, fri.ProblemName.LUPI_REGRESSION,
-                                     fri.ProblemName.LUPI_ORDREGRESSION])
+@pytest.mark.parametrize('problem', fri.LUPI_MODELS)
 def test_error_class(problem):
-    X, X_priv, y = genCleanFeaturesAsPrivData(problem, n_samples=500, n_strel=3)
+    X, X_priv, y = genLupiData(problem, n_samples=500, n_strel=3)
 
     f = FRI(problem)
 
@@ -31,130 +29,18 @@ def test_error_class(problem):
         f.fit(combined, y)
 
 
-# @pytest.mark.parametrize('n_strong', [1, 2])
-# @pytest.mark.parametrize('n_weak', [0, 2, 3])
-# def test_lupi_model_classification(n_strong, n_weak, randomstate):
-#     n_samples = 10
-#
-#     model = FRI(fri.ProblemName.LUPI_CLASSIFICATION, random_state=randomstate, verbose=1, n_param_search=100,
-#                 n_probe_features=70, n_jobs=1)
-#
-#     data = genCleanFeaturesAsPrivData("classification", n_strel=n_strong, n_weakrel_groups=n_weak,
-#                                       n_samples=n_samples, n_irrel=1, noise=0.0,
-#                                       n_repeated=0, random_state=randomstate
-#                                       )
-#
-#     X, X_priv, y = data
-#     n_priv_features = X_priv.shape[1]
-#     X = StandardScaler().fit(X).transform(X)
-#     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
-#     combined = np.hstack([X, X_priv])
-#
-#     model.fit(combined, y, lupi_features=n_priv_features)
-#
-#     # Check the interval output
-#     interval = model.interval_
-#     print(interval)
-#     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
-#     assert len(interval) == X.shape[1] + X_priv.shape[1]
-#
-#     n_f = n_strong + n_weak * 2  # Number of relevant features
-#     n_f = n_f * 2  # We have two sets with same relevance
-#
-#     # Check how many are selected
-#     selected = model._n_selected_features()
-#     print(model._get_support_mask())
-#     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
-#
-#
-# @pytest.mark.parametrize('n_strong', [2, 4])
-# @pytest.mark.parametrize('n_weak', [0, 2])
-# def test_lupi_model_regression(n_strong, n_weak, randomstate):
-#     n_samples = 500
-#
-#     model = FRI(fri.ProblemName.LUPI_REGRESSION, random_state=randomstate, verbose=1, n_param_search=100,
-#                 n_probe_features=50, n_jobs=-1
-#                 )
-#
-#     data = genCleanFeaturesAsPrivData("regression", n_strel=n_strong, n_weakrel_groups=n_weak,
-#                                       n_samples=n_samples, n_irrel=2,
-#                                       n_repeated=0, random_state=randomstate
-#                        )
-#
-#     X, X_priv, y = data
-#     n_priv_features = X.shape[1]
-#     X = StandardScaler().fit(X).transform(X)
-#     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
-#     combined = np.hstack([X, X_priv])
-#
-#     model.fit(combined, y, lupi_features=n_priv_features)
-#
-#     # Check the interval output
-#     interval = model.interval_
-#     print(interval)
-#     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
-#     assert len(interval) == X.shape[1] + X_priv.shape[1]
-#
-#     n_f = n_strong + n_weak * 2  # Number of relevant features
-#     n_f = n_f * 2  # We have two sets with same relevance
-#
-#     # Check how many are selected
-#     selected = model._n_selected_features()
-#     print(model._get_support_mask())
-#     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
+@pytest.mark.parametrize('n_weak', [0, 2])
+@pytest.mark.parametrize('problem', fri.LUPI_MODELS)
+def test_lupi_model_correctness(problem, n_weak, randomstate):
+    n_samples = 100
 
-
-# @pytest.mark.parametrize('n_strong', [1, 2])
-# @pytest.mark.parametrize('n_weak', [0, 1, 2])
-# def test_lupi_model_ord_regression(n_strong, n_weak, randomstate):
-#     n_samples = 500
-#
-#     model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50,
-#                 n_probe_features=100, n_jobs=-1)
-#
-#     data = genCleanFeaturesAsPrivData("ordinalRegression", n_strel=n_strong, n_weakrel_groups=n_weak,
-#                                       n_samples=n_samples, n_irrel=2, noise=0.05,
-#                        n_repeated=0, random_state=randomstate
-#                        )
-#
-#     X, X_priv, y = data
-#     n_priv_features = X.shape[1]
-#     X = StandardScaler().fit(X).transform(X)
-#     X_priv = StandardScaler().fit(X_priv).transform(X_priv)
-#     combined = np.hstack([X, X_priv])
-#
-#     model.fit(combined, y, lupi_features=n_priv_features)
-#
-#     # Check the interval output
-#     interval = model.interval_
-#     print(interval)
-#     model.print_interval_with_class()
-#     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
-#     assert len(interval) == X.shape[1] + X_priv.shape[1]
-#
-#     n_f = n_strong + n_weak * 2  # Number of relevant features
-#     n_f = n_f * 2  # We have two sets with same relevance
-#
-#     # Check how many are selected
-#     selected = model._n_selected_features()
-#     print(model._get_support_mask())
-#     assert n_f == selected or selected == n_f + 1, "Feature Selection not accurate"
-
-
-
-
-@pytest.mark.parametrize('n_strong', [1, 2])
-@pytest.mark.parametrize('n_weak', [0, 1, 2])
-def test_lupi_model_ord_regression_exp(n_strong, n_weak, randomstate):
-    n_samples = 300
-
-    model = FRI(fri.ProblemName.LUPI_ORDREGRESSION, random_state=randomstate, verbose=1, n_param_search=50,
+    model = FRI(problem, random_state=randomstate, verbose=1, n_param_search=50,
                 n_probe_features=70, n_jobs=1)
 
-    data = genCleanFeaturesAsPrivData("ordinalRegression", n_strel=n_strong, n_weakrel_groups=n_weak,
-                                      n_samples=n_samples, n_irrel=2, noise=0.1,
-                                      n_repeated=0, random_state=randomstate
-                                      )
+    data = genLupiData(problem, n_strel=1, n_weakrel_groups=n_weak,
+                       n_samples=n_samples, n_irrel=2, noise=0.1,
+                       n_repeated=0, random_state=randomstate
+                       )
 
     X, X_priv, y = data
 
@@ -172,7 +58,7 @@ def test_lupi_model_ord_regression_exp(n_strong, n_weak, randomstate):
     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
     assert len(interval) == X.shape[1] + X_priv.shape[1]
 
-    n_f = n_strong + n_weak * 2  # Number of relevant features
+    n_f = 1 + n_weak * 2  # Number of relevant features
     n_f = n_f * 2  # We have two sets with same relevance
 
     # Check how many are selected
