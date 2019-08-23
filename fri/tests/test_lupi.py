@@ -5,7 +5,7 @@ from sklearn.utils import check_random_state
 
 import fri
 from fri import FRI
-from fri.genData import genCleanFeaturesAsPrivData
+from toydata.gen_data import genCleanFeaturesAsPrivData
 
 
 @pytest.fixture(scope="function")

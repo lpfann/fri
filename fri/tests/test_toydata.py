@@ -1,5 +1,4 @@
 import pytest
-from fri.genData import genClassificationData, genRegressionData, genOrdinalRegressionData
 from sklearn import linear_model
 from sklearn.metrics import r2_score
 from sklearn.model_selection import train_test_split
@@ -8,11 +7,21 @@ from sklearn.svm import LinearSVR
 from sklearn.utils import check_random_state
 from sklearn.utils.testing import assert_equal
 
+from fri import ProblemName
+from fri import quick_generate
+from fri.toydata import genClassificationData, genRegressionData, genOrdinalRegressionData
+
 
 @pytest.fixture(scope="function")
-def randomstate():
+def random_state():
     return check_random_state(1337)
 
+
+@pytest.mark.parametrize('problem', list(ProblemName))
+def test_quick_generate(problem):
+    data = quick_generate(problem)
+    assert len(data) == 2 or len(
+        data) == 3  # Check if two-tuple or three-tuple depending on if we have lupi data or not
 
 @pytest.mark.parametrize('n_samples', [2, 100, 10000])
 @pytest.mark.parametrize('n_dim', [1, 5, 30, 100, 1000])
@@ -140,16 +149,15 @@ def test_data_truth():
     assert r2 > 0.9
 
 
-def test_data_noise():
+def test_data_noise(random_state):
     n = 100
     d = 10
     strRel = 5
 
-    generator = check_random_state(1337)
     X, Y = genRegressionData(n_samples=n, n_features=d, n_redundant=0, n_strel=strRel,
-                             n_repeated=0, random_state=generator, noise=100)
+                             n_repeated=0, random_state=random_state, noise=100)
     X = StandardScaler().fit_transform(X)
-    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=generator)
+    X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.33, random_state=random_state)
     reg = linear_model.LinearRegression(normalize=True)
     reg.fit(X_train, y_train)
 
@@ -164,7 +172,7 @@ def test_data_noise():
     pytest.param([2, 0, 2], marks=pytest.mark.xfail(raises=ValueError)),
     pytest.param([2, 1, 2], marks=pytest.mark.xfail(raises=ValueError))
 ])
-def test_partition(problem, randomstate, partition):
+def test_partition(problem, partition):
     n_samples = 10
     n_features = 100
     strong = 5

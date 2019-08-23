@@ -3,8 +3,7 @@ import pytest
 from sklearn.preprocessing import scale
 from sklearn.utils import check_random_state
 
-from fri import FRI
-from fri.genData import quick_generate
+from fri import FRI, ProblemName, quick_generate
 
 
 @pytest.fixture(scope="module")
@@ -12,7 +11,7 @@ def randomstate():
     return check_random_state(1337)
 
 
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
+@pytest.mark.parametrize('problem', [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION])
 def test__compute_single_preset_relevance_bounds(problem, randomstate):
     data = quick_generate(problem, n_samples=300, n_features=4, n_redundant=2, n_strel=2, random_state=randomstate)
 
@@ -31,7 +30,7 @@ def test__compute_single_preset_relevance_bounds(problem, randomstate):
     assert range[i][1] == preset[1]
 
 
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
+@pytest.mark.parametrize('problem', [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION])
 def test__compute_multi_preset_relevance_bounds(problem, randomstate):
     data = quick_generate(problem, n_samples=300, n_features=4, n_redundant=2, n_strel=2, random_state=randomstate)
 

@@ -22,6 +22,14 @@ class ProblemName(Enum):
     LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
     #LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
 
+
+NORMAL_MODELS = [
+    ProblemName.CLASSIFICATION, ProblemName.REGRESSION, ProblemName.ORDINALREGRESSION
+]
+LUPI_MODELS = [
+    ProblemName.LUPI_CLASSIFICATION, ProblemName.LUPI_REGRESSION, ProblemName.LUPI_ORDREGRESSION
+]
+
 from fri.toydata import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate
 from fri.main import FRIBase
 from fri.plot import plot_intervals
@@ -84,7 +92,7 @@ class FRI(FRIBase):
 
 
 __all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
-           "quick_generate", "plot_intervals", "ProblemName", "FRI"]
+           "quick_generate", "plot_intervals", "ProblemName", "FRI", "LUPI_MODELS", "NORMAL_MODELS"]
 
 # def FRIClassification(**kwargs):
 #     warnings.warn(

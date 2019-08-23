@@ -1,7 +1,8 @@
 import numpy as np
+
+from fri import ProblemName
 from .gen_data import genRegressionData, genClassificationData, genOrdinalRegressionData
 from .gen_lupi import genLupiData
-from fri import ProblemName
 
 __all__ = ["genRegressionData","genClassificationData","genOrdinalRegressionData", "genLupiData"]
 
@@ -15,7 +16,7 @@ def quick_generate(problem: object, **kwargs) -> [np.ndarray, np.ndarray]:
     ----------
     problem : str or `ProblemName`
         Type of data to generate (e.g. "classification" or `ProblemName.CLASSIFICATION`
-    kwargs : dict
+    kwargs : **dict
         arguments to pass to the generation functions
 
     Returns

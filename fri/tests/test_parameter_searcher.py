@@ -1,10 +1,11 @@
-import fri
 import numpy as np
 import pytest
-from fri.genData import genCleanFeaturesAsPrivData
-from fri.parameter_searcher import find_best_model
 from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
+
+import fri
+from fri.parameter_searcher import find_best_model
+from fri.toydata import genLupiData
 
 
 @pytest.fixture(scope="session")
@@ -20,10 +21,10 @@ def test_baseline_lupi_reg(n_strong, n_weak, randomstate):
     problem = fri.ProblemName.LUPI_REGRESSION.value(scaling_lupi_loss=1, scaling_lupi_w=1)
     template = problem.get_initmodel_template
     params = problem.get_all_parameters()
-    data = genCleanFeaturesAsPrivData(fri.ProblemName.LUPI_REGRESSION, n_strel=n_strong, n_weakrel_groups=n_weak,
-                                      n_samples=n_samples, n_irrel=1, noise=0.0,
-                                      n_repeated=0, random_state=randomstate
-                                      )
+    data = genLupiData(fri.ProblemName.LUPI_REGRESSION, n_strel=n_strong, n_weakrel_groups=n_weak,
+                       n_samples=n_samples, n_irrel=1, noise=0.0,
+                       n_repeated=0, random_state=randomstate
+                       )
 
     X, X_priv, y = data
     X = StandardScaler().fit(X).transform(X)
