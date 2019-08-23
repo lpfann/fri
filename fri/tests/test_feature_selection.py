@@ -12,9 +12,9 @@ def randomstate():
     return check_random_state(1337)
 
 
-@pytest.mark.parametrize('n_weak', [0, 2, 3])
-@pytest.mark.parametrize('n_strong', [0, 1, 2])
-@pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
+@pytest.mark.parametrize("n_weak", [0, 2, 3])
+@pytest.mark.parametrize("n_strong", [0, 1, 2])
+@pytest.mark.parametrize("problem", ["regression", "classification", "ordreg"])
 def test_model(problem, n_strong, n_weak, randomstate):
     n_samples = 300
     n_features = 8
@@ -32,18 +32,31 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
     if n_strong + n_weak == 0:
         with pytest.raises(ValueError):
-            gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
-                n_repeated=0, random_state=randomstate)
+            gen(
+                n_samples=n_samples,
+                n_features=n_features,
+                n_redundant=n_weak,
+                n_strel=n_strong,
+                n_repeated=0,
+                random_state=randomstate,
+            )
 
     else:
-        data = gen(n_samples=n_samples, n_features=n_features, n_redundant=n_weak, n_strel=n_strong,
-                   n_repeated=0, noise=0, random_state=randomstate)
+        data = gen(
+            n_samples=n_samples,
+            n_features=n_features,
+            n_redundant=n_weak,
+            n_strel=n_strong,
+            n_repeated=0,
+            noise=0,
+            random_state=randomstate,
+        )
 
         X_orig, y = data
         X_orig = StandardScaler().fit(X_orig).transform(X_orig)
         X = X_orig
 
-        model.fit(X, y, )
+        model.fit(X, y)
 
         # Check the interval output
         interval = model.interval_
@@ -70,19 +83,21 @@ def test_model(problem, n_strong, n_weak, randomstate):
 
 
 def test_multiprocessing(randomstate):
-    data = genClassificationData(n_samples=100, n_features=3, n_redundant=2, n_strel=1, random_state=randomstate)
+    data = genClassificationData(
+        n_samples=100, n_features=3, n_redundant=2, n_strel=1, random_state=randomstate
+    )
 
     X_orig, y = data
     X = StandardScaler().fit(X_orig).transform(X_orig)
 
     model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=1)
-    model.fit(X, y, )
+    model.fit(X, y)
 
     model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=2)
-    model.fit(X, y, )
+    model.fit(X, y)
 
     model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=-1)
-    model.fit(X, y, )
+    model.fit(X, y)
 
 
 def test_nonbinaryclasses(randomstate):
@@ -96,4 +111,4 @@ def test_nonbinaryclasses(randomstate):
 
     fri = FRI(ProblemName.CLASSIFICATION)
     with pytest.raises(ValueError):
-        fri.fit(X, y, )
+        fri.fit(X, y)

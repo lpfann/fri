@@ -8,11 +8,7 @@ from fri.compute import RelevanceBoundsIntervals
 from fri.model.base_type import ProblemType
 from fri.parameter_searcher import find_best_model
 
-RELEVANCE_MAPPING = {
-    0: "Irrelevant",
-    1: "Weak relevant",
-    2: "Strong relevant"
-}
+RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
 
 
 class NotFeasibleForParameters(Exception):
@@ -21,9 +17,17 @@ class NotFeasibleForParameters(Exception):
 
 
 class FRIBase(BaseEstimator, SelectorMixin):
-
-    def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=30,
-                 n_probe_features=40, normalize=True, **kwargs):
+    def __init__(
+        self,
+        problem_type: ProblemType,
+        random_state=None,
+        n_jobs=1,
+        verbose=0,
+        n_param_search=30,
+        n_probe_features=40,
+        normalize=True,
+        **kwargs,
+    ):
         """
 
         Parameters
@@ -95,17 +99,29 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_samples_ = X.shape[0]
         self.n_features_ = X.shape[1] - lupi_features
 
-        self.optim_model_, best_score = self._fit_baseline(X, y, lupi_features, **kwargs)
+        self.optim_model_, best_score = self._fit_baseline(
+            X, y, lupi_features, **kwargs
+        )
 
         data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-        self._relevance_bounds_computer = RelevanceBoundsIntervals(data, self.problem_type_, self.optim_model_,
-                                                                   self.random_state, self.n_probe_features,
-                                                                   self.n_jobs, self.verbose, normalize=self.normalize)
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+            data,
+            self.problem_type_,
+            self.optim_model_,
+            self.random_state,
+            self.n_probe_features,
+            self.n_jobs,
+            self.verbose,
+            normalize=self.normalize,
+        )
         if lupi_features == 0:
-            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_intervals()
+            self.interval_, feature_classes = (
+                self._relevance_bounds_computer.get_normalized_intervals()
+            )
         else:
             self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
-                lupi_features=lupi_features)
+                lupi_features=lupi_features
+            )
         self._get_relevance_mask(feature_classes)
 
         # Return the classifier
@@ -122,14 +138,20 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
         search_samples = self.n_param_search
         # Find an optimal, fitted model using hyperparemeter search
-        optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
-                                                    self.random_state, search_samples, self.n_jobs,
-                                                    self.verbose, lupi_features=lupi_features, **kwargs)
+        optimal_model, best_score = find_best_model(
+            init_model_template,
+            hyperparameters,
+            data,
+            self.random_state,
+            search_samples,
+            self.n_jobs,
+            self.verbose,
+            lupi_features=lupi_features,
+            **kwargs,
+        )
         return optimal_model, best_score
 
-    def _get_relevance_mask(self,
-                            prediction,
-                            ):
+    def _get_relevance_mask(self, prediction):
         """Determines relevancy using feature relevance interval values
         Parameters
         ----------
@@ -145,10 +167,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
         self.allrel_prediction_ = prediction > 0
 
-        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[:self.n_features_]
-        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_:]
-        self.relevance_classes_nonpriv_ = self.relevance_classes_[:self.n_features_]
-        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_:]
+        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
+        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
+        self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
+        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
 
         return self.allrel_prediction_
 
@@ -214,8 +236,9 @@ class FRIBase(BaseEstimator, SelectorMixin):
         # Do we have intervals?
         check_is_fitted(self, "interval_")
 
-        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(preset=preset,
-                                                                                     lupi_features=self.lupi_features_)
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
+            preset=preset, lupi_features=self.lupi_features_
+        )
 
     def print_interval_with_class(self):
         """
@@ -232,6 +255,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         for i in range(self.n_features_ + self.lupi_features_):
             if i == self.n_features_:
                 output += "########## LUPI Relevance bounds\n"
-            output += f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+            output += (
+                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+            )
             output += f" {self.relevance_classes_string_[i]}\n"
         return output

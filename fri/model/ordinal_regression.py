@@ -9,7 +9,6 @@ from .base_type import ProblemType
 
 
 class OrdinalRegression(ProblemType):
-
     @classmethod
     def parameters(cls):
         return ["C"]
@@ -38,7 +37,6 @@ class OrdinalRegression(ProblemType):
 
 
 class OrdinalRegression_SVM(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C"]
@@ -62,10 +60,7 @@ class OrdinalRegression_SVM(InitModel):
         b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
-        constraints = [
-            slack_left >= 0,
-            slack_right >= 0
-        ]
+        constraints = [slack_left >= 0, slack_right >= 0]
 
         # Add constraints for slack into left neighboring bins
         for i in range(n_bins - 1):
@@ -90,18 +85,11 @@ class OrdinalRegression_SVM(InitModel):
         b_s = b_s.value
         slack_left = np.asarray(slack_left.value).flatten()
         slack_right = np.asarray(slack_right.value).flatten()
-        self.model_state = {
-            "w": w,
-            "b_s": b_s,
-            "slack": (slack_left, slack_right)
-        }
+        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
 
         loss = np.sum(slack_left + slack_right)
         w_l1 = np.linalg.norm(w, ord=1)
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1}
         return self
 
     def predict(self, X):
@@ -204,7 +192,6 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
 
 
 class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
-
     def init_objective_UB(self, sign=None, **kwargs):
 
         self.add_constraint(
@@ -244,11 +231,16 @@ class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
 
         for i in range(n_bins - 1):
             indices = np.where(self.y == i)
-            self.add_constraint(self.X[indices] * self.w - self.slack_left[indices] <= self.b_s[i] - 1)
+            self.add_constraint(
+                self.X[indices] * self.w - self.slack_left[indices] <= self.b_s[i] - 1
+            )
 
         for i in range(1, n_bins):
             indices = np.where(self.y == i)
-            self.add_constraint(self.X[indices] * self.w + self.slack_right[indices] >= self.b_s[i - 1] + 1)
+            self.add_constraint(
+                self.X[indices] * self.w + self.slack_right[indices]
+                >= self.b_s[i - 1] + 1
+            )
 
         for i in range(n_bins - 2):
             self.add_constraint(self.b_s[i] <= self.b_s[i + 1])

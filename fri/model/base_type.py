@@ -4,7 +4,6 @@ import scipy.stats
 
 
 class ProblemType(ABC):
-
     def __init__(self, **kwargs):
 
         self.chosen_parameters_ = {}
@@ -27,7 +26,9 @@ class ProblemType(ABC):
 
     def get_chosen_parameter(self, p):
         try:
-            return [self.chosen_parameters_[p]]  # We return list for param search function
+            return [
+                self.chosen_parameters_[p]
+            ]  # We return list for param search function
         except:
             # # TODO: rewrite the parameter logic
             # # TODO: move this to subclass

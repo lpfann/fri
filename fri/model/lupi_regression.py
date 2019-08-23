@@ -6,7 +6,11 @@ from sklearn.metrics import r2_score
 from sklearn.metrics.regression import _check_reg_targets
 from sklearn.utils import check_X_y
 
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.base_lupi import (
+    LUPI_Relevance_CVXProblem,
+    split_dataset,
+    is_lupi_feature,
+)
 from fri.model.regression import Regression_Relevance_Bound
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
@@ -46,7 +50,8 @@ class LUPI_Regression(ProblemType):
             raise ValueError("Argument 'lupi_features' is not type int.")
         if not 0 < lupi_features < d:
             raise ValueError(
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (>0) or at least one normal feature.")
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (>0) or at least one normal feature."
+            )
 
         self._lupi_features = lupi_features
 
@@ -57,7 +62,6 @@ class LUPI_Regression(ProblemType):
 
 
 class LUPI_Regression_SVM(LUPI_InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C", "epsilon", "scaling_lupi_w"]
@@ -107,7 +111,10 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
         # L1 norm regularization of both functions with 1 scaling constant
         weight_regularization = 0.5 * (
-                cvx.norm(w, 1) + scaling_lupi_w * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1)))
+            cvx.norm(w, 1)
+            + scaling_lupi_w
+            * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
+        )
 
         constraints = [
             y - X * w - b <= epsilon + priv_function_pos,
@@ -130,7 +137,6 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         self.model_state = {
             "signs_pos": priv_function_pos.value > 0,
             "signs_neg": priv_function_neg.value > 0,
-
             "w": w.value,
             "w_priv_pos": w_priv_pos.value,
             "w_priv_neg": w_priv_neg.value,
@@ -138,13 +144,12 @@ class LUPI_Regression_SVM(LUPI_InitModel):
             "b_priv_pos": b_priv_pos.value,
             "b_priv_neg": b_priv_neg.value,
             "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
-
         }
         w_l1 = np.linalg.norm(w.value, ord=1)
         w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
         w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
         # We take the mean to combine all submodels (for priv) into a single normalization factor
-        w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1)
+        w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
         self.constraints = {
             "priv_loss": priv_loss.value,
             # "loss_slack": slack_loss.value,
@@ -186,35 +191,67 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         return score
 
 
-class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Relevance_Bound):
+class LUPI_Regression_Relevance_Bound(
+    LUPI_Relevance_CVXProblem, Regression_Relevance_Bound
+):
     @classmethod
-    def generate_upper_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
-        is_priv = is_lupi_feature(di, data,
-                                  best_model_state)  # Is it a lupi feature where we need additional candidate problems?
+    def generate_upper_bound_problem(
+        cls,
+        best_hyperparameters,
+        init_constraints,
+        best_model_state,
+        data,
+        di,
+        preset_model,
+        probeID=-1,
+    ):
+        is_priv = is_lupi_feature(
+            di, data, best_model_state
+        )  # Is it a lupi feature where we need additional candidate problems?
 
         if not is_priv:
-            yield from super().generate_upper_bound_problem(best_hyperparameters, init_constraints, best_model_state,
-                                                            data, di, preset_model, probeID=probeID)
+            yield from super().generate_upper_bound_problem(
+                best_hyperparameters,
+                init_constraints,
+                best_model_state,
+                data,
+                di,
+                preset_model,
+                probeID=probeID,
+            )
         else:
             for sign, pos in product([1, -1], [True, False]):
-                problem = cls(di, data, best_hyperparameters, init_constraints,
-                              preset_model=preset_model,
-                              best_model_state=best_model_state, probeID=probeID)
+                problem = cls(
+                    di,
+                    data,
+                    best_hyperparameters,
+                    init_constraints,
+                    preset_model=preset_model,
+                    best_model_state=best_model_state,
+                    probeID=probeID,
+                )
                 problem.init_objective_UB(sign=sign, pos=pos)
                 yield problem
 
     def _init_objective_LB_LUPI(self, **kwargs):
-        self.add_constraint(cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance)
-        self.add_constraint(cvx.abs(self.w_priv_neg[self.lupi_index]) <= self.feature_relevance)
+        self.add_constraint(
+            cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance
+        )
+        self.add_constraint(
+            cvx.abs(self.w_priv_neg[self.lupi_index]) <= self.feature_relevance
+        )
 
         self._objective = cvx.Minimize(self.feature_relevance)
 
     def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
         if pos:
-            self.add_constraint(self.feature_relevance <= sign * self.w_priv_pos[self.lupi_index])
+            self.add_constraint(
+                self.feature_relevance <= sign * self.w_priv_pos[self.lupi_index]
+            )
         else:
-            self.add_constraint(self.feature_relevance <= sign * self.w_priv_neg[self.lupi_index])
+            self.add_constraint(
+                self.feature_relevance <= sign * self.w_priv_neg[self.lupi_index]
+            )
 
         self._objective = cvx.Maximize(self.feature_relevance)
 

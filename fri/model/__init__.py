@@ -6,6 +6,10 @@ from .ordinal_regression import OrdinalRegression
 from .regression import Regression
 
 __all__ = [
-    "Classification", 'Regression', "OrdinalRegression",
-    "LUPI_Classification", "LUPI_Regression", "LUPI_OrdinalRegression"
+    "Classification",
+    "Regression",
+    "OrdinalRegression",
+    "LUPI_Classification",
+    "LUPI_Regression",
+    "LUPI_OrdinalRegression",
 ]

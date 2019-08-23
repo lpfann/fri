@@ -12,7 +12,7 @@ def randomstate():
     return check_random_state(1337)
 
 
-@pytest.mark.parametrize('problem', fri.LUPI_MODELS)
+@pytest.mark.parametrize("problem", fri.LUPI_MODELS)
 def test_error_class(problem):
     X, X_priv, y = genLupiData(problem, n_samples=500, n_strel=3)
 
@@ -29,18 +29,30 @@ def test_error_class(problem):
         f.fit(combined, y)
 
 
-@pytest.mark.parametrize('n_weak', [0, 2])
-@pytest.mark.parametrize('problem', fri.LUPI_MODELS)
+@pytest.mark.parametrize("n_weak", [0, 2])
+@pytest.mark.parametrize("problem", fri.LUPI_MODELS)
 def test_lupi_model_correctness(problem, n_weak, randomstate):
     n_samples = 100
 
-    model = FRI(problem, random_state=randomstate, verbose=1, n_param_search=50,
-                n_probe_features=70, n_jobs=1)
+    model = FRI(
+        problem,
+        random_state=randomstate,
+        verbose=1,
+        n_param_search=50,
+        n_probe_features=70,
+        n_jobs=1,
+    )
 
-    data = genLupiData(problem, n_strel=1, n_weakrel_groups=n_weak,
-                       n_samples=n_samples, n_irrel=2, noise=0.1,
-                       n_repeated=0, random_state=randomstate
-                       )
+    data = genLupiData(
+        problem,
+        n_strel=1,
+        n_weakrel_groups=n_weak,
+        n_samples=n_samples,
+        n_irrel=2,
+        noise=0.1,
+        n_repeated=0,
+        random_state=randomstate,
+    )
 
     X, X_priv, y = data
 

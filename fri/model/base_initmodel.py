@@ -4,7 +4,6 @@ from sklearn.base import BaseEstimator
 
 
 class InitModel(ABC, BaseEstimator):
-
     def __init__(self, **parameters):
         if parameters is None:
             parameters = {}
@@ -65,7 +64,8 @@ class InitModel(ABC, BaseEstimator):
             return self.constraints["w_l1"]
         except:
             raise NotImplementedError(
-                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w).")
+                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w)."
+            )
 
     @property
     def solver_params(cls):
@@ -79,4 +79,5 @@ class LUPI_InitModel(InitModel):
             return self.constraints["w_priv_l1"]
         except:
             raise NotImplementedError(
-                "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv).")
+                "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv)."
+            )

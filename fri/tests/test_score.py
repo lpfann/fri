@@ -27,7 +27,7 @@ def swap_first_last(y):
     return y
 
 
-@pytest.mark.parametrize('error', ["mze", "mae", "mmae"])
+@pytest.mark.parametrize("error", ["mze", "mae", "mmae"])
 def test_ordinal_score(error, data):
     score_perfect = score(data, data, error_type=error)
     score_mixed = score(data, swap_first_last(data), error_type=error)

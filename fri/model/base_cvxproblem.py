@@ -6,7 +6,6 @@ from cvxpy import SolverError
 
 
 class Relevance_CVXProblem(ABC):
-
     def __str__(self) -> str:
         if self.isLowerBound:
             lower = "Lower"
@@ -25,8 +24,17 @@ class Relevance_CVXProblem(ABC):
             prefix = ""
         return prefix + name + state
 
-    def __init__(self, current_feature: int, data: tuple, hyperparameters, best_model_constraints, preset_model=None,
-                 best_model_state=None, probeID=-1, **kwargs) -> None:
+    def __init__(
+        self,
+        current_feature: int,
+        data: tuple,
+        hyperparameters,
+        best_model_constraints,
+        preset_model=None,
+        best_model_state=None,
+        probeID=-1,
+        **kwargs,
+    ) -> None:
         self._probeID = probeID
         self._feature_relevance = None
         self.isLowerBound = None
@@ -113,7 +121,9 @@ class Relevance_CVXProblem(ABC):
     def solve(self) -> object:
         # We init cvx problem here because pickling LP solver objects is problematic
         # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
-        self._cvx_problem = cvx.Problem(objective=self.objective, constraints=self.constraints)
+        self._cvx_problem = cvx.Problem(
+            objective=self.objective, constraints=self.constraints
+        )
         try:
             # print("Solve", self)
             self._cvx_problem.solve(**self.solver_kwargs)
@@ -151,37 +161,57 @@ class Relevance_CVXProblem(ABC):
             # We add a pair of constraints depending on sign of known coefficient
             # this makes it possible to solve this as a convex problem
             if current_preset[0] >= 0:
-                self.add_constraint(
-                    self.w[feature] >= current_preset[0]
-                )
-                self.add_constraint(
-                    self.w[feature] <= current_preset[1]
-                )
+                self.add_constraint(self.w[feature] >= current_preset[0])
+                self.add_constraint(self.w[feature] <= current_preset[1])
             else:
-                self.add_constraint(
-                    self.w[feature] <= current_preset[0]
-                )
-                self.add_constraint(
-                    self.w[feature] >= current_preset[1]
-                )
+                self.add_constraint(self.w[feature] <= current_preset[0])
+                self.add_constraint(self.w[feature] >= current_preset[1])
 
     @classmethod
-    def generate_lower_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
-        problem = cls(di, data, best_hyperparameters, init_constraints,
-                      preset_model=preset_model,
-                      best_model_state=best_model_state, probeID=probeID)
+    def generate_lower_bound_problem(
+        cls,
+        best_hyperparameters,
+        init_constraints,
+        best_model_state,
+        data,
+        di,
+        preset_model,
+        probeID=-1,
+    ):
+        problem = cls(
+            di,
+            data,
+            best_hyperparameters,
+            init_constraints,
+            preset_model=preset_model,
+            best_model_state=best_model_state,
+            probeID=probeID,
+        )
         problem.init_objective_LB()
         problem.isLowerBound = True
         yield problem
 
     @classmethod
-    def generate_upper_bound_problem(cls, best_hyperparameters, init_constraints, best_model_state, data, di,
-                                     preset_model, probeID=-1):
+    def generate_upper_bound_problem(
+        cls,
+        best_hyperparameters,
+        init_constraints,
+        best_model_state,
+        data,
+        di,
+        preset_model,
+        probeID=-1,
+    ):
         for sign in [-1, 1]:
-            problem = cls(di, data, best_hyperparameters, init_constraints,
-                          preset_model=preset_model,
-                          best_model_state=best_model_state, probeID=probeID)
+            problem = cls(
+                di,
+                data,
+                best_hyperparameters,
+                init_constraints,
+                preset_model=preset_model,
+                best_model_state=best_model_state,
+                probeID=probeID,
+            )
             problem.init_objective_UB(sign=sign)
             problem.isLowerBound = False
             yield problem

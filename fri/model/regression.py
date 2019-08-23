@@ -8,7 +8,6 @@ from .base_type import ProblemType
 
 
 class Regression(ProblemType):
-
     @classmethod
     def parameters(cls):
         return ["C", "epsilon"]
@@ -34,7 +33,6 @@ class Regression(ProblemType):
 
 
 class Regression_SVR(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C", "epsilon"]
@@ -50,10 +48,7 @@ class Regression_SVR(InitModel):
         b = cvx.Variable(name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
-        constraints = [
-            cvx.abs(y - (X * w + b)) <= epsilon + slack,
-            slack >= 0
-        ]
+        constraints = [cvx.abs(y - (X * w + b)) <= epsilon + slack, slack >= 0]
 
         # Solve problem.
         solver_params = self.solver_params
@@ -63,18 +58,11 @@ class Regression_SVR(InitModel):
         w = w.value
         b = b.value
         slack = np.asarray(slack.value).flatten()
-        self.model_state = {
-            "w": w,
-            "b": b,
-            "slack": slack
-        }
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
         loss = np.sum(slack)
         w_l1 = np.linalg.norm(w, ord=1)
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1}
         return self
 
     def predict(self, X):
@@ -98,7 +86,6 @@ class Regression_SVR(InitModel):
 
 
 class Regression_Relevance_Bound(Relevance_CVXProblem):
-
     def init_objective_UB(self, sign=None, **kwargs):
         self.add_constraint(
             self.feature_relevance <= sign * self.w[self.current_feature]

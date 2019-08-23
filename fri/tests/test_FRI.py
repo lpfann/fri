@@ -16,7 +16,7 @@ def data(prob):
     return quick_generate(prob)
 
 
-@pytest.mark.parametrize('problem', NORMAL_MODELS)
+@pytest.mark.parametrize("problem", NORMAL_MODELS)
 def test_normal_model(problem, random_state):
     model = FRI(problem, random_state=random_state)
 
@@ -27,7 +27,7 @@ def test_normal_model(problem, random_state):
     assert len(model.allrel_prediction_) == X.shape[1]
 
 
-@pytest.mark.parametrize('problem', LUPI_MODELS)
+@pytest.mark.parametrize("problem", LUPI_MODELS)
 def test_lupi_model(problem, random_state):
     model = FRI(problem, random_state=random_state)
 

@@ -11,9 +11,19 @@ def randomstate():
     return check_random_state(1337)
 
 
-@pytest.mark.parametrize('problem', [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION])
+@pytest.mark.parametrize(
+    "problem",
+    [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION],
+)
 def test__compute_single_preset_relevance_bounds(problem, randomstate):
-    data = quick_generate(problem, n_samples=300, n_features=4, n_redundant=2, n_strel=2, random_state=randomstate)
+    data = quick_generate(
+        problem,
+        n_samples=300,
+        n_features=4,
+        n_redundant=2,
+        n_strel=2,
+        random_state=randomstate,
+    )
 
     X_orig, y = data
     X = scale(X_orig)
@@ -24,15 +34,27 @@ def test__compute_single_preset_relevance_bounds(problem, randomstate):
 
     i = 0
     preset = [model.interval_[i, 0], model.interval_[i, 0]]
-    range = model._relevance_bounds_computer.compute_single_preset_relevance_bounds(i, preset)
+    range = model._relevance_bounds_computer.compute_single_preset_relevance_bounds(
+        i, preset
+    )
     assert normal_range.shape == range.shape
     assert range[i][0] == preset[0]
     assert range[i][1] == preset[1]
 
 
-@pytest.mark.parametrize('problem', [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION])
+@pytest.mark.parametrize(
+    "problem",
+    [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION],
+)
 def test__compute_multi_preset_relevance_bounds(problem, randomstate):
-    data = quick_generate(problem, n_samples=300, n_features=4, n_redundant=2, n_strel=2, random_state=randomstate)
+    data = quick_generate(
+        problem,
+        n_samples=300,
+        n_features=4,
+        n_redundant=2,
+        n_strel=2,
+        random_state=randomstate,
+    )
 
     X_orig, y = data
     X = scale(X_orig)
@@ -53,7 +75,9 @@ def test__compute_multi_preset_relevance_bounds(problem, randomstate):
     mean_1 = np.mean([model.interval_[i, 0], model.interval_[i, 1]])
     preset_1 = [mean_1, mean_1]
     presetModel = {0: preset_0, 1: preset_1}
-    range = model._relevance_bounds_computer.compute_multi_preset_relevance_bounds(presetModel)
+    range = model._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
+        presetModel
+    )
 
     assert normal_range.shape == range.shape
     i = 0
@@ -64,9 +88,19 @@ def test__compute_multi_preset_relevance_bounds(problem, randomstate):
     assert range[i][1] == preset_1[1]
 
 
-@pytest.mark.parametrize('problem', [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION])
+@pytest.mark.parametrize(
+    "problem",
+    [ProblemName.REGRESSION, ProblemName.CLASSIFICATION, ProblemName.ORDINALREGRESSION],
+)
 def test__compute_multi_preset_relevance_bounds(problem, randomstate):
-    data = quick_generate(problem, n_samples=300, n_features=4, n_redundant=2, n_strel=2, random_state=randomstate)
+    data = quick_generate(
+        problem,
+        n_samples=300,
+        n_features=4,
+        n_redundant=2,
+        n_strel=2,
+        random_state=randomstate,
+    )
 
     X_orig, y = data
     X = scale(X_orig)

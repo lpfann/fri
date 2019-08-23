@@ -46,7 +46,8 @@ class LUPI_Classification(ProblemType):
             raise ValueError("Argument 'lupi_features' is not type int.")
         if not 0 < lupi_features < d:
             raise ValueError(
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (>0) or at least one normal feature.")
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (>0) or at least one normal feature."
+            )
 
         self._lupi_features = lupi_features
 
@@ -67,7 +68,6 @@ class LUPI_Classification(ProblemType):
 
 
 class LUPI_Classification_SVM(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C", "scaling_lupi_w"]
@@ -130,17 +130,13 @@ class LUPI_Classification_SVM(InitModel):
             "w_priv": w_priv,
             "b": b,
             "b_priv": b_priv,
-            "lupi_features": lupi_features  # Number of lupi features in the dataset TODO: Move this somewhere else
+            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
         }
 
         loss = loss.value
         w_l1 = w_l1.value
         w_priv_l1 = w_priv_l1.value
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1,
-            "w_priv_l1": w_priv_l1,
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1, "w_priv_l1": w_priv_l1}
         return self
 
     def predict(self, X):
@@ -172,8 +168,9 @@ class LUPI_Classification_SVM(InitModel):
         return score
 
 
-class LUPI_Classification_Relevance_Bound(LUPI_Relevance_CVXProblem, Classification_Relevance_Bound):
-
+class LUPI_Classification_Relevance_Bound(
+    LUPI_Relevance_CVXProblem, Classification_Relevance_Bound
+):
     def _init_objective_UB_LUPI(self, sign=None, **kwargs):
         self.add_constraint(
             self.feature_relevance <= sign * self.w_priv[self.lupi_index]

@@ -3,7 +3,7 @@ import logging
 # Get version from versioneer
 from fri._version import get_versions
 
-__version__ = get_versions()['version']
+__version__ = get_versions()["version"]
 del get_versions
 
 logging.basicConfig(level=logging.INFO)
@@ -15,34 +15,51 @@ class ProblemName(Enum):
     """
     Enum which contains usable models for which feature relevance intervals can be computed in :func:`~FRI`.
     """
+
     CLASSIFICATION = fri.model.Classification
     REGRESSION = fri.model.Regression
     ORDINALREGRESSION = fri.model.OrdinalRegression
-    # ORDINALREGRESSION_IMP = fri.model.OrdinalRegression_Imp
     LUPI_CLASSIFICATION = fri.model.LUPI_Classification
     LUPI_REGRESSION = fri.model.LUPI_Regression
     LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
-    # LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
 
 
 NORMAL_MODELS = [
-    ProblemName.CLASSIFICATION, ProblemName.REGRESSION, ProblemName.ORDINALREGRESSION
+    ProblemName.CLASSIFICATION,
+    ProblemName.REGRESSION,
+    ProblemName.ORDINALREGRESSION,
 ]
 LUPI_MODELS = [
-    ProblemName.LUPI_CLASSIFICATION, ProblemName.LUPI_REGRESSION, ProblemName.LUPI_ORDREGRESSION
+    ProblemName.LUPI_CLASSIFICATION,
+    ProblemName.LUPI_REGRESSION,
+    ProblemName.LUPI_ORDREGRESSION,
 ]
 
-from fri.toydata import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate, genLupiData
+from fri.toydata import (
+    genRegressionData,
+    genClassificationData,
+    genOrdinalRegressionData,
+    quick_generate,
+    genLupiData,
+)
 from fri.main import FRIBase
 from fri.plot import plot_intervals
 
 
 class FRI(FRIBase):
-
-    def __init__(self, problemName: object, random_state: object = None, n_jobs: object = 1, verbose: object = 0,
-                 n_param_search: object = 10,
-                 n_probe_features: object = 20, slack_regularization: object = 0.001, slack_loss: object = 0.001,
-                 normalize: object = True, **kwargs):
+    def __init__(
+        self,
+        problemName: object,
+        random_state: object = None,
+        n_jobs: object = 1,
+        verbose: object = 0,
+        n_param_search: object = 10,
+        n_probe_features: object = 20,
+        slack_regularization: object = 0.001,
+        slack_loss: object = 0.001,
+        normalize: object = True,
+        **kwargs,
+    ):
         """
         Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.
 
@@ -82,16 +99,33 @@ class FRI(FRIBase):
 
         if problemtype is None:
             names = [enum.name.lower() for enum in ProblemName]
-            print(f"Parameter 'problemName' was not recognized or unset. Try one of {names}.")
+            print(
+                f"Parameter 'problemName' was not recognized or unset. Try one of {names}."
+            )
         else:
-            super().__init__(problemtype, random_state=random_state, n_jobs=n_jobs, verbose=verbose,
-                             n_param_search=n_param_search,
-                             n_probe_features=n_probe_features,
-                             w_l1_slack=slack_regularization,
-                             loss_slack=slack_loss,
-                             normalize=normalize,
-                             **kwargs)
+            super().__init__(
+                problemtype,
+                random_state=random_state,
+                n_jobs=n_jobs,
+                verbose=verbose,
+                n_param_search=n_param_search,
+                n_probe_features=n_probe_features,
+                w_l1_slack=slack_regularization,
+                loss_slack=slack_loss,
+                normalize=normalize,
+                **kwargs,
+            )
 
 
-__all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData",
-           "quick_generate", "plot_intervals", "ProblemName", "FRI", "LUPI_MODELS", "NORMAL_MODELS", "genLupiData"]
+__all__ = [
+    "genRegressionData",
+    "genClassificationData",
+    "genOrdinalRegressionData",
+    "quick_generate",
+    "plot_intervals",
+    "ProblemName",
+    "FRI",
+    "LUPI_MODELS",
+    "NORMAL_MODELS",
+    "genLupiData",
+]
