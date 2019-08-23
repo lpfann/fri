@@ -21,8 +21,8 @@ class NotFeasibleForParameters(Exception):
 
 class FRIBase(BaseEstimator, SelectorMixin):
 
-    def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=20,
-                 n_probe_features=30, normalize=True, **kwargs):
+    def __init__(self, problem_type: ProblemType, random_state=None, n_jobs=1, verbose=0, n_param_search=30,
+                 n_probe_features=40, normalize=True, **kwargs):
         """
 
         Parameters
@@ -119,7 +119,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
         init_model_template = self.problem_type_.get_initmodel_template
         # Get hyperparameters which are predefined to our model template and can be seleted by user choice
         hyperparameters = self.problem_type_.get_all_parameters()
-        search_samples = len(hyperparameters) * self.n_param_search
+        # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
+        search_samples = self.n_param_search
         # Find an optimal, fitted model using hyperparemeter search
         optimal_model, best_score = find_best_model(init_model_template, hyperparameters, data,
                                                     self.random_state, search_samples, self.n_jobs,
