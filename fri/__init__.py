@@ -8,13 +8,7 @@ del get_versions
 
 logging.basicConfig(level=logging.INFO)
 from enum import Enum
-
-from fri.genData import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate
-from fri.main import FRIBase
-from fri.plot import plot_intervals
 import fri.model
-
-
 class ProblemName(Enum):
     """
     Enum which contains usable models for which feature relevance intervals can be computed in :func:`~FRI`.
@@ -28,11 +22,17 @@ class ProblemName(Enum):
     LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
     #LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP
 
+from fri.toydata import genRegressionData, genClassificationData, genOrdinalRegressionData, quick_generate
+from fri.main import FRIBase
+from fri.plot import plot_intervals
+
+
+
 
 class FRI(FRIBase):
 
-    def __init__(self, problemName: object, random_state=None, n_jobs=1, verbose=0, n_param_search=50,
-        n_probe_features=80, slack_regularization=0.1, slack_loss=0.1, normalize=True, **kwargs):
+    def __init__(self, problemName: object, random_state: object = None, n_jobs: object = 1, verbose: object = 0, n_param_search: object = 10,
+                 n_probe_features: object = 20, slack_regularization: object = 0.001, slack_loss: object = 0.001, normalize: object = True, **kwargs):
         """
         Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.
 
