@@ -8,7 +8,7 @@ from scipy.cluster.hierarchy import dendrogram
 import matplotlib.cm as cm
 
 # Get a color for each relevance type
-color_palette_3 = cm.Set1([0,1,2],alpha=0.8)
+color_palette_3 = cm.Set1([0, 1, 2], alpha=0.8)
 
 
 def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=True,
@@ -83,6 +83,7 @@ def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=Tru
         ax.legend(handles=patches)
 
     return bars
+
 
 def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
     # Figure Parameters
@@ -160,8 +161,8 @@ def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
             Strs for lupi ticklabels on x-axis (lupi features)
         """
     n_features = model.interval_.shape[0] - model.lupi_features_
-    data_interval_ = model.interval_[0:n_features,:]
-    lupi_interval_ = model.interval_[n_features:,:]
+    data_interval_ = model.interval_[0:n_features, :]
+    lupi_interval_ = model.interval_[n_features:, :]
 
     data_relevance_classes_ = model.relevance_classes_[0:n_features]
     lupi_relevance_classes_ = model.relevance_classes_[n_features:]

@@ -135,7 +135,6 @@ class RelevanceBoundsIntervals(object):
             interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
             intervals[rel_index] = interval_i
 
-
         return intervals  # TODO: add model model_state (omega, bias) to return value
 
     def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
@@ -160,12 +159,12 @@ class RelevanceBoundsIntervals(object):
                 candidates[candidate.probeID].append(candidate)
         probe_values = []
         for probes_for_ID in candidates.values():
-                if isUpper:
-                    probe_values.append(
-                        self.problem_type.get_cvxproblem_template.aggregate_max_candidates(probes_for_ID))
-                else:
-                    probe_values.append(
-                        self.problem_type.get_cvxproblem_template.aggregate_min_candidates(probes_for_ID))
+            if isUpper:
+                probe_values.append(
+                    self.problem_type.get_cvxproblem_template.aggregate_max_candidates(probes_for_ID))
+            else:
+                probe_values.append(
+                    self.problem_type.get_cvxproblem_template.aggregate_min_candidates(probes_for_ID))
 
         return np.array(probe_values)
 
@@ -180,12 +179,14 @@ class RelevanceBoundsIntervals(object):
             # Add Lower Bound problem(s) to work list
             yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(self.best_hyperparameters,
                                                                                               self.init_constraints,
-                                                                                              best_model_state, data, di, preset_model)
+                                                                                              best_model_state, data,
+                                                                                              di, preset_model)
 
             # Add problem(s) for Upper bound
             yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(self.best_hyperparameters,
                                                                                               self.init_constraints,
-                                                                                              best_model_state, data, di, preset_model)
+                                                                                              best_model_state, data,
+                                                                                              di, preset_model)
 
     def _generate_probe_value_tasks(self, data, dims, isUpper, n_resampling, random_state, preset_model=None,
                                     best_model_state=None):
@@ -308,6 +309,7 @@ class RelevanceBoundsIntervals(object):
             rangevector[rangevector <= 1e-11] = 0
         return rangevector
 
+
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
 
@@ -316,9 +318,6 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     #    dims = [di for di in dims if di not in presetModel.keys()]
     # TODO: check the removal of this block
     return dims
-
-
-
 
 
 def feature_classification(probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0):

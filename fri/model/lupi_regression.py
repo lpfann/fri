@@ -2,12 +2,12 @@ from itertools import product
 
 import cvxpy as cvx
 import numpy as np
-from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
-from fri.model.regression import Regression_Relevance_Bound
 from sklearn.metrics import r2_score
 from sklearn.metrics.regression import _check_reg_targets
 from sklearn.utils import check_X_y
 
+from fri.model.base_lupi import LUPI_Relevance_CVXProblem, split_dataset, is_lupi_feature
+from fri.model.regression import Regression_Relevance_Bound
 from .base_initmodel import LUPI_InitModel
 from .base_type import ProblemType
 
@@ -56,8 +56,6 @@ class LUPI_Regression(ProblemType):
         return X, y
 
 
-
-
 class LUPI_Regression_SVM(LUPI_InitModel):
 
     @classmethod
@@ -93,7 +91,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         b_priv_pos = cvx.Variable(name="bias_priv_pos")
         w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
         b_priv_neg = cvx.Variable(name="bias_priv_neg")
-        #slack = cvx.Variable(shape=(n), name="slack")
+        # slack = cvx.Variable(shape=(n), name="slack")
 
         # Define functions for better readability
         priv_function_pos = X_priv * w_priv_pos + b_priv_pos
@@ -120,7 +118,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
             # priv_loss_neg >= 0,
             # slack_loss >= 0,
             # slack >= 0,
-            #loss >= 0,
+            # loss >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
 
@@ -128,7 +126,6 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         solver_params = self.solver_params
         problem = cvx.Problem(objective, constraints)
         problem.solve(**solver_params)
-
 
         self.model_state = {
             "signs_pos": priv_function_pos.value > 0,
@@ -150,7 +147,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         w_priv_l1 = (w_priv_pos_l1 + w_priv_neg_l1)
         self.constraints = {
             "priv_loss": priv_loss.value,
-            #"loss_slack": slack_loss.value,
+            # "loss_slack": slack_loss.value,
             "loss": loss.value,
             "w_l1": w_l1,
             "w_priv_l1": w_priv_l1,
@@ -206,7 +203,6 @@ class LUPI_Regression_Relevance_Bound(LUPI_Relevance_CVXProblem, Regression_Rele
                               best_model_state=best_model_state, probeID=probeID)
                 problem.init_objective_UB(sign=sign, pos=pos)
                 yield problem
-
 
     def _init_objective_LB_LUPI(self, **kwargs):
         self.add_constraint(cvx.abs(self.w_priv_pos[self.lupi_index]) <= self.feature_relevance)

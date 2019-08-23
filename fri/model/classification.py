@@ -114,7 +114,6 @@ class Classification_SVM(InitModel):
 class Classification_Relevance_Bound(Relevance_CVXProblem):
 
     def init_objective_UB(self, sign=None, **kwargs):
-
         self.add_constraint(
             self.feature_relevance <= sign * self.w[self.current_feature]
         )

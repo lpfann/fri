@@ -133,6 +133,7 @@ class OrdinalRegression_SVM(InitModel):
         scorer = {"mze": mze, "mae": mae, "mmae": mmae}
         return scorer, "mmae"
 
+
 def ordinal_scores(y, prediction, error_type, return_error=False):
     """Score function for ordinal problems.
 

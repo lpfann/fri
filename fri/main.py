@@ -14,6 +14,7 @@ RELEVANCE_MAPPING = {
     2: "Strong relevant"
 }
 
+
 class NotFeasibleForParameters(Exception):
     """ Problem was infeasible with the current parameter set.
     """
@@ -64,7 +65,6 @@ class FRIBase(BaseEstimator, SelectorMixin):
         self.n_jobs = n_jobs
         self.verbose = verbose
         self.normalize = normalize
-
 
         self.interval_ = None
         self.optim_model_ = None

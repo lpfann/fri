@@ -60,4 +60,3 @@ def find_best_model(model_template: InitModel, hyperparameters: dict, data: Tupl
                 pprint((f"{k}: {v}"))
         print("*" * 30)
     return best_model, best_score
-

@@ -1,13 +1,10 @@
 import numpy as np
-from numpy.random import RandomState
 from sklearn.utils import check_random_state
-from sklearn.utils import shuffle
 
 from fri import ProblemName
 
 
 def _checkLupiParam(problemName, lupiType, n_strel, n_weakrel, n_priv_weakrel, partition, partition_priv):
-
     """
         Checks if the parameters supplied to the genLupiData() function are okay.
 
@@ -35,24 +32,27 @@ def _checkLupiParam(problemName, lupiType, n_strel, n_weakrel, n_priv_weakrel, p
     if lupiType not in ['cleanLabels', 'cleanFeatures']:
         raise ValueError("The lupiType parameter must be a string out of ['cleanLabels', 'cleanFeatures'].")
     if n_strel < 1:
-        raise ValueError("At least one strongly relevant feature is necessary (Parmeter 'n_strel' must be greater than 0).")
+        raise ValueError(
+            "At least one strongly relevant feature is necessary (Parmeter 'n_strel' must be greater than 0).")
     if partition is not None:
         if sum(partition) != n_weakrel:
-            raise ValueError("The sum over the entries in the partition list must be equal to the parameter 'n_weakrel'.")
+            raise ValueError(
+                "The sum over the entries in the partition list must be equal to the parameter 'n_weakrel'.")
         if 0 in partition or 1 in partition:
             raise ValueError("The entries in the partition list must be greater or equal to 2.")
     if partition_priv is not None:
         if sum(partition_priv) != n_priv_weakrel:
-            raise ValueError("The sum over the entries in the partition_priv list must be equal to the parameter 'n_priv_weakrel'.")
+            raise ValueError(
+                "The sum over the entries in the partition_priv list must be equal to the parameter 'n_priv_weakrel'.")
         if 0 in partition_priv or 1 in partition_priv:
             raise ValueError("The entries in the partition_priv list must be greater or equal to 2.")
     if lupiType == 'cleanLabels' and n_priv_weakrel > 0:
-        raise ValueError("The 'cleanLabels' data has only one strongly relevant feature by nature, this can be repeated ('n_priv_repeated'),"
-                         "or useless information can be added ('n_priv_irrel') but it can not be weakend => n_priv_weakrel hast to be 0.")
+        raise ValueError(
+            "The 'cleanLabels' data has only one strongly relevant feature by nature, this can be repeated ('n_priv_repeated'),"
+            "or useless information can be added ('n_priv_irrel') but it can not be weakend => n_priv_weakrel hast to be 0.")
 
 
 def _genWeakFeatures(n_weakrel, X, random_state, partition):
-
     """
         Generate n_weakrel features out of the strRelFeature
 
@@ -83,14 +83,16 @@ def _genWeakFeatures(n_weakrel, X, random_state, partition):
     else:
         idx = 0
         for j in range(len(partition)):
-            X_weakrel[:, idx: idx + partition[j]] = np.tile(X[:, random_state.choice(X.shape[1])], (partition[j], 1)).T + random_state.normal(loc=0, scale=1, size=partition[j])
+            X_weakrel[:, idx: idx + partition[j]] = np.tile(X[:, random_state.choice(X.shape[1])],
+                                                            (partition[j], 1)).T + random_state.normal(loc=0, scale=1,
+                                                                                                       size=partition[
+                                                                                                           j])
             idx += partition[j]
 
     return X_weakrel
 
 
 def _genRepeatedFeatures(n_repeated, X, random_state):
-
     """
         Generate repeated features by picking a random existing feature out of X
 
@@ -106,7 +108,7 @@ def _genRepeatedFeatures(n_repeated, X, random_state):
 
     X_repeated = np.zeros([X.shape[0], n_repeated])
     for i in range(n_repeated):
-        X_repeated[:,i] = X[:, random_state.choice(X.shape[1])]
+        X_repeated[:, i] = X[:, random_state.choice(X.shape[1])]
 
     return X_repeated
 
@@ -355,14 +357,19 @@ def genLupiData(problemName: ProblemName, n_samples: int = 100, random_state: ob
     X_priv_weakrel = np.zeros([n_samples, n_weakrel_groups * 2])
     idx = 0
     for i in range(n_weakrel_groups):
-        X_priv_weakrel[:, idx:idx+2] = np.tile(X_informative[:, n_strel + i], (2, 1)).T + random_state.normal(loc=0, scale=np.std(X_informative[:, n_strel + i]), size=2)
+        X_priv_weakrel[:, idx:idx + 2] = np.tile(X_informative[:, n_strel + i], (2, 1)).T + random_state.normal(loc=0,
+                                                                                                                scale=np.std(
+                                                                                                                    X_informative[
+                                                                                                                    :,
+                                                                                                                    n_strel + i]),
+                                                                                                                size=2)
         idx += 2
 
     X_priv_repeated = _genRepeatedFeatures(n_repeated, np.hstack([X_priv_strel, X_priv_weakrel]), random_state)
 
     X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated])
 
-    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise*np.std(X_priv))
+    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise * np.std(X_priv))
     X = X_priv + e
     scores = np.dot(X_informative, w)
 
@@ -389,7 +396,6 @@ def genLupiData(problemName: ProblemName, n_samples: int = 100, random_state: ob
     return (X, X_priv, y.squeeze())
 
 
-
 #######################################################################################################################
 #                                                                                                                     #
 #                                                    New Regression                                                   #
@@ -398,7 +404,6 @@ def genLupiData(problemName: ProblemName, n_samples: int = 100, random_state: ob
 
 
 def _checkParam2(n_samples, n_strel, n_weakrel, flip_y: float = 0, partition=None):
-
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
     if not 0 <= flip_y < 1:
@@ -415,9 +420,8 @@ def _checkParam2(n_samples, n_strel, n_weakrel, flip_y: float = 0, partition=Non
 
 
 def genRegressionData2(n_samples: int = 100, random_state: object = None, noise: float = 0.0,
-                      n_strel: int = 1, n_weakrel: int = 0, n_repeated: int = 0, n_irrel: int = 0,
-                      partition = None) -> object:
-
+                       n_strel: int = 1, n_weakrel: int = 0, n_repeated: int = 0, n_irrel: int = 0,
+                       partition=None) -> object:
     """Generate synthetic regression data
 
     Parameters
@@ -481,7 +485,3 @@ def genRegressionData2(n_samples: int = 100, random_state: object = None, noise:
     y = np.squeeze(y)
 
     return X, y
-
-
-
-

@@ -23,6 +23,7 @@ def test_quick_generate(problem):
     assert len(data) == 2 or len(
         data) == 3  # Check if two-tuple or three-tuple depending on if we have lupi data or not
 
+
 @pytest.mark.parametrize('n_samples', [2, 100, 10000])
 @pytest.mark.parametrize('n_dim', [1, 5, 30, 100, 1000])
 def test_shape(n_samples, n_dim):
@@ -131,6 +132,7 @@ def test_genOrdinalRegression(strong, weak, repeated, noise, bins, n_samples):
     assert_equal(len(X), n_samples)
     assert_equal(X.shape[1], n_features)
 
+
 def test_data_truth():
     n = 100
     d = 10
@@ -195,4 +197,3 @@ def test_partition(problem, partition):
     # Correct parameters
     assert_equal(len(X), n_samples)
     assert_equal(X.shape[1], n_features)
-

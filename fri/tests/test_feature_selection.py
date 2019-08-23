@@ -11,6 +11,7 @@ from fri import genRegressionData, genClassificationData, genOrdinalRegressionDa
 def randomstate():
     return check_random_state(1337)
 
+
 @pytest.mark.parametrize('n_weak', [0, 2, 3])
 @pytest.mark.parametrize('n_strong', [0, 1, 2])
 @pytest.mark.parametrize('problem', ["regression", "classification", "ordreg"])
@@ -53,7 +54,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
         if problem is not "ordreg":
             assert model.score(X[:30], y[:30]) >= 0.8
 
-        n_f =  n_strong + n_weak # Number of relevant features
+        n_f = n_strong + n_weak  # Number of relevant features
 
         # Check how many are selected
         selected = model._n_selected_features()
@@ -66,6 +67,7 @@ def test_model(problem, n_strong, n_weak, randomstate):
         # Check if all relevant features are selected
         truth = np.ones(n_f)
         assert all(model._get_support_mask()[:n_f] == truth)
+
 
 def test_multiprocessing(randomstate):
     data = genClassificationData(n_samples=100, n_features=3, n_redundant=2, n_strel=1, random_state=randomstate)
@@ -81,6 +83,7 @@ def test_multiprocessing(randomstate):
 
     model = FRI(ProblemName.CLASSIFICATION, random_state=randomstate, n_jobs=-1)
     model.fit(X, y, )
+
 
 def test_nonbinaryclasses(randomstate):
     n = 90

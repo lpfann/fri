@@ -3,6 +3,7 @@ from numpy.random import RandomState
 from sklearn.utils import check_random_state
 from sklearn.utils import shuffle
 
+
 def _combFeat(n, size, strRelFeat, randomstate):
     # Split each strongly relevant feature into linear combination of it
     weakFeats = np.tile(strRelFeat, (size, 1)).T
@@ -88,9 +89,10 @@ def generate_binary_classification_problem(n_samples: int, features: int, random
     labels[labels == 0] = -1
     return data, labels
 
+
 def genClassificationData(n_samples: int = 100, n_features: int = 2,
                           n_redundant: int = 0, n_strel: int = 1,
-                          n_repeated: int = 0, noise : float = 0.1,
+                          n_repeated: int = 0, noise: float = 0.1,
                           flip_y: float = 0, random_state: object = None,
                           partition=None):
     """Generate synthetic classification data
@@ -141,8 +143,6 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     _checkParam(**locals())
     random_state = check_random_state(random_state)
 
-
-
     X = np.zeros((n_samples, n_features))
 
     # Find partitions which defíne the weakly relevant subsets
@@ -165,7 +165,7 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
         Y[random_state.choice(n_samples, n_flip)] *= -1
 
     # Add gaussian noise to data
-    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
+    X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
 
     return X, Y
 
@@ -237,10 +237,10 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     y = np.squeeze(y)
     return X, y
 
+
 def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
                              n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
                              partition=None, n_target_bins: int = 3):
-
     """
     Generate ordinal regression data
 
@@ -302,7 +302,7 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
 
     # Assign ordinal classes as target values
     for i in range(n_target_bins):
-        Y[bin_size*i:bin_size*(i+1)] = i
+        Y[bin_size * i:bin_size * (i + 1)] = i
 
     # Put non divisable rest into last bin
     if rest > 0:
@@ -311,7 +311,6 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
     X, Y = shuffle(X, Y, random_state=random_state)
 
     # Add gaussian noise to data
-    X = X + random_state.normal(size=(n_samples,n_features),scale=noise)
+    X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
 
     return X, Y
-

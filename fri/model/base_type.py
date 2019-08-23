@@ -90,4 +90,3 @@ class ProblemType(ABC):
 
     def relax_constraint(self, key, value):
         return value * (1 + self.get_chosen_relax_factors(key))
-
