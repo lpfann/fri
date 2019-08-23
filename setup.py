@@ -13,8 +13,14 @@ with open(path.join(here, "README.md"), encoding="utf-8") as f:
     long_description = f.read()
 
 EXTRAS_REQUIRE = {
-    "tests": ["pytest", "pytest-cov"],
-    "docs": ["sphinx", "sphinx-gallery", "sphinx_rtd_theme", "nbsphinx"],
+    "tests": ["pytest", "pytest-cov", "coveralls", "pytest-xdist"],
+    "docs": [
+        "sphinx",
+        "sphinx-gallery",
+        "sphinx_rtd_theme",
+        "nbsphinx",
+        "travis-sphinx",
+    ],
 }
 
 setup(
