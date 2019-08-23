@@ -86,9 +86,8 @@ def plot_relevance_bars(ax, ranges, ticklabels=None, classes=None, numbering=Tru
 
 def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
     # Figure Parameters
-    fig = plt.figure(figsize=(13, 6))
+    fig = plt.figure()
     ax = fig.add_subplot(111)
-    N = len(ranges)
 
     out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
     fig.autofmt_xdate()
