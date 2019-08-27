@@ -38,14 +38,15 @@ sphinx-gallery = "^0.4.0"
 sphinx_rtd_theme = "^0.4.3"
 nbsphinx = "^0.4.2"
 travis-sphinx = "^2.2"
+nbconvert = "^5.6.0"
 
 [tool.portray]
 output_dir = "site"
-docs_dir = "doc"
+docs_dir = "docs"
 
 [tool.portray.mkdocs.theme]
-favicon = "art/logo_small.png"
-logo = "art/logo_small.png"
+favicon = "docs/_static/favicon-32x32.png"
+logo = "docs/_static/logo.png"
 name = "material"
 palette = {primary = "blue grey", accent = "pink"}
 
