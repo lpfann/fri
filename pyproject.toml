@@ -4,8 +4,8 @@ version = "7.0.0-Beta"
 description = "Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis."
 authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
 license = "MIT"
-repository = "github.com/lpfann/fri"
-homepage = "fri.lpfann.me"
+repository = "https://github.com/lpfann/fri"
+homepage = "https://fri.lpfann.me"
 keywords = ["feature selection","linear models","machine learning"]
 classifiers = [
         "Intended Audience :: Science/Research",
@@ -50,6 +50,6 @@ name = "material"
 palette = {primary = "blue grey", accent = "pink"}
 
 [build-system]
-requires = ["poetry>=0.12"]
+requires = ["poetry>=1.0.0b1"]
 build-backend = "poetry.masonry.api"
 
