@@ -6,7 +6,15 @@ authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
 license = "MIT"
 repository = "github.com/lpfann/fri"
 homepage = "fri.lpfann.me"
-
+keywords = ["feature selection","linear models","machine learning"]
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Development Status :: 4 - Beta",
+        "Topic :: Scientific/Engineering :: Medical Science Apps.",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
