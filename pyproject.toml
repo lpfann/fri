@@ -24,6 +24,7 @@ pytest-cov = "^2.7"
 pytest-xdist = "^1.29"
 coveralls = "^1.8"
 portray = "^1.0"
+black = {version = "^18.3-alpha.0", allows-prereleases = true}
 
 [tool.portray]
 output_dir = "site"
@@ -34,6 +35,7 @@ favicon = "art/logo_small.png"
 logo = "art/logo_small.png"
 name = "material"
 palette = {primary = "blue grey", accent = "pink"}
+
 [build-system]
 requires = ["poetry>=0.12"]
 build-backend = "poetry.masonry.api"
