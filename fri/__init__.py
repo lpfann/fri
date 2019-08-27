@@ -1,10 +1,8 @@
 import logging
 
-# Get version from versioneer
-from fri._version import get_versions
+import _version
 
-__version__ = get_versions()["version"]
-del get_versions
+__version__ = _version.__version__
 
 logging.basicConfig(level=logging.INFO)
 from enum import Enum

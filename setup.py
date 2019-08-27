@@ -1,7 +1,5 @@
 from setuptools import setup, find_packages
 
-import versioneer
-
 with open("requirements.txt") as f:
     INSTALL_REQUIRES = [l.strip() for l in f.readlines() if l]
 
@@ -25,8 +23,7 @@ EXTRAS_REQUIRE = {
 
 setup(
     name="fri",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
+    version="7.0.0-Beta",
     description="Feature relevance interval method",
     long_description=long_description,
     long_description_content_type="text/markdown",
