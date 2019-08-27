@@ -1,6 +1,7 @@
 import logging
 
-__version__ = _version.__version__
+# noinspection PyUnresolvedReferences
+from fri._version import __version__
 
 logging.basicConfig(level=logging.INFO)
 from enum import Enum
