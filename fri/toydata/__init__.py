@@ -4,7 +4,12 @@ from fri import ProblemName
 from .gen_data import genRegressionData, genClassificationData, genOrdinalRegressionData
 from .gen_lupi import genLupiData
 
-__all__ = ["genRegressionData", "genClassificationData", "genOrdinalRegressionData", "genLupiData"]
+__all__ = [
+    "genRegressionData",
+    "genClassificationData",
+    "genOrdinalRegressionData",
+    "genLupiData",
+]
 
 
 def quick_generate(problem: object, **kwargs) -> [np.ndarray, np.ndarray]:
@@ -41,5 +46,6 @@ def quick_generate(problem: object, **kwargs) -> [np.ndarray, np.ndarray]:
         kwargs["problemName"] = ProblemName.LUPI_ORDREGRESSION
     else:
         raise ValueError(
-            "Unknown problem type. Try 'regression', 'classification' or 'ordreg' and/or add 'lupi_' prefix")
+            "Unknown problem type. Try 'regression', 'classification' or 'ordreg' and/or add 'lupi_' prefix"
+        )
     return gen(**kwargs)

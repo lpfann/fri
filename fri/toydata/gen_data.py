@@ -20,10 +20,17 @@ def _repeatFeat(feats, i, randomstate):
     return feats[:, i_pick]
 
 
-def _checkParam(n_samples: int = 100,
-                n_redundant: int = 0, n_strel: int = 1,
-                n_repeated: int = 0, n_features=1,
-                flip_y: float = 0, noise: float = 1, partition=None, **kwargs):
+def _checkParam(
+    n_samples: int = 100,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    n_features=1,
+    flip_y: float = 0,
+    noise: float = 1,
+    partition=None,
+    **kwargs
+):
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
     if not 0 < n_features:
@@ -38,15 +45,27 @@ def _checkParam(n_samples: int = 100,
         raise ValueError("We need more than 1 redundant feature.")
     if partition is not None:
         if sum(partition) != n_redundant:
-            raise ValueError("Sum of partition values should yield number of redundant features.")
+            raise ValueError(
+                "Sum of partition values should yield number of redundant features."
+            )
         if 0 in partition or 1 in partition:
-            raise ValueError("Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed.")
+            raise ValueError(
+                "Subset defined in Partition needs at least 2 features. 0 and 1 is not allowed."
+            )
 
 
-def _fillVariableSpace(X_informative, random_state: RandomState, n_samples: int = 100, n_features: int = 2,
-                       n_redundant: int = 0, n_strel: int = 1,
-                       n_repeated: int = 0,
-                       noise: float = 1, partition=None, **kwargs):
+def _fillVariableSpace(
+    X_informative,
+    random_state: RandomState,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 1,
+    partition=None,
+    **kwargs
+):
     if partition is not None:
         assert n_redundant == np.sum(partition)
     X = np.zeros((int(n_samples), int(n_features)))
@@ -57,7 +76,7 @@ def _fillVariableSpace(X_informative, random_state: RandomState, n_samples: int 
     pi = 0
     for x in range(len(holdout.T)):
         size = partition[pi]
-        X[:, i:i + size] = _combFeat(n_samples, size, holdout[:, x], random_state)
+        X[:, i : i + size] = _combFeat(n_samples, size, holdout[:, x], random_state)
         i += size
         pi += 1
 
@@ -71,8 +90,9 @@ def _fillVariableSpace(X_informative, random_state: RandomState, n_samples: int 
     return X
 
 
-def generate_binary_classification_problem(n_samples: int, features: int, random_state: RandomState = None,
-                                           data_range=1):
+def generate_binary_classification_problem(
+    n_samples: int, features: int, random_state: RandomState = None, data_range=1
+):
     """ Generate data uniformly distributed in a square and perfectly separated by the hyperplane given by normal_vector and b.
     Keyword arguments:
     n_samples -- number of samples required (default 100)
@@ -90,11 +110,17 @@ def generate_binary_classification_problem(n_samples: int, features: int, random
     return data, labels
 
 
-def genClassificationData(n_samples: int = 100, n_features: int = 2,
-                          n_redundant: int = 0, n_strel: int = 1,
-                          n_repeated: int = 0, noise: float = 0.1,
-                          flip_y: float = 0, random_state: object = None,
-                          partition=None):
+def genClassificationData(
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.1,
+    flip_y: float = 0,
+    random_state: object = None,
+    partition=None,
+):
     """Generate synthetic classification data
     
     Parameters
@@ -154,11 +180,20 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     else:
         part_size = 0
 
-    X_informative, Y = generate_binary_classification_problem(n_samples, n_strel + part_size, random_state)
+    X_informative, Y = generate_binary_classification_problem(
+        n_samples, n_strel + part_size, random_state
+    )
 
-    X = _fillVariableSpace(X_informative, random_state, n_samples=n_samples, n_features=n_features,
-                           n_redundant=n_redundant, n_strel=n_strel,
-                           n_repeated=n_repeated, partition=partition)
+    X = _fillVariableSpace(
+        X_informative,
+        random_state,
+        n_samples=n_samples,
+        n_features=n_features,
+        n_redundant=n_redundant,
+        n_strel=n_strel,
+        n_repeated=n_repeated,
+        partition=partition,
+    )
     # Add target noise
     if flip_y > 0:
         n_flip = int(flip_y * n_samples)
@@ -170,9 +205,16 @@ def genClassificationData(n_samples: int = 100, n_features: int = 2,
     return X, Y
 
 
-def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                      n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
-                      partition=None) -> object:
+def genRegressionData(
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
+    partition=None,
+) -> object:
     """Generate synthetic regression data
     
     Parameters
@@ -230,17 +272,32 @@ def genRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: in
     if noise > 0.0:
         y += random_state.normal(scale=noise, size=y.shape)
 
-    X = _fillVariableSpace(X, random_state, n_samples=n_samples, n_features=n_features,
-                           n_redundant=n_redundant, n_strel=n_strel,
-                           n_repeated=n_repeated,
-                           noise=noise, partition=partition)
+    X = _fillVariableSpace(
+        X,
+        random_state,
+        n_samples=n_samples,
+        n_features=n_features,
+        n_redundant=n_redundant,
+        n_strel=n_strel,
+        n_repeated=n_repeated,
+        noise=noise,
+        partition=partition,
+    )
     y = np.squeeze(y)
     return X, y
 
 
-def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redundant: int = 0, n_strel: int = 1,
-                             n_repeated: int = 0, noise: float = 0.0, random_state: object = None,
-                             partition=None, n_target_bins: int = 3):
+def genOrdinalRegressionData(
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
+    partition=None,
+    n_target_bins: int = 3,
+):
     """
     Generate ordinal regression data
 
@@ -283,14 +340,16 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
         raise ValueError("At least 2 target bins needed")
 
     # Use normal regression data as starting point
-    X_regression, Y_regression = genRegressionData(n_samples=int(n_samples),
-                                                   n_features=int(n_features),
-                                                   n_redundant=int(n_redundant),
-                                                   n_strel=int(n_strel),
-                                                   n_repeated=int(n_repeated),
-                                                   noise=0,
-                                                   random_state=random_state,
-                                                   partition=partition)
+    X_regression, Y_regression = genRegressionData(
+        n_samples=int(n_samples),
+        n_features=int(n_features),
+        n_redundant=int(n_redundant),
+        n_strel=int(n_strel),
+        n_repeated=int(n_repeated),
+        noise=0,
+        random_state=random_state,
+        partition=partition,
+    )
 
     bin_size = int(np.floor(n_samples / n_target_bins))
     rest = int(n_samples - (bin_size * n_target_bins))
@@ -302,7 +361,7 @@ def genOrdinalRegressionData(n_samples: int = 100, n_features: int = 2, n_redund
 
     # Assign ordinal classes as target values
     for i in range(n_target_bins):
-        Y[bin_size * i:bin_size * (i + 1)] = i
+        Y[bin_size * i : bin_size * (i + 1)] = i
 
     # Put non divisable rest into last bin
     if rest > 0:

@@ -67,14 +67,14 @@ sphinx_gallery_conf = {
     "examples_dirs": "./examples",
     # path where to save gallery generated examples
     "gallery_dirs": "auto_examples",
-    'doc_module': ('fri'),
+    "doc_module": ("fri"),
     "backreferences_dir": os.path.join("modules", "generated"),
 }
 
 # generate autosummary even if no references
 autosummary_generate = True
 
-autoclass_content = 'both'
+autoclass_content = "both"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -154,9 +154,7 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    'canonical_url': 'fri.lpfann.me/'
-}
+html_theme_options = {"canonical_url": "fri.lpfann.me/"}
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
@@ -329,7 +327,11 @@ def setup(app):
 
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'python':("http://docs.python.org/3", None),
-                        'numpy':("https://docs.scipy.org/doc/numpy/", None),
-                        'sklearn': ('http://scikit-learn.org/stable',(None, './_intersphinx/sklearn-objects.inv'))
-                        }
+intersphinx_mapping = {
+    "python": ("http://docs.python.org/3", None),
+    "numpy": ("https://docs.scipy.org/doc/numpy/", None),
+    "sklearn": (
+        "http://scikit-learn.org/stable",
+        (None, "./_intersphinx/sklearn-objects.inv"),
+    ),
+}
