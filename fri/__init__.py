@@ -1,7 +1,5 @@
 import logging
 
-import _version
-
 __version__ = _version.__version__
 
 logging.basicConfig(level=logging.INFO)
