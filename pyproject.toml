@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "fri"
+version = "7.0.0-Beta"
+description = "Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis."
+authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
+license = "MIT"
+repository = "github.com/lpfann/fri"
+homepage = "fri.lpfann.me"
+
+
+[tool.poetry.dependencies]
+python = "^3.6"
+numpy = "^1.17"
+scipy = "^1.0"
+scikit-learn = "^0.21.1"
+joblib = "^0.13.2"
+cvxpy = "^1.0.21"
+ecos = "^2.0.5"
+matplotlib = "^3.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5"
+pytest-cov = "^2.7"
+pytest-xdist = "^1.29"
+coveralls = "^1.8"
+portray = "^1.0"
+
+[tool.portray]
+output_dir = "site"
+docs_dir = "doc"
+
+[tool.portray.mkdocs.theme]
+favicon = "art/logo_small.png"
+logo = "art/logo_small.png"
+name = "material"
+palette = {primary = "blue grey", accent = "pink"}
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
