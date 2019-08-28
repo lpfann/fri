@@ -31,14 +31,9 @@ pytest = "^5"
 pytest-cov = "^2.7"
 pytest-xdist = "^1.29"
 coveralls = "^1.8"
-portray = "^1.0"
 black = {version = "^18.3-alpha.0", allows-prereleases = true}
-sphinx = "^2.2"
-sphinx-gallery = "^0.4.0"
-sphinx_rtd_theme = "^0.4.3"
-nbsphinx = "^0.4.2"
-travis-sphinx = "^2.2"
 nbconvert = "^5.6.0"
+portray = "^1.0.5"
 
 [tool.portray]
 output_dir = "site"

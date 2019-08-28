@@ -18,15 +18,22 @@ script:
 
 after_success:
   - coveralls
-  - travis-sphinx deploy
+  - poetry run portray as_html
 
 before_deploy:
   - poetry config pypi-token.pypi $PYPI_TOKEN
 
 deploy:
-  provider: script
-  script: poetry publish
-  skip_existing: true
-  on:
-    tags: true
-    branch: master
+  - provider: script
+    script: poetry publish
+    skip_existing: true
+    on:
+      tags: true
+      branch: master
+  - provider: pages
+    skip_cleanup: true
+    local_dir: site/
+    github_token: $GH_TOKEN
+    keep_history: true
+    on:
+      branch: master
