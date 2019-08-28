@@ -1,6 +1,6 @@
-References
+Citing FRI
 ==========
-
+If you use `FRI` in the academic context we would like if you cite one of the following references.
 
 [1] Göpfert C, Pfannschmidt L, Hammer B. Feature Relevance Bounds for Linear Classification. In: Proceedings of the ESANN. 25th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning;
 <https://pub.uni-bielefeld.de/publication/2908201>
