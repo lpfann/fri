@@ -56,7 +56,7 @@ def plot_relevance_bars(
     # Bar colors
     if classes is None:
         new_classes = np.zeros(N).astype(int)
-        color = [color_palette_3[c.astpye(int)] for c in new_classes]
+        color = [color_palette_3[c.astype(int)] for c in new_classes]
     else:
         color = [color_palette_3[c.astype(int)] for c in classes]
 
