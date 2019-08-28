@@ -285,7 +285,7 @@ class RelevanceBoundsIntervals(object):
         # Return preset values for fixed features
         if presetModel is not None:
             if feature in presetModel:
-                return presetModel[feature]
+                return presetModel[feature].squeeze()
 
         all_bounds = solved_bounds[feature]
         min_problems_candidates = [p for p in all_bounds if p.isLowerBound]
@@ -369,9 +369,11 @@ class RelevanceBoundsIntervals(object):
         w = self.best_init_model.model_state["w"]
         sum = 0
         for i, preset in unsigned_presets.items():
+            if len(preset) == 1:
+                preset = np.array([preset, preset])
             unsigned_preset_i = np.sign(w[i]) * preset
             # accumulate maximal feature  contribution
-            sum += unsigned_preset_i[1]
+            sum += unsigned_preset_i[1]  # Take upper preset
             signed_presets[i] = unsigned_preset_i
 
         # Check if unsigned_presets makes sense

@@ -130,3 +130,31 @@ def test__compute_multi_preset_relevance_bounds(problem, randomstate):
     i = 1
     assert range[i][0] == pytest.approx(preset_1[0])
     assert range[i][1] == pytest.approx(preset_1[1])
+
+
+def test__compute_single_preset_relevance_bounds(randomstate):
+    problem = ProblemName.CLASSIFICATION
+    data = quick_generate(
+        problem,
+        n_samples=300,
+        n_features=4,
+        n_redundant=2,
+        n_strel=2,
+        random_state=randomstate,
+    )
+
+    X_orig, y = data
+    X = scale(X_orig)
+
+    model = FRI(problem, random_state=randomstate, n_jobs=1)
+    model.fit(X, y)
+    normal_range = model.interval_.copy()
+
+    i = 0
+    preset = [model.interval_[i, 0]]
+    range = model._relevance_bounds_computer.compute_single_preset_relevance_bounds(
+        i, preset
+    )
+    assert normal_range.shape == range.shape
+    assert range[i][0] == preset[0]
+    assert range[i][1] == preset
