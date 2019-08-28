@@ -1,15 +1,11 @@
 Background
 ==========
 
-::: {.note}
-::: {.admonition-title}
-Note
-:::
 
-We presented [FRI]{.title-ref} at the CIBCB conference. Check out the
-`slides <https://lpfann.me/talk/cibc19/talk.pdf>`{.interpreted-text
-role="download"} for a short primer into how it works.
-:::
+!!! note
+    We presented [FRI] at the CIBCB conference. Check out the
+    [slides](https://lpfann.me/talk/cibc19/talk.pdf) for a short primer into how it works.
+
 
 Feature selection is the task of finding relevant features used in a
 machine learning model. Often used for this task are models which
@@ -20,8 +16,8 @@ produce only an unstable solution especially in the presence of higher
 dimensional data.
 
 FRI calculates relevance bound values for all input features. These
-bounds give rise to intervals which we named \'feature relevance
-intervals\' (FRI). A given interval symbolizes the allowed contribution
+bounds give rise to intervals which we named feature relevance
+intervals (FRI). A given interval symbolizes the allowed contribution
 each feature has, when it is allowed to be maximized and minimized
 independently from the others. This allows us to approximate the global
 solution instead of relying on the local solutions of the alternatives.
@@ -31,11 +27,11 @@ features.](relevancebars.png)
 
 With these we can classify features into three classes:
 
-:   -   **Strongly relevant**: features which are crucial for model
+-   **Strongly relevant**: features which are crucial for model
         performance
-    -   **Weakly relevant**: features which are important but can be
+-   **Weakly relevant**: features which are important but can be
         substituted by another weakly relevant feature
-    -   **Irrelevant**: features which have no association with the
+-   **Irrelevant**: features which have no association with the
         target variable
 
 ![Relevance intervals colored according to their feature classs. Red

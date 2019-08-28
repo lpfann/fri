@@ -43,14 +43,18 @@ nbconvert = "^5.6.0"
 [tool.portray]
 output_dir = "site"
 docs_dir = "docs"
-repo_name = "fri"
+
+
+[tool.portray.mkdocs]
+markdown_extensions =["admonition"]
+repo_name = "lpfann/fri"
 repo_url = "https://github.com/lpfann/fri"
 
 [tool.portray.mkdocs.theme]
-favicon = "docs/_static/favicon-32x32.png"
-logo = "docs/_static/logo.png"
+favicon = "docs/favicon.ico"
+logo = "docs/logo.png"
 name = "material"
-palette = {primary = "blue grey", accent = "pink"}
+
 
 [build-system]
 requires = ["poetry>=1.0.0b1"]
