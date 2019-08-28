@@ -158,3 +158,11 @@ def test__compute_single_preset_relevance_bounds(randomstate):
     assert normal_range.shape == range.shape
     assert range[i][0] == preset[0]
     assert range[i][1] == preset
+
+    preset = model.interval_[i, 0]
+    range = model._relevance_bounds_computer.compute_single_preset_relevance_bounds(
+        i, preset
+    )
+    assert normal_range.shape == range.shape
+    assert range[i][0] == preset
+    assert range[i][1] == preset

@@ -330,12 +330,13 @@ class RelevanceBoundsIntervals(object):
         ----------
         lupi_features
         """
-        X, y = self.data
 
         # The user is working with normalized values while we compute them unscaled
         if self.normalize:
+            normalized = {}
             for k, v in preset.items():
-                preset[k] = np.asarray(v) * self.best_init_model.L1_factor
+                normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
+            preset = normalized
 
         # Add sign to presets
         preset = self._add_sign_to_preset(preset)
@@ -369,8 +370,9 @@ class RelevanceBoundsIntervals(object):
         w = self.best_init_model.model_state["w"]
         sum = 0
         for i, preset in unsigned_presets.items():
-            if len(preset) == 1:
-                preset = np.array([preset, preset])
+            preset = np.array(preset)
+            if preset.size == 1:
+                preset = np.repeat(preset, 2)
             unsigned_preset_i = np.sign(w[i]) * preset
             # accumulate maximal feature  contribution
             sum += unsigned_preset_i[1]  # Take upper preset
