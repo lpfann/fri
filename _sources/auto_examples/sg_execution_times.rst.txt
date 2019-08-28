@@ -1,0 +1,13 @@
+
+:orphan:
+
+.. _sphx_glr_auto_examples_sg_execution_times:
+
+Computation times
+=================
+**00:05.388** total execution time for **auto_examples** files:
+
+- **00:04.952**: :ref:`sphx_glr_auto_examples_plot_fri_regression.py` (``plot_fri_regression.py``)
+- **00:00.151**: :ref:`sphx_glr_auto_examples_plot_genData.py` (``plot_genData.py``)
+- **00:00.147**: :ref:`sphx_glr_auto_examples_plot_genregressionData.py` (``plot_genregressionData.py``)
+- **00:00.138**: :ref:`sphx_glr_auto_examples_plot_genData_weak.py` (``plot_genData_weak.py``)

@@ -1,0 +1,710 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fri.base &mdash; Feature Relevance Intervals 6.0.0+16.gf0bc18b documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Feature Relevance Intervals
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                6.0.0+16.gf0bc18b
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/Guide.html">Quick start guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_examples/index.html">General examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/user.html">User API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/user.html#models">Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/user.html#data-generation">Data generation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/user.html#module-fri.plot">Visualization</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Feature Relevance Intervals</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fri.base</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fri.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract class providing base for classification and regression classes specific to data.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">abstractmethod</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.stats</span> <span class="k">as</span> <span class="nn">stats</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.exceptions</span> <span class="k">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span> <span class="nn">sklearn.externals.joblib</span> <span class="k">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_selection.base</span> <span class="k">import</span> <span class="n">SelectorMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="k">import</span> <span class="n">make_scorer</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="k">import</span> <span class="n">RandomizedSearchCV</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">check_random_state</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_is_fitted</span>
+
+<span class="kn">from</span> <span class="nn">.bounds</span> <span class="k">import</span> <span class="n">LowerBound</span><span class="p">,</span> <span class="n">UpperBound</span><span class="p">,</span> <span class="n">ShadowUpperBound</span>
+<span class="kn">from</span> <span class="nn">.l1models</span> <span class="k">import</span> <span class="n">L1OrdinalRegressor</span><span class="p">,</span> <span class="n">ordinal_scores</span><span class="p">,</span> <span class="n">L1HingeHyperplane</span>
+
+
+<span class="k">class</span> <span class="nc">NotFeasibleForParameters</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Problem was infeasible with the current parameter set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<span class="k">class</span> <span class="nc">FRIBase</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">SelectorMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Object for performing the feature relevance bound method.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    C : float , optional</span>
+<span class="sd">        Regularization parameter, default obtains the hyperparameter through gridsearch optimizing accuracy</span>
+<span class="sd">    random_state : object</span>
+<span class="sd">        Set seed for random number generation.</span>
+<span class="sd">    n_resampling : integer ( Default = 40)</span>
+<span class="sd">        Number of probe feature permutations used. </span>
+<span class="sd">    iter_psearch : integer ( Default = 10)</span>
+<span class="sd">        Amount of samples used for parameter search.</span>
+<span class="sd">        Trade off between finer tuned model performance and run time of parameter search.</span>
+<span class="sd">    parallel : boolean, optional</span>
+<span class="sd">        Enables parallel computation of feature intervals</span>
+<span class="sd">    optimum_deviation : float, optional (Default = 0.001)</span>
+<span class="sd">        Rate of allowed deviation from the optimal solution (L1 norm of model weights).</span>
+<span class="sd">        Default allows one percent deviation. </span>
+<span class="sd">        Allows for more relaxed optimization problems and leads to bigger intervals which are easier to interpret.</span>
+<span class="sd">        Setting to 0 allows the best feature selection accuracy.</span>
+<span class="sd">    verbose : int ( Default = 0)</span>
+<span class="sd">        Print out verbose messages. The higher the number, the more messages are printed.</span>
+<span class="sd">    </span>
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    allrel_prediction_ : array of booleans</span>
+<span class="sd">        Truth value for each feature if it is relevant (weakly OR strongly).</span>
+<span class="sd">    interval_ : array [[lower_Bound_0,UpperBound_0],...,]</span>
+<span class="sd">        Relevance bounds in 2D array format.</span>
+<span class="sd">    optim_L1_ : double</span>
+<span class="sd">        L1 norm of baseline model.</span>
+<span class="sd">    optim_loss_ : double</span>
+<span class="sd">        Sum of slack (loss) of baseline model.</span>
+<span class="sd">    optim_model_ : fri.l1models object</span>
+<span class="sd">        Baseline model</span>
+<span class="sd">    optim_score_ : double</span>
+<span class="sd">        Score of baseline model</span>
+<span class="sd">    relevance_classes_ : array like</span>
+<span class="sd">        Array with classification of feature relevances: 2 denotes strongly relevant, 1 weakly relevant and 0 irrelevant.</span>
+<span class="sd">    unmod_interval_ : array like</span>
+<span class="sd">        Same as `interval_` but not scaled to L1.</span>
+<span class="sd">    </span>
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    :class:`FRIClassification`:</span>
+<span class="sd">        Class for classification problems</span>
+<span class="sd">    :class:`FRIRegression`:</span>
+<span class="sd">        Class for regression problems</span>
+<span class="sd">    </span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">optimum_deviation</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_resampling</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">iter_psearch</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optimum_deviation</span> <span class="o">=</span> <span class="n">optimum_deviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_resampling</span> <span class="o">=</span> <span class="n">n_resampling</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iter_psearch</span> <span class="o">=</span> <span class="mi">20</span> <span class="k">if</span> <span class="n">iter_psearch</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">iter_psearch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_clusters_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tuned_parameters</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Summary</span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            X : array_like</span>
+<span class="sd">                Data matrix</span>
+<span class="sd">            y : array_like</span>
+<span class="sd">                Response variable</span>
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            FRIBase</span>
+<span class="sd">                Instance</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_clusters_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">X_</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y_</span> <span class="o">=</span> <span class="n">y</span>
+
+        <span class="c1"># Use SVM to get optimal solution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initEstimator</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;loss&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;L1&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;offset&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_svm_bias</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;best_parameters&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_best_params</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initModel</span> <span class="ow">is</span> <span class="n">L1HingeHyperplane</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Classification scores per class&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classification_report</span><span class="p">)</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;coef:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_svm_coef</span><span class="o">.</span><span class="n">T</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="mi">0</span> <span class="o">&lt;</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span> <span class="o">&lt;</span> <span class="mf">0.65</span><span class="p">:</span> <span class="c1"># Only check positive scores, ordinal score function has its maximum at 0, we ignore that</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: Weak Model performance! score = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span><span class="p">))</span>
+
+        <span class="c1"># Calculate bounds</span>
+        <span class="n">rangevector</span><span class="p">,</span> <span class="n">omegas</span><span class="p">,</span> <span class="n">biase</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_opt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span><span class="p">,</span>
+                                                                       <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="c1"># save unmodified intervals (without postprocessing</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unmod_interval_</span> <span class="o">=</span> <span class="n">rangevector</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># Postprocess bounds</span>
+        <span class="n">rangevector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_postprocessing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span><span class="p">,</span> <span class="n">rangevector</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="n">rangevector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_omegas</span> <span class="o">=</span> <span class="n">omegas</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_biase</span> <span class="o">=</span> <span class="n">biase</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_relevance_mask</span><span class="p">()</span>
+
+        <span class="c1"># Return the classifier</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_opt_per_thread</span><span class="p">(</span><span class="n">bound</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Worker thread method for parallel computation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">bound</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_main_opt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">svmloss</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">random_state</span><span class="p">,</span> <span class="n">presetModel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solverargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Main calculation function.</span>
+<span class="sd">            LP for each bound and distributes them depending on parallel flag.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : array_like</span>
+<span class="sd">            standardized data matrix</span>
+<span class="sd">        Y : array_like</span>
+<span class="sd">            response vector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span><span class="p">,</span> <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">rangevector</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_shadow_values</span>  <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">omegas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">d</span><span class="p">))</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">class_thresholds</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">biase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">class_thresholds</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">biase</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">dims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">presetModel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Exclude fixed (preset) dimensions from being run</span>
+            <span class="k">for</span> <span class="n">di</span><span class="p">,</span> <span class="n">preset</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">presetModel</span><span class="p">):</span>
+                <span class="c1"># Nans are unset and ignored</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">preset</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Check for difference between upper and lower bound,</span>
+                    <span class="c1"># when very small difference assume fixed value and skip computation later</span>
+                    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">preset</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="mf">0.0001</span><span class="p">:</span>
+                        <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">dims</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Solver Parameters</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">solverargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">,</span> <span class="s2">&quot;max_iters&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">kwargs</span> <span class="o">=</span> <span class="n">solverargs</span>
+
+
+        <span class="c1"># Create tasks for worker(s)</span>
+        <span class="c1">#</span>
+
+        <span class="k">def</span> <span class="nf">work_generator</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">di</span> <span class="ow">in</span> <span class="n">dims</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">LowerBound</span><span class="p">(</span><span class="n">problemClass</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_dim</span><span class="o">=</span><span class="n">di</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">initLoss</span><span class="o">=</span><span class="n">svmloss</span><span class="p">,</span> <span class="n">initL1</span><span class="o">=</span><span class="n">L1</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">presetModel</span><span class="o">=</span><span class="n">presetModel</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">UpperBound</span><span class="p">(</span><span class="n">problemClass</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_dim</span><span class="o">=</span><span class="n">di</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">initLoss</span><span class="o">=</span><span class="n">svmloss</span><span class="p">,</span> <span class="n">initL1</span><span class="o">=</span><span class="n">L1</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">presetModel</span><span class="o">=</span><span class="n">presetModel</span><span class="p">)</span>
+            <span class="c1"># Random sample n_resampling shadow features by permuting real features and computing upper bound</span>
+            <span class="n">random_choice</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">d</span><span class="p">),</span><span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_resampling</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span><span class="n">di</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">random_choice</span><span class="p">):</span>
+                <span class="k">yield</span> <span class="n">ShadowUpperBound</span><span class="p">(</span><span class="n">problemClass</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">optim_dim</span><span class="o">=</span><span class="n">di</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">initLoss</span><span class="o">=</span><span class="n">svmloss</span><span class="p">,</span><span class="n">initL1</span><span class="o">=</span><span class="n">L1</span><span class="p">,</span> <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">sampleNum</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">presetModel</span><span class="o">=</span><span class="n">presetModel</span><span class="p">)</span>
+
+        <span class="n">done</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)(</span><span class="nb">map</span><span class="p">(</span><span class="n">delayed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_opt_per_thread</span><span class="p">),</span> <span class="n">work_generator</span><span class="p">()))</span>
+
+        <span class="c1"># Retrieve results and aggregate values in arrays</span>
+        <span class="k">for</span> <span class="n">finished_bound</span> <span class="ow">in</span> <span class="n">done</span><span class="p">:</span>
+            <span class="n">di</span> <span class="o">=</span> <span class="n">finished_bound</span><span class="o">.</span><span class="n">optim_dim</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">finished_bound</span><span class="o">.</span><span class="n">isUpperBound</span><span class="p">)</span>
+            <span class="c1"># Handle shadow values differently (we discard useless values)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">finished_bound</span><span class="p">,</span> <span class="s2">&quot;isShadow&quot;</span><span class="p">):</span>
+                <span class="n">prob_i</span> <span class="o">=</span> <span class="n">finished_bound</span><span class="o">.</span><span class="n">prob_instance</span>
+                <span class="n">rangevector</span><span class="p">[</span><span class="n">di</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">prob_i</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>   
+                <span class="n">omegas</span><span class="p">[</span><span class="n">di</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob_i</span><span class="o">.</span><span class="n">omega</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+                <span class="n">biase</span><span class="p">[</span><span class="n">di</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">prob_i</span><span class="o">.</span><span class="n">b</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Get the mean of all shadow samples</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_shadow_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">finished_bound</span><span class="o">.</span><span class="n">shadow_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">presetModel</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">presetModel</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rangevector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+
+        <span class="k">return</span> <span class="n">rangevector</span><span class="p">,</span> <span class="n">omegas</span><span class="p">,</span> <span class="n">biase</span>
+
+    <span class="k">def</span> <span class="nf">_initEstimator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">initModel</span> <span class="ow">is</span> <span class="n">L1OrdinalRegressor</span><span class="p">:</span>
+            <span class="c1"># Use two scores for ordinal regression</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">ordinal_scores</span>
+            <span class="n">mze</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mze&quot;</span><span class="p">)</span>
+            <span class="n">mae</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mae&quot;</span><span class="p">)</span>
+            <span class="n">mmae</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">error</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mmae&quot;</span><span class="p">)</span>
+            <span class="n">scorer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mze&quot;</span><span class="p">:</span> <span class="n">mze</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span> <span class="s2">&quot;mmae&quot;</span><span class="p">:</span> <span class="n">mmae</span><span class="p">}</span>
+            <span class="n">refit</span> <span class="o">=</span> <span class="s2">&quot;mmae&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">scorer</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># use default score from model</span>
+            <span class="n">refit</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tuned_parameters</span><span class="p">)</span>
+        <span class="n">gridsearch</span> <span class="o">=</span> <span class="n">RandomizedSearchCV</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initModel</span><span class="p">(),</span>
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">tuned_parameters</span><span class="p">,</span>
+                                        <span class="n">scoring</span><span class="o">=</span><span class="n">scorer</span><span class="p">,</span>
+                                        <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                                        <span class="n">refit</span><span class="o">=</span><span class="n">refit</span><span class="p">,</span>
+                                        <span class="n">n_iter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iter_psearch</span><span class="p">,</span>
+                                        <span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                                        <span class="n">error_score</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span>
+                                        <span class="n">return_train_score</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                        <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1"># Ignore warnings for extremely bad parameters (when precision=0)</span>
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+            <span class="n">gridsearch</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+        <span class="c1"># Save parameters for use in optimization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_best_params</span> <span class="o">=</span> <span class="n">gridsearch</span><span class="o">.</span><span class="n">best_params_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cv_results</span> <span class="o">=</span> <span class="n">gridsearch</span><span class="o">.</span><span class="n">cv_results_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="n">gridsearch</span><span class="o">.</span><span class="n">best_estimator_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_score_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">initModel</span> <span class="ow">is</span> <span class="n">L1HingeHyperplane</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">classification_report</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_svm_coef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">coef_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_svm_bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">intercept_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_svm_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">slack</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="c1"># Allow worse solutions (relaxation)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimum_deviation</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_postprocessing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">L1</span><span class="p">,</span> <span class="n">rangevector</span><span class="p">):</span>
+        <span class="c1">#</span>
+        <span class="c1"># Postprocessig intervals</span>
+        <span class="c1">#</span>
+        <span class="c1"># Correction through shadow features</span>
+        <span class="k">assert</span> <span class="n">L1</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="c1"># Scale to L1</span>
+        <span class="n">rangevector</span> <span class="o">=</span> <span class="n">rangevector</span> <span class="o">/</span> <span class="n">L1</span>
+
+        <span class="c1"># round mins to zero</span>
+        <span class="n">rangevector</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">rangevector</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">**</span> <span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">rangevector</span>
+
+    <span class="k">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">fpr</span><span class="o">=</span><span class="mf">0.01</span>
+                            <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines relevancy using feature relevance interval values</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fpr : float, optional</span>
+<span class="sd">            false positive rate allowed under H_0</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        boolean array</span>
+<span class="sd">            Relevancy prediction for each feature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rangevector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">rangevector</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+        <span class="n">maxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_shadow_values</span>
+        <span class="n">maxs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">maxs</span><span class="p">)</span>
+        <span class="n">maxs</span> <span class="o">=</span> <span class="n">maxs</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">maxs</span><span class="p">)</span>
+
+        <span class="n">mean</span> <span class="o">=</span> <span class="n">maxs</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">maxs</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">perc</span> <span class="o">=</span> <span class="n">fpr</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">perc</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">neg</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">perc</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+
+        <span class="n">weakly</span> <span class="o">=</span> <span class="n">rangevector</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">neg</span>
+        <span class="n">strongly</span> <span class="o">=</span> <span class="n">rangevector</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="n">both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="n">weakly</span><span class="p">,</span> <span class="n">strongly</span><span class="p">)</span>
+
+        <span class="n">prediction</span><span class="p">[</span><span class="n">weakly</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">prediction</span><span class="p">[</span><span class="n">both</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="n">prediction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="n">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
+
+    <span class="k">def</span> <span class="nf">_n_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns the number of selected features.</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_support_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for SelectorMixin</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        boolean array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
+
+
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">_run_with_single_dim_single_value_preset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">i</span><span class="p">,</span> <span class="n">preset_i</span><span class="p">,</span> <span class="n">n_tries</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Method to run method once for one restricted feature</span>
+<span class="sd">            Parameters</span>
+<span class="sd">            ----------</span>
+<span class="sd">            i:</span>
+<span class="sd">                restricted feature</span>
+<span class="sd">            preset_i:</span>
+<span class="sd">                restricted range of feature i (set before optimization = preset)</span>
+<span class="sd">            n_tries:</span>
+<span class="sd">                number of allowed relaxation steps for the L1 constraint in case of LP infeasible</span>
+
+<span class="sd">            &quot;&quot;&quot;</span>
+
+            <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_</span>
+            <span class="c1"># Do we have intervals?</span>
+            <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;interval_&quot;</span><span class="p">)</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unmod_interval_</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+
+            <span class="n">constrained_ranges_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+            <span class="c1"># Init empty preset</span>
+            <span class="n">preset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">preset</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+            <span class="c1"># Add correct sign of this coef</span>
+            <span class="n">signed_preset_i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_svm_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="n">preset_i</span>
+            <span class="n">preset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">signed_preset_i</span>
+            
+            <span class="c1"># Calculate all bounds with feature i set to min_i</span>
+            <span class="n">l1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span>
+
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_tries</span><span class="p">):</span>
+                <span class="c1"># try several times if problem to stringent</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
+                    <span class="n">rangevector</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_opt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span>
+                                                          <span class="n">l1</span><span class="p">,</span>
+                                                          <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                                                          <span class="n">presetModel</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span>
+                                                          <span class="n">solverargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">NotFeasibleForParameters</span><span class="p">:</span>
+                    <span class="n">preset</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
+                    <span class="c1"># print(&quot;Community detection: Constrained run failed, swap sign&quot;.format)</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1">#print(&quot;solved constrained opt for &quot;, i)</span>
+                    <span class="c1"># problem was solvable</span>
+                    <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NotFeasibleForParameters</span><span class="p">(</span><span class="s2">&quot;Community detection failed.&quot;</span><span class="p">,</span> <span class="s2">&quot;dim </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+            <span class="c1"># rangevector, _ = self._postprocessing(self.optim_L1_, rangevector, False,</span>
+            <span class="c1">#                                      None)</span>
+            <span class="c1"># Get differences for constrained intervals to normal intervals</span>
+            <span class="n">constrained_ranges_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unmod_interval_</span> <span class="o">-</span> <span class="n">rangevector</span>
+
+            <span class="c1"># Current dimension is not constrained, so these values are set accordingly</span>
+            <span class="n">rangevector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">preset_i</span>
+            <span class="n">constrained_ranges_diff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">return</span> <span class="n">rangevector</span><span class="p">,</span> <span class="n">constrained_ranges_diff</span>
+
+    <span class="k">def</span> <span class="nf">constrained_intervals_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method to return relevance intervals which are constrained using preset ranges or values.</span>
+<span class="sd">        </span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        preset : array like [[preset lower_Bound_0,preset upper_Bound_0],...,]</span>
+<span class="sd">            An array where all entries which are not &#39;np.nan&#39; are interpreted as constraint for that corresponding feature.</span>
+<span class="sd">            </span>
+<span class="sd">            Best created using </span>
+
+<span class="sd">            &gt;&gt;&gt; np.full_like(fri_model.interval_, np.nan, dtype=np.double)</span>
+
+<span class="sd">            Example: To set  feature 0 to a fixed value use </span>
+
+<span class="sd">            &gt;&gt;&gt; preset[0] = fri_model.interval_[0, 0]</span>
+<span class="sd">        </span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array like</span>
+<span class="sd">            Relevance bounds with user constraints </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">processed</span> <span class="o">=</span> <span class="n">preset</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span> <span class="c1"># Revert scaling to L1 norm which is done for our output intervals (see postprocessing)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_with_multiple_value_preset</span><span class="p">(</span><span class="n">preset</span><span class="o">=</span><span class="n">processed</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_run_with_multiple_value_preset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Method to run method with preset values</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_</span>
+            <span class="c1"># Do we have intervals?</span>
+            <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;interval_&quot;</span><span class="p">)</span>
+            <span class="n">interval</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unmod_interval_</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+
+            <span class="n">constrained_ranges_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+            <span class="c1"># Add correct sign of this coef</span>
+            <span class="n">signed_presets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_svm_coef</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">*</span> <span class="n">preset</span><span class="o">.</span><span class="n">T</span>
+            <span class="n">signed_presets</span> <span class="o">=</span> <span class="n">signed_presets</span><span class="o">.</span><span class="n">T</span>
+            <span class="c1"># Calculate all bounds with feature presets</span>
+            <span class="n">l1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span>
+            <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_loss_</span>
+            <span class="n">sumofpreset</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nansum</span><span class="p">(</span><span class="n">preset</span><span class="p">[:,</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">sumofpreset</span> <span class="o">&gt;</span> <span class="n">l1</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;maximum L1 norm of presets: &quot;</span><span class="p">,</span><span class="n">sumofpreset</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;L1 allowed:&quot;</span><span class="p">,</span><span class="n">l1</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Presets are not feasible. Try lowering values.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
+                <span class="n">rangevector</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_main_opt</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">loss</span><span class="p">,</span>
+                                                      <span class="n">l1</span><span class="p">,</span>
+                                                      <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                                                      <span class="n">presetModel</span><span class="o">=</span><span class="n">signed_presets</span><span class="p">,</span>
+                                                      <span class="n">solverargs</span><span class="o">=</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">NotFeasibleForParameters</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Presets are not feasible&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+
+            <span class="n">constrained_ranges_diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unmod_interval_</span> <span class="o">-</span> <span class="n">rangevector</span>
+
+            <span class="c1"># Current dimension is not constrained, so these values are set accordingly</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">preset</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">p</span><span class="p">)):</span>
+                    <span class="k">continue</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">rangevector</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p</span>
+            <span class="n">rangevector</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_postprocessing</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optim_L1_</span><span class="p">,</span> <span class="n">rangevector</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">rangevector</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017 - 2019, Lukas Pfannschmidt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

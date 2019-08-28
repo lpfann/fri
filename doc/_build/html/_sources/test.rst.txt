@@ -1,6 +1,0 @@
-test
-=====
-
-.. automodule:: fri
-    :members:
-    :inherited-members:
