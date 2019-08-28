@@ -1,0 +1,522 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Data generation &mdash; Documentation for Feature Relevance Intervals</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon-32x32.png"/>
+  
+  
+  
+    <link rel="canonical" href="fri.lpfann.me/api/datagen.html"/>
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Visualization" href="visualisation.html" />
+    <link rel="prev" title="Models" href="models.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Feature Relevance Intervals
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                6.0.0+169.g400f06a.dirty
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/Guide.html">Quick start guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html#references">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="user.html">User API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="api.html">Scikit-learn compatible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="models.html">Models</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Data generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#examples-using-fri-genclassificationdata">Examples using <code class="docutils literal notranslate"><span class="pre">fri.genClassificationData</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="visualisation.html">Visualization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../auto_examples/index.html">General examples</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/lpfann/fri">GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Feature Relevance Intervals</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="user.html">User API</a> &raquo;</li>
+        
+      <li>Data generation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="data-generation">
+<h1>Data generation<a class="headerlink" href="#data-generation" title="Permalink to this headline">¶</a></h1>
+<p>We also provide generation functions.</p>
+<span class="target" id="module-fri.genData"></span><dl class="function">
+<dt id="fri.genData.genClassificationData">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genClassificationData</code><span class="sig-paren">(</span><em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">n_features: int = 2</em>, <em class="sig-param">n_redundant: int = 0</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">noise: float = 0.1</em>, <em class="sig-param">flip_y: float = 0</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">partition=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fri/genData.html#genClassificationData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genClassificationData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate synthetic classification data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>n_features</strong> (<em>int, optional</em>) – Number of features</p></li>
+<li><p><strong>n_redundant</strong> (<em>int, optional</em>) – Number of features which are part of redundant subsets (weakly relevant)</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>noise</strong> (<em>float</em>) – Added gaussian noise to data. Parameter scales Std of normal distribution.</p></li>
+<li><p><strong>flip_y</strong> (<em>float, optional</em>) – Ratio of samples randomly switched to wrong class.</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, n_features]</em>) – The generated samples.</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The output classes.</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – Description</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – </p></li>
+<li><p><strong>Wrong parameters for specified amonut of features/samples.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">genClassificationData</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<span class="go">Generating dataset with d=2,n=200,strongly=1,weakly=0, partition of weakly=None</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(200, 2)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">y</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(200,)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.genCleanFeaturesAsPrivData">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genCleanFeaturesAsPrivData</code><span class="sig-paren">(</span><em class="sig-param">problemType: str</em>, <em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">noise: float = 0.1</em>, <em class="sig-param">n_ordinal_bins: int = 3</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_weakrel_groups: int = 0</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">n_irrel: int = 0</em>, <em class="sig-param">label_noise=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fri/genData.html#genCleanFeaturesAsPrivData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genCleanFeaturesAsPrivData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Lupi Data for Classification, Regression and Ordinal Regression Problems</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problemType</strong> (<em>Str</em>) – Must be one of [‘classification’, ‘regression’, ‘ordinalRegression’], defines the y-values of the problem</p></li>
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation.</p></li>
+<li><p><strong>noise</strong> (<em>float, optional</em>) – Noise of the created samples around ground truth.</p></li>
+<li><p><strong>n_ordinal_bins</strong> (<em>int, optional</em>) – Number of bins in which the regressional target variable is split to form the ordinal classes,
+Only has an effect if problemType == ‘ordinalRegression’</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_weakrel_groups</strong> (<em>int, optional</em>) – Number of 2 feature groups which are part of redundant subsets (weakly relevant)</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>n_irrel</strong> (<em>int, optional</em>) – Number of features which are irrelevant to the underlying model</p></li>
+<li><p><strong>label_noise</strong> (<em>float, optional</em>) – Percentage of labels which get permutated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel)]</em>) – The generated samples</p></li>
+<li><p><strong>X_priv</strong> (<em>array with same shape as X</em>) – The generated privileged samples</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The generated target values
+In case of problemType == ‘classification’ : values are in [0,1]
+In case of problemType == ‘regression’ : values are continious
+In case of problemType == ‘ordinalRegression’ : values are in [0, n_ordinal_bins]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.genLupiData">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genLupiData</code><span class="sig-paren">(</span><em class="sig-param">problemType: str</em>, <em class="sig-param">lupiType: str</em>, <em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">noise: float = 0.1</em>, <em class="sig-param">n_ordinal_bins: int = 3</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_weakrel: int = 0</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">n_irrel: int = 0</em>, <em class="sig-param">n_priv_weakrel: int = 0</em>, <em class="sig-param">n_priv_repeated: int = 0</em>, <em class="sig-param">n_priv_irrel: int = 0</em>, <em class="sig-param">partition=None</em>, <em class="sig-param">partition_priv=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fri/genData.html#genLupiData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genLupiData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate Lupi Data for Classification, Regression and Ordinal Regression Problems</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problemType</strong> (<em>Str</em>) – Must be one of [‘classification’, ‘regression’, ‘ordinalRegression’], defines the y-values of the problem</p></li>
+<li><p><strong>lupiType</strong> (<em>Str</em>) – Must be one of [‘cleanLabels’, ‘cleanFeatures’], defines the strongly relevant features of the privileged data</p></li>
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation.</p></li>
+<li><p><strong>noise</strong> (<em>float, optional</em>) – Noise of the created samples around ground truth.</p></li>
+<li><p><strong>n_ordinal_bins</strong> (<em>int, optional</em>) – Number of bins in which the regressional target variable is split to form the ordinal classes,
+Only has an effect if problemType == ‘ordinalRegression’</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_weakrel</strong> (<em>int, optional</em>) – Number of features which are part of redundant subsets (weakly relevant)</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>n_irrel</strong> (<em>int, optional</em>) – Number of features which are irrelevant to the underlying model</p></li>
+<li><p><strong>n_priv_weakrel</strong> (<em>int, optional</em>) – Number of features in the privileged data that are weakly relevant</p></li>
+<li><p><strong>n_priv_repeated</strong> (<em>int, optional</em>) – Number of privileged features which are clones of existing privileged features</p></li>
+<li><p><strong>n_priv_irrel</strong> (<em>int, optional</em>) – Number of privileged features which are irrelevant</p></li>
+<li><p><strong>partition</strong> (<em>list of int</em>) – Entries of the list define weak subsets. So an entry of the list says how many weak features are calculated
+from the same strong feature.
+The sum over the list entries must be equal to n_weakrel</p></li>
+<li><p><strong>partition_priv</strong> (<em>list of int</em>) – Entries of the list define privileged weak subsets. So an entry of the list says how many privileged weak
+features are calculated from the same privileged strong feature.
+The sum over the list entries must be equal to n_priv_weakrel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel)]</em>) – The generated samples</p></li>
+<li><p><em>X_priv</em> – The generated privileged samples
+In case of lupiType == ‘cleanLabels’ : array of shape [n_samples, (n_priv_weakrel + n_priv_repeated + n_priv_irrel + 1)]
+In case of lupiType == ‘cleanFeatures’ : array of shape [n_samples, (n_priv_weakrel + n_priv_repeated + n_priv_irrel + n_strel)]</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The generated target values
+In case of problemType == ‘classification’ : values are in [0,1]
+In case of problemType == ‘regression’ : values are continious
+In case of problemType == ‘ordinalRegression’ : values are in [0, n_ordinal_bins]</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.genOrdinalRegressionData">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genOrdinalRegressionData</code><span class="sig-paren">(</span><em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">n_features: int = 2</em>, <em class="sig-param">n_redundant: int = 0</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">noise: float = 0.0</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">partition=None</em>, <em class="sig-param">n_target_bins: int = 3</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fri/genData.html#genOrdinalRegressionData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genOrdinalRegressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate ordinal regression data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>n_features</strong> (<em>int, optional</em>) – Number of features</p></li>
+<li><p><strong>n_redundant</strong> (<em>int, optional</em>) – Number of features which are part of redundant subsets (weakly relevant)</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>noise</strong> (<em>float, optional</em>) – Noise of the created samples around ground truth.</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation.</p></li>
+<li><p><strong>n_target_bins</strong> (<em>int, optional</em>) – Number of bins in which the regressional target variable is split to form the ordinal classes</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, n_features]</em>) – The generated samples.</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The output values (target).</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – </p></li>
+<li><p><strong>Wrong parameters for specified amonut of features/samples.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.genRegressionData">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genRegressionData</code><span class="sig-paren">(</span><em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">n_features: int = 2</em>, <em class="sig-param">n_redundant: int = 0</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">noise: float = 0.0</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">partition=None</em><span class="sig-paren">)</span> &#x2192; object<a class="reference internal" href="../_modules/fri/genData.html#genRegressionData"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genRegressionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate synthetic regression data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>n_features</strong> (<em>int, optional</em>) – Number of features</p></li>
+<li><p><strong>n_redundant</strong> (<em>int, optional</em>) – Number of features which are part of redundant subsets (weakly relevant)</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>noise</strong> (<em>float, optional</em>) – Noise of the created samples around ground truth.</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, n_features]</em>) – The generated samples.</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The output values (target).</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – </p></li>
+<li><p><strong>Wrong parameters for specified amonut of features/samples.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.genRegressionData2">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">genRegressionData2</code><span class="sig-paren">(</span><em class="sig-param">n_samples: int = 100</em>, <em class="sig-param">random_state: object = None</em>, <em class="sig-param">noise: float = 0.0</em>, <em class="sig-param">n_strel: int = 1</em>, <em class="sig-param">n_weakrel: int = 0</em>, <em class="sig-param">n_repeated: int = 0</em>, <em class="sig-param">n_irrel: int = 0</em>, <em class="sig-param">partition=None</em><span class="sig-paren">)</span> &#x2192; object<a class="reference internal" href="../_modules/fri/genData.html#genRegressionData2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.genRegressionData2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate synthetic regression data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_samples</strong> (<em>int, optional</em>) – Number of samples</p></li>
+<li><p><strong>random_state</strong> (<em>object, optional</em>) – Randomstate object used for generation</p></li>
+<li><p><strong>noise</strong> (<em>float, optional</em>) – Noise of the created samples around ground truth</p></li>
+<li><p><strong>n_strel</strong> (<em>int, optional</em>) – Number of features which are mandatory for the underlying model (strongly relevant)</p></li>
+<li><p><strong>n_weakrel</strong> (<em>int, optional</em>) – Number of weakly relevant features</p></li>
+<li><p><strong>n_repeated</strong> (<em>int, optional</em>) – Number of features which are clones of existing ones.</p></li>
+<li><p><strong>n_irrel</strong> (<em>int, optional</em>) – Number of features that are irrelevant</p></li>
+<li><p><strong>partition</strong> (<em>list of int</em>) – Entries of the list define how many weak relevant features are based on the same strongly relevant feature
+The sum over all list entries must be equal to n_weakrel</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>X</strong> (<em>array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel]</em>) – The generated samples.</p></li>
+<li><p><strong>y</strong> (<em>array of shape [n_samples]</em>) – The output values (target).</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.7)"><strong>ValueError</strong></a> – </p></li>
+<li><p><strong>Wrong parameters for specified amonut of features/samples.</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.generate_binary_classification_problem">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">generate_binary_classification_problem</code><span class="sig-paren">(</span><em class="sig-param">n_samples: int</em>, <em class="sig-param">features: int</em>, <em class="sig-param">random_state: mtrand.RandomState = None</em>, <em class="sig-param">data_range=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fri/genData.html#generate_binary_classification_problem"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.generate_binary_classification_problem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate data uniformly distributed in a square and perfectly separated by the hyperplane given by normal_vector and b.
+Keyword arguments:
+n_samples – number of samples required (default 100)
+n_features – number of features required
+normal_vector – the normal vector of the separating hyperplane
+data_range – data is distributed between -data_range and data_range (default 10)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="fri.genData.quick_generate">
+<code class="sig-prename descclassname">fri.genData.</code><code class="sig-name descname">quick_generate</code><span class="sig-paren">(</span><em class="sig-param">problem: object</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span> &#x2192; [&lt;class 'numpy.ndarray'&gt;, &lt;class 'numpy.ndarray'&gt;]<a class="reference internal" href="../_modules/fri/genData.html#quick_generate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fri.genData.quick_generate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Method to wrap individual data generation functions.
+Allows passing <code class="xref any docutils literal notranslate"><span class="pre">problem</span></code> as a string such as “classification” or <a class="reference internal" href="api.html#fri.ProblemName" title="fri.ProblemName"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ProblemName</span></code></a> object of the corresponding type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>problem</strong> (str or <a class="reference internal" href="api.html#fri.ProblemName" title="fri.ProblemName"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ProblemName</span></code></a>) – Type of data to generate (e.g. “classification” or <a class="reference internal" href="api.html#fri.ProblemName.CLASSIFICATION" title="fri.ProblemName.CLASSIFICATION"><code class="xref any py py-attr docutils literal notranslate"><span class="pre">ProblemName.CLASSIFICATION</span></code></a></p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – arguments to pass to the generation functions</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Tuple[<a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.17)">numpy.ndarray</a>, <a class="reference external" href="https://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.17)">numpy.ndarray</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<div class="section" id="examples-using-fri-genclassificationdata">
+<h2>Examples using <code class="docutils literal notranslate"><span class="pre">fri.genClassificationData</span></code><a class="headerlink" href="#examples-using-fri-genclassificationdata" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-thumbcontainer" tooltip="An example plot created using fri.dataGen.genData to generate Toy data"><div class="figure align-default" id="id1">
+<img alt="../_images/sphx_glr_plot_genData_weak_thumb.png" src="../_images/sphx_glr_plot_genData_weak_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="../auto_examples/plot_genData_weak.html#sphx-glr-auto-examples-plot-gendata-weak-py"><span class="std std-ref">Generating toy data with weakly relevant features</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An example plot created using fri.dataGen.genData to generate Toy data"><div class="figure align-default" id="id2">
+<img alt="../_images/sphx_glr_plot_genData_thumb.png" src="../_images/sphx_glr_plot_genData_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="../auto_examples/plot_genData.html#sphx-glr-auto-examples-plot-gendata-py"><span class="std std-ref">Generating toy data with strongly relevant features</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image">¶</a></p>
+</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="An example plot of FRI output on classification data"><div class="figure align-default" id="id3">
+<img alt="../_images/sphx_glr_plot_fri_classification_thumb.png" src="../_images/sphx_glr_plot_fri_classification_thumb.png" />
+<p class="caption"><span class="caption-text"><a class="reference internal" href="../auto_examples/plot_fri_classification.html#sphx-glr-auto-examples-plot-fri-classification-py"><span class="std std-ref">Quick plotting without explicit matplotlib</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image">¶</a></p>
+</div>
+</div><div style='clear:both'></div></div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="visualisation.html" class="btn btn-neutral float-right" title="Visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="models.html" class="btn btn-neutral float-left" title="Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017 - 2019, Lukas Pfannschmidt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

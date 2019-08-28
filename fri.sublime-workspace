@@ -1,0 +1,4402 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"int",
+				"intensity_time_goal"
+			],
+			[
+				"sig",
+				"signed_presets"
+			],
+			[
+				"rand",
+				"random_choice"
+			],
+			[
+				"ran",
+				"random_state"
+			],
+			[
+				"min",
+				"min_pi"
+			],
+			[
+				"pre",
+				"prediction_interval"
+			],
+			[
+				"optim",
+				"optim_L1_"
+			],
+			[
+				"sha",
+				"shadow_value"
+			],
+			[
+				"_",
+				"_shadow_values"
+			],
+			[
+				"n",
+				"n_features"
+			],
+			[
+				"n_",
+				"n_samples"
+			],
+			[
+				"umap",
+				"umap_min_dist"
+			],
+			[
+				"um",
+				"umap"
+			],
+			[
+				"hd",
+				"hdbscan"
+			],
+			[
+				"rel",
+				"relevance_classes_"
+			],
+			[
+				"on",
+				"only_relevant"
+			],
+			[
+				"rele",
+				"relevance_variance"
+			],
+			[
+				"opt",
+				"_opt_per_thread"
+			],
+			[
+				"ma",
+				"max_dist"
+			],
+			[
+				"sco",
+				"score_mmae"
+			],
+			[
+				"score",
+				"score_worst"
+			],
+			[
+				"n_bi",
+				"n_bins-1"
+			],
+			[
+				"er",
+				"error"
+			],
+			[
+				"L1",
+				"L1OrdinalRegressor"
+			],
+			[
+				"ordi",
+				"ordinal_scores"
+			],
+			[
+				"ord",
+				"ordinal_scores"
+			],
+			[
+				"sk",
+				"sklearn"
+			],
+			[
+				"orn",
+				"ordinal_scores"
+			],
+			[
+				"l1",
+				"l1models"
+			],
+			[
+				"it",
+				"iter_psearch"
+			],
+			[
+				"Slovr",
+				"SolverError"
+			],
+			[
+				"scor",
+				"score_mixed\tstatement"
+			],
+			[
+				"return",
+				"return_error"
+			],
+			[
+				"bin",
+				"bin_error\tstatement"
+			],
+			[
+				"gen",
+				"genClassificationData"
+			],
+			[
+				"op",
+				"optimum_deviation\tparam"
+			],
+			[
+				"in",
+				"initL1\tparam"
+			],
+			[
+				"prob",
+				"prob_instance"
+			],
+			[
+				"FRI",
+				"FRIRegression\tclass"
+			],
+			[
+				"cl",
+				"classificationStub\tclass"
+			],
+			[
+				"param",
+				"parameters\tparam"
+			],
+			[
+				"initl",
+				"initLoss\tparam"
+			],
+			[
+				"init",
+				"initLoss\tparam"
+			],
+			[
+				"para",
+				"parameters\tparam"
+			],
+			[
+				"par",
+				"parameters\tparam"
+			],
+			[
+				"L",
+				"L1EpsilonRegressor\tclass"
+			],
+			[
+				"uni",
+				"unique_labels"
+			],
+			[
+				"norma",
+				"normal_vector"
+			],
+			[
+				"nor",
+				"normal_vector\tstatement"
+			],
+			[
+				"wei",
+				"weight_norm"
+			],
+			[
+				"ep",
+				"epsilon\tparam"
+			],
+			[
+				"app",
+				"approx\tmodule"
+			],
+			[
+				"as",
+				"asarray\tfunction"
+			],
+			[
+				"Sta",
+				"StandardScaler\tmodule"
+			],
+			[
+				"g",
+				"genClassificationData\tfunction"
+			],
+			[
+				"pl",
+				"plotIntervals"
+			],
+			[
+				"scri",
+				"ci_scripts"
+			],
+			[
+				"C",
+				"CVXOPT"
+			],
+			[
+				"try",
+				"try\tTry/Except/Else"
+			],
+			[
+				"str",
+				"strRel\tparam"
+			],
+			[
+				"_sv",
+				"_svm_coef"
+			],
+			[
+				"st",
+				"strRel\tparam"
+			],
+			[
+				"assert_",
+				"assert_allclose\tfunction"
+			],
+			[
+				"test",
+				"testing\tmodule"
+			],
+			[
+				"part",
+				"partition\tstatement"
+			],
+			[
+				"n_re",
+				"n_redundant"
+			],
+			[
+				"clas",
+				"class_sep\tparam"
+			],
+			[
+				"class",
+				"class_sep"
+			],
+			[
+				"inter",
+				"interval\tstatement"
+			],
+			[
+				"_sol",
+				"_solver_stats\tstatement"
+			],
+			[
+				"parti",
+				"part_size\tstatement"
+			],
+			[
+				"n_n",
+				"n_redundant\tparam"
+			],
+			[
+				"mat",
+				"matplotlib\tmodule"
+			],
+			[
+				"tic",
+				"ticklables"
+			],
+			[
+				"feat",
+				"feature_clusters_"
+			],
+			[
+				"Lin",
+				"LinearSVR\tclass"
+			],
+			[
+				"rad",
+				"random_state\tstatement"
+			],
+			[
+				"random",
+				"random_state\tparam"
+			],
+			[
+				"pro",
+				"prob_instance\tstatement"
+			],
+			[
+				"max",
+				"max_index\tstatement"
+			],
+			[
+				"stat",
+				"status\tstatement"
+			],
+			[
+				"fea",
+				"feat_elim"
+			],
+			[
+				"dat",
+				"genData"
+			],
+			[
+				"pa",
+				"param"
+			],
+			[
+				"regr",
+				"regressionmodel\tparam"
+			],
+			[
+				"re",
+				"regressionmodel"
+			],
+			[
+				"reg",
+				"regressionmodel\tfunction"
+			],
+			[
+				"i",
+				"ids"
+			],
+			[
+				"E",
+				"EnsembleFRI\tclass"
+			],
+			[
+				"FR",
+				"FRIClassification\tclass"
+			],
+			[
+				"comm",
+				"community_detection\tfunction"
+			],
+			[
+				"dist",
+				"dist_mat_square\tstatement"
+			],
+			[
+				"el",
+				"elem_big_zero\tstatement"
+			],
+			[
+				"X",
+				"X_\tstatement"
+			],
+			[
+				"get",
+				"_get_relevance_mask"
+			],
+			[
+				"en",
+				"ensemble"
+			],
+			[
+				"mean",
+				"mean_score\tstatement"
+			],
+			[
+				"best",
+				"bests"
+			],
+			[
+				"be",
+				"best_estimator_"
+			],
+			[
+				"sort",
+				"sorted_bounds\tstatement"
+			],
+			[
+				"up",
+				"up_bounds\tstatement"
+			],
+			[
+				"low",
+				"low_bounds\tstatement"
+			],
+			[
+				"upp",
+				"upper_epsilon\tparam"
+			],
+			[
+				"fsr",
+				"fsrheuristic"
+			],
+			[
+				"Not",
+				"NotFeasibleForParameters"
+			],
+			[
+				"b",
+				"_biase"
+			],
+			[
+				"range",
+				"rangevector\tstatement"
+			],
+			[
+				"fit",
+				"_fit_one_svm"
+			],
+			[
+				"sel",
+				"selected_features"
+			],
+			[
+				"Y",
+				"Y_bs"
+			],
+			[
+				"process",
+				"processes"
+			],
+			[
+				"work",
+				"worker\tstatement"
+			],
+			[
+				"map",
+				"map_as_completed\tfunction"
+			],
+			[
+				"run",
+				"run_experiment\tfunction"
+			],
+			[
+				"data",
+				"datasets\tstatement"
+			],
+			[
+				"im",
+				"import_T21\tfunction"
+			],
+			[
+				"dro",
+				"drop_index"
+			],
+			[
+				"y_",
+				"Y_bal"
+			],
+			[
+				"imp_",
+				"imp_history_rejected\tstatement"
+			],
+			[
+				"sim",
+				"similarity\tstatement"
+			],
+			[
+				"ra",
+				"random_state"
+			],
+			[
+				"tset",
+				"test_input2\tparam"
+			],
+			[
+				"pea",
+				"pearson_set_measure"
+			],
+			[
+				"u",
+				"upsilonj\tstatement"
+			],
+			[
+				"no",
+				"no_class"
+			],
+			[
+				"N",
+				"NA_THRESH"
+			],
+			[
+				"is",
+				"isRegression\tparam"
+			],
+			[
+				"Rele",
+				"RelevanceBoundsRegressor\tclass"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"contents": "\n  BRANCH:  On branch `lupi` tracking `origin/lupi`.\n  ROOT:    ~/Dropbox/Promotion/prj/om_estimator\n  HEAD:    95126ec Added function to only fit the baseline model separate from main fit\n\n  LOCAL:\n    bcd74ac 6.0.0\n    3b5a03f 5.1.0\n    6f550b7 5.0.0\n    edba994 4.1.1\n    a995bb7 4.1.0\n    7a3d15e 4.0.0\n    b350469 3.4.0\n    8651377 3.3.1\n    e9dd0a3 3.3.0\n    37de948 3.2.0\n    ee3c8d4 3.1.1\n    0881b80 3.1.0\n    2b96dfd 3.0.2\n    2ea51b2 3.0.1\n    8e4cf1a 3.0.0\n    2d999d2 2.0.0\n    e8bbf94 1.0.0\n    10dea13 parallelRC\n    8917de1 esann_paper_experiments\n    2c863b7 ensembleprototype\n\n  ** Press [e] to toggle display of remote branches. **\n\n  #############                   ###########\n  ## ACTIONS ##                   ## OTHER ##\n  #############                   ###########\n\n  [c] create                      [r]         refresh dashboard\n  [s] create smart tag            [?]         toggle this help menu\n  [d] delete                      [e]         toggle display of remote branches\n  [p] push to remote              [tab]       transition to next dashboard\n  [P] push all tags to remote     [SHIFT-tab] transition to previous dashboard\n  [l] view commit\n\n-\n\n",
+			"settings":
+			{
+				"buffer_size": 1179,
+				"line_ending": "Unix",
+				"name": "TAGS: om_estimator",
+				"read_only": true,
+				"scratch": true
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/GarminConnectConfig.json",
+			"settings":
+			{
+				"buffer_size": 674,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/Makefile",
+			"settings":
+			{
+				"buffer_size": 4206,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/graphs.py",
+			"settings":
+			{
+				"buffer_size": 8089,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/HealthDB/summary_base.py",
+			"settings":
+			{
+				"buffer_size": 10442,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"contents": "# convert series to supervised learning\ndef series_to_supervised(data, n_in=1, n_out=1, dropnan=True):\n    n_vars = 1 if type(data) is list else data.shape[1]\n    df = DataFrame(data)\n    cols, names = list(), list()\n    # input sequence (t-n, ... t-1)\n    for i in range(n_in, 0, -1):\n        cols.append(df.shift(i))\n        print(df.columns[i])\n        names += [('%s%d(t-%d)' % (df.columns[i],j+1, i)) for j in range(n_vars)]\n    # forecast sequence (t, t+1, ... t+n)\n    for i in range(0, n_out):\n        cols.append(df.shift(-i))\n        if i == 0:\n            names += [('var%d(t)' % (j+1)) for j in range(n_vars)]\n        else:\n            names += [('var%d(t+%d)' % (j+1, i)) for j in range(n_vars)]\n    # put it all together\n    agg = concat(cols, axis=1)\n    agg.columns = names\n    # drop rows with NaN values\n    if dropnan:\n        agg.dropna(inplace=True)\n    return agg",
+			"settings":
+			{
+				"buffer_size": 885,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/Dropbox/Promotion/reviewing/neucom19/Review.txt",
+			"settings":
+			{
+				"buffer_size": 3224,
+				"encoding": "UTF-8",
+				"line_ending": "Unix",
+				"name": "Review"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/import_garmin_activities.py",
+			"settings":
+			{
+				"buffer_size": 21716,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/garmin.py",
+			"settings":
+			{
+				"buffer_size": 14163,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/analyze_garmin.py",
+			"settings":
+			{
+				"buffer_size": 18329,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/home/lpfannschmidt/tools/GarminDB/download_garmin.py",
+			"settings":
+			{
+				"buffer_size": 15612,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "Packages/Python/Python.sublime-build",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 327.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"git ",
+				"git: status"
+			],
+			[
+				"import",
+				"Python Imports Sorter: sort imports"
+			],
+			[
+				"git",
+				"git: status"
+			],
+			[
+				"bra",
+				"git: branch"
+			],
+			[
+				"com",
+				"Toggle Comment"
+			],
+			[
+				"git sta",
+				"git: status"
+			],
+			[
+				"git st",
+				"git: status"
+			],
+			[
+				"comment",
+				"Toggle Comment"
+			],
+			[
+				"doc",
+				"AutoDocstring: Convert ..."
+			],
+			[
+				"term",
+				"Terminal: Open in project folder"
+			],
+			[
+				"merge",
+				"git: abort merge"
+			],
+			[
+				"sublimerge",
+				"Sublimerge: Show Unpushed Changes..."
+			],
+			[
+				"mer",
+				"Preferences: MarkdownEditing Settings – User"
+			],
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"bo",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"boxy",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"box",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"lint thi",
+				"SublimeLinter: Lint This View"
+			],
+			[
+				"linter",
+				"Preferences: SublimeLinter Settings"
+			],
+			[
+				"packag",
+				"Package Control: Upgrade Package"
+			],
+			[
+				"enab",
+				"SublimeLinter: Enable Linting"
+			],
+			[
+				"lint",
+				"SublimeLinter: Disable Linting"
+			],
+			[
+				"subline",
+				"SublimeLinter: Next Error"
+			],
+			[
+				"Package Control: ",
+				"Package Control: Advanced Install Package"
+			],
+			[
+				"jedi",
+				"Project: Edit"
+			],
+			[
+				"istall",
+				"Package Control: Install Package"
+			],
+			[
+				"pac",
+				"Package Control: Remove Package"
+			],
+			[
+				"docstcr",
+				"AutoDocstring: Current"
+			],
+			[
+				"gi",
+				"git: log"
+			],
+			[
+				"docstring",
+				"AutoDocstring: Current"
+			],
+			[
+				"docstri",
+				"AutoDocstring: Convert ..."
+			],
+			[
+				"doct",
+				"AutoDocstring: Current"
+			],
+			[
+				"git log",
+				"git: log current file"
+			],
+			[
+				"diff cun",
+				"git: diff current file (cached)"
+			],
+			[
+				"note",
+				"Notes: Index"
+			],
+			[
+				"csv",
+				"CSV: Justify columns"
+			],
+			[
+				"delet col",
+				"CSV: Delete column"
+			],
+			[
+				"link",
+				"MarkdownEditing: New Inline Link"
+			],
+			[
+				"indent",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"autodoct",
+				"AutoDocstring: All"
+			],
+			[
+				"doac",
+				"AutoDocstring: All"
+			],
+			[
+				"markdown",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"mard",
+				"Markdown Preview: Open Markdown Cheat sheet"
+			],
+			[
+				"comm",
+				"Toggle Comment"
+			],
+			[
+				"sta",
+				"git: status"
+			],
+			[
+				"git stat",
+				"git: status"
+			],
+			[
+				"diff",
+				"git: diff current file"
+			],
+			[
+				"log",
+				"git: log current file"
+			],
+			[
+				"diff ",
+				"git: diff current file (cached)"
+			],
+			[
+				"pytest",
+				"PyTest: Run"
+			],
+			[
+				"todo",
+				"TodoReview: Project Files"
+			],
+			[
+				"theme",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"todoRew",
+				"TodoReview: Open Files"
+			],
+			[
+				"insta",
+				"Package Control: Install Package"
+			],
+			[
+				"colo",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"status",
+				"git: status"
+			],
+			[
+				"statu",
+				"git: status"
+			],
+			[
+				"pytt",
+				"PyTest: --tb=short --ff"
+			],
+			[
+				"git lo",
+				"git: log current file"
+			],
+			[
+				"branch",
+				"git: branch"
+			],
+			[
+				"test",
+				"PyTest: Run: All"
+			],
+			[
+				"currnet",
+				"Anaconda: Run Current Test"
+			],
+			[
+				"anaconda test",
+				"Anaconda: Run Project Tests"
+			],
+			[
+				"instal",
+				"Package Control: Install Package"
+			],
+			[
+				"git gra",
+				"git: graph"
+			],
+			[
+				"pytset",
+				"PyTest: Run: Current file"
+			],
+			[
+				"git sat",
+				"git: status"
+			],
+			[
+				"autodoc",
+				"AutoDocstring: Current"
+			],
+			[
+				"git file",
+				"git: checkout current file"
+			],
+			[
+				"notes",
+				"Notes: Index"
+			],
+			[
+				"inbo",
+				"Notes: Inbox"
+			],
+			[
+				"stat",
+				"git: status"
+			],
+			[
+				"stats",
+				"git: status"
+			],
+			[
+				"comme",
+				"Toggle Comment"
+			],
+			[
+				"coment",
+				"Unfold Comments"
+			],
+			[
+				"git savv",
+				"GitSavvy: help"
+			],
+			[
+				"pyt",
+				"PyTest: Toggle inline annotations"
+			],
+			[
+				"gs",
+				"git: status"
+			],
+			[
+				"pyts",
+				"PyTest: Run"
+			],
+			[
+				"text pa",
+				"Text Pastry: Settings"
+			],
+			[
+				"list",
+				"Notes: List…"
+			],
+			[
+				"auto",
+				"Anaconda: Autoformat PEP8 Errors"
+			],
+			[
+				"map",
+				"View: Toggle Minimap"
+			],
+			[
+				"sidebar",
+				"View: Toggle Side Bar"
+			],
+			[
+				"anaconda ",
+				"Anaconda: Enable linting on this file"
+			],
+			[
+				"disab",
+				"Anaconda: Disable linting on this file"
+			],
+			[
+				"",
+				"Anaconda: Run Project Tests"
+			],
+			[
+				"pep",
+				"Anaconda: Autoformat PEP8 Errors"
+			],
+			[
+				"savvy",
+				"Preferences: GitSavvy Settings"
+			],
+			[
+				"remov",
+				"Package Control: Remove Package"
+			],
+			[
+				"activ",
+				"Boxy Theme: Activation"
+			],
+			[
+				"inst",
+				"Package Control: Install Package"
+			],
+			[
+				"remo",
+				"Package Control: Remove Package"
+			],
+			[
+				"color hi",
+				"Colorsublime: Install Theme"
+			],
+			[
+				"boyx",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"ins",
+				"Package Control: Install Package"
+			],
+			[
+				"new file",
+				"File: New File Relative to Current View"
+			],
+			[
+				"inden",
+				"Indentation: Reindent Lines"
+			],
+			[
+				"push",
+				"git: push"
+			],
+			[
+				"branc",
+				"git: checkout new branch"
+			],
+			[
+				"run",
+				"PyTest: Run"
+			],
+			[
+				"add",
+				"Project: Add Folder"
+			],
+			[
+				"commit",
+				"git: commit"
+			],
+			[
+				"gitig",
+				"Gitignore: New gitignore"
+			],
+			[
+				"qui",
+				"git: quick stage current file and commit"
+			],
+			[
+				"git qui",
+				"git: quick stage current file and commit"
+			],
+			[
+				"git ini",
+				"git: init"
+			],
+			[
+				"enable lint",
+				"Anaconda: Enable linting on this file"
+			],
+			[
+				"anaconda lin",
+				"Anaconda: Disable linting on this file"
+			],
+			[
+				"pep8",
+				"Anaconda: Autoformat PEP8 Errors"
+			],
+			[
+				"fix",
+				"Python Fix Imports"
+			],
+			[
+				"autof",
+				"Anaconda: Autoformat PEP8 Errors"
+			],
+			[
+				"fix im",
+				"Python Fix Imports"
+			],
+			[
+				"sider",
+				"View: Toggle Side Bar"
+			],
+			[
+				"qu",
+				"git: quick commit"
+			],
+			[
+				"trello",
+				"Trello: Navigate"
+			],
+			[
+				"init",
+				"git: init"
+			],
+			[
+				"git s",
+				"git: status"
+			],
+			[
+				"rename",
+				"File: Rename"
+			],
+			[
+				"main",
+				"Snippet: if __name__ == '__main__'"
+			],
+			[
+				"spaces",
+				"Indentation: Convert to Spaces"
+			],
+			[
+				"snipp f",
+				"Snippet: Function"
+			],
+			[
+				"prev",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"code",
+				"Snippet: Markdown Codeblock"
+			],
+			[
+				"preview",
+				"Markdown Preview: Preview in Browser"
+			],
+			[
+				"statsu",
+				"git: status"
+			],
+			[
+				"boy",
+				"Boxy Theme: Configuration"
+			],
+			[
+				"color",
+				"Colorsublime: Install Theme"
+			]
+		],
+		"width": 551.0
+	},
+	"console":
+	{
+		"height": 658.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '7183a2d3e96f11eeadd761d777e62404' + 'e330c659d4bb41d3bdf022e94cab3cd0'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://sublime.wbond.net/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests"
+	],
+	"file_history":
+	[
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/.git/COMMIT_EDITMSG",
+		"/tmp/mozilla_lpfannschmidt0/plot_notebook.py",
+		"/tmp/mozilla_lpfannschmidt0/plot_sys_argv.py",
+		"/home/lpfannschmidt/tools/GarminDB/python-tcxparser/python_tcxparser.egg-info/requires.txt",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/bounds.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/base.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/optproblems.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_feature_selection.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_psearch.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/genData.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/regression.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/classification.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/ordinalregression.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/l1models.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/.travis.yml",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/misc_dev/scikit-feature.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/__init__.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/requirements.txt",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/README.md",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/utils.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/plot.py",
+		"/home/lpfannschmidt/Downloads/fri_tutorial.py",
+		"/home/lpfannschmidt/workbench/bmc/exp_runner/import_data.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/elsa/SGE.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/elsa/runElsa.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_score.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_bounds.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/src/cvxpy/cvxpy/problems/problem.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/.git/rebase-merge/git-rebase-todo",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/script_new.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri.sublime-project",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/ensemble.py",
+		"/home/lpfannschmidt/.config/sublime-text-3/Cache/Sublimerge.vcs-cache",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/User/Markdown.sublime-settings",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/User/Package Control.sublime-settings",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/Jedi - Python autocompletion/sublime_jedi.sublime-settings",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/User/Anaconda.sublime-settings",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/Anaconda/README.md",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_genData.py",
+		"/home/lpfannschmidt/Downloads/Fwd_Re_Your_Campaign.eml",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/daily/20-02-18.note",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/misc_dev/notes.md",
+		"/home/lpfannschmidt/tools/weight-csv-to-gfit/Libra_2018-02-15.csv",
+		"/home/lpfannschmidt/tools/weight-csv-to-gfit/weights.csv.bak",
+		"/home/lpfannschmidt/tools/weight-csv-to-gfit/read_weight_csv.py",
+		"/home/lpfannschmidt/tools/weight-csv-to-gfit/weights.csv",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/binder/environment.yml",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/setup.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/binder/postBuild",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/environment.yml",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/index.rst",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/model.rst",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/classification.rst",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/regression.rst",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/fri.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/ci_scripts/create_testenv.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/pytest.ini",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/pytest.ini",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/short_test.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/.coveragerc",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/conf.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/ci_scripts/install_miniconda.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/feat_tool/l1featureopt/softmarginlpoptimizer.py",
+		"/home/lpfannschmidt/Downloads/solvelinear.py",
+		"/home/lpfannschmidt/Downloads/feasrepairex1.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/l1ensemble/l1ensemble/l1ensemble.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/src/cvxpy/examples/extensions/feature_selection.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri.sublime-workspace",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/_build/html/_static/jquery-3.1.0.js",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/src/cvxpy/examples/extensions/sudoku.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_genRegression.py",
+		"/home/lpfannschmidt/Downloads/scatter3d_demo (1).py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/ferel/ferel/ferel/plotting.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/utility.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/ferel/ferel/ferel/ferel.py",
+		"/home/lpfannschmidt/.config/sublime-text-3/Packages/Anaconda/Anaconda.sublime-settings",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/ci_scripts/travis/install.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/circle.yml",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/plot_fri_regression.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/fibrosis context.note",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/doc/datagen.rst",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/versioneer.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/README.txt",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/plot_ensemble.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/plot_genData.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/plot_genData_weak.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/examples/plot_genregressionData.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/feat_tool/l1featureopt/genData.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/clustering.note",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/.brain/Inbox.note",
+		"/home/lpfannschmidt/Downloads/scatter3d_demo.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_regression.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/rbclassifier/optproblems.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_ensemble.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/tests/test_common.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri/plot.log",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/projekt stand.note",
+		"/home/lpfannschmidt/Dropbox/Promotion/notes/logs/meeting_barbara_21_7_17.md",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/.gitignore",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/.ipynb_checkpoints/analysis-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/fri/fri/fri.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/l1ensemble/l1ensemble/l1ensemble.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/l1ensemble/l1ensemble/__init__.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/l1ensemble/setup.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/SGE.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/fri/fri/__init__.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/python_libs/feature_set_stability_measure.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/requirements.txt",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/python_libs/setup.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/.git/config",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/.gitmodules",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/models/boruta_py/.git/config",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/.gitignore",
+		"/home/lpfannschmidt/Dropbox/Promotion/.gitignore",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/import_t21_data.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/bmc_paper/import_adrenal.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/experiment_pipeline.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/SGE.sh",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/stability/FRI+stability+test.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/tools/boruta_py/boruta/boruta_py.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/import_t21_data.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/experiment_pipeline_scoop.py",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/FRI applied on Fibrosis-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/FRI applied on Flip-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/FRI applied on Heart-Death-Prediction - Classification-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/FRI applied on Stenosis  - Classification-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/FRI applied on Stenosis  - Regression-checkpoint.ipynb",
+		"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg/.ipynb_checkpoints/experiment_pipeline-checkpoint.ipynb"
+	],
+	"find":
+	{
+		"height": 57.0
+	},
+	"find_in_files":
+	{
+		"height": 331.0,
+		"where_history":
+		[
+			"/home/lpfannschmidt/Dropbox/Promotion/prj/marburg",
+			"/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator",
+			"/home/lukas/Dropbox/Studium/6. Sem/Bacherlorarbeit/repo",
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"goal_",
+			"itime",
+			"time.sleep(1)",
+			"time.sleep(1)\n",
+			"time.sleep(1)",
+			"time.sleep(1)\n",
+			"time.sleep(1)",
+			"sleep(",
+			"days",
+			"fit",
+			"sleep",
+			"iter_ps",
+			"fpr",
+			"get",
+			"warning",
+			"10",
+			"verbose",
+			"3",
+			"shadow_features",
+			"\n+",
+			"fr",
+			"None",
+			"0.0",
+			"C=0.1",
+			"#self.relax_problem",
+			"problem",
+			"ecos",
+			"kwargs",
+			"solverargs",
+			"solver",
+			"support",
+			"self",
+			"get_supp",
+			"solver",
+			"100",
+			"embedding",
+			"SCS",
+			"debug",
+			"problemClass",
+			"parallel",
+			"n_jobs",
+			"parallel",
+			"self.parallel",
+			"done",
+			"data",
+			"iter_psearch",
+			"C=C,",
+			"_best_params",
+			"tuned_epsilon_",
+			"tuned_C_",
+			"isRegression",
+			"score",
+			"model.score",
+			"model.",
+			"pick",
+			"features",
+			"n_ſeatures",
+			"community_detection",
+			"di=0",
+			"1",
+			"=1",
+			"1",
+			"initL1)",
+			"s=None):",
+			"initL1=1):",
+			"(n,",
+			"n",
+			"regression=regression",
+			"regression",
+			"parameters",
+			"dS(di",
+			"                                              regression=isRegression,\n                                              epsilon=_hyper_epsilon,",
+			"L1, svmloss,",
+			"regression=False, epsilon=None, ",
+			"1)",
+			"epsilon=epsilon,",
+			"isRegression",
+			"if self.isRegression",
+			"if self.isRegression:",
+			"tuned_parameters",
+			"isRegression",
+			"classes",
+			"min_class",
+			"epsilon",
+			"candidates",
+			"Y",
+			"n_str_rel",
+			"n_features",
+			"C=1",
+			"1",
+			"max(0.01,",
+			"dev",
+			";",
+			"fri",
+			"allrel_prediction_",
+			"slack",
+			"test_bound",
+			"assert False",
+			"approx",
+			"y",
+			"y_",
+			"y",
+			"loss",
+			"_svm_clf",
+			"r2_score",
+			"assert_true",
+			"assert_equal",
+			"assert_greater",
+			"best_clf",
+			"solver=\"ECOS\"",
+			"c",
+			"C",
+			" 0.01*L1",
+			"]) + 0.01*L1",
+			".01*L1",
+			"print",
+			"epsilon",
+			"class",
+			"0",
+			"legacy = False",
+			"self.L1",
+			"xp[self.di]",
+			"[self.di]",
+			"self",
+			"print",
+			"prediction",
+			"    else:\n        part_size = 0",
+			"partit"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"max(MINLOSS,",
+			",",
+			"FRIRegression",
+			"FRIClassification",
+			"fri",
+			"pytest.raises",
+			",",
+			"",
+			"Ein Service des Bundesministeriums der Justiz und für Verbraucherschutz\nin Zusammenarbeit mit der juris GmbH - www.juris.de",
+			"",
+			"\n \n\n",
+			"https",
+			"facultymembers",
+			"/home/lpfannschmidt/wikifarm",
+			":Teaching",
+			"downloads.openwrt.org",
+			"\"> More information",
+			":teaching:$1",
+			"$1",
+			"{1}",
+			"{}",
+			"EKVV",
+			"",
+			"EKVV",
+			"",
+			"EKVV",
+			"",
+			"EKVV",
+			"",
+			"EKVV",
+			"",
+			"EKVV",
+			"",
+			"EKVV",
+			"target=\"_blank\">EKVV</a>",
+			"\\\\emph\\{$1\\}",
+			"\\\\emph{}",
+			"\\emph{$1}",
+			"printglossary"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 7,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1179,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								221,
+								221
+							]
+						],
+						"settings":
+						{
+							"__vi_external_disable": false,
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
+							],
+							"default_dir": "/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator/fri",
+							"git_gutter_is_enabled": false,
+							"git_savvy.help_hidden": false,
+							"git_savvy.interface": "tags",
+							"git_savvy.repo_path": "/home/lpfannschmidt/Dropbox/Promotion/prj/om_estimator",
+							"git_savvy.tabbable": true,
+							"git_savvy.tags_view": true,
+							"syntax": "Packages/GitSavvy/syntax/tags.sublime-syntax",
+							"tab_size": 2
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 10,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/home/lpfannschmidt/tools/GarminDB/GarminConnectConfig.json",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 674,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								444,
+								444
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										588,
+										589
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										173,
+										174
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/JavaScript/JSON.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/home/lpfannschmidt/tools/GarminDB/Makefile",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4206,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1457,
+								1457
+							]
+						],
+						"settings":
+						{
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Makefile/Makefile.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 3465.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/home/lpfannschmidt/tools/GarminDB/graphs.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 8089,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3204,
+								3204
+							]
+						],
+						"settings":
+						{
+							"SL.22.region_keys":
+							[
+								"SL.flake8.Highlights.|855a616683fcd9ba0752c6be40955a8abd66c8b4463cac24a10dd3670b13df0e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|11dc3bde927b93820db1657154986208312daa8b1e81d19a81552d687476d05d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4f1a1bd07ed1bbd1e2ef27386d4da586bfe46d1f32de06b1bc33c653d60327dc|region.redish markup.error.sublime_linter|32",
+								"SL.flake8.Highlights.|21195783b82ba60daa7e2f2cdd79ac2454417c503f58c5f9097673611f7726aa|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b31ba2e6b3794a4d1a4be8b3b7a8934e6f6d42e244f48ca73408b6c126f22c80|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d7a494c1dda6ddbcae647f988427cc135c3b896228bc45ac123aad90dda3247a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a2790229c8c70e1379675f4d47333291f239f35a27572ee27128460410e1c8f8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1c2b5c3a820779c683bf7437fd55a1ed79a4bc964a64f81cfc53725791d0add3|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Highlights.|a07c405696ab0f835f6e7f56ee277bac1c447758c879a4d6e8658cede47c5a1f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|805ff01a319eb08ec502994e0e0dee53f0bc28aaf4e408a7aab4f95c7483debb|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|28d81947f7883e6f480bf4f40e88330ff6f23207e9a5a5761e10dbdf942fb7e4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.redish markup.error.sublime_linter|dot",
+								"SL.flake8.Highlights.|2ebe86842b87ffa7730852630974a7d32b2f16efba3969c8b61bf7f99bd57325|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|94c1f42d13d00f47aef5b6ae61ff0f8c63b3a211e21a4b9d2bf263b25177a8e9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|46f7df5ddd66e204e5757e4f5762ab576ef11ab6fd4a78560d2c0d0a8f0f3d95|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8897587750d979a574c3a14efc9da9e9960a4a45e638f719a2ab02ac42368ae0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bf4255e3836ee30ca71ab7cbb76c47537c9a180e83d6dcd7402a746befe2736a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ad0bcd2ae6fbe086c52f261eb2e6ec84b4a70a2170e64c11995c23f866139386|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|651ea88ce50f59ffad01086fe3a8ddc4c78f0ad19a94af375bed3158057acf0c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6bff0ce8e7a58d4a66aaf518fa40722b1cac3e1ac5327ceefa30cd4edab256e9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a5c044a6dfa722a4ba7f5c4b8bba93bea19774dcc77bede90e1b978a0c74ff9a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7dcfc92b3b12baa600fea6b9faba067907d2a2f4577ce934dafeaee362a40a74|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1265879234ed63a91f5185779253583959fcd66a029ffddb797b69a510c0f049|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|90c732dabea60b2be6279573e652d9253d78b036e2ba567f4ebd7209ac312ee9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|45c43a98157228cc07bd2389cf220d71102242a415d2146fcf559b9a13f6bfad|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5ca49d4872d5d8c869d8abd7df1c13e7a7f7a8a63cbe22a206fad3e0d52ceb16|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|1d8b6dcd2df2b0d189f931dfb60a05a9c764e905faddf028df87b5106d646332|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e9aefb27f628a6bf528e79cec1c85ced4c104e6b71101864612fdd6cfb0eae34|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2183a13b324fc10232ec1f9f2ffc6f4ad8d94a5c05c3ae596628a7936530dcfa|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6be8a3fb9ee97a723ab0ac9abb1d29dd7f103b05814b898ece3d1fd50f80abdd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0684b7c9c1bd42bb3acd101f8a04c210deabae11155f4b0c63b9be899568de93|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3c2e4cef47d4ef761d44a42740b62fd174214a43f95c359ffe20555cb8383050|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										3229,
+										3230
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/square_bracket.png",
+										"region.bluish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										3186,
+										3187
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3180.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/home/lpfannschmidt/tools/GarminDB/HealthDB/summary_base.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 10442,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3149,
+								3149
+							]
+						],
+						"settings":
+						{
+							"SL.23.region_keys":
+							[
+								"SL.flake8.Highlights.|bcaa52e3ba0843e8524470c46991e1f8e6c7bfe923c1936ee22f475062e06f2e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c637691ac01adad2f340066f8e45040df21ded2c599eb2a8f4fb07a8d659a50b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|237bc86d813c819d5548660027daed13f1794e5a71876e50d4ec571e638a5d43|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|277171dcb1f7486176a53c6e9e53f0a674beba0e0d11b956c2cc5adb6563d3ab|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8d912898f1f725cedaece71bccb798958f787cc1f156d7b800865e545700717e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c5dfa64b9966a288615cf9d6d103d8344cfe6ec1736995a288238863e4ce4e18|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2318b2d7ec2f57458e2599e6f18686d61996387cdfea3791ea9b0a54e310bb9e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ee587b74144c67d4fc84431429f5381397ec307c5f660dc44efa6fd409d5efac|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|44bfd5ac5e82310d233a22768ffa2cfa2fcd6317879a1102fe6566fdb717dff5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|94b4ea14709eda972247ecb427847d4dc31d7c313849ff1a18caf054a099cd49|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|16d98399a7ce5a2aecbdfca2622766479e18cf2e1821ce16b0fda081e1a2096a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cfa0276e575be464b307a4f461acff496b6f48a2e2b2d94183c87ebd3b405f8b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0ca8a9c75f97a0db8f2b77a80d7a3d46ca07e0d4797ec0db70f2ed1aa0093f2d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|82ed30a4c94d7af30d02f1765fb89de63f14bc37fed288c29bb4a207ce8218f5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|65b98d207d578ff4b659801c926508a0490e7e1c8428eb3e69cf855547745f68|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|19f3edbdfdb6f9fe847e20b3f2d114437be14e0303e5f70810b13a576a64516d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|77bc56a8c3f56435c2d205afe98d7f763a634d4350b65f8ddbd4145599f89958|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7cd37460a59193dc747dee3c6321468579ddd6fa0f322ed5073bd10395eab283|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|230fa3ac7cb42bc25616f118429e70088ef660a16f6d422b174797d5dc9c7f7e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3bc27ea113fdd6a838ce0b0304841dd43dda1d05f14b84bc1a8d4ddcd7a920d4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|695861e048cc8ce49fc2991affecee8faa5635fa2a067a7a26d3765e00d71d95|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d823ca8026683efb2c97b722afc0d8be7bead81d87cc64bd6069b6917e68eb50|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f25c707f05ec48d89c38618f76ae658f41aebe76a4bf3476045dd7b82a4e740d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7e8b8b488515a482bc21958d8282f0b1aaa3044f7808efc6c7dab3a0d11ad9bc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d0552e584c74a97ecf9b833f783ba8b2f169fc2a9ac1ebbdf6df7c8cbda21a07|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|81354c04e76dc324f7cc5c302fc1c42af782392b97e60d13759acd2abdb91ffc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|38c23a5f8a11ec536e24e21ce31a98ec375bbe49c191618dbb34bacf3a7c4f0f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|772baf571365b3417397c8b27d5f1da955a2547a597e786c36ede89484d427b4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5eec4c8057434ffa10b38be18db635f32cadcbf23837f8d9b28747f75bba61d4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|71476a3904fa0e3794a785c0b6e95c5d4ad7576c351f2d4704ce6fa6e2ba3626|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9a77c087a47938b90b47bf0d7cfc4fa4e1b284235d9ddf5e07a0fd4c2745195a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f48aab602f71865aa4adafd3703ac2931bb9486a1906710d3317105012dc5926|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8570661f920e282aa24df83768aa6423e91ea66f7db8d331b672ae8a1233c4ac|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d91a845e9a6cc4eff81fcd230febdeea99a86157cc0465e63fefe0a9c911d66b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cc4c71f681ca704e0bf21e74721fb3892dd7652e005df100f4233bc959ea08c0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fae0b40d64422a2c141886aec31296580e6bda23a9712b623aa283114a0fe30b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|17707b0c519b3d8f08308b4a0ca6069485fe70051444260ecd20c4cf8b4f5738|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4994668104d62d6d351fe3340dc7ccf187dbbce4ca3a1fef541afe8d121d5471|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"auto_complete_triggers":
+							[
+								{
+									"characters": "<",
+									"selector": "text.html"
+								},
+								{
+									"characters": "\\",
+									"selector": "text.tex.latex"
+								},
+								{
+									"characters": ".",
+									"selector": "source.python - string - comment - constant.numeric"
+								}
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										2783,
+										2784
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										2731,
+										2732
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										3179,
+										3180
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										3134,
+										3135
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true,
+							"word_wrap": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 2242.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 885,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								885,
+								885
+							]
+						],
+						"settings":
+						{
+							"SL.18.region_keys":
+							[
+							],
+							"SL.24.region_keys":
+							[
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content"
+							],
+							"default_dir": "/home/lpfannschmidt/tools/GarminDB/HealthDB",
+							"git_gutter_is_enabled": false,
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "/home/lpfannschmidt/Dropbox/Promotion/reviewing/neucom19/Review.txt",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3224,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								171,
+								171
+							]
+						],
+						"settings":
+						{
+							"SL.24.region_keys":
+							[
+							],
+							"auto_name": "Review",
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"git_gutter_is_enabled": false,
+							"syntax": "Packages/MarkdownEditing/Markdown.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "/home/lpfannschmidt/tools/GarminDB/import_garmin_activities.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 21716,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4834,
+								4834
+							]
+						],
+						"settings":
+						{
+							"SL.18.region_keys":
+							[
+								"SL.flake8.Highlights.|f977fee775b40d3298a8b02f4ceb052a7fce0604fe325e0914fc4b22ca32565f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|71b5aa79ab9c8eb9214ea426b44206c7fbdcb10f7b3343398a5a1d02e2b17610|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e52accab33f59b9fb1c18933750899d83e563d8fa00901ebebc7ea938a626b58|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|39dcdef1f573561e8c528117804b3d7e747ddc2b6ca0d8f77c2d735b343ccad6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ccb20cc864963a3adf76b9dd679a2375993710ac311647c70d90e65aa6319f17|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fc3311f45d5f099b7bc30caec6d8578a1fca6df495e7ab892995704bf808c47b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f0209dbc7a674b1c11d88c5bb3bf1eddcd9c15b90d4b0e5a58d56a3742cf687c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6d5aac58692008ef9e66fc82deb6db12f8b27f79340f666a78ee408cd994a212|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|12e410fc19dda14ef74f962d3093935e1a2d45437483de97d7678a1df43bae47|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8c913f79f7ef03ad53b615f8b0810efd1ac023432b4726e63c2ed2baa2e62387|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|629fb38f3513b14aa21895f7d06d7e0e4168208e8448746a5697616810d57337|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2d0759997f1bf77b9ca2c6e4b8b7ebc3802dc4fce9aafd3a14285d8d4d9e7814|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fc4f0e0ddea0719cfcabb76efb8699d162f570be857705b975a240b6eab61a5d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ec99e8771c6743abcd93c0a9e8b0c24fe31b71f8336f4e04fe5935fba438c555|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4f704497899b8429ffea1a7bcf68ce17e1e3645a44c03c9c7651dbed70866951|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4fbe734ecf478a907879a61b9e178c421a28c39498e08e9b8360b7ea3e5d5bd5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|85bfd3a6c009c35989f3767a71a6c61331a0cd3b4b04bff664a6abce874cc9cc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ffa9cd9f04928e492cc74e9dbb0d65d29786dd842c69a4e283181bda18ac9b6f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cdff5f1a0af60a2ae996ab2c0a9281cb4744a0d7b4c9c596872f7132ade91a8a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|389e8dfec5703d951910fe316b68d8e31121776acd2784f5aac8443c9c6424f3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d685ba9391e61841ffd93276ca4bdfb0dfd4ea1887fd4e8b3db8c78fbf6375cd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|635d18490c8ca3784f3c30ad697f66704f657c072ac897eaa43e6c21a4154e3d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|43223b1021a170db9ddffbfef50aa938ec532c82a054ba84d78cd16751a3ed6a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|677f163c94cb39b2d89fffe6f0c35e1052f915132c873f0033339b8ad4cb5cec|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d3fb4ee9ea20359592e15091cdfe3cbe26ddd1019a21171b73836a5f82d79757|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|70ce677cebdcea46e0a503e6fa0f521b868d29764bedae8d9ffab6ded63e02b9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8e4efc96eb40edf22a13024bf67b506da263cc91ba7a2f7d71b49b1448082002|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b7ceebc4b80bbf9857ca298de3344c271b970b065b07f4a96b1ae50f58a4b557|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2b089c6d0d971280fb4164562ab561f46cb6efe9d157de64f6375dbcdedad4c6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|222abf21a25e354134bf3aad67b15b10b7bd7d3be2dc6d2210ecfafc714da17d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|32fbfd726b6bd7063a08d81566af020b5217a19fac1bfcea3e11c00488ba7a89|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7aa3e6d610c7746dc1d91fac61e7940e81f9a057e8d03cb8e0cbb7e96d79f957|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f2a0ffc0627fbd827e18b05d200d8ee55eab6036d1b616935bab70763f033a12|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8478e5d60579ec09f4cf78e71260fd84ac99c559a16c469d6ae8ee466a679a7f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|00b496def4f3588d0427e19f5f20069ef085d4af4cdc2fc0426b504e894687b0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|679ccd31c521fcd41664f2d27d1b6a79ea723811ad7b571cf1597ad32b6b28e2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a1de6713d28843ab1d472e3070d77cf8b7d806996d6a2faa9ce09afd1d005109|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|68b10be2c4df7778960f20edd04f67fae10760160f0e8f631ecb17b99087d035|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|62044ce341d565c92756081dfa80956be3653e478829f71ea318632ad84f9901|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|66bc344294cc9ac9a97f2a0586568e2575fcc59b157119884403af496e42f89e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|629337b9b737224e321d88fec2123dabe17e5f1ac9cf1c9f2f6ccea1fd3ac306|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|43d88c1827e6983961254b1140cccce80fa76cb850f00b39e808e5dd97b9415d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|609c1cac17b625de1c90e89bad4656fb79dfd5a4b4ac36b6875045d50641f38d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6e57e9fcde5cd74b2e697ffe45a7ca4632fcec9845c486071fe684dff48155b8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bdbb10ef5f7a02f7c6781c14888e41da96ae53ca7e8f9dbd2c7f46a7c2cb7789|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c5eabf7d1dd21d06e776f15d19b4af34fede3a060cf426d7cbc2bf77d2c320c4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|599015882f314e7da3c3524d850201d03b187cfcdc4d22d95b85d7b8d91caff6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c1aed59b8306e932d126357c4cc11fe7d674690e372a3bbae9b762ac03a73dd3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7d28de1d70aca42e75561e2275ce8c1003b2189e635d48fe60135715435233a5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cb5f1b6623e2910ec9f8a11eb299b56413253335c5c2d1ed86441ee97d57f849|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8c7b6aea2e814e7edf7d2a0056d64efdbd2acd6d7153e3da1f75e8b06124958a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3064919387e2b9629df3d27e6267e9d454198bc1351edca0f5e9175659217e51|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ccfc64fb508baff88920da0cb71c52c6f6ec3f5a7858c3acbb5a9cc5a0f6bc76|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|98659ffdeae325bb46c660ce38e7ba91cd580850856dbf8a30e347c3b4b9bb28|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|35949d0d762886851ee9999412cd921129d76173279f34aa8362ddd80a97738a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f43cb4c794400abb257e9a262222c9a33ef9ab36494ee607760f7247b3a37c60|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|faceacfab306f8d4b5f7bd04aaced394849c4cd9ab4598b37ef6c2ea8d0c4bb3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f60d7da4db041f123eb2017fa9dfc41557ae519e9034af0d6777fa81af758ad4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|28c27a9db13dbeffe53fabc4d0f4435601e9c649f7afe4d04d90ca4819e03f6c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b9ac70cf80cdb59ed97d4b2d29b6e8e850166c9088b5231795dc23340d72b717|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|547b9928b09851f383c5d4da3da74744e0a94ea4bf176b78de4fd2bf38dfedd0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8ebc4468ddf33eefe8696b566ef27c99a2b6f37622b718bcdff42d71ffb9faa2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|127b3fc5f5064a4089cd656c41858e133d49f919bbe707fce2ef41df62c61b69|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|15e7cb39165521e6903b4753535819b11ef9b2a89e4386ac341a01bbb551babe|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ad2463e7c02fc37d3dc54b9e770c54a3e8d35d45b174649556a1b2e9062f3342|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6e9f2720d981ea41b918f35c9b00a76016a7d78ec55ae2d8512724f831134051|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|97a607c8d4e711b5885a8545527a5eea7d314cf1b03685b00db80c575a5ab790|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|36f78112dd508306a11ee1e93717640ff1f01182b148e8211e5d2ffa392aa1ad|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b0b54998e6cdb57051c1870bdbc42d00c75bff756c645d9a3fd5211ddca6b9b4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8d0d3527d953c57ba692910a552ac54f7b65e027ed90ba61066ef40c3619df44|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d86d2a891e2f617a62e1371f84559f218bf77abe2eac75832be68cce3c7a802b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|69a7b36abb4d18d538b41edbda4e6238547e15e339d4dc3698a824436ce3b045|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d4c279ae21b7d86e789ed6e90fb37fdffa312b303c05f80b8822fae0506f99b0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4b0ebe23a8caeb979850be1c3e631853017d97bc64f8cc7570344840d9b16e28|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4fe65507d52524d711667e1079c0f12e3614db066b93f30704291eba6002e551|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|465c11d9eecfed13044e7a32fc77008b2dfb6306f36f9448185369236b660642|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|52bd363b6f5d14363c3aa5c3b08eba8b0a6608bb37c3320e4e8732c513ca02d9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|182d0c940242fbda1a0147533d5dd6caf3422d6cd76f17884d6ae28781277a57|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|93ccb4d5781ddddf86b7dab9c8417e960b6b09b0ee0a8e9f4c6eee9c5de5d4f7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bcf25037d4f3433ff8d3f97c4343dc443d420e8ca6696658f6b08f4aa4c3f1ce|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d71056a81814dc53002c1ec2f1e6c03885323c4fbe339d612301e71f8120fd3b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|10293a2b58225a9147b2f0de387f0e0d19b35bac86c15251ecde951242d556f3|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Highlights.|fc5d08a77302fffb386cf94642d266314aa5fec163412709858bd59171741b6c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7751b21265b338e22d1de4f2e3923e03dad1e63988db9737130ab9db18f7f06b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ccd14841b48b7ec92bdd4061aeb5e0e7cfe7a0d4bd09c519d1af45d66050028b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0ec22d086173ff88cced4ceda5f457a86647bb5dfbfb198ca9f59b64c234a418|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|444b3f911e3c71825fa62837b8a337b123f84e1c3ce606e31b8bad397aa45089|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|41ce7820dd39956209e1a0c814baf5a4e869cad1ee7aa562399108ba99f1fe0a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ad524003dcc1bd695f2e645accd0f1e7db5ae670ca5f71a1facde851c1bd2fed|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|54dfc1a2ef422c3dfb047a867ac75b9d8a897db4d3d5771d0b947c6e972aafef|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f5326b5d4d0237be129c46a67522fd970dabf4569ef3382f9cbb7edd6c77b153|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2989457053114c2c58f1a972dbca0b5827afcda3429c52233046529b38f488b7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|aded970368f27b9ff7694ca9d588ef200f4649ecdaae30b18c5f275ac4ba7f6a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1d1d3984f1ca3b8182e3e17df53f2559551306edaef2e822749c403f03a8d3e6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|77128b4eced6e97bd75d6894701928e5ae22b846231db4cb065d04cde8a4cfbf|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2dcb1058346506b85b6d83c5ced58d8ee469f3dcfa8baec554124d4c66c6c339|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3975ee52a6df0cff5887464670b38f31c80b1164c3c32f858e825332c54a267c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|20eec834b4d624845fe782ffede0a39e084431b57badb0b4a8815fc022ac2be3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|67c271a334cd7dff01e993927f7535683a64cb91f97bfc7f19b7cf1c58c0c3a3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|71a15c64eaf0a4cc168ea5cf39009019e875a7eefcf919e361d1c92b75aa689f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|61979ec21da5e200fcb82042616b0cd79ee741e362e65cfee61230620a8f4346|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0be11fe473a9e7add4e328aebe12160f9e49a925a844f76967d630d7426271c0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7837072c005846e2f15026c36d7515fab7075571345977900d3cfd0fb7ef2d46|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b70fcf36f68c6f4ad8930b8aa7841b9a808ba7a0a27d75812e635256896c8027|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|82a28a218fc3a5d52d2977c5496a2dd2f6f5c8228a22870a4eccbaa7e835da9a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2c35fd1cf860cee84589ab2644406cf41b883e0fc9f087d633b78e23f72fcc99|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|129f340e3ed6a0c219e6fbc9268daeecca78d702e69d85f22ff439aef6ff8eac|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3879765ced63b8d3781941522710d81be2636ea6156a9aa77631908dedc3d4e2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|30540c615de3a37708a0894ce3d63e6c1e5140806add35dc34b977a5a3928a0e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4f963b2e023039ef6565ab785212f62e8e8132342adf3fb93d28a71ce572bba6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a4820b4a3821de063b559b3d96f895d214ad216e49fb49b5cdcd2b517c9e6d26|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|246ef0f5db62ad606e507c96972dfbc55332699e949f8718ddfce191638910d9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|aac64accf90095276429b5f23960b0289979ba8b56a727d335e0ee5bbb4832e7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|55cefb258567f8ce9325822c26293b7da829e3c1e0f32f3a74eba9e31788763c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|75b7a224f2fcf7886d75599de14eadb43a3d0ce3a5cdbfd056ee407049af9bb1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5b36ce0c00ef3504580fe4bbd59aab37797f7ec579165ececd7a5ec4a605d3c2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4e692bac723a2635dbe1c38b44cb5675772dd6814aa2ce76ab61e2221084e5be|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|21f08f6b89298ae484d0c7817274caddace822e1282ea538438f7d3194a72019|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|40c1e76c9285bfcc32779081ad70b4a221d3ef052f5e3162a2bb669daa20710f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1721e06b7c3c230a085601d37f5ba5ac694540f92c49c2c5a3f4a0c7c1c82cb1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1d9c7f606e16458a14fd67f53f2834f11df8491f6a08af4a463f77d44f2b985c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|092b3027a511c95476237550dd7dec7235f9a61aca361eabf58682c7a8d5be73|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a2f1ea8e1e436d654b12048361221527eb5f00c506476bca346cc4a481af9700|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a3e1317ddbe0c2274eb14953738b7c204b0b7e0d46c76443145fa64fa275ea99|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2ca4a86538894323048de1e01b3f3ea71fb4512ad39526213988bd20637958dc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|852abaecf1bcb3c4bb2244ee7618d956cd87fad9f17551c0b52396dd13bf148f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f072810c8bec6f0df93a70bb637639d15934379a0b30d67b8c39698089280c4b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ca63ef8cfc440a733e012e48e3f96c02f954bafa5c5be5cdc9ab5e695741362a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9f6a6cd2e11e80ec337803b7796d05bb2a83137adfb82d4b016b58a926754038|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3be24bbff10ef5dc5ff36d10cbda6677e97a62c2db83fb7efec944c0c7648e69|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fa6cb76b54866c7fa690786e70c57543adfa5595e00cbe4b68fa2ed9451cd7ec|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8d6a315fd58dd225dcf4c9c25a2ff11232d6e8413edb3e987079f7ee4dfe9161|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3c3f26bb170d004366ac50a7e50cfd34724986189c92bdb617b61b283e5c1e7f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|347f455a7b47c7b3a9d27a8fd0fffbd02300c5772733e8db8e63d48202dae15a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e0d0bd643e3a45fdd62fc57846772c474525186525f5dc858fa79bbc130cca6b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|61d9496f643e2d73f4b8b885a3e38fff317d6285e00110771b63c18db8fadead|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|33c47d62cc7bba27161d91c98f6c84bc6d3507d77f5ccf1a8bbc4d328f031082|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3d9719c95d47cdc4e0b1289e22f33c5fcc80699557045c3fd006eaabbd4bffc0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|02479fdbf2ba81316baa7f8b1e78d452c6f130092eadfb035acc82214494712d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0e630eb2381c7b7fed3938acb48c1b48dbf0d7011d224b0d638cd90ad55a816b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|af0227e96244c630202c31450e889bba924819dfad136eaec7a7a087de1f3042|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d5f208ae6888c1be9b12e03b1da672ee1f46bbc1d00dfc466c323fb045e41083|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|86a9bc16bfbe1bd4039ebf0db3fcc2a6c2ec23a94506abf0e454fb87abb7c7fe|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b84a845db6236b50f1dad7ad113caa1acda61eea18a1b3c628dde8a1021749d1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7f90929b941d316cb93dccc19c18c88e687b5930c5c7855697faf02d8c3ad2d0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|41477d34a4ba42061ee6605de798636567cae0e87206daac1c2a85b86b1d512f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ab3abc96a2849c9a4a3c066721432ef55ed07a5bf1fbb2f120b336049b40e8f9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d3f9603bddaa6cac5b596ad084e29adac0da62310f20b69465fe69f6d6f6d483|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0bb4d03a02614375528147ebaf694064716e63f1d83a59276386085762960e89|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0bcd39e0f4ded3b475c39c2f0fb9b70f0a57d2e9c3ce762d4d304757b4c16726|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7d3c4245a30bcb5140dcf086b0dad3818f94b2049f72ca2286d8d6b3f6e527f1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9ccd522a772ae7d8df2d3d0e457251aa21aabe3db5e9885204c301959a390644|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a2ed75cf9174e600a4fd831a39f679bf243462eb3347bd85708e1441b4dce02d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|37055fb655587e08392c5256090194e0e94d7f8a8c1246933e5a1e18173e9095|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cdb7283dac372a62418fe8eb2f078ae63b1b5304c3c65e9ba8aaffc1938dc95f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0169c0e1d2ae00a74f86efd24ef1d12e77ebfe4d3c471a410ef52eba89bc2c6d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|145b94d06b92ffde19758c0f7e59e7e2aff999c7d7a32a898b5d126bc0d9a696|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9df3fa2c021ae76b4a564a7eadf2e146d49abc9be63c3612bcbe75e71a2ceaa1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9ad95f5e8135fcd060d387b069ff4b7a9b4734dd53638917a80d86bc8a7fe022|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|947106f89f423218d703499fa0dc0de48f0c9189ded1b24414e022c2c81887c7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6f60238d056b77bab5638d7912fa84591732bf1556883fb7d68408a82b3ce755|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|491b59c8ac4b131aca58dde759a46a3255e58f359f57a1a8986edc7826db2688|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|40dafe64a2df604b86844ed0a03b409a7ad7aa8d7a3e8368b8862fd95f851c0b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|24fc159691f1b3f193ad8e5d0787fddb7926e30797e01e5a1259219c3dede8ff|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2416ded3710859474ca4999d6381e723a457c646d55481fb612dc065527a07b8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8f08ecbb09c9b9088c29ad0357b605a72cd5f27fbdca1231518c7ff8ad64acca|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|04f70700779fc5fd763280d0a2896b66360d301c7b9abfc37463985b2c70d78e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|781d44130b5a3f472fd66cdd399c383459e8f83883d510f4178e0c46301886f9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c186bfaed8415aa809f8d57d1712b2a6689ea0cf7d889697c3664f9225acb240|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1084b3c9f3056c72f82f89789dbd3e03f18a8acda62527e185d09b89db50b3ed|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ad7e5c1df2e69e6bbac8c9bb506f9452ddfe364baaa4fb881c15e9e5734e3c95|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9f1dc1f238117e134fe4cd368b352dd404e4b644aed34789c25e7d014a47e8ad|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cf49ed4fb1c711d210add46cfe123799b58d50acc3511886809e410d6b1a5871|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0e5ab7f473a09aa8b75f5e1a37f1114c9f2e0ad9bbef1ac7b88418b2e1da5b70|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b2f27e20a671e5005595c399e37b18c9d698ee5db4d7370fdb5684c1df7ecf62|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|11543bcb806e8bba6074fd2bc829eaf86dcb7f131e38a5762922dcc83cba2e96|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e9820647a343ec517b4a12f61a9debed29b4ab718752930bbf17b574470e500a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b97f3d0e468e5274f7b3cf85ac1dc9d1ce918f028cb1a4d2bcd3d2eafafff275|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										4814,
+										4815
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/single_quote.png",
+										"region.greenish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										4803,
+										4804
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										5835,
+										5836
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/curly_bracket.png",
+										"region.purplish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										4738,
+										4739
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 3845.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "/home/lpfannschmidt/tools/GarminDB/garmin.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 14163,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2142,
+								2142
+							]
+						],
+						"settings":
+						{
+							"SL.17.region_keys":
+							[
+								"SL.flake8.Highlights.|7aab9b9cafadf3d290dd4a090fa4e3afee1e285c24ad15f524a22cfd2108a628|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9afd6dcf65f81c463930d5af40f6bfef77244f457fb5fd6333240acef6abb18b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|434eb5b647eab0efeaf4dd38ca7d78b1aa70ea0deaad82fab992fd0aef141845|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bbc05b965b7abf6016840707e398e34dfdd4644646d9e3f1e7487b7d295c5f3e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7976fecce505d0cdc02bca8c4aa7368ffd77fbd1aa9b24bd339b0612fda650f8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1c572f4d070bd7a005a7d83da6c0b89f0c945b543507125d99b8b0e5acd6ac9c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b4c8271a31c0eb9ad33987885babafbc649aff125c7f7ca14131d5a8304f9131|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b195e20800f164230e0ef1584000a538f7080a6bc0772b151487db0e14a8f133|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d51de193515c298fd6959c4eaa2313e9f0fd6f95ceaf2d56fc9c5f527eb46764|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2d9631ca97b9a5e667bf20e7c86f37dc5b0b6dfe756ca08550e6c917303c03ca|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d743fd56f9cd7ec9dca7d99ad1c0574c3ea29e8fcd13e0760826a70ac48b4e9b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a95e444a333c737e2bd5edbb95431d4bbf925da6d574162a67ba1b2dab61ac44|region.redish markup.error.sublime_linter|32",
+								"SL.flake8.Highlights.|ddacf39bce90611a83331f372ff387b485b95e65f128afd2fd7d39570690fd4d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1af1f395c1ac47b75a53efcf8bcac5317514c7c995104e62283fed07ae71b073|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|119bbd088f3f806cee9b73cfd9a1cd28fca6f678135878692149a7c09622944f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|a2068c1d8cf542f0e11b6e344fb92306a36fb2f1eb5eab8cdc92baf662f7b011|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|36d6420d15d05b0863b2177fd47ace2d94d14cbcbfdd1a833f367597d304f505|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.redish markup.error.sublime_linter|dot",
+								"SL.flake8.Highlights.|839822a8f1b457ad9813b4cccc8708df2286b9a6f7edba6001d4a75c096027ab|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f589206f7402a3061b1ea22486e9c19136173f3b020363b6b26b4c2fabf6edfe|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a42549a8b72adb1b3d9a36d8096eaae94c8d5e869c563e28e114ecf664258659|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|62ab238747a9c6ae69c4fb30bc644ecc1d22c0da753c4a0257ad6986bcee008d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e68c66a1c93b37ed5e5ed3c46d165413c0b829b9bd936072db59adc87cebc79e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|36d8418f5d68ab00c1501945ecdcb09cc2f3f85d0a64c61ff9be07376c931fc1|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Highlights.|146b9d3fc0f1914add5467bd986fc38e2020f445c64915f77805b425e926296e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3523dee296e47e546022765d9ff5bb7dd1ceec5967a5a5faac583640ef636400|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7d1b7bf18f0d87bcc77aca05d15c353dd05c0a27af556a746371f85ae085fe67|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c00740d7cc3097cc40deffc66c4136cd792e1197624bcde72c7be087a6f29bd2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|eedfa2995788cf9560a90bfd70440a664d5708e9f08be70f58202304469c16d8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|65bd542f7ac12e1f8d670e0b0be9ca4770c9786d79e330d334e3e4a6637bbd6b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ffb8201966d05e80ef39b4ad2150978e5efe865de3042867177f5cffc1bf3370|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7958e6f435d2175f421449163b6f7b0613b15dd096a664c12ceabcf1cb976c89|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9f0472ab65014f44c724e44bd4753c44ab44def3c78b7d0e04eae2108076fa5a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8ad13bc1048e8ae244bbe94b2431e74d8eea7d0f6796cbf8e685a4e1b36d10df|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c878b4c703bad6390535adfa6fcce9b7447dd666ecde7bfe04f1bfc1bbeef406|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0dc37f70f66f0aeb428f769c68a45a764957be4add76d0308d9198b32cd1d767|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|93c82ab6abde114cff45cc42c89a6f0f206c1bec56d302591ef0dbfbb8e3dab0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0aca65bf40df415c89eced4c6fc5ad3526bcbc7009553e955d7d49f65327028d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5be8cd8b5ecde6592e6e913421dd07a1ec356f432c2c0a9d49cd64e1286d3a4e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5f9ecfdc64da237bca4a36889045ccb9f60f428cb91c7d2caa4537f51d2dbc83|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3fddd9dfafe820d5b9d62ac151d8471f2a031e7af6957954f721c38543e1c16f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c382650da217fd6748ee9762f6e3d1f57735b25476c60e83b94b7f0d5a423ba7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d7229dbc2347982cb7c784b0aeef0fb873f4d63a54e612e186b3b07c6b1fc13e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|75ffff1128199fa546aac13699c1851cbff1557d8a4558a3621758ca80a85b98|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|68bd5c73cbb4f6f07530c48e9aea0644ef8ebdee305c706fc3f9cf4715abe2c2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|80df0fd6ab5e2ac516da9e9980d778990baa74ab72b4f784f4f91482f69bc184|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9ea06a87104ab2cc783d52e5657811167b7e80241b253bea293fbd6a06955102|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										8853,
+										8854
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										8852,
+										8853
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 7536.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "/home/lpfannschmidt/tools/GarminDB/analyze_garmin.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 18329,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"SL.21.region_keys":
+							[
+								"SL.flake8.Highlights.|61ecd3bef3759aaae5114a284548c9396ee391160750830a0b897eccb4101eba|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|60738dc978a6e96e0d1b69060f648fd9c3fe3a43d799b215c23a58609ae2b0b4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a55c13fc701b9cced347985efb4e4ed824684153dad5c980f7f26253da804dd3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|dd6c91b6956891779b5a5897b733dd8f0ac1ebdf4d0a9790bdb4ebd74d67e16d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3706924db4ce4a6319ad1635441f8ab526db5dc120017950249b1aece1495819|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|392929754df9fb2a1a154faf1297f17456430061a9e95285e10bf5345b174c33|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|91952584594404dae92d7b4ca10cc5f8eb9e2b479a4bc37b4ab7ab92e9d3e50d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f83e82195b08589612c1b393633b56b40c9428fe68ef9c522707c5fd822d5b0e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f3abb1a992824bfd816a581585cc4077889c9f1ab73e614b563df5a07f1035ef|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|64aa24f723948eed135b231f5f2be3c686f9114fc48e827ad31fe2449ea6382a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a44884511bf0f5bf3b45a0c964826a9bfa6ec957ed8ef2d30ef4f50cf3beeea0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3f0d735bff1bf24f836e4324c19c3009f7fa500e9ded058d777750ab1dee18ab|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|8062d76a0e384b5853df7d6e2ab4f71525be2c3d00e5c31d43dccb93182eed3f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|996fcba0752a5e35de5117c7ebf2ff7f61150431ec4cab3f3a2a258f19b3d200|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b4d8939e4850ed55696c3f14bf3a74b72eb2bfeb3cbcb9940dc0a4bc2a9fa515|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c54ee2bd80710efbd90b34b866cc0d21f23d6ad6ab4350f55e88ed8537bc8ff4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|965223c48c4dfe1129c0d63247873531195b53cd23323f0382f9f7f28cfd95cb|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|05c2d7436169d6ac4c859e44215f672da114966de04a8ad7fb7aa9f585679847|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|84ca923f621ec805c57090d516010cdb16b1605e80a8154ad60cfe83dd7016f2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7100324801703a63f7e1f04c3d355079ddc0b158c9325a5542e980fdb143e89e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ac199d8d9f2b0f6cc2791f2328502915d3dac3d06bdfd0e6a8d8d221e4dd0d73|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|91dcd0cf44c163e83fe0d41b9a7cbd358aac7262b4907e4eb592b42abceb79ca|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d3e1c623c3caae9d35aa08383bb4e37b6542c992d86462e6ec0659598a3fa103|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|922e13654ed32bdc2856bd2cfe1a4d58be1b92cef7074e5be91e6fc3d0823aeb|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f01ab371b3fed37f54d6567c56fd5b16ea45122e813e2dad0efdbd580126a013|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|91f022b25f2d83320b177dc0f35fbca59ad18c6d18e01f3446fcf62d42732b36|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|17143915c8819c19fdc3bf9a15583dc186e66b3e4aec90343167157bf48ae7c0|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e9ac5d0df14f19451f2b5df3c4dfed6f5ef500c5632cb2793007438ab66ed9c3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d98128ecbdc67b8972b395c1521ee386deab1f4f98791c4ef7de9425c3f0740c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|288fa46ec07bb2a633221dfdd9ca88f4326d42a30331fb1a2f3d056f7df1032b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|66cc8fba03aca6ed04616eb1255e9fcb23ac9497fc3391f6d9c1c3d4e013d7f2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d557c752e994d09f0ef949450b010556c79da11efc5f044df8d3419713cd31ae|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2f7ec8126b5ebe5276e71da26c72d3cdf4970595b985dbb5ef56e642838fcfdd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2f5466b1728c8835e704c60ca63e8afd487425b4586077b2881bc713626e66f5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|701e90080a57fa4fc669be3b96c2505f20ed623577bd3051dccdc8e1be7e3d56|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|511d2db1c66e2b75667d6f59ee33daeebd8bd6db6c32381f826ff5d0af60dfeb|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5bbd9986c228366224af18536547fd6d74b48a05a5f70a8e6beee8f048bbb6bf|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|28c25bd2b9024b612344e7da4691c74d58cee21cc4950bef2ab2d150dd9f890c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b277a2980273f77b5fca05ac9a22520f65b7d7f4e0b439112eb8447b02651189|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c56bc8e219635e02388e7be9cf2380a7f02c6fb5fbcfbeb7c527ddbb16fc6d6a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|351582a4371e9f8f56bcabcec6ce2257aff9a6ba2bcc8d5322cedb86bd1e73af|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|efcdb6ca622aef8654d1dc8aedcda51f7e10fabc4771ee969568303cd5a65c4b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2d0071ea6b6fd77ebbcca04b67d16821dfe6814deb3f75f5b798919ec64f31ee|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|59b5ed1b3507d0df8ce0216f4cfd1dfe1e2f94f4127031ed938573f03e14da07|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|31617badc6e11b5cf8a102e56f7380fb6ec69cfbcd09d0e8f85f402aa686d2b6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9758fae006511e496b1c09fcc4e0ef15ef29c1e0d7666450127570324e4d88db|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|46682fd7fc6d75e0f5ddfc004fe24114a67c6b18a0d4300ec553472627c136df|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|92c5ea8a750e1dac2c64f9a18657c38b78c6e3322cfb8d4f61871a718b1e84da|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9f1396385d70bb5fe786d3ee29a7bb25758cba6f68801a6d1116e8ff4198a045|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2ace05c9e4cc2326c56ee6d7bb3d1c1cf22918520e6e9efdd1d188e08b3ff665|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e6727f68c66ec1463ceb02f6bbd49bcc6e83f610a1d924ec7de99c0f1f5d149b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|228e418203495f6e8574f3f2dbbaf699dbca42bc586c2cab2d24555d38729893|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|dd9d2dd81356b7b02bd9f021e245e1a924530c19cfe73ea5f528b04f6423b6c1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|258633b9ae04a1c9f5238da2a33a8451d589f1b0ed2c09d9cfc4c76dd6a2317f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f28f7502649a2776894eab03117add67b943e790150e819eed70f6700b913df2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|92fc00272daf000c281ed57fe5397ae1678c25e482526e16bba700e888a55dd4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f3fbb0d4efd3d1cfe2eb2b27883bf66f32182914fb03f6153cb40dbb2b987a8a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7f74e0d9f79bce596de7275237d6e5c95c96e4cd7d40ee0ac04575f854e14bdc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|74d7bcfcd5f09d0d1edd373d7238c154d9081e13d5b5f4c7122b1c0231803349|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.redish markup.error.sublime_linter|dot",
+								"SL.flake8.Highlights.|8fe644a35eae51b53cb466accd3f43e6008c0b583d6cbda314e7f65556b6c887|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ca593beec0e2b1c405aa311ea262f85becfbd63a8e9500e294f7c2dc15a4e7b5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|163f6d6773c11bdc822cca3f2295bff1d1ee68d17911a96eb3ee1e36ae26addd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a84e333d9fcc3aa3e20ba861638480ea27a3567adbe65ae6b1637b4c21ce4205|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|74347f0f2a15abb2c19ccad6b642b9408edbdbd3cbff9a15d177c7a98abdb900|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4ec47ba4f43e251b0ff5a3b51cdca2bbc7a038f56ffdbdfe76e6491faaac3c0d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|676d0b579c2f95a0985a9cb7ff723d4a2cd1e39d22d2b48a2c072210c3ad4891|region.redish markup.error.sublime_linter|32",
+								"SL.flake8.Highlights.|49eb3c359998a1d5b0187fcd7a4ed50a99a502881303221c8f372214cd8f94cb|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bd2c6bca48b411105ff258829c99aed59039a08dfe905d32287fdae631095a0b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|39dac27a0cd8e0d050870d4acb713cbf9d863444bd409015753f49ce99645189|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|096056283b37dfb893458704d82e0ea11657d7fa329bdbfba374ce7edb14ec10|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a7289da30261350b2a395309908a9f4fe99ddcc6adfdc09ed0b872af466d1dc8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ef99c62e2cb75b0e98df2df16fe6e5525f77017a33964a6837f3f293255dd4fa|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6736f0e10e11e102aac8c095c5cf4debd5efe4c9e3fa7fa251015b261bb75741|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fbfdbb287250d2c6c7d7b24cb563788ce237a9326a70d8ea750469bafb30fe73|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c7df6468253a2fb73b0faa3e09799ea24084be544b498a36d8319f837ee43aca|region.redish markup.error.sublime_linter|32",
+								"SL.flake8.Highlights.|e062d113da8e7095caff7fe123a67710c3c2915d710ca32be79ccc399b632609|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9b99064dbb6a4a486fe862ecc51ad9a598cd986ca3d251bf0b4bf83f633ce6a2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a92ffb3f7cc0972efadaa578aec7634cb74c64afcd89c9d9ec8ea21a2e4c89fa|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|419f478a27cc0c18f222c5b234ff5db7f9631ef193b0800eea989dba88d2b476|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d87bbf12cd4caf0bead945b9907de39307f3f101b10b702ec2a19115254f4e13|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|90f2cd243de7b1719fbea6ce6be4a4a21895edcc10f0d79c0eddc4121a54fddf|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|62cccf504648744f4ac00bc1361f40485fd4887b2b34e1e3ef50258948f625ca|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|707156b44e3214482b43e36381c03ebb9b05b41d1c8a4a8f0c39cbf4a444a16e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4f8d0c6d31423124f8c981b1936f5323f80f1c54f212ff84d3d5a5bcf40a2002|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|1b0b5a0192332e12175cae1e99feb739a9684f5d2e91eaffcdbfd09a3dcc7730|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6ac7d96660d2546c07d2fea3699b630d379efe8b74fcd750a280e373beda2b10|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3186279300890f5bced66e13c97394f9192b8fc2e5bca240cf62c4cb53f3185d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7e432bd06eecaea35e8790d40bd053c930425c4325ee20ad89e70eb48e2e7c13|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+								},
+								"icon":
+								{
+								},
+								"open":
+								{
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 4200.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 10,
+					"file": "/home/lpfannschmidt/tools/GarminDB/download_garmin.py",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15612,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								9105,
+								9105
+							],
+							[
+								10731,
+								10731
+							],
+							[
+								13926,
+								13926
+							]
+						],
+						"settings":
+						{
+							"SL.20.region_keys":
+							[
+								"SL.flake8.Highlights.|8ded8e83e085f0112d84dfe44d21ddb8371f701f08bf3b463517a94498b088be|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fa41cf89f8d1fadd215cb4bd6bf4b2c4b3facedad620b6076131449e42c96b8a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5fb5691763314eac74e6ced88dafca4f86396c8fbfdbe44d58e2006e26248a00|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4691d7bf4ac9b0806f0000e6d6f7bdc563e1fd04243b5f0dfff14a0e3537d2ac|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7bdcbd3bcf93252aae9a8c5078a7d4d3d04c9d187dac2fbd4a576308169835dc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ab49f27f9a88ed2507e740a1e72913af35ad212f723ca389b191105e2f9b0aec|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|11e7eec22011cd1421b662157cd31225f35cd0eb996ac5bbbf3748d9b2165173|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|be3931eded26cde94a8a2758ada0ff480a79f5cd3f5fa5b5ffae9fbf20ce9236|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4110354263b4f498855c6f2cb7ad4c7d5a02fcfab634ae5d40a553ae2485f4b8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|de38a44a919582bcb4724ed2804bbfebd3da04e1e30da3b2012254770c388048|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d0ebab29ed31393441cde995a55d00187df24470536b6564241044bb32886fb3|region.yellowish markup.warning.sublime_linter|32",
+								"sublime_linter.protected_regions",
+								"SL.flake8.Highlights.|e6c7fbabdfab6acb3fbbc421a22409ee598cd1dbb1ea7d47f184eb75c9967853|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|aedc89405e27d647ba673837ddbbb203275bac6f70e6832a544887aad163116d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ddb6bd2c0a152ad9025e308b991684a126056b4120b4d76d71d6f03e972e8604|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|88296bd42529743a821d3b9ba68f2ea5bcccec691c0b3d44a95ae1eb0db43469|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8d9146aac94d588b497f234b352a585b012c1be3067a4cc99ad9126f6b9df8a8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|28364459ae1f669e84ee358dd50e0ff1531dfd78a0f0573e48ed0e60182cf451|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d45d4a168c116c5f5384646a0a867dec5116c15993dc5563d363cceb7a80080a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7771bf675d38150a12f4ff86e2cda2bde9401521b7788f97cbbc0bd146131e3d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|99a56cf509f896cb8a337195aa15225a76378cc923fa092b188b0459214e7656|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|22cbbfe51a3eba04ed35bd229653f43f8a8471373614af15a3164f99d63e1852|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a3d19dfbaac524131dbbc31693a436cac9333594309ecb61e90228af5d149925|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|751bf41144ee7920d2d692b4997a91831297d2492cb690e026d50cb74f817ff7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e86bcecee84e756b6d4aacf1b6871eab905554728ad430057268435e145a27b6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|de1c90c1e241cb31168a21c7468b0dbc5ec43cfed81dacca6e30c1abec4e31c4|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4071b0ed754b2327b9cbf2e0bbb52afb77ace5d8d96b65650ae6ae27d0a1e52f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|838b12a6ecb118648548d394744cc82285b92ba57f6841bd7fcef3dc810ce92b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|83a889d026081bd664bf8c22b7f032b4ce3e28e2993f73ef8e14f84fe493762a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cf573e687d06de26a01aff13f7301b2cf13bdf9d65221bdba3351c0debafe4ce|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cfa339a6653f12eab98487118939512b4d103bc22dfeb7589cb467a90c7d5a76|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3aadc8f98eb70fc2a1f0f0add44b30365006ce9e109f694968b95d47b9db70e3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|20b86dd7c3af6b0da8a663117e4bda458c41d12eabde798b106027ae3e0df1dd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b93964bda0c2563258ac5d896709b8f3c4357011957450368cd0b81e6e7780ba|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2ca5e00e49ba01b1b320f9a9ca109e0b2d9610569dfad2dbd57e0cb70e56e700|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3d65630536a70c7189d0aab655b3bf08d10f7b5e0ad16f3eec0e05b83f89bd2a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|26fc0f3214d246af1fef9f25b0500502bc66076a71148bd566aa1579eace6c9d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|05a5f129e4cac671b92d06c3d5190e8c042c1234920d15a1530c8256b90149fa|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|922c65f687a4018117ca159103dbded1dc79374884682e97434450bb08fbf9fe|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|72aae51cccd3129c51765f7b1773dee984d038a4c52ebd18899267823eaf4ec2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5b9bafa6e3e5be3b2eb5e2f933fc392a97076eb07ffc4d861d64d139bb6ea565|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|5f3bb5f40afa66ca5d69cf734c7da6f9a4caac23d10e460de7131b89eaeffab1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|20218e88380bd571c8d61728ee33d08ae637fff873113d39ca1669099511820a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8df003bc7ed17cac9a7dc751cf01bd1451825858056b04af09aea3205657d44f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|19e0b44bb14c1a668db0c4aaac4b0bc07d70623de4ec23930cd23b38e1c914c3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3adf8d9c9e778fa8f606191c2e36435a2949cecd75b65785fb780d0d6129bda7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0e902a254778951eb2c5f5e9b501c3afd938a1e4cdeffee2ecee3754446b63bd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|acbec853f440949a2aafa2f12b310f23a8769d30b5215afed08d4f2a0cb1f581|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2685c06c6ec6bc24cb913aed715de7798e443ddf9eb258f2043fb56c7ccafc8a|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fb7c31bff2d0b73f93c638694703b095d3078169f2f3071b337849804c779f43|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9b223b6e82dde11556eb1e064e87f199a5ec208d832000e3bd63983b48649344|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d820654c88353c820cd8cecd5cb6eabc8b24764bca7b0f89cddd6e572e09cbe6|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4a70e3934645e38c925b5db6dfb0c636b88b960142b7d79d869a9c26f3e29c0e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3d19839fb3bcd37bc7a14c2771d7c5209f47b462491670479ec03d10e7b80f66|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|c955b5f2eb92e12ac43dede770dd48673ef8b41c5e96475a5184b3462aef091f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|0da40dcef251d5898c898f2f8c8cd47d892e703667e4251c657c46818650b134|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7445161856d395ab559a844f0f15d6ce131e7ca6d35518e8d64a4ec73254aafd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|edfa4f986d8be23594cc9527975560208bd10babe85b78c747fa04e53ab4e9b2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|adfbcc1a06d7133e7d1723482c8558635466443ae6f857c8130aa91af8569d1f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|afe3f7cacefed03c843fd175616547ec5c48d709fc8c914c0e7feda72dac7f1f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bcda730c9fec296673418a1ce4e5d7c2aeda4000943c60a823bebbf7323dc9dd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8f191852ea3afcd1c715384bffc34fd17be0794455318942c23198bd12c93bbd|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|914916a5c0b25f3f3b7ea4eda123ab80137ed61e06cb4a09e44bc7dbf76a4dcc|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|158be924f89253f973ff9402a56cb2c57dcef5b317f1edbde2f00ab411d000e8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|01c2f08282d596e500202fc06abf2ae7c1f0d1687bfd6a289f910ed6b5389d09|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fa92cc4e5f0137048dda38a68cbb5806778a53be1369557e396d76da34695307|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a2b857940b51dc8428d8ff64f5a0aed41597ae58daf4e5b3f5cdd19a57693b02|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|3085877017d46e9fe981f9eb32d6d87248c6ce55746dc2f5d6ce17fa81a57cb7|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.redish markup.error.sublime_linter|dot",
+								"SL.flake8.Highlights.|8a157e6338e17cfd3d9fe51aa45271bf3be607c33eab4d489b45e3d8226c74be|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|62f326111a996f523c9785164f9cdc7c9ea76486f4631f05dfb01e6a78abed01|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|ff2f20eb01f274b4553a10c96fe2f3d6ff809dad4783584ea59d5b6663359820|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8cc955851202f8091cd1bac59b3c510bcf9a1979614835dbae9cff4bd7eec672|region.redish markup.error.sublime_linter|32",
+								"SL.flake8.Highlights.|10f3148a55474578cc3504fc534fc69143fe04eb308ec1f432e2231c3bb0aac1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|06d791530c10e1f78bec436b84ae655c695873806fb5f29103f696526aebad0d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6cf5338c05dbfdf5f7996ef8ce1f4f3d3c843a27c7fc46825eaf43dfe20b33c3|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|eab642e3b28db04ddf4c0e5dc4679cfdde7286bc12cd9f546f4ad8d79358a3c9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fdfc6ec2baccfbbeadab9b526ec12c9a92b4aef2fa227b432c81b5fa86536935|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|d05c4063dac33b714e4f2ca8a579e64b4a0a21cc79d6e7dcfa94dd05d04cd2a9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|a59450a40ec614272b005d45f2a509af39f56772c3097c18f4300977f5828c8c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8a3190983704abbf8808ea1bdb8f95822ebf9099d9b5beaac173c6f6de277bd8|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cebe772073c9a08eced0b12c12fc8dbe2388a6a925ce17d9f4753db70c7b36da|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|26540f39d2d323cdebb37f9f194b9681251d0171937401f1a003432333e7e3a9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|451f069f0f3ca0a3d8c9df20b3f8605f1a0de9cbd45beefced01650a8faf69b2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cdae5d20f6c9bcc12170adc1d13a836a6aa64ca12f20dee04e63ae8a9aa19340|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|8ee03069936d509675348fd20a0d88115f71102053b667dbed3f9fda50fd5a13|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f2242c8d35cb83df82c57053af5ba37addba707927fbf0b3947b9507c9eac44e|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6f8a19bf654e1b7a7581f1c3534b18bd748b750d174664ca29cf6f562ea89f19|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7a3721cbced7d7c7c21b9b02d74f71f2b5d8b3f6eafd9e34b55a5bc0c6f2bca5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b73b4861a813d21418ebad26f146dbe44314d2dc10c0bc9e355438712fa4e115|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|917bb62dbe5a394fba80759ff385614bd906f00f7a2028b3209f9ea4d9b793a2|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e09dbdc277be9b693b36aa8c5d2a3274be553473369ffcb38116fd63447ad97f|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|57bb4430728997ad94210536796b380ee24ad1a9dfcda6c2e96f33b229b1ac92|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|cc4031f6d028756da77b6962c342067679a7715e9393af36df259cec35f7c27b|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|b363e79a09ce5e0651736304ff64256b5584eeb515ceb946aff843bc89e4905d|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|bc1b70626f35c643953f443d89987f85bce42fe4dd5bb9dcf494ac9bb1fc3221|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|e8026c50c18efcfc15be6bd4f77ba18cf970ca0a455a7d4b15cbac174ab2a54c|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|9cea32ed99d2f05799a275e96bed407958e3a016c9e94fa0beb66087255ed8da|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Gutter.|region.yellowish markup.warning.sublime_linter|dot",
+								"SL.flake8.Highlights.|38577c72f20dc8381930b6e36bdfdc1cfca7afbb7b54cda99bc80aa957e5e1d1|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|2d13af53570e634eca92aad4a9f96c24b66b7471a99814c7b50df805f3735169|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|fb2a379eeced4368f3c01f0e2c03c0ddf949a99a32378c553ca657a5987181ca|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|7e654ebb2a60cbbc44d5eebc050e4e0f9990ac6a28e45964bb2183f3bffc3259|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|f799ed7738ae2df49d2a60fc959f2afefd69229a5123bb39c80fe1fd054861c5|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|24e6173ec32234a4a6cb31c9c96b926bbbf1bb551e229fc6f525a0697be919be|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4fbfdb5d5ec756c33a87d2463d2f8330e5d56bff11e464cbdccc05205ea1fbaf|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|4c9d8001726c46a6fa50d6f0c259210834562a0ef4184e024609328cbca93aa9|region.yellowish markup.warning.sublime_linter|32",
+								"SL.flake8.Highlights.|6edac8e459f63b3db86941e24205efc60b4edd71206eb2018bc17df7c03d296f|region.yellowish markup.warning.sublime_linter|32"
+							],
+							"bracket_highlighter.busy": false,
+							"bracket_highlighter.clone": -1,
+							"bracket_highlighter.clone_locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										14663,
+										14664
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										14625,
+										14626
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.clone_regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"bracket_highlighter.locations":
+							{
+								"close":
+								{
+									"1":
+									[
+										9105,
+										9106
+									],
+									"2":
+									[
+										10731,
+										10732
+									],
+									"3":
+									[
+										13926,
+										13927
+									]
+								},
+								"icon":
+								{
+									"1":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									],
+									"2":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									],
+									"3":
+									[
+										"Packages/BracketHighlighter/icons/round_bracket.png",
+										"region.yellowish"
+									]
+								},
+								"open":
+								{
+									"1":
+									[
+										9101,
+										9102
+									],
+									"2":
+									[
+										10727,
+										10728
+									],
+									"3":
+									[
+										13922,
+										13923
+									]
+								},
+								"unmatched":
+								{
+								}
+							},
+							"bracket_highlighter.regions":
+							[
+								"bh_c_define",
+								"bh_c_define_center",
+								"bh_c_define_open",
+								"bh_c_define_close",
+								"bh_c_define_content",
+								"bh_square",
+								"bh_square_center",
+								"bh_square_open",
+								"bh_square_close",
+								"bh_square_content",
+								"bh_single_quote",
+								"bh_single_quote_center",
+								"bh_single_quote_open",
+								"bh_single_quote_close",
+								"bh_single_quote_content",
+								"bh_curly",
+								"bh_curly_center",
+								"bh_curly_open",
+								"bh_curly_close",
+								"bh_curly_content",
+								"bh_double_quote",
+								"bh_double_quote_center",
+								"bh_double_quote_open",
+								"bh_double_quote_close",
+								"bh_double_quote_content",
+								"bh_tag",
+								"bh_tag_center",
+								"bh_tag_open",
+								"bh_tag_close",
+								"bh_tag_content",
+								"bh_angle",
+								"bh_angle_center",
+								"bh_angle_open",
+								"bh_angle_close",
+								"bh_angle_content",
+								"bh_round",
+								"bh_round_center",
+								"bh_round_open",
+								"bh_round_close",
+								"bh_round_content",
+								"bh_default",
+								"bh_default_center",
+								"bh_default_open",
+								"bh_default_close",
+								"bh_default_content",
+								"bh_regex",
+								"bh_regex_center",
+								"bh_regex_open",
+								"bh_regex_close",
+								"bh_regex_content",
+								"bh_unmatched",
+								"bh_unmatched_center",
+								"bh_unmatched_open",
+								"bh_unmatched_close",
+								"bh_unmatched_content"
+							],
+							"git_gutter_is_enabled": true,
+							"git_savvy.repo_path": "/home/lpfannschmidt/tools/GarminDB",
+							"syntax": "Packages/Python/Python.sublime-syntax",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 7176.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 68.75
+	},
+	"input":
+	{
+		"height": 132.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.GitSavvy":
+	{
+		"height": 224.0
+	},
+	"output.SublimeLinter":
+	{
+		"height": 0.0
+	},
+	"output.exec":
+	{
+		"height": 539.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.jotter":
+	{
+		"height": 162.0
+	},
+	"output.latextools":
+	{
+		"height": 469.0
+	},
+	"output.mdpopups":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 0.0
+	},
+	"output.show_commit_info":
+	{
+		"height": 552.0
+	},
+	"output.unsaved_changes":
+	{
+		"height": 162.0
+	},
+	"pinned_build_system": "Packages/User/Anaconda python.sublime-build",
+	"project": "fri.sublime-project",
+	"replace":
+	{
+		"height": 127.083333333
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"ordi",
+				"fri/ordinalregression.py"
+			],
+			[
+				"reg",
+				"fri/regression.py"
+			],
+			[
+				"ord",
+				"fri/ordinalregression.py"
+			],
+			[
+				"clas",
+				"fri/classification.py"
+			],
+			[
+				"gen",
+				"fri/genData.py"
+			],
+			[
+				"bas",
+				"fri/base.py"
+			],
+			[
+				"base",
+				"fri/base.py"
+			],
+			[
+				"l1",
+				"fri/l1models.py"
+			],
+			[
+				"regr",
+				"fri/regression.py"
+			],
+			[
+				"test",
+				"fri/tests/test_psearch.py"
+			],
+			[
+				"cla",
+				"fri/classification.py"
+			],
+			[
+				"bou",
+				"fri/bounds.py"
+			],
+			[
+				"travis",
+				".travis.yml"
+			],
+			[
+				"READ",
+				"README.md"
+			],
+			[
+				"req",
+				"requirements.txt"
+			],
+			[
+				"init",
+				"fri/__init__.py"
+			],
+			[
+				"opt",
+				"fri/optproblems.py"
+			],
+			[
+				"plot",
+				"fri/plot.py"
+			],
+			[
+				"boun",
+				"fri/bounds.py"
+			],
+			[
+				"test_sc",
+				"fri/tests/test_score.py"
+			],
+			[
+				"bound",
+				"fri/bounds.py"
+			],
+			[
+				"orid",
+				"fri/ordinalregression.py"
+			],
+			[
+				"problem",
+				"fri/optproblems.py"
+			],
+			[
+				"proble",
+				"src/cvxpy/cvxpy/problems/problem.py"
+			],
+			[
+				"model",
+				"fri/l1models.py"
+			],
+			[
+				"testfeat",
+				"fri/tests/test_feature_selection.py"
+			],
+			[
+				"uti",
+				"fri/utils.py"
+			],
+			[
+				"test_",
+				"fri/tests/test_score.py"
+			],
+			[
+				"test_feat",
+				"fri/tests/test_feature_selection.py"
+			],
+			[
+				"fri",
+				"fri/fri.py"
+			],
+			[
+				"genda",
+				"fri/tests/test_genData.py"
+			],
+			[
+				"featu",
+				"fri/tests/test_feature_selection.py"
+			],
+			[
+				"feature",
+				"src/cvxpy/examples/extensions/feature_selection.py"
+			],
+			[
+				"plto",
+				"fri/plot.py"
+			],
+			[
+				"fri_",
+				"examples/plot_fri_regression.py"
+			],
+			[
+				"data",
+				"fri/genData.py"
+			],
+			[
+				"rest",
+				"fri/tests/test_regression.py"
+			],
+			[
+				"requ",
+				"prj/bmc_paper/requirements.txt"
+			],
+			[
+				"stab",
+				"prj/python_libs/feature_set_stability_measure.py"
+			],
+			[
+				"boruta",
+				"tools/boruta_py/boruta/boruta_py.py"
+			],
+			[
+				"exper",
+				"prj/marburg/experiment_pipeline.py"
+			],
+			[
+				"imop",
+				"prj/marburg/import_t21_data.py"
+			],
+			[
+				"import",
+				"prj/marburg/import_marburg_data.py"
+			],
+			[
+				"read",
+				"prj/om_estimator/README.md"
+			],
+			[
+				"feastab",
+				"prj/python_libs/feature_set_stability_measure.py"
+			],
+			[
+				"test_fea",
+				"prj/python_libs/test_feature_set_stability_measure.py"
+			],
+			[
+				"stabili",
+				"prj/stability/FRI+stability+test.py"
+			],
+			[
+				"abtract",
+				"prj/causality/miwoci/abstract.tex"
+			],
+			[
+				"readme",
+				"prj/om_estimator/README.md"
+			],
+			[
+				"rbcatest",
+				"prj/om_estimator/rbclassifier/tests/test_common.py"
+			],
+			[
+				"rb",
+				"prj/om_estimator/rbclassifier/rbclassifier.py"
+			],
+			[
+				"outp",
+				"prj/stability/output_n_bigger_d.csv"
+			],
+			[
+				"outpu",
+				"prj/stability/output.csv"
+			],
+			[
+				"out",
+				"prj/stability/output.csv"
+			],
+			[
+				"output",
+				"prj/stability/output.csv"
+			],
+			[
+				"rbcl",
+				"prj/om_estimator/rbclassifier/rbclassifier.py"
+			],
+			[
+				"stabilit",
+				"prj/esann/boruta_py/Boruta.egg-info/dependency_links.txt"
+			],
+			[
+				"testco",
+				"rbclassifier/tests/test_common.py"
+			],
+			[
+				"op",
+				"om_estimator/rbclassifier/optproblems.py"
+			],
+			[
+				"tem",
+				"skltemplate/template.py"
+			],
+			[
+				"kapi4",
+				"Kapitel4.tex"
+			],
+			[
+				"kapite5",
+				"Kapitel5.tex"
+			],
+			[
+				"kapitel6",
+				"Kapitel6.tex"
+			],
+			[
+				"indextex",
+				"index.tex"
+			],
+			[
+				"sub",
+				"mathetex.sublime-project"
+			],
+			[
+				"kapitel",
+				"Kapitel4.tex"
+			],
+			[
+				"inde",
+				"index.tex"
+			],
+			[
+				"vor",
+				"vorlesung2.tex"
+			],
+			[
+				"vorle",
+				"vorlesung3.tex"
+			],
+			[
+				"hard",
+				"hardwareAdapter.py"
+			],
+			[
+				"gu",
+				"Gui.py"
+			],
+			[
+				"abb",
+				"abbreviations.tex"
+			],
+			[
+				"mater",
+				"Cuckoo_material_datasets.tex"
+			],
+			[
+				"disc",
+				"Cuckoo_Discussion.tex"
+			],
+			[
+				"abst",
+				"Cuckoo_Abstract.tex"
+			],
+			[
+				"bach",
+				"Bachelorarbeit_Cuckoo.tex"
+			],
+			[
+				"intro",
+				"Cuckoo_Introduction.tex"
+			],
+			[
+				"fore",
+				"Cuckoo_Forecast.tex"
+			],
+			[
+				"resu",
+				"Cuckoo_Result.tex"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 1200.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/Dropbox/Promotion/prj/cibcb/cibc.sublime-project"
+			],
+			[
+				"bmc",
+				"~/Dropbox/Promotion/prj/bmc_paper/bmc_paper.sublime-project"
+			],
+			[
+				"bm",
+				"~/Dropbox/Promotion/prj/bmc_paper/bmc_paper.sublime-project"
+			],
+			[
+				"site",
+				"~/sites/lpfann/website.sublime-project"
+			],
+			[
+				"notes",
+				"~/Dropbox/Promotion/notes/notes.sublime-project"
+			],
+			[
+				"b",
+				"~/Dropbox/Promotion/prj/bmc_paper/bmc_paper.sublime-project"
+			],
+			[
+				"l1ens",
+				"~/Dropbox/Promotion/prj/bmc_paper/models/l1ensemblefs/l1ensemblefs.sublime-project"
+			],
+			[
+				"report",
+				"~/Dropbox/Promotion/report/report.sublime-workspace"
+			]
+		],
+		"width": 912.0
+	},
+	"select_symbol":
+	{
+		"height": 410.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"solve",
+				"solve"
+			],
+			[
+				"test",
+				"test_simpleRegression"
+			]
+		],
+		"width": 1506.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": true,
+	"show_tabs": true,
+	"side_bar_visible": false,
+	"side_bar_width": 460.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

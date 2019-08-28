@@ -1,0 +1,332 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fri &mdash; Documentation for Feature Relevance Intervals</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon-32x32.png"/>
+  
+  
+  
+    <link rel="canonical" href="fri.lpfann.me/_modules/fri.html"/>
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Feature Relevance Intervals
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                6.0.0+169.g400f06a.dirty
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/Guide.html">Quick start guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html#references">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/user.html">User API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/lpfann/fri">GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Feature Relevance Intervals</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>fri</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fri</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="c1"># Get version from versioneer</span>
+<span class="kn">from</span> <span class="nn">fri._version</span> <span class="k">import</span> <span class="n">get_versions</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="n">get_versions</span><span class="p">()[</span><span class="s1">&#39;version&#39;</span><span class="p">]</span>
+<span class="k">del</span> <span class="n">get_versions</span>
+
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="k">import</span> <span class="n">Enum</span>
+
+<span class="kn">from</span> <span class="nn">fri.genData</span> <span class="k">import</span> <span class="n">genRegressionData</span><span class="p">,</span> <span class="n">genClassificationData</span><span class="p">,</span> <span class="n">genOrdinalRegressionData</span><span class="p">,</span> <span class="n">quick_generate</span>
+<span class="kn">from</span> <span class="nn">fri.main</span> <span class="k">import</span> <span class="n">FRIBase</span>
+<span class="kn">from</span> <span class="nn">fri.plot</span> <span class="k">import</span> <span class="n">plot_intervals</span>
+<span class="kn">import</span> <span class="nn">fri.model</span>
+
+
+<div class="viewcode-block" id="ProblemName"><a class="viewcode-back" href="../api/api.html#fri.ProblemName">[docs]</a><span class="k">class</span> <span class="nc">ProblemName</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enum which contains usable models for which feature relevance intervals can be computed in :func:`~FRI`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">CLASSIFICATION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Classification</span>
+    <span class="n">REGRESSION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Regression</span>
+    <span class="n">ORDINALREGRESSION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">OrdinalRegression</span>
+    <span class="c1"># ORDINALREGRESSION_IMP = fri.model.OrdinalRegression_Imp</span>
+    <span class="n">LUPI_CLASSIFICATION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">LUPI_Classification</span>
+    <span class="n">LUPI_REGRESSION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">LUPI_Regression</span>
+    <span class="n">LUPI_ORDREGRESSION</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">LUPI_OrdinalRegression</span></div>
+    <span class="c1">#LUPI_ORDREGRESSION_IMP = fri.model.LUPI_OrdinalRegression_IMP</span>
+
+
+<div class="viewcode-block" id="FRI"><a class="viewcode-back" href="../api/api.html#fri.FRI">[docs]</a><span class="k">class</span> <span class="nc">FRI</span><span class="p">(</span><span class="n">FRIBase</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problemName</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">random_state</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">n_param_search</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+                 <span class="n">n_probe_features</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">slack_regularization</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">slack_loss</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        problemName: `ProblemName` or str</span>
+<span class="sd">            Type of Problem as enum value or explicit string (e.g. &quot;classification&quot;)</span>
+<span class="sd">        random_state: object or int</span>
+<span class="sd">            Random state object or int</span>
+<span class="sd">        n_jobs: int or None</span>
+<span class="sd">            Number of threads or -1 for automatic.</span>
+<span class="sd">        verbose: int</span>
+<span class="sd">            Verbosity if &gt; 0</span>
+<span class="sd">        n_param_search: int</span>
+<span class="sd">            Number of parameter samples in random search for hyperparameters.</span>
+<span class="sd">        n_probe_features: int</span>
+<span class="sd">            Number of probes to generate to improve feature selection.</span>
+<span class="sd">        slack_regularization: float</span>
+<span class="sd">            Allow deviation from optimal L1 norm.</span>
+<span class="sd">        slack_loss: float</span>
+<span class="sd">            Allow deviation of loss.</span>
+<span class="sd">        normalize: boolean</span>
+<span class="sd">            Normalize relevace bounds to range of [0,1] depending on L1 norm.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">problemName</span><span class="p">,</span> <span class="n">ProblemName</span><span class="p">):</span>
+            <span class="n">problemtype</span> <span class="o">=</span> <span class="n">problemName</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">or</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;class&quot;</span><span class="p">:</span>
+                <span class="n">problemtype</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">CLASSIFICATION</span>
+            <span class="k">elif</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;regression&quot;</span> <span class="ow">or</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;reg&quot;</span><span class="p">:</span>
+                <span class="n">problemtype</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">REGRESSION</span>
+            <span class="k">elif</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;ordinalregression&quot;</span> <span class="ow">or</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;ordreg&quot;</span><span class="p">:</span>
+                <span class="n">problemtype</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">ORDINALREGRESSION</span>
+            <span class="k">elif</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;lupi_classification&quot;</span> <span class="ow">or</span> <span class="n">problemName</span> <span class="o">==</span> <span class="s2">&quot;lupi_class&quot;</span><span class="p">:</span>
+                <span class="n">problemtype</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_CLASSIFICATION</span>
+
+        <span class="k">if</span> <span class="n">problemtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">enum</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">enum</span> <span class="ow">in</span> <span class="n">ProblemName</span><span class="p">]</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;Parameter &#39;problemName&#39; was not recognized or unset. Try one of </span><span class="si">{names}</span><span class="s2">.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">problemtype</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+                             <span class="n">n_param_search</span><span class="o">=</span><span class="n">n_param_search</span><span class="p">,</span>
+                             <span class="n">n_probe_features</span><span class="o">=</span><span class="n">n_probe_features</span><span class="p">,</span>
+                             <span class="n">w_l1_slack</span><span class="o">=</span><span class="n">slack_regularization</span><span class="p">,</span>
+                             <span class="n">loss_slack</span><span class="o">=</span><span class="n">slack_loss</span><span class="p">,</span>
+                             <span class="n">normalize</span><span class="o">=</span><span class="n">normalize</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;genRegressionData&quot;</span><span class="p">,</span> <span class="s2">&quot;genClassificationData&quot;</span><span class="p">,</span> <span class="s2">&quot;genOrdinalRegressionData&quot;</span><span class="p">,</span>
+           <span class="s2">&quot;quick_generate&quot;</span><span class="p">,</span> <span class="s2">&quot;plot_intervals&quot;</span><span class="p">,</span> <span class="s2">&quot;ProblemName&quot;</span><span class="p">,</span> <span class="s2">&quot;FRI&quot;</span><span class="p">]</span>
+
+<span class="c1"># def FRIClassification(**kwargs):</span>
+<span class="c1">#     warnings.warn(</span>
+<span class="c1">#         &quot;This class call format is deprecated.&quot;,</span>
+<span class="c1">#         DeprecationWarning</span>
+<span class="c1">#     )</span>
+<span class="c1">#</span>
+<span class="c1">#     typeprob = Classification</span>
+<span class="c1">#     kwargs = {k: v for k, v in kwargs.items() if v is not None}</span>
+<span class="c1">#     return call_main_catch_old(typeprob,</span>
+<span class="c1">#                                **kwargs)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def FRIRegression(**kwargs):</span>
+<span class="c1">#     warnings.warn(</span>
+<span class="c1">#         &quot;This class call format is deprecated.&quot;,</span>
+<span class="c1">#         DeprecationWarning</span>
+<span class="c1">#     )</span>
+<span class="c1">#</span>
+<span class="c1">#     typeprob = Regression</span>
+<span class="c1">#     kwargs = {k: v for k, v in kwargs.items() if v is not None}</span>
+<span class="c1">#     return call_main_catch_old(typeprob,</span>
+<span class="c1">#                                **kwargs)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def FRIOrdinalRegression(**kwargs):</span>
+<span class="c1">#     warnings.warn(</span>
+<span class="c1">#         &quot;This class call format is deprecated.&quot;,</span>
+<span class="c1">#         DeprecationWarning</span>
+<span class="c1">#     )</span>
+<span class="c1">#     typeprob = OrdinalRegression</span>
+<span class="c1">#     kwargs = {k: v for k, v in kwargs.items() if v is not None}</span>
+<span class="c1">#     return call_main_catch_old(typeprob,</span>
+<span class="c1">#                                **kwargs)</span>
+<span class="c1">#</span>
+<span class="c1">#</span>
+<span class="c1"># def call_main_catch_old(typeprob, optimum_deviation=0.1, n_resampling=80, iter_psearch=50, **kwargs):</span>
+<span class="c1">#     return FRIBase(typeprob, w1_l1_slack=optimum_deviation,</span>
+<span class="c1">#                    n_probe_features=n_resampling,</span>
+<span class="c1">#                    n_param_search=iter_psearch,</span>
+<span class="c1">#                    **kwargs)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017 - 2019, Lukas Pfannschmidt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

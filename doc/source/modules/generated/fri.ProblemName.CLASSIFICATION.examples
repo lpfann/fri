@@ -1,0 +1,22 @@
+
+
+Examples using ``fri.ProblemName.CLASSIFICATION``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="An example plot of FRI output on classification data">
+
+.. only:: html
+
+    .. figure:: /auto_examples/images/thumb/sphx_glr_plot_fri_classification_thumb.png
+
+        :ref:`sphx_glr_auto_examples_plot_fri_classification.py`
+
+.. raw:: html
+
+    </div>
+
+.. only:: not html
+
+    * :ref:`sphx_glr_auto_examples_plot_fri_classification.py`

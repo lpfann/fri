@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fri.main &mdash; Documentation for Feature Relevance Intervals</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/favicon-32x32.png"/>
+  
+  
+  
+    <link rel="canonical" href="fri.lpfann.me/_modules/fri/main.html"/>
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> Feature Relevance Intervals
+          
+
+          
+            
+            <img src="../../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                6.0.0+169.g400f06a.dirty
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/Guide.html">Quick start guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background.html#references">References</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/user.html">User API</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/lpfann/fri">GitHub</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">Feature Relevance Intervals</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+          <li><a href="../fri.html">fri</a> &raquo;</li>
+        
+      <li>fri.main</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fri.main</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="k">import</span> <span class="n">BaseEstimator</span>
+<span class="kn">from</span> <span class="nn">sklearn.exceptions</span> <span class="k">import</span> <span class="n">NotFittedError</span>
+<span class="kn">from</span> <span class="nn">sklearn.feature_selection.base</span> <span class="k">import</span> <span class="n">SelectorMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="k">import</span> <span class="n">check_random_state</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="k">import</span> <span class="n">check_is_fitted</span>
+
+<span class="kn">from</span> <span class="nn">fri.compute</span> <span class="k">import</span> <span class="n">RelevanceBoundsIntervals</span>
+<span class="kn">from</span> <span class="nn">fri.model.base_type</span> <span class="k">import</span> <span class="n">ProblemType</span>
+<span class="kn">from</span> <span class="nn">fri.parameter_searcher</span> <span class="k">import</span> <span class="n">find_best_model</span>
+
+<span class="n">RELEVANCE_MAPPING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;Irrelevant&quot;</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Weak relevant&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Strong relevant&quot;</span>
+<span class="p">}</span>
+
+<span class="k">class</span> <span class="nc">NotFeasibleForParameters</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Problem was infeasible with the current parameter set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="FRIBase"><a class="viewcode-back" href="../../api/api.html#fri.FRIBase">[docs]</a><span class="k">class</span> <span class="nc">FRIBase</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">SelectorMixin</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem_type</span><span class="p">:</span> <span class="n">ProblemType</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_param_search</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+                 <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        problem_type : abc.ABCMeta</span>
+<span class="sd">        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]</span>
+<span class="sd">        n_jobs : int</span>
+<span class="sd">        verbose : int</span>
+<span class="sd">        n_param_search : int</span>
+<span class="sd">        n_probe_features : int</span>
+<span class="sd">        normalize : bool</span>
+<span class="sd">        kwargs :</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        interval_ : array-like</span>
+<span class="sd">         Feature relevance Intervals</span>
+
+<span class="sd">        optim_model_ : `InitModel`</span>
+<span class="sd">        Baseline model fitted on data</span>
+
+<span class="sd">        relevance_classes_ : list(int)</span>
+<span class="sd">        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant</span>
+
+<span class="sd">        relevance_classes_string_ : list(str)</span>
+<span class="sd">        Classes of relevance encoded as string</span>
+
+<span class="sd">        allrel_prediction_ : list(int)</span>
+<span class="sd">        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_probe_features</span> <span class="o">=</span> <span class="n">n_probe_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_param_search</span> <span class="o">=</span> <span class="n">n_param_search</span>
+
+        <span class="c1"># assert issubclass(problem_type, ProblemType)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span> <span class="o">=</span> <span class="n">problem_type</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span> <span class="o">=</span> <span class="n">normalize</span>
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="FRIBase.fit"><a class="viewcode-back" href="../../api/api.html#fri.FRIBase.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to fit model on data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : numpy.ndarray</span>
+<span class="sd">        y : numpy.ndarray</span>
+<span class="sd">        lupi_features : int</span>
+<span class="sd">            Amount of features which are considered privileged information in `X`.</span>
+<span class="sd">            The data is expected to be structured in a way that all lupi features are at the end of the set.</span>
+<span class="sd">            For example `lupi_features=1` would denote the last column of `X` to be privileged.</span>
+<span class="sd">        kwargs : dict</span>
+<span class="sd">            Dictionary of additional keyword arguments depending on the `model`.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        `FRIBase`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span> <span class="o">=</span> <span class="n">lupi_features</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lupi_features</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_baseline</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span> <span class="o">=</span> <span class="n">RelevanceBoundsIntervals</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">,</span>
+                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_probe_features</span><span class="p">,</span>
+                                                                   <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_intervals</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_lupi_intervals</span><span class="p">(</span>
+                <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_relevance_mask</span><span class="p">(</span><span class="n">feature_classes</span><span class="p">)</span>
+
+        <span class="c1"># Return the classifier</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_fit_baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Preprocessing</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+        <span class="c1"># Get predefined template for our init. model</span>
+        <span class="n">init_model_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">get_initmodel_template</span>
+        <span class="c1"># Get hyperparameters which are predefined to our model template and can be seleted by user choice</span>
+        <span class="n">hyperparameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">get_all_parameters</span><span class="p">()</span>
+        <span class="c1">#search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this</span>
+        <span class="n">search_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_param_search</span>
+        <span class="c1"># Find an optimal, fitted model using hyperparemeter search</span>
+        <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="n">find_best_model</span><span class="p">(</span><span class="n">init_model_template</span><span class="p">,</span> <span class="n">hyperparameters</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span> <span class="n">search_samples</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
+                                                    <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span>
+
+    <span class="k">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                            <span class="n">prediction</span><span class="p">,</span>
+                            <span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determines relevancy using feature relevance interval values</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fpr : float, optional</span>
+<span class="sd">            false positive rate allowed under H_0</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        boolean array</span>
+<span class="sd">            Relevancy prediction for each feature</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="n">prediction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="p">[</span><span class="n">RELEVANCE_MAPPING</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="n">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_nonpriv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_priv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_nonpriv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_priv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">:]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
+
+    <span class="k">def</span> <span class="nf">_n_selected_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Returns the number of selected features.</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_support_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Method for SelectorMixin</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        boolean array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
+
+<div class="viewcode-block" id="FRIBase.score"><a class="viewcode-back" href="../../api/api.html#fri.FRIBase.score">[docs]</a>    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Using fitted model predict points for `X` and compare to truth `y`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : numpy.ndarray</span>
+<span class="sd">        y : numpy.ndarray</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Model specific score (0 is worst, 1 is best)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FRIBase.constrained_intervals"><a class="viewcode-back" href="../../api/api.html#fri.FRIBase.constrained_intervals">[docs]</a>    <span class="k">def</span> <span class="nf">constrained_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method to return relevance intervals which are constrained using preset ranges or values.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        preset : dict like, {i:float} or {i:[float,float]}</span>
+<span class="sd">            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).</span>
+
+<span class="sd">            Example: To set  feature 0 to a fixed value use</span>
+
+<span class="sd">            &gt;&gt;&gt; preset = {0: 0.1}</span>
+
+<span class="sd">            or to use the minium releavance bound</span>
+
+<span class="sd">            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array like</span>
+<span class="sd">            Relevance bounds with user constraints</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Do we have intervals?</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;interval_&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">compute_multi_preset_relevance_bounds</span><span class="p">(</span><span class="n">preset</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span>
+                                                                                     <span class="n">lupi_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FRIBase.print_interval_with_class"><a class="viewcode-back" href="../../api/api.html#fri.FRIBase.print_interval_with_class">[docs]</a>    <span class="k">def</span> <span class="nf">print_interval_with_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Pretty print the relevance intervals and determined feature relevance class</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;Model is not fitted.&quot;</span>
+
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{i:7}</span><span class="s2">: [</span><span class="si">{self.interval_[i, 0]:1.1f}</span><span class="s2"> -- </span><span class="si">{self.interval_[i, 1]:1.1f}</span><span class="s2">],&quot;</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot; </span><span class="si">{self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">output</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017 - 2019, Lukas Pfannschmidt
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

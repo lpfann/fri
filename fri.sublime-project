@@ -1,0 +1,38 @@
+{
+	"build_systems":
+	[
+		{
+			"file_regex": "^[ ]*File \"(...*?)\", line ([0-9]*)",
+			"name": "Anaconda Python Builder",
+			"selector": "source.python",
+			"shell_cmd": "\"/home/lpfannschmidt/anaconda3/bin/python\" -u \"$file\""
+		}
+	],
+	"folders":
+	[
+		{
+			"file_exclude_patterns":
+			[
+				"fri/.coverage.*",
+				"fri/gurobi.log"
+			],
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"python_package_paths":
+		[
+			"$project_path/fri"
+		],
+		"todoreview":
+		{
+			"exclude_folders":
+			[
+				"*.git*",
+				"src/*",
+				"static*"
+			]
+		}
+	}
+}

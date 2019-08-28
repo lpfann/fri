@@ -1,0 +1,58 @@
+[tool.poetry]
+name = "fri"
+version = "7.0.0-Beta"
+description = "Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis."
+authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
+license = "MIT"
+repository = "https://github.com/lpfann/fri"
+homepage = "https://fri.lpfann.me"
+keywords = ["feature selection","linear models","machine learning"]
+classifiers = [
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Development Status :: 4 - Beta",
+        "Topic :: Scientific/Engineering :: Medical Science Apps.",
+        "Topic :: Scientific/Engineering :: Bio-Informatics",
+        "Topic :: Scientific/Engineering :: Information Analysis",
+]
+
+[tool.poetry.dependencies]
+python = "^3.6"
+numpy = "^1.17"
+scipy = "^1.0"
+scikit-learn = "^0.21.1"
+joblib = "^0.13.2"
+cvxpy = "1.0.24"
+ecos = "^2.0.5"
+matplotlib = "^3.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5"
+pytest-cov = "^2.7"
+pytest-xdist = "^1.29"
+coveralls = "^1.8"
+portray = "^1.0"
+black = {version = "^18.3-alpha.0", allows-prereleases = true}
+sphinx = "^2.2"
+sphinx-gallery = "^0.4.0"
+sphinx_rtd_theme = "^0.4.3"
+nbsphinx = "^0.4.2"
+travis-sphinx = "^2.2"
+nbconvert = "^5.6.0"
+
+[tool.portray]
+output_dir = "site"
+docs_dir = "docs"
+repo_name = "fri"
+repo_url = "https://github.com/lpfann/fri"
+
+[tool.portray.mkdocs.theme]
+favicon = "docs/_static/favicon-32x32.png"
+logo = "docs/_static/logo.png"
+name = "material"
+palette = {primary = "blue grey", accent = "pink"}
+
+[build-system]
+requires = ["poetry>=1.0.0b1"]
+build-backend = "poetry.masonry.api"
+
