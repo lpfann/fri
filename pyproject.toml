@@ -43,6 +43,8 @@ nbconvert = "^5.6.0"
 [tool.portray]
 output_dir = "site"
 docs_dir = "docs"
+repo_name = "fri"
+repo_url = "https://github.com/lpfann/fri"
 
 [tool.portray.mkdocs.theme]
 favicon = "docs/_static/favicon-32x32.png"
