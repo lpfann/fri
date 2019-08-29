@@ -1,4 +1,4 @@
-name: Python package
+name: pytest with poetry
 
 on: [push]
 
@@ -23,5 +23,6 @@ jobs:
         source $HOME/.poetry/env
         poetry install -v
     - name: Test with pytest
-      run: |
+      run: | # source again because steps run in separate shells
+        source $HOME/.poetry/env
         poetry run pytest --cov=fri -n 2
