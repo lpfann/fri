@@ -42,7 +42,7 @@ def test_lupi_model_correctness(problem, n_weak, randomstate):
         n_probe_features=70,
         n_jobs=1,
     )
-
+    print(model)
     data = genLupiData(
         problem,
         n_strel=1,
