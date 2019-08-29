@@ -17,10 +17,10 @@ script:
 
 after_success:
   - coveralls
-  - portray as_html
 
 before_deploy:
   - poetry config pypi-token.pypi $PYPI_TOKEN
+  - portray as_html
 
 deploy:
   - provider: script
