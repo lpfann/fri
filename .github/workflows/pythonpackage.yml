@@ -24,4 +24,4 @@ jobs:
         poetry install -v
     - name: Test with pytest
       run: |
-        pytest --cov=fri -n 2
+        poetry run pytest --cov=fri -n 2
