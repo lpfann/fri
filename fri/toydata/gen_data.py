@@ -29,7 +29,7 @@ def _checkParam(
     flip_y: float = 0,
     noise: float = 1,
     partition=None,
-    **kwargs
+    **kwargs,
 ):
     if not 1 < n_samples:
         raise ValueError("We need at least 2 samples.")
@@ -64,7 +64,7 @@ def _fillVariableSpace(
     n_repeated: int = 0,
     noise: float = 1,
     partition=None,
-    **kwargs
+    **kwargs,
 ):
     if partition is not None:
         assert n_redundant == np.sum(partition)
