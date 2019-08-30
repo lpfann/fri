@@ -1,5 +1,6 @@
 dist: bionic
 language: python
+
 stages:
   - linting
   - test
@@ -36,23 +37,23 @@ jobs:
         - pre-commit run --all-files
       after_success: skip
     - stage: deploy
-     - name: PyPi package deploy
-        script:
-          - poetry config pypi-token.pypi $PYPI_TOKEN
-          - poetry publish
-        after_success: skip
-        skip_existing: true
+    - name: PyPi package deploy
+      script:
+        - poetry config pypi-token.pypi $PYPI_TOKEN
+        - poetry publish
+      after_success: skip
+      skip_existing: true
+      on:
+        tags: true
+        branch: master
+    - name: Documentation
+      script: portray as_html
+      after_success: skip
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: site/
+        github_token: $GH_TOKEN
+        keep_history: true
         on:
-          tags: true
           branch: master
-     - name: Documentation
-        script: portray as_html
-        after_success: skip
-        deploy:
-          provider: pages
-          skip_cleanup: true
-          local_dir: site/
-          github_token: $GH_TOKEN
-          keep_history: true
-          on:
-            branch: master
