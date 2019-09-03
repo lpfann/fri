@@ -138,7 +138,7 @@ def plot_dendrogram_and_intervals(
         ticklabels=ticks,
         classes=classes[rearranged_index] if classes is not None else None,
         numbering=False,
-        **kwargs
+        **kwargs,
     )
     fig.subplots_adjust(hspace=0)
     ax.margins(x=0)

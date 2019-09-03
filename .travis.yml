@@ -1,6 +1,12 @@
 dist: bionic
 language: python
 
+stages:
+  - linting
+  - test
+  - name: deploy
+    if: branch = master
+
 python:
   - "3.6"
   - "3.7"
@@ -21,21 +27,33 @@ script:
 after_success:
   - coveralls
 
-before_deploy:
-  - poetry config pypi-token.pypi $PYPI_TOKEN
-  - portray as_html
-
-deploy:
-  - provider: script
-    script: poetry publish
-    skip_existing: true
-    on:
-      tags: true
-      branch: master
-  - provider: pages
-    skip_cleanup: true
-    local_dir: site/
-    github_token: $GH_TOKEN
-    keep_history: true
-    on:
-      branch: master
+jobs:
+  include:
+    - stage: linting
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pre-commit run --all-files
+      after_success: skip
+    - stage: deploy
+    - name: PyPi package deploy
+      script:
+        - poetry config pypi-token.pypi $PYPI_TOKEN
+        - poetry publish
+      after_success: skip
+      skip_existing: true
+      on:
+        tags: true
+        branch: master
+    - name: Documentation
+      script: portray as_html
+      after_success: skip
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: site/
+        github_token: $GH_TOKEN
+        keep_history: true
+        on:
+          branch: master

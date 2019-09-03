@@ -370,8 +370,9 @@ def genLupiData(
         """
 
     random_state = check_random_state(random_state)
-
     n_informative = n_strel + n_weakrel_groups
+
+    # Create truth (prototype) vector which contains true feature contributions
     w = random_state.normal(size=n_informative)
     X_informative = random_state.normal(size=(n_samples, n_informative))
     X_priv_strel = X_informative[:, :n_strel]

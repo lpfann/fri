@@ -1,3 +1,10 @@
+"""
+    In this class we use hyperparameter search to find parameters needed in our model.
+    Depending on the input model we sample parameters from a random distribution.
+    The sampling rate can be increased.
+    The model with the best internally defined accuracy is picked.
+    To increase robustness we use cross validation.
+"""
 import warnings
 
 from sklearn.exceptions import FitFailedWarning
@@ -24,6 +31,31 @@ def find_best_model(
     lupi_features=None,
     kwargs: dict = None,
 ) -> Tuple[InitModel, float]:
+    """
+    Search function which wraps `sklearns`  `RandomizedSearchCV` function.
+    We use distributions and parameters defined in the `model_template`.
+
+    Parameters
+    ----------
+    model_template : InitModel
+        A model template which is used to fit data.
+    hyperparameters : dict
+        Dictionary of hyperparameters.
+    data : tuple
+        Tuple of data (X,y)
+    random_state : RandomState
+        numpy RandomState object
+    n_iter : int
+        Amount of search samples.
+    n_jobs : int
+        Allows multiprocessing with `n_jobs` threads.
+    verbose : int
+        Allows verbose output when `verbose>0`.
+    lupi_features : int
+        Amount of lupi_features
+    kwargs : dict
+        Placeholder, dict to pass into fit functions.
+    """
     model = model_template()
 
     scorer, metric = model.make_scorer()
