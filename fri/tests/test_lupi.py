@@ -43,10 +43,11 @@ def test_lupi_model_correctness(problem, n_weak, randomstate):
         n_jobs=1,
     )
     print(model)
+
     data = genLupiData(
         problem,
         n_strel=1,
-        n_weakrel_groups=n_weak,
+        n_weakrel=n_weak,
         n_samples=n_samples,
         n_irrel=2,
         noise=0.1,

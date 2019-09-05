@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.utils import check_random_state
 
 from fri import ProblemName
+from .gen_data import _fillVariableSpace
 
 
 def _checkLupiParam(
@@ -64,66 +65,66 @@ def _checkLupiParam(
         )
 
 
-def _genWeakFeatures(n_weakrel, X, random_state, partition):
-    """
-        Generate n_weakrel features out of the strRelFeature
-
-        Parameters
-        ----------
-        n_weakrel : int
-            Number of weakly relevant feature to be generated
-        X : array of shape [n_samples, n_features]
-            Contains the data out of which the weakly relevant features are created
-        random_state : Random State object
-            Used to generate the samples
-        partition : list of int
-            Used to define how many weak features are calculated from the same strong feature
-            The sum of the entries in the partition list must be equal to n_weakrel
-
-
-        Returns
-        ----------
-        X_weakrel : array of shape [n_samples, n_weakrel]
-            Contains the data of the generated weak relevant features
-    """
-
-    X_weakrel = np.zeros([X.shape[0], n_weakrel])
-
-    if partition is None:
-        for i in range(n_weakrel):
-            X_weakrel[:, i] = X[
-                :, random_state.choice(X.shape[1])
-            ] + random_state.normal(loc=0, scale=1, size=1)
-    else:
-        idx = 0
-        for j in range(len(partition)):
-            X_weakrel[:, idx : idx + partition[j]] = np.tile(
-                X[:, random_state.choice(X.shape[1])], (partition[j], 1)
-            ).T + random_state.normal(loc=0, scale=1, size=partition[j])
-            idx += partition[j]
-
-    return X_weakrel
-
-
-def _genRepeatedFeatures(n_repeated, X, random_state):
-    """
-        Generate repeated features by picking a random existing feature out of X
-
-        Parameters
-        ----------
-        n_repeated : int
-            Number of repeated features to create
-        X : array of shape [n_samples, n_features]
-            Contains the data of which the repeated features are picked
-        random_state : Random State object
-            Used to randomly pick a feature out of X
-    """
-
-    X_repeated = np.zeros([X.shape[0], n_repeated])
-    for i in range(n_repeated):
-        X_repeated[:, i] = X[:, random_state.choice(X.shape[1])]
-
-    return X_repeated
+# def _genWeakFeatures(n_weakrel, X, random_state, partition):
+#     """
+#         Generate n_weakrel features out of the strRelFeature
+#
+#         Parameters
+#         ----------
+#         n_weakrel : int
+#             Number of weakly relevant feature to be generated
+#         X : array of shape [n_samples, n_features]
+#             Contains the data out of which the weakly relevant features are created
+#         random_state : Random State object
+#             Used to generate the samples
+#         partition : list of int
+#             Used to define how many weak features are calculated from the same strong feature
+#             The sum of the entries in the partition list must be equal to n_weakrel
+#
+#
+#         Returns
+#         ----------
+#         X_weakrel : array of shape [n_samples, n_weakrel]
+#             Contains the data of the generated weak relevant features
+#     """
+#
+#     X_weakrel = np.zeros([X.shape[0], n_weakrel])
+#
+#     if partition is None:
+#         for i in range(n_weakrel):
+#             X_weakrel[:, i] = X[
+#                 :, random_state.choice(X.shape[1])
+#             ] + random_state.normal(loc=0, scale=1, size=1)
+#     else:
+#         idx = 0
+#         for j in range(len(partition)):
+#             X_weakrel[:, idx : idx + partition[j]] = np.tile(
+#                 X[:, random_state.choice(X.shape[1])], (partition[j], 1)
+#             ).T + random_state.normal(loc=0, scale=1, size=partition[j])
+#             idx += partition[j]
+#
+#     return X_weakrel
+#
+#
+# def _genRepeatedFeatures(n_repeated, X, random_state):
+#     """
+#         Generate repeated features by picking a random existing feature out of X
+#
+#         Parameters
+#         ----------
+#         n_repeated : int
+#             Number of repeated features to create
+#         X : array of shape [n_samples, n_features]
+#             Contains the data of which the repeated features are picked
+#         random_state : Random State object
+#             Used to randomly pick a feature out of X
+#     """
+#
+#     X_repeated = np.zeros([X.shape[0], n_repeated])
+#     for i in range(n_repeated):
+#         X_repeated[:, i] = X[:, random_state.choice(X.shape[1])]
+#
+#     return X_repeated
 
 
 def genLupiData(
@@ -133,7 +134,7 @@ def genLupiData(
     noise: float = 0.1,
     n_ordinal_bins: int = 3,
     n_strel: int = 1,
-    n_weakrel_groups: int = 0,
+    n_weakrel: int = 0,
     n_repeated: int = 0,
     n_irrel: int = 0,
     label_noise=0.0,
@@ -156,8 +157,8 @@ def genLupiData(
                 Only has an effect if problemType == 'ordinalRegression'
             n_strel : int, optional
                 Number of features which are mandatory for the underlying model (strongly relevant)
-            n_weakrel_groups : int, optional
-                Number of 2 feature groups which are part of redundant subsets (weakly relevant)
+            n_weakrel : int, optional
+                Number of weakly relevant features
             n_repeated : int, optional
                 Number of features which are clones of existing ones.
             n_irrel : int, optional
@@ -180,36 +181,32 @@ def genLupiData(
 
 
         """
+    gr_n = 2  # Group size
 
     random_state = check_random_state(random_state)
-    n_informative = n_strel + n_weakrel_groups
+    n_informative = n_strel + int(n_weakrel / gr_n)
 
     # Create truth (prototype) vector which contains true feature contributions
-    w = random_state.normal(size=n_informative)
+    # We enforce minimum of 0.1 to circumvent problems when testing for relevance
+    w = random_state.uniform(low=0.1, high=1, size=n_informative)
     X_informative = random_state.normal(size=(n_samples, n_informative))
-    X_priv_strel = X_informative[:, :n_strel]
+    scores = np.dot(X_informative, w)
 
-    X_priv_weakrel = np.zeros([n_samples, n_weakrel_groups * 2])
-    idx = 0
-    for i in range(n_weakrel_groups):
-        X_priv_weakrel[:, idx : idx + 2] = np.tile(
-            X_informative[:, n_strel + i], (2, 1)
-        ).T + random_state.normal(
-            loc=0, scale=np.std(X_informative[:, n_strel + i]), size=2
-        )
-        idx += 2
-
-    X_priv_repeated = _genRepeatedFeatures(
-        n_repeated, np.hstack([X_priv_strel, X_priv_weakrel]), random_state
+    n_features = n_strel + n_weakrel + n_repeated
+    X_priv = _fillVariableSpace(
+        X_informative,
+        random_state,
+        n_features=n_features,
+        n_redundant=n_weakrel,
+        n_strel=n_strel,
+        n_repeated=n_repeated,
+        partition=[n_weakrel],
     )
-
-    X_priv = np.hstack([X_priv_strel, X_priv_weakrel, X_priv_repeated])
 
     e = random_state.normal(
         size=(n_samples, X_priv.shape[1]), scale=noise * np.std(X_priv)
     )
     X = X_priv + e
-    scores = np.dot(X_informative, w)
 
     if (
         problemName == "classification"
