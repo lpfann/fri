@@ -57,22 +57,24 @@ def _checkParam(
 def _fillVariableSpace(
     X_informative,
     random_state: RandomState,
-    n_samples: int = 100,
     n_features: int = 2,
     n_redundant: int = 0,
     n_strel: int = 1,
     n_repeated: int = 0,
-    noise: float = 1,
     partition=None,
-    **kwargs,
 ):
+    n_samples = len(X_informative)
+
     if partition is not None:
         assert n_redundant == np.sum(partition)
+    # Create dummy array
     X = np.zeros((int(n_samples), int(n_features)))
+    # Add strongly relevant
     X[:, :n_strel] = X_informative[:, :n_strel]
+    # Save strongly relevant used in creation of weakly ones
     holdout = X_informative[:, n_strel:]
-    i = n_strel
 
+    i = n_strel
     pi = 0
     for x in range(len(holdout.T)):
         size = partition[pi]
@@ -187,7 +189,6 @@ def genClassificationData(
     X = _fillVariableSpace(
         X_informative,
         random_state,
-        n_samples=n_samples,
         n_features=n_features,
         n_redundant=n_redundant,
         n_strel=n_strel,
@@ -275,12 +276,10 @@ def genRegressionData(
     X = _fillVariableSpace(
         X,
         random_state,
-        n_samples=n_samples,
         n_features=n_features,
         n_redundant=n_redundant,
         n_strel=n_strel,
         n_repeated=n_repeated,
-        noise=noise,
         partition=partition,
     )
     y = np.squeeze(y)
