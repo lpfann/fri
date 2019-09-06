@@ -101,9 +101,10 @@ class LUPI_Classification_SVM(InitModel):
         # Define functions for better readability
         function = X * w + b
         priv_function = X_priv * w_priv + b_priv
+        slack = cvx.Variable(shape=(n))
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
-        loss = cvx.sum(priv_function)
+        loss = cvx.sum(priv_function) + cvx.sum(slack)
 
         # L1 norm regularization of both functions with 1 scaling constant
         w_l1 = cvx.norm(w, 1)
@@ -111,8 +112,9 @@ class LUPI_Classification_SVM(InitModel):
         weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
 
         constraints = [
-            cvx.multiply(y.T, function) >= 1 - cvx.multiply(y.T, priv_function),
+            cvx.multiply(y.T, function) >= 1 - cvx.multiply(y.T, priv_function) - slack,
             priv_function >= 0,
+            slack >= 0,
         ]
         objective = cvx.Minimize(C * loss + weight_regularization)
 

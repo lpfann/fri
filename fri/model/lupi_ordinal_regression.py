@@ -102,6 +102,9 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         w_priv = cvx.Variable(shape=(self.lupi_features, 2), name="w_priv")
         d_priv = cvx.Variable(shape=(2), name="bias_priv")
 
+        slack_left = cvx.Variable(shape=(n), name="slack_left")
+        slack_right = cvx.Variable(shape=(n), name="slack_right")
+
         def priv_function(bin, sign):
             indices = np.where(y == get_original_bin_name[bin])
             return X_priv[indices] * w_priv[:, sign] + d_priv[sign]
@@ -119,7 +122,8 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for left_bin in range(0, n_bins - 1):
             indices = np.where(y == get_original_bin_name[left_bin])
             constraints.append(
-                X[indices] * w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
+                X[indices] * w - b_s[left_bin] - slack_left[indices]
+                <= -1 + priv_function(left_bin, 0)
             )
             constraints.append(priv_function(left_bin, 0) >= 0)
             loss += cvx.sum(priv_function(left_bin, 0))
@@ -128,13 +132,18 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for right_bin in range(1, n_bins):
             indices = np.where(y == get_original_bin_name[right_bin])
             constraints.append(
-                X[indices] * w - b_s[right_bin - 1] >= +1 - priv_function(right_bin, 1)
+                X[indices] * w - b_s[right_bin - 1] - slack_right[indices]
+                >= +1 - priv_function(right_bin, 1)
             )
             constraints.append(priv_function(right_bin, 1) >= 0)
             loss += cvx.sum(priv_function(right_bin, 1))
 
         for i_boundary in range(0, n_boundaries - 1):
             constraints.append(b_s[i_boundary] <= b_s[i_boundary + 1])
+
+        constraints.append(slack_left >= 0)
+        constraints.append(slack_right >= 0)
+        loss += cvx.sum(slack_left + slack_right)
 
         objective = cvx.Minimize(C * loss + weight_regularization)
 
