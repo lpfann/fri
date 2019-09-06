@@ -15,21 +15,20 @@ def randomstate():
 
 @pytest.mark.parametrize("n_strong", [5, 10])
 @pytest.mark.parametrize("n_weak", [0, 2])
-def test_baseline_lupi_reg(n_strong, n_weak, randomstate):
+@pytest.mark.parametrize("noise", [0, 0.5])
+@pytest.mark.parametrize("problem", fri.LUPI_MODELS)
+def test_baseline_lupi(problem, n_strong, n_weak, noise, randomstate):
     n_samples = 100
 
-    problem = fri.ProblemName.LUPI_REGRESSION.value(
-        scaling_lupi_loss=1, scaling_lupi_w=1
-    )
-    template = problem.get_initmodel_template
-    params = problem.get_all_parameters()
+    template = problem.value().get_initmodel_template
+    params = problem.value().get_all_parameters()
     data = genLupiData(
-        fri.ProblemName.LUPI_REGRESSION,
+        problem,
         n_strel=n_strong,
-        n_weakrel_groups=n_weak,
+        n_weakrel=n_weak,
         n_samples=n_samples,
         n_irrel=1,
-        noise=0.0,
+        noise=noise,
         n_repeated=0,
         random_state=randomstate,
     )
@@ -52,4 +51,4 @@ def test_baseline_lupi_reg(n_strong, n_weak, randomstate):
         lupi_features=X_priv.shape[1],
     )
 
-    assert best_score > 0.9
+    assert best_score > 0.7
