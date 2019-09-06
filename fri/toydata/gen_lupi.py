@@ -188,7 +188,7 @@ def genLupiData(
 
     # Create truth (prototype) vector which contains true feature contributions
     # We enforce minimum of 0.1 to circumvent problems when testing for relevance
-    w = random_state.uniform(low=0.1, high=1, size=n_informative)
+    w = random_state.uniform(low=0.5, high=1, size=n_informative)
     X_informative = random_state.normal(size=(n_samples, n_informative))
     scores = np.dot(X_informative, w)
 
@@ -203,16 +203,17 @@ def genLupiData(
         partition=[n_weakrel],
     )
 
-    e = random_state.normal(
-        size=(n_samples, X_priv.shape[1]), scale=noise * np.std(X_priv)
-    )
+    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise)
     X = X_priv + e
 
     if (
         problemName == "classification"
         or problemName == ProblemName.LUPI_CLASSIFICATION
     ):
-        y = scores > 0
+        y = np.zeros_like(scores)
+        y[scores > 0] = 1
+        y[scores <= 0] = -1
+
     elif problemName == "regression" or problemName == ProblemName.LUPI_REGRESSION:
         y = scores
     elif (
