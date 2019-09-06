@@ -30,8 +30,9 @@ def test_error_class(problem):
 
 
 @pytest.mark.parametrize("n_weak", [0, 2])
-@pytest.mark.parametrize("problem", fri.LUPI_MODELS)
-def test_lupi_model_correctness(problem, n_weak, randomstate):
+@pytest.mark.parametrize("problem", [fri.ProblemName.LUPI_CLASSIFICATION])
+@pytest.mark.parametrize("noise", [0, 0.5])
+def test_lupi_model_correctness(problem, n_weak, noise, randomstate):
     n_samples = 100
 
     model = FRI(
@@ -40,7 +41,7 @@ def test_lupi_model_correctness(problem, n_weak, randomstate):
         verbose=1,
         n_param_search=50,
         n_probe_features=70,
-        n_jobs=1,
+        n_jobs=-1,
     )
     print(model)
 
@@ -50,7 +51,8 @@ def test_lupi_model_correctness(problem, n_weak, randomstate):
         n_weakrel=n_weak,
         n_samples=n_samples,
         n_irrel=2,
-        noise=0.1,
+        noise=noise,
+        # label_noise=0.1,
         n_repeated=0,
         random_state=randomstate,
     )
@@ -66,12 +68,12 @@ def test_lupi_model_correctness(problem, n_weak, randomstate):
 
     # Check the interval output
     interval = model.interval_
-    print(interval)
+    # print(interval)
     model.print_interval_with_class()
     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
     assert len(interval) == X.shape[1] + X_priv.shape[1]
 
-    n_f = 1 + n_weak * 2  # Number of relevant features
+    n_f = 1 + n_weak  # Number of relevant features
     n_f = n_f * 2  # We have two sets with same relevance
 
     # Check how many are selected
