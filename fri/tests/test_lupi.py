@@ -29,16 +29,18 @@ def test_error_class(problem):
         f.fit(combined, y)
 
 
-@pytest.mark.parametrize("n_weak", [0, 2])
+@pytest.mark.parametrize("n_weak", [0])
 @pytest.mark.parametrize("problem", [fri.ProblemName.LUPI_CLASSIFICATION])
-@pytest.mark.parametrize("noise", [0, 0.5])
+@pytest.mark.parametrize("noise", np.linspace(0.5, 1, 20))
 def test_lupi_model_correctness(problem, n_weak, noise, randomstate):
     n_samples = 100
 
     model = FRI(
         problem,
         random_state=randomstate,
-        verbose=1,
+        verbose=0,
+        # slack_regularization=0.1,
+        # slack_loss=0.1,
         n_param_search=50,
         n_probe_features=70,
         n_jobs=-1,
@@ -68,8 +70,8 @@ def test_lupi_model_correctness(problem, n_weak, noise, randomstate):
 
     # Check the interval output
     interval = model.interval_
-    # print(interval)
-    model.print_interval_with_class()
+    print(interval)
+    print(model.print_interval_with_class())
     assert len(model.allrel_prediction_) == X.shape[1] + X_priv.shape[1]
     assert len(interval) == X.shape[1] + X_priv.shape[1]
 

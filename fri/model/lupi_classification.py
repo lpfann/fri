@@ -196,19 +196,23 @@ class LUPI_Classification_Relevance_Bound(
         w_priv = cvx.Variable(shape=(self.d_priv), name="w_priv")
         b = cvx.Variable(name="b")
         b_priv = cvx.Variable(name="b_priv")
+        slack = cvx.Variable(shape=(self.n))
 
         # New Constraints
         function = cvx.multiply(self.y.T, self.X * w + b)
         priv_function = self.X_priv * w_priv + b_priv
-        loss = cvx.sum(priv_function)
+        loss = cvx.sum(priv_function) + cvx.sum(slack)
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv = cvx.norm(w_priv, 1)
 
-        self.add_constraint(function >= 1 - cvx.multiply(self.y.T, priv_function))
+        self.add_constraint(
+            function >= 1 - cvx.multiply(self.y.T, priv_function) - slack
+        )
         self.add_constraint(priv_function >= 0)
         self.add_constraint(loss <= init_loss)
         self.add_constraint(weight_norm <= l1_w)
         self.add_constraint(weight_norm_priv <= l1_priv_w)
+        self.add_constraint(slack >= 0)
 
         # Save values for object use later
         self.w = w
