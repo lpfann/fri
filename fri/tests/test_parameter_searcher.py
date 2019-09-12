@@ -15,9 +15,8 @@ def randomstate():
 
 @pytest.mark.parametrize("n_strong", [5, 10])
 @pytest.mark.parametrize("n_weak", [0, 2])
-@pytest.mark.parametrize("noise", [0, 0.5])
 @pytest.mark.parametrize("problem", fri.LUPI_MODELS)
-def test_baseline_lupi(problem, n_strong, n_weak, noise, randomstate):
+def test_baseline_lupi(problem, n_strong, n_weak, randomstate):
     n_samples = 100
 
     template = problem.value().get_initmodel_template
@@ -28,7 +27,6 @@ def test_baseline_lupi(problem, n_strong, n_weak, noise, randomstate):
         n_weakrel=n_weak,
         n_samples=n_samples,
         n_irrel=1,
-        noise=noise,
         n_repeated=0,
         random_state=randomstate,
     )
