@@ -22,13 +22,3 @@ def distance(u, v):
     diff[u == 0] = 0
     diff[v == 0] = 0
     return np.sqrt(np.sum(diff))
-
-
-def permutate_feature_in_data(data, feature_i, random_state):
-    X, y = data
-    X_copy = np.copy(X)
-    # Permute selected feature
-    permutated_feature = random_state.permutation(X_copy[:, feature_i])
-    # Add permutation back to dataset
-    X_copy[:, feature_i] = permutated_feature
-    return X_copy, y

@@ -1,5 +1,5 @@
-import numpy as np
 import pytest
+import numpy as np
 
 from fri.model.ordinal_regression import ordinal_scores as score
 
