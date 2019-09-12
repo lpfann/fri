@@ -74,7 +74,7 @@ def find_best_model(
         n_iter=n_iter,
         n_jobs=n_jobs,
         error_score=np.nan,
-        verbose=verbose,
+        verbose=verbose - 1,
     )
 
     X, y = data
