@@ -23,7 +23,7 @@ class LUPI_Classification(ProblemType):
 
     @classmethod
     def parameters(cls):
-        return ["C", "scaling_lupi_w"]
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 
     @property
     def get_initmodel_template(cls):
@@ -70,7 +70,7 @@ class LUPI_Classification(ProblemType):
 class LUPI_Classification_SVM(InitModel):
     @classmethod
     def hyperparameter(cls):
-        return ["C", "scaling_lupi_w"]
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -91,6 +91,7 @@ class LUPI_Classification_SVM(InitModel):
         # Get parameters from CV model without any feature contstraints
         C = self.hyperparam["C"]
         scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
@@ -104,7 +105,7 @@ class LUPI_Classification_SVM(InitModel):
         slack = cvx.Variable(shape=(n))
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
-        loss = cvx.sum(priv_function) + cvx.sum(slack)
+        loss = scaling_lupi_loss * cvx.sum(priv_function) + cvx.sum(slack)
 
         # L1 norm regularization of both functions with 1 scaling constant
         w_l1 = cvx.norm(w, 1)
@@ -202,6 +203,7 @@ class LUPI_Classification_Relevance_Bound(
         function = cvx.multiply(self.y.T, self.X * w + b)
         priv_function = self.X_priv * w_priv + b_priv
         loss = cvx.sum(priv_function) + cvx.sum(slack)
+
         weight_norm = cvx.norm(w, 1)
         weight_norm_priv = cvx.norm(w_priv, 1)
 
@@ -210,8 +212,7 @@ class LUPI_Classification_Relevance_Bound(
         )
         self.add_constraint(priv_function >= 0)
         self.add_constraint(loss <= init_loss)
-        self.add_constraint(weight_norm <= l1_w)
-        self.add_constraint(weight_norm_priv <= l1_priv_w)
+        self.add_constraint(weight_norm + weight_norm_priv <= l1_w + l1_priv_w)
         self.add_constraint(slack >= 0)
 
         # Save values for object use later
