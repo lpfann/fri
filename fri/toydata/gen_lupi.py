@@ -198,26 +198,34 @@ def genLupiData(
         n_repeated=n_repeated,
         partition=[n_weakrel],
     )
-    NOISE = 0.65
-    e = random_state.normal(
-        size=(n_samples, X_priv.shape[1]), scale=NOISE / X_priv.std()
-    )
-    X = X_priv + e
 
     if (
         problemName == "classification"
         or problemName == ProblemName.LUPI_CLASSIFICATION
     ):
+        e = random_state.normal(
+            size=(n_samples, X_priv.shape[1]), scale=0.65 / X_priv.std()
+        )
+        X = X_priv + e
         y = np.zeros_like(scores)
         y[scores > 0] = 1
         y[scores <= 0] = -1
 
     elif problemName == "regression" or problemName == ProblemName.LUPI_REGRESSION:
+        e = random_state.normal(
+            size=(n_samples, X_priv.shape[1]), scale=0.5 / X_priv.std()
+        )
+        X = X_priv + e
         y = scores
     elif (
         problemName == "ordinalRegression"
         or problemName == ProblemName.LUPI_ORDREGRESSION
     ):
+        e = random_state.normal(
+            size=(n_samples, X_priv.shape[1]), scale=0.2 / X_priv.std()
+        )
+        X = X_priv + e
+
         step = 1 / (n_ordinal_bins)
         quantiles = [i * step for i in range(1, n_ordinal_bins)]
         bs = np.quantile(scores, quantiles)
