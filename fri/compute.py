@@ -74,17 +74,18 @@ class RelevanceBoundsIntervals(object):
         # Get Scaling Parameters
         l1 = self.init_constraints["w_l1"]
         l1_priv = self.init_constraints["w_priv_l1"]
+        l1 = l1 + l1_priv
 
         # Normalize Normal and Lupi features
         rb_norm = self._postprocessing(l1, rb)
-        rb_l_norm = self._postprocessing(l1_priv, rb_l)
+        rb_l_norm = self._postprocessing(l1, rb_l)
         interval_ = np.concatenate([rb_norm, rb_l_norm])
 
         # Normalize Probes
         probe_lower = self._postprocessing(l1, probe_lower)
         probe_upper = self._postprocessing(l1, probe_upper)
-        probe_priv_lower = self._postprocessing(l1_priv, probe_priv_lower)
-        probe_priv_upper = self._postprocessing(l1_priv, probe_priv_upper)
+        probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
+        probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
 
         #
         #
