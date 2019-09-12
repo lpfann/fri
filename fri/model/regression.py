@@ -2,29 +2,28 @@ import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
 
-from fri.baseline import InitModel
-from fri.model.base import Relevance_CVXProblem
-from .base import MLProblem
+from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class Regression(MLProblem):
-
+class Regression(ProblemType):
     @classmethod
     def parameters(cls):
         return ["C", "epsilon"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return Regression_SVR
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return Regression_Relevance_Bound
 
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, **kwargs):
         X, y = data
 
         # Check that X and y have correct shape
@@ -34,12 +33,11 @@ class Regression(MLProblem):
 
 
 class Regression_SVR(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C", "epsilon"]
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]
@@ -50,10 +48,7 @@ class Regression_SVR(InitModel):
         b = cvx.Variable(name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
-        constraints = [
-            cvx.abs(y - (X * w + b)) <= epsilon + slack,
-            slack >= 0
-        ]
+        constraints = [cvx.abs(y - (X * w + b)) <= epsilon + slack, slack >= 0]
 
         # Solve problem.
         solver_params = self.solver_params
@@ -63,18 +58,11 @@ class Regression_SVR(InitModel):
         w = w.value
         b = b.value
         slack = np.asarray(slack.value).flatten()
-        self.model_state = {
-            "w": w,
-            "b": b,
-            "slack": slack
-        }
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
         loss = np.sum(slack)
         w_l1 = np.linalg.norm(w, ord=1)
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1}
         return self
 
     def predict(self, X):
@@ -98,20 +86,13 @@ class Regression_SVR(InitModel):
 
 
 class Regression_Relevance_Bound(Relevance_CVXProblem):
-
-    def _init_objective_UB(self):
-
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
-
+    def init_objective_UB(self, sign=None, **kwargs):
         self.add_constraint(
-            self.feature_relevance <= factor * self.w[self.current_feature]
+            self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def init_objective_LB(self, **kwargs):
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )

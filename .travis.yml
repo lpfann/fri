@@ -1,62 +1,59 @@
-dist: trusty
-sudo: false
-
+dist: bionic
 language: python
 
+stages:
+  - linting
+  - test
+  - name: deploy
+    if: branch = master
+
+python:
+  - "3.6"
+  - "3.7"
+
 cache:
-  timeout: 500
+  pip: true
   directories:
-    - $HOME/.cache/pip
-
-matrix:
-  include:
-    #    - name: "3.6 Newest Libs"
-    #      env: DISTRIB="conda" PYTHON_VERSION="3.6"
-    #           NUMPY_VERSION="*" SCIPY_VERSION="*" SKLEARN_VERSION="*"
-    - name: "3.6 Static Libs"
-      env: DISTRIB="conda" PYTHON_VERSION="3.6"
-           NUMPY_VERSION="1.15.4" SCIPY_VERSION="1.1" SKLEARN_VERSION="0.20"
-    #    - name: "3.7 Newest Libs"
-    #      env: DISTRIB="conda" PYTHON_VERSION="3.7"
-    #           NUMPY_VERSION="*" SCIPY_VERSION="*" SKLEARN_VERSION="*"
-    - name: "3.7 Static Libs"
-      env: DISTRIB="conda" PYTHON_VERSION="3.7"
-           NUMPY_VERSION="1.15.4" SCIPY_VERSION="1.1" SKLEARN_VERSION="0.20"
-
-# Setup anaconda
-before_install:
-  - . ./ci_scripts/install_miniconda.sh
+    - "$HOME/.cache/pypoetry"
 
 install:
-  - . ./ci_scripts/create_testenv.sh
-  - pip install coveralls
-  - pip install pytest-xdist
-  - pip install --upgrade sphinx pillow sphinx-gallery sphinx_rtd_theme nbsphinx
-  - pip install --upgrade cython
-  - pip install travis-sphinx 
+  - pip install --upgrade pip
+  - pip install poetry>=1.0.0b1 # Using preview build to enable pypi api token usage
+  - poetry install -v
 
-before_script:
-  - |
-    if [[ $TRAVIS_OS_NAME != 'osx' ]]; then
-      export DISPLAY=:99.0
-      sh -e /etc/init.d/xvfb start
-    fi
-
-# Run test
 script:
   - pytest --cov=fri -n 2
-  - travis-sphinx build -n --source=doc/source
 
 after_success:
   - coveralls
-  - travis-sphinx deploy
 
-deploy:
-  provider: pypi
-  user: lpfann
-  skip_existing: true
-  password:
-    secure: Zl/BYkII3DOqcMIBKhkZ6EFl8ClQEqCgvQM4MUSyfoICLaPbuyKEQy7pLdmdrPlOIzoe7crpnTRzP0PYBk20hwjSE5xAxSwMBI5rgzRBwhk+18E9ZF4Rn5pO/HO1eihyZXFbUDDMxXrcE7zzHIWiQFTCTBwFkobOA+qVpom8ZJ5I/+832Bnp5DpWTqULHQwuMkBS5vpzmg9l1CGJqN45ef6Yzy78chxBP3t4GGWbAym29TQKYTDFrF5XdBQkqzrXENQ2IzGKs4Uk4zGazQv/yDYRQuRm7ALr34nsIYllLPWlxsgXtuz0/ewHcn0T9tRFukfSm9krx+LUrRq7vH4510c8qfS6mjFcpaMgzG/T1wVBwj2tEOObGdxrwzEMaO/sxQR25QeaKsgRkm0vsforbPtmwhWtjpd0badloFA1NiwpDlXYyLYX+U+/hZK5yNFwNXp1rdVZDkPg9E5meKNh1fqpVme1nzpj7jJPLHf6Jp7KM5whG73LIOMFm0zd39y+H5B486I95wqXOf0sRPbifooOvUNp7AJAUIILUvyEHcMl3yG7REIrS3w7Sy4cDL4JBGxXokEpOUuvhRzRRdJyOvYoKLNws1dDR5wkAoGdCxLQdPAta/W8Es8WWsU+M6kSl+al5P+Iy6rb7PxyhY6qJOnJrhwaUDrtELulYgKt9FI=
-  on:
-    tags: true
-    branch: master
+jobs:
+  include:
+    - stage: linting
+      install:
+        - pip install pre-commit
+        - pre-commit install-hooks
+      script:
+        - pre-commit run --all-files
+      after_success: skip
+    - stage: deploy
+    - name: PyPi package deploy
+      script:
+        - poetry config pypi-token.pypi $PYPI_TOKEN
+        - poetry publish
+      after_success: skip
+      skip_existing: true
+      on:
+        tags: true
+        branch: master
+    - name: Documentation
+      script: portray as_html
+      after_success: skip
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        local_dir: site/
+        github_token: $GH_TOKEN
+        keep_history: true
+        on:
+          branch: master

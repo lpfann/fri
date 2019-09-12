@@ -3,29 +3,28 @@ import numpy as np
 from sklearn.metrics import make_scorer
 from sklearn.utils import check_X_y
 
-from fri.baseline import InitModel
-from fri.model.base import Relevance_CVXProblem
-from .base import MLProblem
+from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class OrdinalRegression(MLProblem):
-
+class OrdinalRegression(ProblemType):
     @classmethod
     def parameters(cls):
         return ["C"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return OrdinalRegression_SVM
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return OrdinalRegression_Relevance_Bound
 
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, **kwargs):
         X, y = data
 
         # Check that X and y have correct shape
@@ -38,12 +37,11 @@ class OrdinalRegression(MLProblem):
 
 
 class OrdinalRegression_SVM(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C"]
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]
@@ -62,10 +60,7 @@ class OrdinalRegression_SVM(InitModel):
         b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
-        constraints = [
-            slack_left >= 0,
-            slack_right >= 0
-        ]
+        constraints = [slack_left >= 0, slack_right >= 0]
 
         # Add constraints for slack into left neighboring bins
         for i in range(n_bins - 1):
@@ -90,18 +85,11 @@ class OrdinalRegression_SVM(InitModel):
         b_s = b_s.value
         slack_left = np.asarray(slack_left.value).flatten()
         slack_right = np.asarray(slack_right.value).flatten()
-        self.model_state = {
-            "w": w,
-            "b_s": b_s,
-            "slack": (slack_left, slack_right)
-        }
+        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
 
         loss = np.sum(slack_left + slack_right)
         w_l1 = np.linalg.norm(w, ord=1)
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1}
         return self
 
     def predict(self, X):
@@ -116,13 +104,12 @@ class OrdinalRegression_SVM(InitModel):
         indices = np.sum(scores.T - bin_thresholds >= 0, -1)
         return self.classes_[indices]
 
-    def score(self, X, y, **kwargs):
+    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
         X, y = check_X_y(X, y)
 
         prediction = self.predict(X)
-        error_type = kwargs.get("error_type", "mmae")
-        score = ordinal_scores(y, prediction, error_type)
+        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
         return score
 
@@ -133,6 +120,7 @@ class OrdinalRegression_SVM(InitModel):
         mmae = make_scorer(ordinal_scores, error_type="mmae")
         scorer = {"mze": mze, "mae": mae, "mmae": mmae}
         return scorer, "mmae"
+
 
 def ordinal_scores(y, prediction, error_type, return_error=False):
     """Score function for ordinal problems.
@@ -162,6 +150,9 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
     classes = np.unique(y)
     n_bins = len(classes)
     max_dist = n_bins - 1
+    # If only one class available, we dont need to average
+    if max_dist == 0:
+        error_type = "mze"
 
     def mze(prediction, y):
         return np.sum(prediction != y)
@@ -201,20 +192,14 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
 
 
 class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
-
-    def _init_objective_UB(self):
-
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
+    def init_objective_UB(self, sign=None, **kwargs):
 
         self.add_constraint(
-            self.feature_relevance <= factor * self.w[self.current_feature]
+            self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def init_objective_LB(self, **kwargs):
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )
@@ -246,11 +231,16 @@ class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
 
         for i in range(n_bins - 1):
             indices = np.where(self.y == i)
-            self.add_constraint(self.X[indices] * self.w - self.slack_left[indices] <= self.b_s[i] - 1)
+            self.add_constraint(
+                self.X[indices] * self.w - self.slack_left[indices] <= self.b_s[i] - 1
+            )
 
         for i in range(1, n_bins):
             indices = np.where(self.y == i)
-            self.add_constraint(self.X[indices] * self.w + self.slack_right[indices] >= self.b_s[i - 1] + 1)
+            self.add_constraint(
+                self.X[indices] * self.w + self.slack_right[indices]
+                >= self.b_s[i - 1] + 1
+            )
 
         for i in range(n_bins - 2):
             self.add_constraint(self.b_s[i] <= self.b_s[i + 1])

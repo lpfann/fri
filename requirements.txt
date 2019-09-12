@@ -1,7 +1,0 @@
-numpy
-scipy>=1.0
-scikit-learn>=0.21.1
-joblib>=0.13.2
-cvxpy>=1.0.21
-ecos>=2.0.5
-matplotlib

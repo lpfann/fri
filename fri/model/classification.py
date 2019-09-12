@@ -6,29 +6,28 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.utils import check_X_y
 from sklearn.utils.multiclass import unique_labels
 
-from fri.baseline import InitModel
-from .base import MLProblem
-from .base import Relevance_CVXProblem
+from fri.model.base_cvxproblem import Relevance_CVXProblem
+from fri.model.base_initmodel import InitModel
+from .base_type import ProblemType
 
 
-class Classification(MLProblem):
-
+class Classification(ProblemType):
     @classmethod
     def parameters(cls):
         return ["C"]
 
-    @classmethod
-    def get_init_model(cls):
+    @property
+    def get_initmodel_template(cls):
         return Classification_SVM
 
-    @classmethod
-    def get_bound_model(cls):
+    @property
+    def get_cvxproblem_template(cls):
         return Classification_Relevance_Bound
 
     def relax_factors(cls):
         return ["loss_slack", "w_l1_slack"]
 
-    def preprocessing(self, data):
+    def preprocessing(self, data, **kwargs):
         X, y = data
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
@@ -47,12 +46,11 @@ class Classification(MLProblem):
 
 
 class Classification_SVM(InitModel):
-
     @classmethod
     def hyperparameter(cls):
         return ["C"]
 
-    def fit(self, X, y):
+    def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
         C = self.hyperparam["C"]
@@ -62,10 +60,7 @@ class Classification_SVM(InitModel):
         b = cvx.Variable(name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
-        constraints = [
-            cvx.multiply(y.T, X * w + b) >= 1 - slack,
-            slack >= 0
-        ]
+        constraints = [cvx.multiply(y.T, X * w + b) >= 1 - slack, slack >= 0]
 
         # Solve problem.
         solver_params = self.solver_params
@@ -75,18 +70,11 @@ class Classification_SVM(InitModel):
         w = w.value
         b = b.value
         slack = np.asarray(slack.value).flatten()
-        self.model_state = {
-            "w": w,
-            "b": b,
-            "slack": slack
-        }
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
         loss = np.sum(slack)
         w_l1 = np.linalg.norm(w, ord=1)
-        self.constraints = {
-            "loss": loss,
-            "w_l1": w_l1
-        }
+        self.constraints = {"loss": loss, "w_l1": w_l1}
         return self
 
     def predict(self, X):
@@ -112,20 +100,13 @@ class Classification_SVM(InitModel):
 
 
 class Classification_Relevance_Bound(Relevance_CVXProblem):
-
-    def _init_objective_UB(self):
-
-        if self.sign:
-            factor = -1
-        else:
-            factor = 1
-
+    def init_objective_UB(self, sign=None, **kwargs):
         self.add_constraint(
-            self.feature_relevance <= factor * self.w[self.current_feature]
+            self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
-    def _init_objective_LB(self):
+    def init_objective_LB(self, **kwargs):
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )

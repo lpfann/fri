@@ -82,3 +82,12 @@ target/
 /misc_dev/
 
 /src/
+
+# Project exclude paths
+/doc/auto_examples/
+/doc/modules/
+/venv/
+/env_fri/
+/.vscode/
+/doc/.vscode/
+/site/
