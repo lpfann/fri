@@ -110,6 +110,11 @@ class Relevance_CVXProblem(ABC):
     @property
     def is_solved(self):
         if self._solver_status in self.accepted_status:
+            try:
+                val = self.objective.value
+            except ValueError:
+                return False
+
             return True
         else:
             return False
