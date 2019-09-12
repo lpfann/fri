@@ -56,7 +56,7 @@ class RelevanceBoundsIntervals(object):
         normal_d = all_d - lupi_features
 
         # Compute relevance bounds and probes for normal features and LUPI
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
             d_n = _get_necessary_dimensions(normal_d, presetModel)
             rb = self.compute_relevance_bounds(d_n, parallel=parallel)
             probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
@@ -107,7 +107,7 @@ class RelevanceBoundsIntervals(object):
         # e.g. in the case of fixed features we skip those
         dims = _get_necessary_dimensions(d, presetModel)
 
-        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1) as parallel:
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
             relevance_bounds = self.compute_relevance_bounds(
                 dims, parallel=parallel, presetModel=presetModel
             )
@@ -148,7 +148,7 @@ class RelevanceBoundsIntervals(object):
 
         # Solve relevance bounds in parallel (when available)
         if parallel is None:
-            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1)
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
         bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
 
         # Retrieve results and aggregate values in dict
@@ -175,7 +175,7 @@ class RelevanceBoundsIntervals(object):
 
         # Prepare parallel framework
         if parallel is None:
-            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose - 1)
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
         # Generate
         probe_queue = self._generate_probe_value_tasks(
