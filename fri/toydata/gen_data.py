@@ -7,7 +7,7 @@ from sklearn.utils import shuffle
 def _combFeat(n, size, strRelFeat, randomstate):
     # Split each strongly relevant feature into linear combination of it
     weakFeats = np.tile(strRelFeat, (size, 1)).T
-    weakFeats = randomstate.normal(loc=0, scale=1, size=size) + weakFeats
+    weakFeats = randomstate.uniform(low=1, high=2, size=size) + weakFeats
     return weakFeats
 
 
@@ -67,16 +67,19 @@ def _fillVariableSpace(
 
     if partition is not None:
         assert n_redundant == np.sum(partition)
+
     # Create dummy array
     X = np.zeros((int(n_samples), int(n_features)))
+
     # Add strongly relevant
     X[:, :n_strel] = X_informative[:, :n_strel]
+
     # Save strongly relevant used in creation of weakly ones
     holdout = X_informative[:, n_strel:]
 
     i = n_strel
     pi = 0
-    for x in range(len(holdout.T)):
+    for x in range(holdout.shape[1]):
         size = partition[pi]
         X[:, i : i + size] = _combFeat(n_samples, size, holdout[:, x], random_state)
         i += size
@@ -201,7 +204,7 @@ def genClassificationData(
         Y[random_state.choice(n_samples, n_flip)] *= -1
 
     # Add gaussian noise to data
-    X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
+    X = X + random_state.normal(size=(n_samples, n_features), scale=noise / X.std())
 
     return X, Y
 

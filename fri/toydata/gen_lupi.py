@@ -131,7 +131,6 @@ def genLupiData(
     problemName: ProblemName,
     n_samples: int = 100,
     random_state: object = None,
-    noise: float = 0.1,
     n_ordinal_bins: int = 3,
     n_strel: int = 1,
     n_weakrel: int = 0,
@@ -150,8 +149,6 @@ def genLupiData(
                 Number of samples
             random_state : object, optional
                 Randomstate object used for generation.
-            noise : float, optional
-                Noise of the created samples around ground truth.
             n_ordinal_bins : int, optional
                 Number of bins in which the regressional target variable is split to form the ordinal classes,
                 Only has an effect if problemType == 'ordinalRegression'
@@ -181,10 +178,9 @@ def genLupiData(
 
 
         """
-    gr_n = 2  # Group size
 
     random_state = check_random_state(random_state)
-    n_informative = n_strel + int(n_weakrel / gr_n)
+    n_informative = n_strel + (n_weakrel > 0)
 
     # Create truth (prototype) vector which contains true feature contributions
     # We enforce minimum of 0.1 to circumvent problems when testing for relevance
@@ -192,7 +188,7 @@ def genLupiData(
     X_informative = random_state.normal(size=(n_samples, n_informative))
     scores = np.dot(X_informative, w)
 
-    n_features = n_strel + n_weakrel + n_repeated
+    n_features = n_strel + n_weakrel + n_repeated + n_irrel
     X_priv = _fillVariableSpace(
         X_informative,
         random_state,
@@ -202,8 +198,10 @@ def genLupiData(
         n_repeated=n_repeated,
         partition=[n_weakrel],
     )
-
-    e = random_state.normal(size=(n_samples, X_priv.shape[1]), scale=noise)
+    NOISE = 0.65
+    e = random_state.normal(
+        size=(n_samples, X_priv.shape[1]), scale=NOISE / X_priv.std()
+    )
     X = X_priv + e
 
     if (
