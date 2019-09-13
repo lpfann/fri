@@ -47,6 +47,7 @@ jobs:
         branch: master
     - name: Documentation
       before_deploy: portray as_html
+      script: skip
       after_success: skip
       deploy:
         provider: pages
