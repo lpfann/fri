@@ -19,7 +19,8 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+        wget https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
+        python get-poetry.py --preview -y
         source $HOME/.poetry/env
         poetry install -v
     - name: Test with pytest
