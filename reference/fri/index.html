@@ -1995,14 +1995,14 @@
 <h2 id="functions">Functions</h2>
 <h3 id="genclassificationdata">genClassificationData</h3>
 <pre><code class="python3">def genClassificationData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.1,
-    flip_y:float=0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.1,
+    flip_y: float = 0,
+    random_state: object = None,
     partition=None
 )
 </code></pre>
@@ -2234,14 +2234,14 @@ y.shape
 </code></pre>
 <h3 id="genlupidata">genLupiData</h3>
 <pre><code class="python3">def genLupiData(
-    problemName:fri.ProblemName,
-    n_samples:int=100,
-    random_state:object=None,
-    n_ordinal_bins:int=3,
-    n_strel:int=1,
-    n_weakrel:int=0,
-    n_repeated:int=0,
-    n_irrel:int=0,
+    problemName: fri.ProblemName,
+    n_samples: int = 100,
+    random_state: object = None,
+    n_ordinal_bins: int = 3,
+    n_strel: int = 1,
+    n_weakrel: int = 0,
+    n_repeated: int = 0,
+    n_irrel: int = 0,
     label_noise=0.0
 )
 </code></pre>
@@ -2509,15 +2509,15 @@ y : array of shape [n_samples]
 </code></pre>
 <h3 id="genordinalregressiondata">genOrdinalRegressionData</h3>
 <pre><code class="python3">def genOrdinalRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
     partition=None,
-    n_target_bins:int=3
+    n_target_bins: int = 3
 )
 </code></pre>
 
@@ -2721,13 +2721,13 @@ Wrong parameters for specified amonut of features/samples.</p>
 </code></pre>
 <h3 id="genregressiondata">genRegressionData</h3>
 <pre><code class="python3">def genRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
     partition=None
 ) -&gt; object
 </code></pre>
@@ -2959,7 +2959,7 @@ ticklabels : list of str, optional
 </code></pre>
 <h3 id="quick_generate">quick_generate</h3>
 <pre><code class="python3">def quick_generate(
-    problem:object,
+    problem: object,
     **kwargs
 ) -&gt; [&lt;class 'numpy.ndarray'&gt;, &lt;class 'numpy.ndarray'&gt;]
 </code></pre>
@@ -3051,15 +3051,15 @@ kwargs : **dict
 <h2 id="classes">Classes</h2>
 <h3 id="fri">FRI</h3>
 <pre><code class="python3">class FRI(
-    problemName:object,
-    random_state:object=None,
-    n_jobs:object=1,
-    verbose:object=0,
-    n_param_search:object=10,
-    n_probe_features:object=20,
-    slack_regularization:object=0.001,
-    slack_loss:object=0.001,
-    normalize:object=True,
+    problemName: object,
+    random_state: object = None,
+    n_jobs: object = 1,
+    verbose: object = 0,
+    n_param_search: object = 10,
+    n_probe_features: object = 20,
+    slack_regularization: object = 0.001,
+    slack_loss: object = 0.001,
+    normalize: object = True,
     **kwargs
 )
 </code></pre>
@@ -3219,7 +3219,7 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
 <h5 id="constrained_intervals">constrained_intervals</h5>
 <pre><code class="python3">def constrained_intervals(
     self,
-    preset:dict
+    preset: dict
 )
 </code></pre>
 
