@@ -47,5 +47,5 @@ jobs:
         tags: true
         branch: master
     - name: Documentation
-      skip: portray on_github_pages
+      script: portray on_github_pages
       after_success: skip
