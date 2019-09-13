@@ -4,7 +4,7 @@ language: python
 stages:
   - linting
   - test
-  - name: deploy
+  - name: package
     if: branch = master
 
 python:
@@ -37,7 +37,7 @@ jobs:
       script:
         - pre-commit run --all-files
       after_success: skip
-    - stage: deploy
+    - stage: package
       name: PyPi package deploy
       script:
         - poetry publish --build
@@ -46,6 +46,13 @@ jobs:
       on:
         tags: true
         branch: master
-    - name: Documentation
-      script: portray on_github_pages
-      after_success: skip
+
+before_deploy: portray as_html
+deploy:
+    provider: pages
+    skip_cleanup: true
+    local_dir: site/
+    github_token: $GH_TOKEN
+    keep_history: true
+    on:
+      branch: master
