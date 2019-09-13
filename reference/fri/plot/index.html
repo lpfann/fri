@@ -1,0 +1,1784 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../docs/favicon.ico">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+    
+    
+      
+        <title>Plot - fri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#module-friplot" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="fri" class="md-header-nav__button md-logo">
+          
+            <img src="../../../docs/logo.png" width="24" height="24">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              fri
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Plot
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/lpfann/fri/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    lpfann/fri
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="fri" class="md-nav__button md-logo">
+      
+        <img src="../../../docs/logo.png" width="48" height="48">
+      
+    </a>
+    fri
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/lpfann/fri/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    lpfann/fri
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../docs/Guide/" title="Guide" class="md-nav__link">
+      Guide
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../docs/background/" title="Background" class="md-nav__link">
+      Background
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../docs/citing_FRI/" title="Citing Fri" class="md-nav__link">
+      Citing Fri
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+    
+    <label class="md-nav__link" for="nav-5">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1" type="checkbox" id="nav-5-1" checked>
+    
+    <label class="md-nav__link" for="nav-5-1">
+      Fri
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-5-1">
+        Fri
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../compute/" title="Compute" class="md-nav__link">
+      Compute
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../main/" title="Main" class="md-nav__link">
+      Main
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../parameter_searcher/" title="Parameter Searcher" class="md-nav__link">
+      Parameter Searcher
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Plot
+      </label>
+    
+    <a href="./" title="Plot" class="md-nav__link md-nav__link--active">
+      Plot
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plotintervals" class="md-nav__link">
+    plotIntervals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_dendrogram_and_intervals" class="md-nav__link">
+    plot_dendrogram_and_intervals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_intervals" class="md-nav__link">
+    plot_intervals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot_lupi_intervals" class="md-nav__link">
+    plot_lupi_intervals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot_relevance_bars" class="md-nav__link">
+    plot_relevance_bars
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../utils/" title="Utils" class="md-nav__link">
+      Utils
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-7" type="checkbox" id="nav-5-1-7">
+    
+    <label class="md-nav__link" for="nav-5-1-7">
+      Model
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-7">
+        Model
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/base_cvxproblem/" title="Base Cvxproblem" class="md-nav__link">
+      Base Cvxproblem
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/base_initmodel/" title="Base Initmodel" class="md-nav__link">
+      Base Initmodel
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/base_lupi/" title="Base Lupi" class="md-nav__link">
+      Base Lupi
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/base_type/" title="Base Type" class="md-nav__link">
+      Base Type
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/classification/" title="Classification" class="md-nav__link">
+      Classification
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/lupi_classification/" title="Lupi Classification" class="md-nav__link">
+      Lupi Classification
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/lupi_ordinal_regression/" title="Lupi Ordinal Regression" class="md-nav__link">
+      Lupi Ordinal Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/lupi_regression/" title="Lupi Regression" class="md-nav__link">
+      Lupi Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/ordinal_regression/" title="Ordinal Regression" class="md-nav__link">
+      Ordinal Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../model/regression/" title="Regression" class="md-nav__link">
+      Regression
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-8" type="checkbox" id="nav-5-1-8">
+    
+    <label class="md-nav__link" for="nav-5-1-8">
+      Toydata
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-8">
+        Toydata
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../toydata/gen_data/" title="Gen Data" class="md-nav__link">
+      Gen Data
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../toydata/gen_lupi/" title="Gen Lupi" class="md-nav__link">
+      Gen Lupi
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../toydata/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    Variables
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    Functions
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plotintervals" class="md-nav__link">
+    plotIntervals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_dendrogram_and_intervals" class="md-nav__link">
+    plot_dendrogram_and_intervals
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_intervals" class="md-nav__link">
+    plot_intervals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot_lupi_intervals" class="md-nav__link">
+    plot_lupi_intervals
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plot_relevance_bars" class="md-nav__link">
+    plot_relevance_bars
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/lpfann/fri/edit/master/docs/reference/fri/plot.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="module-friplot">Module fri.plot</h1>
+<p>??? example "View Source"
+        import matplotlib</p>
+<pre><code>    matplotlib.use("TkAgg")
+
+    import matplotlib.patches as mpatches
+
+    import matplotlib.pyplot as plt
+
+    import numpy as np
+
+    from scipy.cluster.hierarchy import dendrogram
+
+    import matplotlib.cm as cm
+
+
+
+    # Get a color for each relevance type
+
+    color_palette_3 = cm.Set1([0, 1, 2], alpha=0.8)
+
+
+
+
+
+    def plot_relevance_bars(
+
+        ax, ranges, ticklabels=None, classes=None, numbering=True, tick_rotation=30
+
+    ):
+
+        """
+
+
+
+        Parameters
+
+        ----------
+
+        ax:
+
+            axis which the bars get drawn on
+
+        ranges:
+
+            the 2d array of floating values determining the lower and upper bounds of the bars
+
+        ticklabels: (optional)
+
+            labels for each feature
+
+        classes: (optional)
+
+            relevance class for each feature, determines color
+
+        numbering: bool
+
+            Add feature index when using ticklabels
+
+        tick_rotation:  int
+
+            Amonut of rotation of ticklabels for easier readability.
+
+
+
+
+
+        """
+
+        N = len(ranges)
+
+
+
+        # Ticklabels
+
+        if ticklabels is None:
+
+            ticks = np.arange(N) + 1
+
+        else:
+
+            ticks = list(ticklabels)
+
+            if numbering:
+
+                for i in range(N):
+
+                    ticks[i] += " - {}".format(i + 1)
+
+
+
+        # Interval sizes
+
+        ind = np.arange(N) + 1
+
+        width = 0.6
+
+        upper_vals = ranges[:, 1]
+
+        lower_vals = ranges[:, 0]
+
+        height = upper_vals - lower_vals
+
+        # Minimal height to make very small intervals visible
+
+        height[height &lt; 0.001] = 0.001
+
+
+
+        # Bar colors
+
+        if classes is None:
+
+            new_classes = np.zeros(N).astype(int)
+
+            color = [color_palette_3[c.astype(int)] for c in new_classes]
+
+        else:
+
+            color = [color_palette_3[c.astype(int)] for c in classes]
+
+
+
+        # Plot the bars
+
+        bars = ax.bar(
+
+            ind,
+
+            height,
+
+            width,
+
+            bottom=lower_vals,
+
+            tick_label=ticks,
+
+            align="center",
+
+            edgecolor=["black"] * N,
+
+            linewidth=1.3,
+
+            color=color,
+
+        )
+
+
+
+        ax.set_xticklabels(ticks)
+
+        if ticklabels is not None:
+
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=tick_rotation, ha="right")
+
+        # ax.tick_params(rotation="auto")
+
+        # Limit the y range to 0,1 or 0,L1
+
+        ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
+
+
+
+        ax.set_ylabel("relevance")
+
+        ax.set_xlabel("feature")
+
+
+
+        if classes is not None:
+
+            relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+
+            patches = []
+
+            for i, rc in enumerate(relevance_classes):
+
+                patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+
+                patches.append(patch)
+
+
+
+            ax.legend(handles=patches)
+
+
+
+        return bars
+
+
+
+
+
+    def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
+
+        # Figure Parameters
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(111)
+
+
+
+        out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
+
+        fig.autofmt_xdate()
+
+        # Invert the xaxis for cases in which the comparison with other tools
+
+        if invert:
+
+            plt.gca().invert_xaxis()
+
+        return fig
+
+
+
+
+
+    def plot_dendrogram_and_intervals(
+
+        intervals, linkage, figsize=(13, 7), ticklabels=None, classes=None, **kwargs
+
+    ):
+
+        fig, (ax2, ax) = plt.subplots(2, 1, figsize=figsize)
+
+        # Top dendrogram plot
+
+        d = dendrogram(
+
+            linkage,
+
+            color_threshold=0,
+
+            leaf_rotation=0.0,  # rotates the x axis labels
+
+            leaf_font_size=12.0,  # font size for the x axis labels
+
+            ax=ax2,
+
+        )
+
+        # Get index determined through linkage method and dendrogram
+
+        rearranged_index = d["leaves"]
+
+        ranges = intervals[rearranged_index]
+
+
+
+        if ticklabels is None:
+
+            ticks = np.array(rearranged_index)
+
+            ticks += 1  # Index starting at 1
+
+        else:
+
+            ticks = list(ticklabels[rearranged_index])
+
+            for i in range(len(intervals)):
+
+                ticks[i] += " - {}".format(rearranged_index[i] + 1)
+
+
+
+        plot_relevance_bars(
+
+            ax,
+
+            ranges,
+
+            ticklabels=ticks,
+
+            classes=classes[rearranged_index] if classes is not None else None,
+
+            numbering=False,
+
+            **kwargs,
+
+        )
+
+        fig.subplots_adjust(hspace=0)
+
+        ax.margins(x=0)
+
+        ax2.set_xticks([])
+
+        ax2.margins(x=0)
+
+        plt.tight_layout()
+
+
+
+        return fig
+
+
+
+
+
+    def plot_intervals(model, ticklabels=None):
+
+        """Plot the relevance intervals.
+
+
+
+        Parameters
+
+        ----------
+
+        model : FRI model
+
+            Needs to be fitted before.
+
+        ticklabels : list of str, optional
+
+            Strs for ticklabels on x-axis (features)
+
+        """
+
+        if model.interval_ is not None:
+
+            plotIntervals(
+
+                model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_
+
+            )
+
+        else:
+
+            print("Intervals not computed. Try running fit() function first.")
+
+
+
+
+
+    def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
+
+        """Plot the relevance intervals.
+
+
+
+            Parameters
+
+            ----------
+
+            model : FRI model
+
+                Needs to be fitted before.
+
+            ticklabels : list of str, optional
+
+                Strs for ticklabels on x-axis (features)
+
+            lupi_ticklabels : list of str, optional
+
+                Strs for lupi ticklabels on x-axis (lupi features)
+
+            """
+
+        n_features = model.interval_.shape[0] - model.lupi_features_
+
+        data_interval_ = model.interval_[0:n_features, :]
+
+        lupi_interval_ = model.interval_[n_features:, :]
+
+
+
+        data_relevance_classes_ = model.relevance_classes_[0:n_features]
+
+        lupi_relevance_classes_ = model.relevance_classes_[n_features:]
+
+
+
+        if model.interval_ is not None:
+
+            plotIntervals(
+
+                data_interval_, ticklabels=ticklabels, classes=data_relevance_classes_
+
+            )
+
+            plotIntervals(
+
+                lupi_interval_, ticklabels=lupi_ticklabels, classes=lupi_relevance_classes_
+
+            )
+
+        else:
+
+            print("Intervals not computed. Try running fit() function first.")
+
+
+
+
+
+    #
+
+    # def interactive_scatter_embed(embedding, mode="markers", txt=None):
+
+    #     # TODO: extend method
+
+    #     import plotly.graph_objs as go
+
+    #     from plotly.offline import init_notebook_mode, iplot
+
+    #     init_notebook_mode(connected=True)
+
+    #     # Create a trace
+
+    #     trace = go.Scatter(
+
+    #         x=embedding[:, 0],
+
+    #         y=embedding[:, 1],
+
+    #         mode=mode,
+
+    #         text=txt if mode is "text" else None
+
+    #     )
+
+    #
+
+    #     data = [trace]
+
+    #
+
+    #     # Plot and embed in ipython notebook!
+
+    #     iplot(data)
+</code></pre>
+<h2 id="variables">Variables</h2>
+<pre><code class="python3">color_palette_3
+</code></pre>
+
+<h2 id="functions">Functions</h2>
+<h3 id="plotintervals">plotIntervals</h3>
+<pre><code class="python3">def plotIntervals(
+    ranges,
+    ticklabels=None,
+    invert=False,
+    classes=None
+)
+</code></pre>
+
+<p>??? example "View Source"
+        def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):</p>
+<pre><code>        # Figure Parameters
+
+        fig = plt.figure()
+
+        ax = fig.add_subplot(111)
+
+
+
+        out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
+
+        fig.autofmt_xdate()
+
+        # Invert the xaxis for cases in which the comparison with other tools
+
+        if invert:
+
+            plt.gca().invert_xaxis()
+
+        return fig
+</code></pre>
+<h3 id="plot_dendrogram_and_intervals">plot_dendrogram_and_intervals</h3>
+<pre><code class="python3">def plot_dendrogram_and_intervals(
+    intervals,
+    linkage,
+    figsize=(13, 7),
+    ticklabels=None,
+    classes=None,
+    **kwargs
+)
+</code></pre>
+
+<p>??? example "View Source"
+        def plot_dendrogram_and_intervals(</p>
+<pre><code>        intervals, linkage, figsize=(13, 7), ticklabels=None, classes=None, **kwargs
+
+    ):
+
+        fig, (ax2, ax) = plt.subplots(2, 1, figsize=figsize)
+
+        # Top dendrogram plot
+
+        d = dendrogram(
+
+            linkage,
+
+            color_threshold=0,
+
+            leaf_rotation=0.0,  # rotates the x axis labels
+
+            leaf_font_size=12.0,  # font size for the x axis labels
+
+            ax=ax2,
+
+        )
+
+        # Get index determined through linkage method and dendrogram
+
+        rearranged_index = d["leaves"]
+
+        ranges = intervals[rearranged_index]
+
+
+
+        if ticklabels is None:
+
+            ticks = np.array(rearranged_index)
+
+            ticks += 1  # Index starting at 1
+
+        else:
+
+            ticks = list(ticklabels[rearranged_index])
+
+            for i in range(len(intervals)):
+
+                ticks[i] += " - {}".format(rearranged_index[i] + 1)
+
+
+
+        plot_relevance_bars(
+
+            ax,
+
+            ranges,
+
+            ticklabels=ticks,
+
+            classes=classes[rearranged_index] if classes is not None else None,
+
+            numbering=False,
+
+            **kwargs,
+
+        )
+
+        fig.subplots_adjust(hspace=0)
+
+        ax.margins(x=0)
+
+        ax2.set_xticks([])
+
+        ax2.margins(x=0)
+
+        plt.tight_layout()
+
+
+
+        return fig
+</code></pre>
+<h3 id="plot_intervals">plot_intervals</h3>
+<pre><code class="python3">def plot_intervals(
+    model,
+    ticklabels=None
+)
+</code></pre>
+
+<p>Plot the relevance intervals.</p>
+<h2 id="parameters">Parameters</h2>
+<p>model : FRI model
+    Needs to be fitted before.
+ticklabels : list of str, optional
+    Strs for ticklabels on x-axis (features)</p>
+<p>??? example "View Source"
+        def plot_intervals(model, ticklabels=None):</p>
+<pre><code>        """Plot the relevance intervals.
+
+
+
+        Parameters
+
+        ----------
+
+        model : FRI model
+
+            Needs to be fitted before.
+
+        ticklabels : list of str, optional
+
+            Strs for ticklabels on x-axis (features)
+
+        """
+
+        if model.interval_ is not None:
+
+            plotIntervals(
+
+                model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_
+
+            )
+
+        else:
+
+            print("Intervals not computed. Try running fit() function first.")
+</code></pre>
+<h3 id="plot_lupi_intervals">plot_lupi_intervals</h3>
+<pre><code class="python3">def plot_lupi_intervals(
+    model,
+    ticklabels=None,
+    lupi_ticklabels=None
+)
+</code></pre>
+
+<p>Plot the relevance intervals.</p>
+<h2 id="parameters_1">Parameters</h2>
+<p>model : FRI model
+    Needs to be fitted before.
+ticklabels : list of str, optional
+    Strs for ticklabels on x-axis (features)
+lupi_ticklabels : list of str, optional
+    Strs for lupi ticklabels on x-axis (lupi features)</p>
+<p>??? example "View Source"
+        def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):</p>
+<pre><code>        """Plot the relevance intervals.
+
+
+
+            Parameters
+
+            ----------
+
+            model : FRI model
+
+                Needs to be fitted before.
+
+            ticklabels : list of str, optional
+
+                Strs for ticklabels on x-axis (features)
+
+            lupi_ticklabels : list of str, optional
+
+                Strs for lupi ticklabels on x-axis (lupi features)
+
+            """
+
+        n_features = model.interval_.shape[0] - model.lupi_features_
+
+        data_interval_ = model.interval_[0:n_features, :]
+
+        lupi_interval_ = model.interval_[n_features:, :]
+
+
+
+        data_relevance_classes_ = model.relevance_classes_[0:n_features]
+
+        lupi_relevance_classes_ = model.relevance_classes_[n_features:]
+
+
+
+        if model.interval_ is not None:
+
+            plotIntervals(
+
+                data_interval_, ticklabels=ticklabels, classes=data_relevance_classes_
+
+            )
+
+            plotIntervals(
+
+                lupi_interval_, ticklabels=lupi_ticklabels, classes=lupi_relevance_classes_
+
+            )
+
+        else:
+
+            print("Intervals not computed. Try running fit() function first.")
+</code></pre>
+<h3 id="plot_relevance_bars">plot_relevance_bars</h3>
+<pre><code class="python3">def plot_relevance_bars(
+    ax,
+    ranges,
+    ticklabels=None,
+    classes=None,
+    numbering=True,
+    tick_rotation=30
+)
+</code></pre>
+
+<h2 id="parameters_2">Parameters</h2>
+<p>ax:
+    axis which the bars get drawn on
+ranges:
+    the 2d array of floating values determining the lower and upper bounds of the bars
+ticklabels: (optional)
+    labels for each feature
+classes: (optional)
+    relevance class for each feature, determines color
+numbering: bool
+    Add feature index when using ticklabels
+tick_rotation:  int
+    Amonut of rotation of ticklabels for easier readability.</p>
+<p>??? example "View Source"
+        def plot_relevance_bars(</p>
+<pre><code>        ax, ranges, ticklabels=None, classes=None, numbering=True, tick_rotation=30
+
+    ):
+
+        """
+
+
+
+        Parameters
+
+        ----------
+
+        ax:
+
+            axis which the bars get drawn on
+
+        ranges:
+
+            the 2d array of floating values determining the lower and upper bounds of the bars
+
+        ticklabels: (optional)
+
+            labels for each feature
+
+        classes: (optional)
+
+            relevance class for each feature, determines color
+
+        numbering: bool
+
+            Add feature index when using ticklabels
+
+        tick_rotation:  int
+
+            Amonut of rotation of ticklabels for easier readability.
+
+
+
+
+
+        """
+
+        N = len(ranges)
+
+
+
+        # Ticklabels
+
+        if ticklabels is None:
+
+            ticks = np.arange(N) + 1
+
+        else:
+
+            ticks = list(ticklabels)
+
+            if numbering:
+
+                for i in range(N):
+
+                    ticks[i] += " - {}".format(i + 1)
+
+
+
+        # Interval sizes
+
+        ind = np.arange(N) + 1
+
+        width = 0.6
+
+        upper_vals = ranges[:, 1]
+
+        lower_vals = ranges[:, 0]
+
+        height = upper_vals - lower_vals
+
+        # Minimal height to make very small intervals visible
+
+        height[height &lt; 0.001] = 0.001
+
+
+
+        # Bar colors
+
+        if classes is None:
+
+            new_classes = np.zeros(N).astype(int)
+
+            color = [color_palette_3[c.astype(int)] for c in new_classes]
+
+        else:
+
+            color = [color_palette_3[c.astype(int)] for c in classes]
+
+
+
+        # Plot the bars
+
+        bars = ax.bar(
+
+            ind,
+
+            height,
+
+            width,
+
+            bottom=lower_vals,
+
+            tick_label=ticks,
+
+            align="center",
+
+            edgecolor=["black"] * N,
+
+            linewidth=1.3,
+
+            color=color,
+
+        )
+
+
+
+        ax.set_xticklabels(ticks)
+
+        if ticklabels is not None:
+
+            ax.set_xticklabels(ax.get_xticklabels(), rotation=tick_rotation, ha="right")
+
+        # ax.tick_params(rotation="auto")
+
+        # Limit the y range to 0,1 or 0,L1
+
+        ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
+
+
+
+        ax.set_ylabel("relevance")
+
+        ax.set_xlabel("feature")
+
+
+
+        if classes is not None:
+
+            relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+
+            patches = []
+
+            for i, rc in enumerate(relevance_classes):
+
+                patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+
+                patches.append(patch)
+
+
+
+            ax.legend(handles=patches)
+
+
+
+        return bars
+</code></pre>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../parameter_searcher/" title="Parameter Searcher" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Parameter Searcher
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../utils/" title="Utils" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Utils
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.c648116f.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1277 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+      
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../favicon.ico">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+    
+    
+      
+        <title>Guide - fri</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.30686662.css">
+      
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../assets/fonts/material-icons.css">
+    
+    
+    
+      
+    
+    
+  </head>
+  
+    <body dir="ltr">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#quick-start-guide" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../.." title="fri" class="md-header-nav__button md-logo">
+          
+            <img src="../logo.png" width="24" height="24">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              fri
+            </span>
+            <span class="md-header-nav__topic">
+              
+                Guide
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/lpfann/fri/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    lpfann/fri
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main" role="main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../.." title="fri" class="md-nav__button md-logo">
+      
+        <img src="../logo.png" width="48" height="48">
+      
+    </a>
+    fri
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/lpfann/fri/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    lpfann/fri
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
+      Home
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Guide
+      </label>
+    
+    <a href="./" title="Guide" class="md-nav__link md-nav__link--active">
+      Guide
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stable" class="md-nav__link">
+    Stable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    Development
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-fri" class="md-nav__link">
+    Using FRI
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    Data
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#preprocess" class="md-nav__link">
+    Preprocess
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    Model
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fitting-to-data" class="md-nav__link">
+    Fitting to data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-results" class="md-nav__link">
+    Plot results
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-constraints-manually" class="md-nav__link">
+    Setting constraints manually
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-internal-parameters" class="md-nav__link">
+    Print internal Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessing" class="md-nav__link">
+    Multiprocessing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../background/" title="Background" class="md-nav__link">
+      Background
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../citing_FRI/" title="Citing Fri" class="md-nav__link">
+      Citing Fri
+    </a>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1" type="checkbox" id="nav-5-1">
+    
+    <label class="md-nav__link" for="nav-5-1">
+      Fri
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-5-1">
+        Fri
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/compute/" title="Compute" class="md-nav__link">
+      Compute
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/main/" title="Main" class="md-nav__link">
+      Main
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/parameter_searcher/" title="Parameter Searcher" class="md-nav__link">
+      Parameter Searcher
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/plot/" title="Plot" class="md-nav__link">
+      Plot
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/utils/" title="Utils" class="md-nav__link">
+      Utils
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-7" type="checkbox" id="nav-5-1-7">
+    
+    <label class="md-nav__link" for="nav-5-1-7">
+      Model
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-7">
+        Model
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/base_cvxproblem/" title="Base Cvxproblem" class="md-nav__link">
+      Base Cvxproblem
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/base_initmodel/" title="Base Initmodel" class="md-nav__link">
+      Base Initmodel
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/base_lupi/" title="Base Lupi" class="md-nav__link">
+      Base Lupi
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/base_type/" title="Base Type" class="md-nav__link">
+      Base Type
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/classification/" title="Classification" class="md-nav__link">
+      Classification
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/lupi_classification/" title="Lupi Classification" class="md-nav__link">
+      Lupi Classification
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/lupi_ordinal_regression/" title="Lupi Ordinal Regression" class="md-nav__link">
+      Lupi Ordinal Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/lupi_regression/" title="Lupi Regression" class="md-nav__link">
+      Lupi Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/ordinal_regression/" title="Ordinal Regression" class="md-nav__link">
+      Ordinal Regression
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/model/regression/" title="Regression" class="md-nav__link">
+      Regression
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5-1-8" type="checkbox" id="nav-5-1-8">
+    
+    <label class="md-nav__link" for="nav-5-1-8">
+      Toydata
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="3">
+      <label class="md-nav__title" for="nav-5-1-8">
+        Toydata
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/toydata/gen_data/" title="Gen Data" class="md-nav__link">
+      Gen Data
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/toydata/gen_lupi/" title="Gen Lupi" class="md-nav__link">
+      Gen Lupi
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../reference/fri/toydata/" title="Index" class="md-nav__link">
+      Index
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stable" class="md-nav__link">
+    Stable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    Development
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-fri" class="md-nav__link">
+    Using FRI
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data" class="md-nav__link">
+    Data
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#preprocess" class="md-nav__link">
+    Preprocess
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model" class="md-nav__link">
+    Model
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fitting-to-data" class="md-nav__link">
+    Fitting to data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot-results" class="md-nav__link">
+    Plot results
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setting-constraints-manually" class="md-nav__link">
+    Setting constraints manually
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#print-internal-parameters" class="md-nav__link">
+    Print internal Parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#multiprocessing" class="md-nav__link">
+    Multiprocessing
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/lpfann/fri/edit/master/docs/docs/Guide.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="quick-start-guide">Quick start guide</h1>
+<h2 id="installation">Installation</h2>
+<h3 id="stable">Stable</h3>
+<p>Fri can be installed via the Python Package Index (PyPI).</p>
+<p>If you have <code>pip</code> installed just execute the command</p>
+<pre><code>pip install fri
+</code></pre>
+<p>to get the newest stable version.</p>
+<p>The dependencies should be installed and checked automatically.
+If you have problems installing please open issue at our <a href="https://github.com/lpfann/fri/issues/new">tracker</a>.</p>
+<h3 id="development">Development</h3>
+<p>To install a bleeding edge dev version of <code>FRI</code> you can clone the GitHub repository using</p>
+<pre><code>git clone git@github.com:lpfann/fri.git
+</code></pre>
+<p>and then check out the <code>dev</code> branch: <code>git checkout dev</code>.</p>
+<p>We use <a href="https://poetry.eustace.io/">poetry</a> for dependency management.</p>
+<p>Run</p>
+<pre><code>poetry install
+</code></pre>
+<p>in the cloned repository to install <code>fri</code> in a virtualenv.</p>
+<p>To check if everything works as intented you can use <code>pytest</code> to run the unit tests.
+Just run the command</p>
+<pre><code>poetry run pytest
+</code></pre>
+<p>in the main project folder</p>
+<h2 id="using-fri">Using FRI</h2>
+<p>Now we showcase the workflow of using FRI on a simple classification problem.</p>
+<h3 id="data">Data</h3>
+<p>To have something to work with, we need some data first.
+<code>fri</code> includes a generation method for binary classification and regression data.</p>
+<p>In our case we need some classification data.</p>
+<pre><code class="python">from fri import genClassificationData
+</code></pre>
+
+<p>We want to create a small set with a few features.</p>
+<p>Because we want to showcase the all-relevant feature selection, we generate multiple strongly and weakly relevant features.</p>
+<pre><code class="python">n = 100
+features = 6
+strongly_relevant = 2
+weakly_relevant = 2
+</code></pre>
+
+<pre><code class="python">X,y = genClassificationData(n_samples=n,
+                            n_features=features,
+                            n_strel=strongly_relevant,
+                            n_redundant=weakly_relevant,
+                            random_state=123)
+</code></pre>
+
+<p>The method also prints out the parameters again.</p>
+<pre><code class="python">X.shape
+</code></pre>
+
+<pre><code>(100, 6)
+</code></pre>
+<p>We created a binary classification set with 6 features of which 2 are strongly relevant and 2 weakly relevant.</p>
+<h4 id="preprocess">Preprocess</h4>
+<p>Because our method expects mean centered data we need to standardize it first.
+This centers the values around 0 and deviation to the standard deviation</p>
+<pre><code class="python">from sklearn.preprocessing import StandardScaler
+X_scaled = StandardScaler().fit_transform(X)
+</code></pre>
+
+<h3 id="model">Model</h3>
+<p>Now we need to creata a Model. </p>
+<p>We use the <code>FRI</code> module.</p>
+<pre><code class="python">import fri
+</code></pre>
+
+<p><code>fri</code> provides a convenience class <code>fri.FRI</code> to create a model.</p>
+<p><code>fri.FRI</code> needs the type of problem as a first argument of type <code>ProblemName</code>.</p>
+<p>Depending on the Problem you want to analyze pick from one of the available models in <code>ProblemName</code>.</p>
+<pre><code class="python">list(fri.ProblemName)
+</code></pre>
+
+<pre><code>[&lt;ProblemName.CLASSIFICATION: &lt;class 'fri.model.classification.Classification'&gt;&gt;,
+ &lt;ProblemName.REGRESSION: &lt;class 'fri.model.regression.Regression'&gt;&gt;,
+ &lt;ProblemName.ORDINALREGRESSION: &lt;class 'fri.model.ordinal_regression.OrdinalRegression'&gt;&gt;,
+ &lt;ProblemName.LUPI_CLASSIFICATION: &lt;class 'fri.model.lupi_classification.LUPI_Classification'&gt;&gt;,
+ &lt;ProblemName.LUPI_REGRESSION: &lt;class 'fri.model.lupi_regression.LUPI_Regression'&gt;&gt;,
+ &lt;ProblemName.LUPI_ORDREGRESSION: &lt;class 'fri.model.lupi_ordinal_regression.LUPI_OrdinalRegression'&gt;&gt;]
+</code></pre>
+<p>Because we have Classification data we use the <code>ProblemName.CLASSIFICATION</code> to instantiate our model.</p>
+<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION,slack_loss=0.2,slack_regularization=0.2)
+</code></pre>
+
+<pre><code class="python">fri_model
+</code></pre>
+
+<pre><code>FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
+    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
+    slack_loss=None, slack_regularization=None, verbose=0)
+</code></pre>
+<p>We used no parameters for creation so the defaults are active.</p>
+<h4 id="fitting-to-data">Fitting to data</h4>
+<p>Now we can just fit the model to the data using <code>scikit-learn</code> like commands.</p>
+<pre><code class="python">fri_model.fit(X_scaled,y)
+</code></pre>
+
+<pre><code>FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
+    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
+    slack_loss=None, slack_regularization=None, verbose=0)
+</code></pre>
+<p>The resulting feature relevance bounds are saved in the <code>interval_</code> variable.</p>
+<pre><code class="python">fri_model.interval_
+</code></pre>
+
+<pre><code>array([[0.28158379, 0.42206863],
+       [0.26824834, 0.41605723],
+       [0.        , 0.48783056],
+       [0.        , 0.44949121],
+       [0.        , 0.04668038],
+       [0.        , 0.0604022 ]])
+</code></pre>
+<p>If you want to print out the relevance class use the <code>print_interval_with_class()</code> function.</p>
+<pre><code class="python">print(fri_model.print_interval_with_class())
+</code></pre>
+
+<pre><code>############## Relevance bounds ##############
+feature: [LB -- UB], relevance class
+      0: [0.3 -- 0.4], Strong relevant
+      1: [0.3 -- 0.4], Strong relevant
+      2: [0.0 -- 0.5], Weak relevant
+      3: [0.0 -- 0.4], Weak relevant
+      4: [0.0 -- 0.0], Irrelevant
+      5: [0.0 -- 0.1], Irrelevant
+</code></pre>
+<p>The bounds are grouped in 2d sublists for each feature.</p>
+<p>To acess the relevance bounds for feature 2 we would use</p>
+<pre><code class="python">fri_model.interval_[2]
+</code></pre>
+
+<pre><code>array([0.        , 0.48783056])
+</code></pre>
+<p>The relevance classes are saved in the corresponding variable <code>relevance_classes_</code>:</p>
+<pre><code class="python">fri_model.relevance_classes_
+</code></pre>
+
+<pre><code>array([2, 2, 1, 1, 0, 0])
+</code></pre>
+<p><code>2</code> denotes strongly relevant features, <code>1</code> weakly relevant and <code>0</code> irrelevant.</p>
+<h4 id="plot-results">Plot results</h4>
+<p>The bounds in numerical form are useful for postprocesing.
+If we want a human to look at it, we recommend the plot function <code>plot_relevance_bars</code>.</p>
+<p>We can also color the bars according to <code>relevance_classes_</code></p>
+<pre><code class="python"># Import plot function
+from fri.plot import plot_relevance_bars
+import matplotlib.pyplot as plt
+%matplotlib inline
+# Create new figure, where we can put an axis on
+fig, ax = plt.subplots(1, 1,figsize=(6,3))
+# plot the bars on the axis, colored according to fri
+out = plot_relevance_bars(ax,fri_model.interval_,classes=fri_model.relevance_classes_)
+</code></pre>
+
+<p><img alt="png" src="../output_32_0.png" /></p>
+<h3 id="setting-constraints-manually">Setting constraints manually</h3>
+<p>Our model also allows to compute relevance bounds when the user sets a given range for the features.</p>
+<p>We use a dictionary to encode our constraints.</p>
+<pre><code class="python">preset = {}
+</code></pre>
+
+<h4 id="example">Example</h4>
+<p>As an example, let us constrain the third from our example to the minimum relevance bound.</p>
+<pre><code class="python">preset[2] = fri_model.interval_[2, 0]
+</code></pre>
+
+<p>We use the function <code>constrained_intervals</code>.</p>
+<p>Note: we need to fit the model before we can use this function.
+We already did that, so we are fine.</p>
+<pre><code class="python">const_ints = fri_model.constrained_intervals(preset=preset)
+</code></pre>
+
+<pre><code class="python">const_ints
+</code></pre>
+
+<pre><code>array([[3.33537278e-01, 3.98346587e-01],
+       [3.16282293e-01, 3.99927655e-01],
+       [0.00000000e+00, 0.00000000e+00],
+       [3.77824890e-01, 4.49491208e-01],
+       [0.00000000e+00, 2.56795434e-02],
+       [6.28844147e-11, 4.97955367e-02]])
+</code></pre>
+<p>Feature 3 is set to its minimum (at 0).</p>
+<p>How does it look visually?</p>
+<pre><code class="python">fig, ax = plt.subplots(1, 1,figsize=(6,3))
+out = plot_relevance_bars(ax, const_ints)
+</code></pre>
+
+<p><img alt="png" src="../output_41_0.png" /></p>
+<p>Feature 3 is reduced to its minimum (no contribution).</p>
+<p>In turn, its correlated partner feature 4 had to take its maximum contribution.</p>
+<h3 id="print-internal-parameters">Print internal Parameters</h3>
+<p>If we want to take at internal parameters, we can use the <code>verbose</code> flag in the model creation.</p>
+<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, verbose=True)
+</code></pre>
+
+<pre><code class="python">fri_model.fit(X_scaled,y)
+</code></pre>
+
+<pre><code>Fitting 3 folds for each of 10 candidates, totalling 30 fits
+
+
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=1)]: Done  30 out of  30 | elapsed:    0.3s finished
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+
+
+******************** Best found baseline model ********************
+Classification_SVM(C=6523.18940508926)
+score:  1.0
+'loss: -3.2162506599275367e-12'
+'w_l1: 28.743902865913274'
+'w: shape (6,)'
+'b: shape ()'
+'slack: shape (100,)'
+******************************
+
+
+[Parallel(n_jobs=1)]: Done  18 out of  18 | elapsed:    0.2s finished
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=1)]: Done  40 out of  40 | elapsed:    0.4s finished
+[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+
+
+FS threshold: -0.3485850797626653-0.37121449904943193, Mean:0.011314709643383315, Std:0.014497743389929868, n_probes 4
+FS threshold: -0.09430000942634031-0.1585322164066591, Mean:0.0321161034901594, Std:0.014735763155338663, n_probes 7
+
+
+[Parallel(n_jobs=1)]: Done  20 out of  20 | elapsed:    0.3s finished
+
+
+
+
+
+FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
+    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
+    slack_loss=None, slack_regularization=None, verbose=True)
+</code></pre>
+<p>This prints out the parameters of the baseline model</p>
+<p>One can also see the best selected hyperparameter according to gridsearch and the training score of the model in <code>score</code>.</p>
+<h3 id="multiprocessing">Multiprocessing</h3>
+<p>To enable multiprocessing simply use the <code>n_jobs</code> parameter when init. the model.</p>
+<p>It expects an integer parameter which defines the amount of processes used.
+<code>n_jobs=-1</code> uses all available on the CPU.</p>
+<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, n_jobs=-1, verbose=1)
+</code></pre>
+
+<pre><code class="python">fri_model.fit(X_scaled,y)
+</code></pre>
+
+<pre><code>Fitting 3 folds for each of 10 candidates, totalling 30 fits
+
+
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=-1)]: Done  15 out of  30 | elapsed:    0.1s remaining:    0.1s
+[Parallel(n_jobs=-1)]: Done  30 out of  30 | elapsed:    0.2s finished
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   3 out of  18 | elapsed:    0.1s remaining:    0.4s
+[Parallel(n_jobs=-1)]: Done  18 out of  18 | elapsed:    0.1s finished
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+
+
+******************** Best found baseline model ********************
+Classification_SVM(C=0.3735574324157715)
+score:  0.9499248120300752
+'loss: 11.49412313137918'
+'w_l1: 4.827039706578124'
+'w: shape (6,)'
+'b: shape ()'
+'slack: shape (100,)'
+******************************
+
+
+[Parallel(n_jobs=-1)]: Done  40 out of  40 | elapsed:    0.6s finished
+[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+
+
+FS threshold: -0.003062137274245256-0.0037609499356378584, Mean:0.00034940633069630115, Std:0.00057365780239467, n_probes 11
+FS threshold: -0.2619964838392958-0.31312919443178205, Mean:0.025566355296243105, Std:0.03838315602969965, n_probes 8
+
+
+[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed:    0.5s finished
+
+
+
+
+
+FRI(n_jobs=-1, n_param_search=10, n_probe_features=20, normalize=True,
+    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
+    slack_loss=None, slack_regularization=None, verbose=1)
+</code></pre>
+<pre><code class="python">
+</code></pre>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../.." title="Home" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Home
+              </span>
+            </div>
+          </a>
+        
+        
+          <a href="../background/" title="Background" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Background
+              </span>
+            </div>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Powered by
+        <a href="http://timothycrosley.github.io/portray">portray.</a>
+        You too can
+        <a href="http://timothycrosley.github.io/portray">
+          portray</a>
+        your Python project well using automatic documentation.
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/application.c648116f.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../.."}})</script>
+      
+    
+  </body>
+</html>
