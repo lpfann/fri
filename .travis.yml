@@ -19,6 +19,7 @@ cache:
 install:
   - wget https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
   - python get-poetry.py --preview -y
+  - source $HOME/.poetry/env
   - poetry install -v
 
 script:
