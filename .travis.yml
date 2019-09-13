@@ -39,7 +39,6 @@ jobs:
     - stage: deploy
       name: PyPi package deploy
       script:
-        - poetry config pypi-token.pypi $PYPI_TOKEN
         - poetry publish
       after_success: skip
       skip_existing: true
@@ -47,7 +46,7 @@ jobs:
         tags: true
         branch: master
     - name: Documentation
-      script: portray as_html
+      before_deploy: portray as_html
       after_success: skip
       deploy:
         provider: pages
