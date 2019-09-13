@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fri"
-version = "7.0.0-RC.1"
+version = "7.0.0"
 description = "Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis."
 authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
 license = "MIT"

@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: fri
-Version: 7.0.0rc1
+Version: 7.0.0
 Summary: Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis.
 Home-page: https://fri.lpfann.me
 Author: Lukas Pfannschmidt
