@@ -37,7 +37,7 @@ jobs:
         - pre-commit run --all-files
       after_success: skip
     - stage: deploy
-    - name: PyPi package deploy
+      name: PyPi package deploy
       script:
         - poetry config pypi-token.pypi $PYPI_TOKEN
         - poetry publish
