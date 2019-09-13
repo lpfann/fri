@@ -48,12 +48,4 @@ jobs:
     - name: Documentation
       script: skip
       after_success: skip
-      before_deploy: portray as_html
-      deploy:
-        provider: pages
-        skip_cleanup: true
-        local_dir: site/
-        github_token: $GH_TOKEN
-        keep_history: true
-        on:
-          branch: master
+      before_deploy: portray on_github_pages
