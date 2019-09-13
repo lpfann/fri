@@ -36,24 +36,23 @@ jobs:
       script:
         - pre-commit run --all-files
       after_success: skip
-    - stage: deploy
-      name: PyPi package deploy
-      script:
-        - poetry publish --build
-      after_success: skip
-      skip_existing: true
+
+deploy:
+  - provider: script
+    name: PyPi package deploy
+    script: poetry publish --build
+    after_success: skip
+    skip_existing: true
+    on:
+      tags: true
+      branch: master
+  - provider: pages
+    before_deploy: portray as_html
+    deploy:
+      provider: pages
+      skip_cleanup: true
+      local_dir: site/
+      github_token: $GH_TOKEN
+      keep_history: true
       on:
-        tags: true
         branch: master
-    - name: Documentation
-      script: skip
-      after_success: skip
-      before_deploy: portray as_html
-      deploy:
-        provider: pages
-        skip_cleanup: true
-        local_dir: site/
-        github_token: $GH_TOKEN
-        keep_history: true
-        on:
-          branch: master
