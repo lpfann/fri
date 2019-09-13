@@ -39,16 +39,16 @@ jobs:
     - stage: deploy
       name: PyPi package deploy
       script:
-        - poetry publish
+        - poetry publish --build
       after_success: skip
       skip_existing: true
       on:
         tags: true
         branch: master
     - name: Documentation
-      before_deploy: portray as_html
       script: skip
       after_success: skip
+      before_deploy: portray as_html
       deploy:
         provider: pages
         skip_cleanup: true
