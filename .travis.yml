@@ -17,8 +17,8 @@ cache:
     - "$HOME/.cache/pypoetry"
 
 install:
-  - pip install --upgrade pip
-  - pip install poetry>=1.0.0b1 # Using preview build to enable pypi api token usage
+  - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
+  - python get-poetry.py --preview
   - poetry install -v
 
 script:
