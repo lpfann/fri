@@ -941,373 +941,357 @@
                 
                 
                 <h1 id="module-frimodelbase_cvxproblem">Module fri.model.base_cvxproblem</h1>
-<p>??? example "View Source"
-        from abc import ABC, abstractmethod</p>
-<pre><code>    import cvxpy as cvx
+<details class="example"><summary>View Source</summary><pre><code>from abc import ABC, abstractmethod
 
-    import numpy as np
+import cvxpy as cvx
 
-    from cvxpy import SolverError
+import numpy as np
 
+from cvxpy import SolverError
 
+class Relevance_CVXProblem(ABC):
 
+    def __str__(self) -&gt; str:
 
+        if self.isLowerBound:
 
-    class Relevance_CVXProblem(ABC):
+            lower = "Lower"
 
-        def __str__(self) -&gt; str:
+        else:
 
-            if self.isLowerBound:
+            lower = "Upper"
 
-                lower = "Lower"
+        name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
 
-            else:
+        state = ""
 
-                lower = "Upper"
+        for s in self.init_hyperparameters.items():
 
-            name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
+            state += f"{s[0]}:{s[1]}, "
 
-            state = ""
+        for s in self.init_model_constraints.items():
 
-            for s in self.init_hyperparameters.items():
+            state += f"{s[0]}:{s[1]}, "
 
-                state += f"{s[0]}:{s[1]}, "
+        state = "(" + state[:-2] + ")"
 
-            for s in self.init_model_constraints.items():
+        if self.isProbe:
 
-                state += f"{s[0]}:{s[1]}, "
+            prefix = f"Probe_{self.probeID}"
 
-            state = "(" + state[:-2] + ")"
+        else:
 
-            if self.isProbe:
+            prefix = ""
 
-                prefix = f"Probe_{self.probeID}"
+        return prefix + name + state
 
-            else:
+    def __init__(
 
-                prefix = ""
+        self,
 
-            return prefix + name + state
+        current_feature: int,
 
+        data: tuple,
 
+        hyperparameters,
 
-        def __init__(
+        best_model_constraints,
 
-            self,
+        preset_model=None,
 
-            current_feature: int,
+        best_model_state=None,
 
-            data: tuple,
+        probeID=-1,
 
-            hyperparameters,
+        **kwargs,
 
-            best_model_constraints,
+    ) -&gt; None:
 
-            preset_model=None,
+        self._probeID = probeID
 
-            best_model_state=None,
+        self._feature_relevance = None
 
-            probeID=-1,
+        self.isLowerBound = None
 
-            **kwargs,
+        # General data
 
-        ) -&gt; None:
+        self.current_feature = current_feature
 
-            self._probeID = probeID
+        self.preset_model = preset_model
 
-            self._feature_relevance = None
+        self.best_model_state = best_model_state
 
-            self.isLowerBound = None
+        self.preprocessing_data(data, best_model_state)
 
+        # Initialize constraints
 
+        self._constraints = []
 
-            # General data
+        self._objective = None
 
-            self.current_feature = current_feature
+        self.w = None
 
-            self.preset_model = preset_model
+        self._init_constraints(hyperparameters, best_model_constraints)
 
-            self.best_model_state = best_model_state
+        if self.preset_model is not None:
 
+            self._add_preset_constraints(self.preset_model, best_model_constraints)
 
+        self.init_hyperparameters = hyperparameters
 
-            self.preprocessing_data(data, best_model_state)
+        self.init_model_constraints = best_model_constraints
 
+    def preprocessing_data(self, data, best_model_state):
 
+        X, y = data
 
-            # Initialize constraints
+        self.n = X.shape[0]
 
-            self._constraints = []
+        self.d = X.shape[1]
 
-            self._objective = None
+        self.X = X
 
-            self.w = None
+        self.y = np.array(y)
 
-            self._init_constraints(hyperparameters, best_model_constraints)
+    @property
 
+    def constraints(self):
 
+        return self._constraints
 
-            if self.preset_model is not None:
+    def add_constraint(self, new):
 
-                self._add_preset_constraints(self.preset_model, best_model_constraints)
+        self._constraints.append(new)
 
+    @property
 
+    def objective(self):
 
-            self.init_hyperparameters = hyperparameters
+        return self._objective
 
-            self.init_model_constraints = best_model_constraints
+    @property
 
+    def solved_relevance(self):
 
+        if self.is_solved:
 
-        def preprocessing_data(self, data, best_model_state):
+            return self.objective.value
 
-            X, y = data
+        else:
 
-            self.n = X.shape[0]
+            raise Exception("Problem not solved. No feature relevance computed.")
 
-            self.d = X.shape[1]
+    @property
 
-            self.X = X
+    def probeID(self):
 
-            self.y = np.array(y)
+        return self._probeID
 
+    @property
 
+    def isProbe(self):
 
-        @property
+        return self.probeID &gt;= 0
 
-        def constraints(self):
+    @abstractmethod
 
-            return self._constraints
+    def _init_constraints(self, parameters, init_model_constraints):
 
+        pass
 
+    @abstractmethod
 
-        def add_constraint(self, new):
+    def init_objective_UB(self, **kwargs):
 
-            self._constraints.append(new)
+        pass
 
+    @abstractmethod
 
+    def init_objective_LB(self, **kwargs):
 
-        @property
+        pass
 
-        def objective(self):
+    @property
 
-            return self._objective
+    def cvx_problem(self):
 
+        return self._cvx_problem
 
+    @property
 
-        @property
+    def is_solved(self):
 
-        def solved_relevance(self):
-
-            if self.is_solved:
-
-                return self.objective.value
-
-            else:
-
-                raise Exception("Problem not solved. No feature relevance computed.")
-
-
-
-        @property
-
-        def probeID(self):
-
-            return self._probeID
-
-
-
-        @property
-
-        def isProbe(self):
-
-            return self.probeID &gt;= 0
-
-
-
-        @abstractmethod
-
-        def _init_constraints(self, parameters, init_model_constraints):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def init_objective_UB(self, **kwargs):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def init_objective_LB(self, **kwargs):
-
-            pass
-
-
-
-        @property
-
-        def cvx_problem(self):
-
-            return self._cvx_problem
-
-
-
-        @property
-
-        def is_solved(self):
-
-            if self._solver_status in self.accepted_status:
-
-                try:
-
-                    val = self.objective.value
-
-                except ValueError:
-
-                    return False
-
-
-
-                return True
-
-            else:
-
-                return False
-
-
-
-        @property
-
-        def accepted_status(self):
-
-            return ["optimal", "optimal_inaccurate"]
-
-
-
-        def solve(self) -&gt; object:
-
-            # We init cvx problem here because pickling LP solver objects is problematic
-
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
-
-            self._cvx_problem = cvx.Problem(
-
-                objective=self.objective, constraints=self.constraints
-
-            )
+        if self._solver_status in self.accepted_status:
 
             try:
 
-                # print("Solve", self)
+                val = self.objective.value
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            except ValueError:
 
-            except SolverError:
+                return False
 
-                # We ignore Solver Errors, which are common with our framework:
+            return True
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+        else:
 
-                pass
+            return False
 
+    @property
 
+    def accepted_status(self):
 
-            self._solver_status = self._cvx_problem.status
+        return ["optimal", "optimal_inaccurate"]
 
-            # self._cvx_problem = None
+    def solve(self) -&gt; object:
 
-            return self
+        # We init cvx problem here because pickling LP solver objects is problematic
 
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
+        self._cvx_problem = cvx.Problem(
 
-        def _retrieve_result(self):
+            objective=self.objective, constraints=self.constraints
 
-            return self.current_feature, self.objective
+        )
 
+        try:
 
+            # print("Solve", self)
 
-        @property
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-        def solver_kwargs(self):
+        except SolverError:
 
-            return {"verbose": False, "solver": "ECOS"}
+            # We ignore Solver Errors, which are common with our framework:
 
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
-        def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
+        self._solver_status = self._cvx_problem.status
 
+        # self._cvx_problem = None
 
+        return self
 
-            for feature, current_preset in preset_model.items():
+    def _retrieve_result(self):
 
-                # Skip current feature
+        return self.current_feature, self.objective
 
-                if feature == self.current_feature:
+    @property
 
-                    continue
+    def solver_kwargs(self):
 
+        return {"verbose": False, "solver": "ECOS"}
 
+    def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
 
-                # Skip unset values
+        for feature, current_preset in preset_model.items():
 
-                if all(np.isnan(current_preset)):
+            # Skip current feature
 
-                    continue
+            if feature == self.current_feature:
 
+                continue
 
+            # Skip unset values
 
-                # a weight bigger than the optimal model L1 makes no sense
+            if all(np.isnan(current_preset)):
 
-                assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
+                continue
 
-                assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
+            # a weight bigger than the optimal model L1 makes no sense
 
+            assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
 
+            assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
 
-                # We add a pair of constraints depending on sign of known coefficient
+            # We add a pair of constraints depending on sign of known coefficient
 
-                # this makes it possible to solve this as a convex problem
+            # this makes it possible to solve this as a convex problem
 
-                if current_preset[0] &gt;= 0:
+            if current_preset[0] &gt;= 0:
 
-                    self.add_constraint(self.w[feature] &gt;= current_preset[0])
+                self.add_constraint(self.w[feature] &gt;= current_preset[0])
 
-                    self.add_constraint(self.w[feature] &lt;= current_preset[1])
+                self.add_constraint(self.w[feature] &lt;= current_preset[1])
 
-                else:
+            else:
 
-                    self.add_constraint(self.w[feature] &lt;= current_preset[0])
+                self.add_constraint(self.w[feature] &lt;= current_preset[0])
 
-                    self.add_constraint(self.w[feature] &gt;= current_preset[1])
+                self.add_constraint(self.w[feature] &gt;= current_preset[1])
 
+    @classmethod
 
+    def generate_lower_bound_problem(
 
-        @classmethod
+        cls,
 
-        def generate_lower_bound_problem(
+        best_hyperparameters,
 
-            cls,
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+
+    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -1327,91 +1311,38 @@
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 
+    @classmethod
 
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-        @classmethod
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-        def generate_upper_bound_problem(
+        min_value = min(vals)
 
-            cls,
+        return min_value
 
-            best_hyperparameters,
+    @classmethod
 
-            init_constraints,
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            best_model_state,
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            data,
+        max_value = max(vals)
 
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-
-
-
-        @classmethod
-
-        def aggregate_min_candidates(cls, min_problems_candidates):
-
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
-
-            min_value = min(vals)
-
-            return min_value
-
-
-
-        @classmethod
-
-        def aggregate_max_candidates(cls, max_problems_candidates):
-
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
-
-            max_value = max(vals)
-
-            return max_value
+        return max_value
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="relevance_cvxproblem">Relevance_CVXProblem</h3>
 <pre><code class="python3">class Relevance_CVXProblem(
-    current_feature:int,
-    data:tuple,
+    current_feature: int,
+    data: tuple,
     hyperparameters,
     best_model_constraints,
     preset_model=None,
@@ -1423,361 +1354,349 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Relevance_CVXProblem(ABC):</p>
-<pre><code>        def __str__(self) -&gt; str:
+<details class="example"><summary>View Source</summary><pre><code>class Relevance_CVXProblem(ABC):
 
-            if self.isLowerBound:
+    def __str__(self) -&gt; str:
 
-                lower = "Lower"
+        if self.isLowerBound:
 
-            else:
+            lower = "Lower"
 
-                lower = "Upper"
+        else:
 
-            name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
+            lower = "Upper"
 
-            state = ""
+        name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
 
-            for s in self.init_hyperparameters.items():
+        state = ""
 
-                state += f"{s[0]}:{s[1]}, "
+        for s in self.init_hyperparameters.items():
 
-            for s in self.init_model_constraints.items():
+            state += f"{s[0]}:{s[1]}, "
 
-                state += f"{s[0]}:{s[1]}, "
+        for s in self.init_model_constraints.items():
 
-            state = "(" + state[:-2] + ")"
+            state += f"{s[0]}:{s[1]}, "
 
-            if self.isProbe:
+        state = "(" + state[:-2] + ")"
 
-                prefix = f"Probe_{self.probeID}"
+        if self.isProbe:
 
-            else:
+            prefix = f"Probe_{self.probeID}"
 
-                prefix = ""
+        else:
 
-            return prefix + name + state
+            prefix = ""
 
+        return prefix + name + state
 
+    def __init__(
 
-        def __init__(
+        self,
 
-            self,
+        current_feature: int,
 
-            current_feature: int,
+        data: tuple,
 
-            data: tuple,
+        hyperparameters,
 
-            hyperparameters,
+        best_model_constraints,
 
-            best_model_constraints,
+        preset_model=None,
 
-            preset_model=None,
+        best_model_state=None,
 
-            best_model_state=None,
+        probeID=-1,
 
-            probeID=-1,
+        **kwargs,
 
-            **kwargs,
+    ) -&gt; None:
 
-        ) -&gt; None:
+        self._probeID = probeID
 
-            self._probeID = probeID
+        self._feature_relevance = None
 
-            self._feature_relevance = None
+        self.isLowerBound = None
 
-            self.isLowerBound = None
+        # General data
 
+        self.current_feature = current_feature
 
+        self.preset_model = preset_model
 
-            # General data
+        self.best_model_state = best_model_state
 
-            self.current_feature = current_feature
+        self.preprocessing_data(data, best_model_state)
 
-            self.preset_model = preset_model
+        # Initialize constraints
 
-            self.best_model_state = best_model_state
+        self._constraints = []
 
+        self._objective = None
 
+        self.w = None
 
-            self.preprocessing_data(data, best_model_state)
+        self._init_constraints(hyperparameters, best_model_constraints)
 
+        if self.preset_model is not None:
 
+            self._add_preset_constraints(self.preset_model, best_model_constraints)
 
-            # Initialize constraints
+        self.init_hyperparameters = hyperparameters
 
-            self._constraints = []
+        self.init_model_constraints = best_model_constraints
 
-            self._objective = None
+    def preprocessing_data(self, data, best_model_state):
 
-            self.w = None
+        X, y = data
 
-            self._init_constraints(hyperparameters, best_model_constraints)
+        self.n = X.shape[0]
 
+        self.d = X.shape[1]
 
+        self.X = X
 
-            if self.preset_model is not None:
+        self.y = np.array(y)
 
-                self._add_preset_constraints(self.preset_model, best_model_constraints)
+    @property
 
+    def constraints(self):
 
+        return self._constraints
 
-            self.init_hyperparameters = hyperparameters
+    def add_constraint(self, new):
 
-            self.init_model_constraints = best_model_constraints
+        self._constraints.append(new)
 
+    @property
 
+    def objective(self):
 
-        def preprocessing_data(self, data, best_model_state):
+        return self._objective
 
-            X, y = data
+    @property
 
-            self.n = X.shape[0]
+    def solved_relevance(self):
 
-            self.d = X.shape[1]
+        if self.is_solved:
 
-            self.X = X
+            return self.objective.value
 
-            self.y = np.array(y)
+        else:
 
+            raise Exception("Problem not solved. No feature relevance computed.")
 
+    @property
 
-        @property
+    def probeID(self):
 
-        def constraints(self):
+        return self._probeID
 
-            return self._constraints
+    @property
 
+    def isProbe(self):
 
+        return self.probeID &gt;= 0
 
-        def add_constraint(self, new):
+    @abstractmethod
 
-            self._constraints.append(new)
+    def _init_constraints(self, parameters, init_model_constraints):
 
+        pass
 
+    @abstractmethod
 
-        @property
+    def init_objective_UB(self, **kwargs):
 
-        def objective(self):
+        pass
 
-            return self._objective
+    @abstractmethod
 
+    def init_objective_LB(self, **kwargs):
 
+        pass
 
-        @property
+    @property
 
-        def solved_relevance(self):
+    def cvx_problem(self):
 
-            if self.is_solved:
+        return self._cvx_problem
 
-                return self.objective.value
+    @property
 
-            else:
+    def is_solved(self):
 
-                raise Exception("Problem not solved. No feature relevance computed.")
-
-
-
-        @property
-
-        def probeID(self):
-
-            return self._probeID
-
-
-
-        @property
-
-        def isProbe(self):
-
-            return self.probeID &gt;= 0
-
-
-
-        @abstractmethod
-
-        def _init_constraints(self, parameters, init_model_constraints):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def init_objective_UB(self, **kwargs):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def init_objective_LB(self, **kwargs):
-
-            pass
-
-
-
-        @property
-
-        def cvx_problem(self):
-
-            return self._cvx_problem
-
-
-
-        @property
-
-        def is_solved(self):
-
-            if self._solver_status in self.accepted_status:
-
-                try:
-
-                    val = self.objective.value
-
-                except ValueError:
-
-                    return False
-
-
-
-                return True
-
-            else:
-
-                return False
-
-
-
-        @property
-
-        def accepted_status(self):
-
-            return ["optimal", "optimal_inaccurate"]
-
-
-
-        def solve(self) -&gt; object:
-
-            # We init cvx problem here because pickling LP solver objects is problematic
-
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
-
-            self._cvx_problem = cvx.Problem(
-
-                objective=self.objective, constraints=self.constraints
-
-            )
+        if self._solver_status in self.accepted_status:
 
             try:
 
-                # print("Solve", self)
+                val = self.objective.value
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            except ValueError:
 
-            except SolverError:
+                return False
 
-                # We ignore Solver Errors, which are common with our framework:
+            return True
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+        else:
 
-                pass
+            return False
 
+    @property
 
+    def accepted_status(self):
 
-            self._solver_status = self._cvx_problem.status
+        return ["optimal", "optimal_inaccurate"]
 
-            # self._cvx_problem = None
+    def solve(self) -&gt; object:
 
-            return self
+        # We init cvx problem here because pickling LP solver objects is problematic
 
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
+        self._cvx_problem = cvx.Problem(
 
-        def _retrieve_result(self):
+            objective=self.objective, constraints=self.constraints
 
-            return self.current_feature, self.objective
+        )
 
+        try:
 
+            # print("Solve", self)
 
-        @property
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-        def solver_kwargs(self):
+        except SolverError:
 
-            return {"verbose": False, "solver": "ECOS"}
+            # We ignore Solver Errors, which are common with our framework:
 
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
-        def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
+        self._solver_status = self._cvx_problem.status
 
+        # self._cvx_problem = None
 
+        return self
 
-            for feature, current_preset in preset_model.items():
+    def _retrieve_result(self):
 
-                # Skip current feature
+        return self.current_feature, self.objective
 
-                if feature == self.current_feature:
+    @property
 
-                    continue
+    def solver_kwargs(self):
 
+        return {"verbose": False, "solver": "ECOS"}
 
+    def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
 
-                # Skip unset values
+        for feature, current_preset in preset_model.items():
 
-                if all(np.isnan(current_preset)):
+            # Skip current feature
 
-                    continue
+            if feature == self.current_feature:
 
+                continue
 
+            # Skip unset values
 
-                # a weight bigger than the optimal model L1 makes no sense
+            if all(np.isnan(current_preset)):
 
-                assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
+                continue
 
-                assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
+            # a weight bigger than the optimal model L1 makes no sense
 
+            assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
 
+            assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
 
-                # We add a pair of constraints depending on sign of known coefficient
+            # We add a pair of constraints depending on sign of known coefficient
 
-                # this makes it possible to solve this as a convex problem
+            # this makes it possible to solve this as a convex problem
 
-                if current_preset[0] &gt;= 0:
+            if current_preset[0] &gt;= 0:
 
-                    self.add_constraint(self.w[feature] &gt;= current_preset[0])
+                self.add_constraint(self.w[feature] &gt;= current_preset[0])
 
-                    self.add_constraint(self.w[feature] &lt;= current_preset[1])
+                self.add_constraint(self.w[feature] &lt;= current_preset[1])
 
-                else:
+            else:
 
-                    self.add_constraint(self.w[feature] &lt;= current_preset[0])
+                self.add_constraint(self.w[feature] &lt;= current_preset[0])
 
-                    self.add_constraint(self.w[feature] &gt;= current_preset[1])
+                self.add_constraint(self.w[feature] &gt;= current_preset[1])
 
+    @classmethod
 
+    def generate_lower_bound_problem(
 
-        @classmethod
+        cls,
 
-        def generate_lower_bound_problem(
+        best_hyperparameters,
 
-            cls,
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+
+    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -1797,86 +1716,33 @@ inheritance.</p>
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 
+    @classmethod
 
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-        @classmethod
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-        def generate_upper_bound_problem(
+        min_value = min(vals)
 
-            cls,
+        return min_value
 
-            best_hyperparameters,
+    @classmethod
 
-            init_constraints,
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            best_model_state,
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            data,
+        max_value = max(vals)
 
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-
-
-
-        @classmethod
-
-        def aggregate_min_candidates(cls, min_problems_candidates):
-
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
-
-            min_value = min(vals)
-
-            return min_value
-
-
-
-        @classmethod
-
-        def aggregate_max_candidates(cls, max_problems_candidates):
-
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
-
-            max_value = max(vals)
-
-            return max_value
+        return max_value
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -1896,32 +1762,34 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            max_value = max(vals)
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            return max_value
+        max_value = max(vals)
+
+        return max_value
 </code></pre>
+</details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
 <pre><code class="python3">def aggregate_min_candidates(
     min_problems_candidates
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-            min_value = min(vals)
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-            return min_value
+        min_value = min(vals)
+
+        return min_value
 </code></pre>
+</details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
 <pre><code class="python3">def generate_lower_bound_problem(
     best_hyperparameters,
@@ -1934,27 +1802,88 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_lower_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+</code></pre>
+</details>
+<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
+<pre><code class="python3">def generate_upper_bound_problem(
+    best_hyperparameters,
+    init_constraints,
+    best_model_state,
+    data,
+    di,
+    preset_model,
+    probeID=-1
+)
+</code></pre>
+
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -1974,72 +1903,13 @@ inheritance.</p>
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 </code></pre>
-<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
-
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_upper_bound_problem(
-
-            cls,
-
-            best_hyperparameters,
-
-            init_constraints,
-
-            best_model_state,
-
-            data,
-
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-</code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">accepted_status
 </code></pre>
@@ -2076,10 +1946,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def add_constraint(self, new):</p>
-<pre><code>            self._constraints.append(new)
+<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
+
+        self._constraints.append(new)
 </code></pre>
+</details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
 <pre><code class="python3">def init_objective_LB(
     self,
@@ -2087,12 +1958,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def init_objective_LB(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def init_objective_LB(self, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
 <pre><code class="python3">def init_objective_UB(
     self,
@@ -2100,12 +1972,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def init_objective_UB(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def init_objective_UB(self, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
 <pre><code class="python3">def preprocessing_data(
     self,
@@ -2114,58 +1987,58 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing_data(self, data, best_model_state):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-            self.n = X.shape[0]
+        X, y = data
 
-            self.d = X.shape[1]
+        self.n = X.shape[0]
 
-            self.X = X
+        self.d = X.shape[1]
 
-            self.y = np.array(y)
+        self.X = X
+
+        self.y = np.array(y)
 </code></pre>
+</details>
 <h5 id="solve">solve</h5>
 <pre><code class="python3">def solve(
     self
 ) -&gt; object
 </code></pre>
 
-<p>??? example "View Source"
-            def solve(self) -&gt; object:</p>
-<pre><code>            # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # We init cvx problem here because pickling LP solver objects is problematic
 
-            self._cvx_problem = cvx.Problem(
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
-                objective=self.objective, constraints=self.constraints
+        self._cvx_problem = cvx.Problem(
 
-            )
+            objective=self.objective, constraints=self.constraints
 
-            try:
+        )
 
-                # print("Solve", self)
+        try:
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            # print("Solve", self)
 
-            except SolverError:
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-                # We ignore Solver Errors, which are common with our framework:
+        except SolverError:
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # We ignore Solver Errors, which are common with our framework:
 
-                pass
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
+        self._solver_status = self._cvx_problem.status
 
-            self._solver_status = self._cvx_problem.status
+        # self._cvx_problem = None
 
-            # self._cvx_problem = None
-
-            return self
+        return self
 </code></pre>
+</details>
                 
                   
                 

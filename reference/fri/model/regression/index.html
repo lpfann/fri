@@ -1445,252 +1445,187 @@
                 
                 
                 <h1 id="module-frimodelregression">Module fri.model.regression</h1>
-<p>??? example "View Source"
-        import cvxpy as cvx</p>
-<pre><code>    import numpy as np
+<details class="example"><summary>View Source</summary><pre><code>import cvxpy as cvx
 
-    from sklearn.utils import check_X_y
+import numpy as np
 
+from sklearn.utils import check_X_y
 
+from .base_cvxproblem import Relevance_CVXProblem
 
-    from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
 
-    from .base_initmodel import InitModel
+from .base_type import ProblemType
 
-    from .base_type import ProblemType
+class Regression(ProblemType):
 
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C", "epsilon"]
 
+    @property
 
-    class Regression(ProblemType):
+    def get_initmodel_template(cls):
 
-        @classmethod
+        return Regression_SVR
 
-        def parameters(cls):
+    @property
 
-            return ["C", "epsilon"]
+    def get_cvxproblem_template(cls):
 
+        return Regression_Relevance_Bound
 
+    def relax_factors(cls):
 
-        @property
+        return ["loss_slack", "w_l1_slack"]
 
-        def get_initmodel_template(cls):
+    def preprocessing(self, data, **kwargs):
 
-            return Regression_SVR
+        X, y = data
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-        @property
+        return X, y
 
-        def get_cvxproblem_template(cls):
+class Regression_SVR(InitModel):
 
-            return Regression_Relevance_Bound
+    @classmethod
 
+    def hyperparameter(cls):
 
+        return ["C", "epsilon"]
 
-        def relax_factors(cls):
+    def fit(self, X, y, **kwargs):
 
-            return ["loss_slack", "w_l1_slack"]
+        (n, d) = X.shape
 
+        C = self.hyperparam["C"]
 
+        epsilon = self.hyperparam["epsilon"]
 
-        def preprocessing(self, data, **kwargs):
+        w = cvx.Variable(shape=(d), name="w")
 
-            X, y = data
+        slack = cvx.Variable(shape=(n), name="slack")
 
+        b = cvx.Variable(name="bias")
 
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
 
-            # Check that X and y have correct shape
+        constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
 
-            X, y = check_X_y(X, y)
+        # Solve problem.
 
+        solver_params = self.solver_params
 
+        problem = cvx.Problem(objective, constraints)
 
-            return X, y
+        problem.solve(**solver_params)
 
+        w = w.value
 
+        b = b.value
 
+        slack = np.asarray(slack.value).flatten()
 
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
-    class Regression_SVR(InitModel):
+        loss = np.sum(slack)
 
-        @classmethod
+        w_l1 = np.linalg.norm(w, ord=1)
 
-        def hyperparameter(cls):
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-            return ["C", "epsilon"]
+        return self
 
+    def predict(self, X):
 
+        w = self.model_state["w"]
 
-        def fit(self, X, y, **kwargs):
+        b = self.model_state["b"]
 
-            (n, d) = X.shape
+        y = np.dot(X, w) + b
 
+        return y
 
+    def score(self, X, y, **kwargs):
 
-            C = self.hyperparam["C"]
+        prediction = self.predict(X)
 
-            epsilon = self.hyperparam["epsilon"]
+        from sklearn.metrics import r2_score
 
+        from sklearn.metrics.regression import _check_reg_targets
 
+        _check_reg_targets(y, prediction, None)
 
-            w = cvx.Variable(shape=(d), name="w")
+        # Using weighted f1 score to have a stable score for imbalanced datasets
 
-            slack = cvx.Variable(shape=(n), name="slack")
+        score = r2_score(y, prediction)
 
-            b = cvx.Variable(name="bias")
+        return score
 
+class Regression_Relevance_Bound(Relevance_CVXProblem):
 
+    def init_objective_UB(self, sign=None, **kwargs):
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
+        self.add_constraint(
 
-            constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
 
+        )
 
+        self._objective = cvx.Maximize(self.feature_relevance)
 
-            # Solve problem.
+    def init_objective_LB(self, **kwargs):
 
-            solver_params = self.solver_params
+        self.add_constraint(
 
-            problem = cvx.Problem(objective, constraints)
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
 
-            problem.solve(**solver_params)
+        )
 
+        self._objective = cvx.Minimize(self.feature_relevance)
 
+    def _init_constraints(self, parameters, init_model_constraints):
 
-            w = w.value
+        # Upper constraints from initial model
 
-            b = b.value
+        l1_w = init_model_constraints["w_l1"]
 
-            slack = np.asarray(slack.value).flatten()
+        init_loss = init_model_constraints["loss"]
 
-            self.model_state = {"w": w, "b": b, "slack": slack}
+        C = parameters["C"]
 
+        epsilon = parameters["epsilon"]
 
+        # New Variables
 
-            loss = np.sum(slack)
+        self.w = cvx.Variable(shape=(self.d), name="w")
 
-            w_l1 = np.linalg.norm(w, ord=1)
+        self.b = cvx.Variable(name="b")
 
-            self.constraints = {"loss": loss, "w_l1": w_l1}
+        self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
-            return self
+        # New Constraints
 
+        distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
 
+        self.loss = cvx.sum(self.slack)
 
-        def predict(self, X):
+        self.weight_norm = cvx.norm(self.w, 1)
 
-            w = self.model_state["w"]
+        self.add_constraint(distance_from_plane &lt;= epsilon + self.slack)
 
-            b = self.model_state["b"]
+        self.add_constraint(self.weight_norm &lt;= l1_w)
 
-            y = np.dot(X, w) + b
+        self.add_constraint(C * self.loss &lt;= C * init_loss)
 
-            return y
-
-
-
-        def score(self, X, y, **kwargs):
-
-            prediction = self.predict(X)
-
-
-
-            from sklearn.metrics import r2_score
-
-            from sklearn.metrics.regression import _check_reg_targets
-
-
-
-            _check_reg_targets(y, prediction, None)
-
-
-
-            # Using weighted f1 score to have a stable score for imbalanced datasets
-
-            score = r2_score(y, prediction)
-
-
-
-            return score
-
-
-
-
-
-    class Regression_Relevance_Bound(Relevance_CVXProblem):
-
-        def init_objective_UB(self, sign=None, **kwargs):
-
-            self.add_constraint(
-
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
-
-            )
-
-            self._objective = cvx.Maximize(self.feature_relevance)
-
-
-
-        def init_objective_LB(self, **kwargs):
-
-            self.add_constraint(
-
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
-
-            )
-
-            self._objective = cvx.Minimize(self.feature_relevance)
-
-
-
-        def _init_constraints(self, parameters, init_model_constraints):
-
-            # Upper constraints from initial model
-
-            l1_w = init_model_constraints["w_l1"]
-
-            init_loss = init_model_constraints["loss"]
-
-
-
-            C = parameters["C"]
-
-            epsilon = parameters["epsilon"]
-
-
-
-            # New Variables
-
-            self.w = cvx.Variable(shape=(self.d), name="w")
-
-            self.b = cvx.Variable(name="b")
-
-            self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
-
-
-
-            # New Constraints
-
-            distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
-
-            self.loss = cvx.sum(self.slack)
-
-            self.weight_norm = cvx.norm(self.w, 1)
-
-
-
-            self.add_constraint(distance_from_plane &lt;= epsilon + self.slack)
-
-            self.add_constraint(self.weight_norm &lt;= l1_w)
-
-            self.add_constraint(C * self.loss &lt;= C * init_loss)
-
-
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="regression">Regression</h3>
 <pre><code class="python3">class Regression(
@@ -1700,52 +1635,41 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Regression(ProblemType):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class Regression(ProblemType):
 
-        def parameters(cls):
+    @classmethod
 
-            return ["C", "epsilon"]
+    def parameters(cls):
 
+        return ["C", "epsilon"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def get_initmodel_template(cls):
+        return Regression_SVR
 
-            return Regression_SVR
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return Regression_Relevance_Bound
 
-        @property
+    def relax_factors(cls):
 
-        def get_cvxproblem_template(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return Regression_Relevance_Bound
+    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-        def relax_factors(cls):
+        X, y = check_X_y(X, y)
 
-            return ["loss_slack", "w_l1_slack"]
-
-
-
-        def preprocessing(self, data, **kwargs):
-
-            X, y = data
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -1759,12 +1683,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon"]
+    def parameters(cls):
+
+        return ["C", "epsilon"]
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -1779,20 +1704,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -1800,48 +1727,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -1849,28 +1777,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -1878,10 +1807,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -1889,10 +1819,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -1901,20 +1832,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, **kwargs):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-            # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
 
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -1923,24 +1851,26 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="regression_relevance_bound">Regression_Relevance_Bound</h3>
 <pre><code class="python3">class Regression_Relevance_Bound(
-    current_feature:int,
-    data:tuple,
+    current_feature: int,
+    data: tuple,
     hyperparameters,
     best_model_constraints,
     preset_model=None,
@@ -1952,78 +1882,65 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Regression_Relevance_Bound(Relevance_CVXProblem):</p>
-<pre><code>        def init_objective_UB(self, sign=None, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class Regression_Relevance_Bound(Relevance_CVXProblem):
 
-            self.add_constraint(
+    def init_objective_UB(self, sign=None, **kwargs):
 
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
+        self.add_constraint(
 
-            )
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        )
 
+        self._objective = cvx.Maximize(self.feature_relevance)
 
+    def init_objective_LB(self, **kwargs):
 
-        def init_objective_LB(self, **kwargs):
+        self.add_constraint(
 
-            self.add_constraint(
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
 
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+        )
 
-            )
+        self._objective = cvx.Minimize(self.feature_relevance)
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+    def _init_constraints(self, parameters, init_model_constraints):
 
+        # Upper constraints from initial model
 
+        l1_w = init_model_constraints["w_l1"]
 
-        def _init_constraints(self, parameters, init_model_constraints):
+        init_loss = init_model_constraints["loss"]
 
-            # Upper constraints from initial model
+        C = parameters["C"]
 
-            l1_w = init_model_constraints["w_l1"]
+        epsilon = parameters["epsilon"]
 
-            init_loss = init_model_constraints["loss"]
+        # New Variables
 
+        self.w = cvx.Variable(shape=(self.d), name="w")
 
+        self.b = cvx.Variable(name="b")
 
-            C = parameters["C"]
+        self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
-            epsilon = parameters["epsilon"]
+        # New Constraints
 
+        distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
 
+        self.loss = cvx.sum(self.slack)
 
-            # New Variables
+        self.weight_norm = cvx.norm(self.w, 1)
 
-            self.w = cvx.Variable(shape=(self.d), name="w")
+        self.add_constraint(distance_from_plane &lt;= epsilon + self.slack)
 
-            self.b = cvx.Variable(name="b")
+        self.add_constraint(self.weight_norm &lt;= l1_w)
 
-            self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
+        self.add_constraint(C * self.loss &lt;= C * init_loss)
 
-
-
-            # New Constraints
-
-            distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
-
-            self.loss = cvx.sum(self.slack)
-
-            self.weight_norm = cvx.norm(self.w, 1)
-
-
-
-            self.add_constraint(distance_from_plane &lt;= epsilon + self.slack)
-
-            self.add_constraint(self.weight_norm &lt;= l1_w)
-
-            self.add_constraint(C * self.loss &lt;= C * init_loss)
-
-
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>
@@ -2041,32 +1958,34 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            max_value = max(vals)
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            return max_value
+        max_value = max(vals)
+
+        return max_value
 </code></pre>
+</details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
 <pre><code class="python3">def aggregate_min_candidates(
     min_problems_candidates
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-            min_value = min(vals)
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-            return min_value
+        min_value = min(vals)
+
+        return min_value
 </code></pre>
+</details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
 <pre><code class="python3">def generate_lower_bound_problem(
     best_hyperparameters,
@@ -2079,27 +1998,88 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_lower_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+</code></pre>
+</details>
+<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
+<pre><code class="python3">def generate_upper_bound_problem(
+    best_hyperparameters,
+    init_constraints,
+    best_model_state,
+    data,
+    di,
+    preset_model,
+    probeID=-1
+)
+</code></pre>
+
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -2119,72 +2099,13 @@ inheritance.</p>
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 </code></pre>
-<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
-
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_upper_bound_problem(
-
-            cls,
-
-            best_hyperparameters,
-
-            init_constraints,
-
-            best_model_state,
-
-            data,
-
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-</code></pre>
+</details>
 <h4 id="instance-variables_1">Instance variables</h4>
 <pre><code class="python3">accepted_status
 </code></pre>
@@ -2221,10 +2142,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def add_constraint(self, new):</p>
-<pre><code>            self._constraints.append(new)
+<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
+
+        self._constraints.append(new)
 </code></pre>
+</details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
 <pre><code class="python3">def init_objective_LB(
     self,
@@ -2232,16 +2154,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_LB(self, **kwargs):</p>
-<pre><code>            self.add_constraint(
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+        self.add_constraint(
 
-            )
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        )
+
+        self._objective = cvx.Minimize(self.feature_relevance)
 </code></pre>
+</details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
 <pre><code class="python3">def init_objective_UB(
     self,
@@ -2250,16 +2173,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_UB(self, sign=None, **kwargs):</p>
-<pre><code>            self.add_constraint(
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, sign=None, **kwargs):
 
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
+        self.add_constraint(
 
-            )
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        )
+
+        self._objective = cvx.Maximize(self.feature_relevance)
 </code></pre>
+</details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
 <pre><code class="python3">def preprocessing_data(
     self,
@@ -2268,58 +2192,58 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing_data(self, data, best_model_state):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-            self.n = X.shape[0]
+        X, y = data
 
-            self.d = X.shape[1]
+        self.n = X.shape[0]
 
-            self.X = X
+        self.d = X.shape[1]
 
-            self.y = np.array(y)
+        self.X = X
+
+        self.y = np.array(y)
 </code></pre>
+</details>
 <h5 id="solve">solve</h5>
 <pre><code class="python3">def solve(
     self
 ) -&gt; object
 </code></pre>
 
-<p>??? example "View Source"
-            def solve(self) -&gt; object:</p>
-<pre><code>            # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # We init cvx problem here because pickling LP solver objects is problematic
 
-            self._cvx_problem = cvx.Problem(
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
-                objective=self.objective, constraints=self.constraints
+        self._cvx_problem = cvx.Problem(
 
-            )
+            objective=self.objective, constraints=self.constraints
 
-            try:
+        )
 
-                # print("Solve", self)
+        try:
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            # print("Solve", self)
 
-            except SolverError:
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-                # We ignore Solver Errors, which are common with our framework:
+        except SolverError:
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # We ignore Solver Errors, which are common with our framework:
 
-                pass
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
+        self._solver_status = self._cvx_problem.status
 
-            self._solver_status = self._cvx_problem.status
+        # self._cvx_problem = None
 
-            # self._cvx_problem = None
-
-            return self
+        return self
 </code></pre>
+</details>
 <h3 id="regression_svr">Regression_SVR</h3>
 <pre><code class="python3">class Regression_SVR(
     **parameters
@@ -2328,108 +2252,83 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Regression_SVR(InitModel):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class Regression_SVR(InitModel):
 
-        def hyperparameter(cls):
+    @classmethod
 
-            return ["C", "epsilon"]
+    def hyperparameter(cls):
 
+        return ["C", "epsilon"]
 
+    def fit(self, X, y, **kwargs):
 
-        def fit(self, X, y, **kwargs):
+        (n, d) = X.shape
 
-            (n, d) = X.shape
+        C = self.hyperparam["C"]
 
+        epsilon = self.hyperparam["epsilon"]
 
+        w = cvx.Variable(shape=(d), name="w")
 
-            C = self.hyperparam["C"]
+        slack = cvx.Variable(shape=(n), name="slack")
 
-            epsilon = self.hyperparam["epsilon"]
+        b = cvx.Variable(name="bias")
 
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
 
+        constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
 
-            w = cvx.Variable(shape=(d), name="w")
+        # Solve problem.
 
-            slack = cvx.Variable(shape=(n), name="slack")
+        solver_params = self.solver_params
 
-            b = cvx.Variable(name="bias")
+        problem = cvx.Problem(objective, constraints)
 
+        problem.solve(**solver_params)
 
+        w = w.value
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
+        b = b.value
 
-            constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
+        slack = np.asarray(slack.value).flatten()
 
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
+        loss = np.sum(slack)
 
-            # Solve problem.
+        w_l1 = np.linalg.norm(w, ord=1)
 
-            solver_params = self.solver_params
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-            problem = cvx.Problem(objective, constraints)
+        return self
 
-            problem.solve(**solver_params)
+    def predict(self, X):
 
+        w = self.model_state["w"]
 
+        b = self.model_state["b"]
 
-            w = w.value
+        y = np.dot(X, w) + b
 
-            b = b.value
+        return y
 
-            slack = np.asarray(slack.value).flatten()
+    def score(self, X, y, **kwargs):
 
-            self.model_state = {"w": w, "b": b, "slack": slack}
+        prediction = self.predict(X)
 
+        from sklearn.metrics import r2_score
 
+        from sklearn.metrics.regression import _check_reg_targets
 
-            loss = np.sum(slack)
+        _check_reg_targets(y, prediction, None)
 
-            w_l1 = np.linalg.norm(w, ord=1)
+        # Using weighted f1 score to have a stable score for imbalanced datasets
 
-            self.constraints = {"loss": loss, "w_l1": w_l1}
+        score = r2_score(y, prediction)
 
-            return self
-
-
-
-        def predict(self, X):
-
-            w = self.model_state["w"]
-
-            b = self.model_state["b"]
-
-            y = np.dot(X, w) + b
-
-            return y
-
-
-
-        def score(self, X, y, **kwargs):
-
-            prediction = self.predict(X)
-
-
-
-            from sklearn.metrics import r2_score
-
-            from sklearn.metrics.regression import _check_reg_targets
-
-
-
-            _check_reg_targets(y, prediction, None)
-
-
-
-            # Using weighted f1 score to have a stable score for imbalanced datasets
-
-            score = r2_score(y, prediction)
-
-
-
-            return score
+        return score
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
 <ul>
@@ -2444,24 +2343,26 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def hyperparameter(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon"]
+    def hyperparameter(cls):
+
+        return ["C", "epsilon"]
 </code></pre>
+</details>
 <h5 id="make_scorer">make_scorer</h5>
 <pre><code class="python3">def make_scorer(
 
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def make_scorer(self):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return None, None
+    def make_scorer(self):
+
+        return None, None
 </code></pre>
+</details>
 <h4 id="instance-variables_2">Instance variables</h4>
 <pre><code class="python3">L1_factor
 </code></pre>
@@ -2485,60 +2386,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def fit(self, X, y, **kwargs):</p>
-<pre><code>            (n, d) = X.shape
+<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X, y, **kwargs):
 
+        (n, d) = X.shape
 
+        C = self.hyperparam["C"]
 
-            C = self.hyperparam["C"]
+        epsilon = self.hyperparam["epsilon"]
 
-            epsilon = self.hyperparam["epsilon"]
+        w = cvx.Variable(shape=(d), name="w")
 
+        slack = cvx.Variable(shape=(n), name="slack")
 
+        b = cvx.Variable(name="bias")
 
-            w = cvx.Variable(shape=(d), name="w")
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
 
-            slack = cvx.Variable(shape=(n), name="slack")
+        constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
 
-            b = cvx.Variable(name="bias")
+        # Solve problem.
 
+        solver_params = self.solver_params
 
+        problem = cvx.Problem(objective, constraints)
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
+        problem.solve(**solver_params)
 
-            constraints = [cvx.abs(y - (X * w + b)) &lt;= epsilon + slack, slack &gt;= 0]
+        w = w.value
 
+        b = b.value
 
+        slack = np.asarray(slack.value).flatten()
 
-            # Solve problem.
+        self.model_state = {"w": w, "b": b, "slack": slack}
 
-            solver_params = self.solver_params
+        loss = np.sum(slack)
 
-            problem = cvx.Problem(objective, constraints)
+        w_l1 = np.linalg.norm(w, ord=1)
 
-            problem.solve(**solver_params)
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-
-
-            w = w.value
-
-            b = b.value
-
-            slack = np.asarray(slack.value).flatten()
-
-            self.model_state = {"w": w, "b": b, "slack": slack}
-
-
-
-            loss = np.sum(slack)
-
-            w_l1 = np.linalg.norm(w, ord=1)
-
-            self.constraints = {"loss": loss, "w_l1": w_l1}
-
-            return self
+        return self
 </code></pre>
+</details>
 <h5 id="get_params">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -2554,10 +2444,11 @@ inheritance.</p>
 <h2 id="returns">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            return self.hyperparam
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+
+        return self.hyperparam
 </code></pre>
+</details>
 <h5 id="predict">predict</h5>
 <pre><code class="python3">def predict(
     self,
@@ -2565,16 +2456,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def predict(self, X):</p>
-<pre><code>            w = self.model_state["w"]
+<details class="example"><summary>View Source</summary><pre><code>    def predict(self, X):
 
-            b = self.model_state["b"]
+        w = self.model_state["w"]
 
-            y = np.dot(X, w) + b
+        b = self.model_state["b"]
 
-            return y
+        y = np.dot(X, w) + b
+
+        return y
 </code></pre>
+</details>
 <h5 id="score">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -2584,30 +2476,23 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def score(self, X, y, **kwargs):</p>
-<pre><code>            prediction = self.predict(X)
+<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y, **kwargs):
 
+        prediction = self.predict(X)
 
+        from sklearn.metrics import r2_score
 
-            from sklearn.metrics import r2_score
+        from sklearn.metrics.regression import _check_reg_targets
 
-            from sklearn.metrics.regression import _check_reg_targets
+        _check_reg_targets(y, prediction, None)
 
+        # Using weighted f1 score to have a stable score for imbalanced datasets
 
+        score = r2_score(y, prediction)
 
-            _check_reg_targets(y, prediction, None)
-
-
-
-            # Using weighted f1 score to have a stable score for imbalanced datasets
-
-            score = r2_score(y, prediction)
-
-
-
-            return score
+        return score
 </code></pre>
+</details>
 <h5 id="set_params">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -2622,14 +2507,15 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_1">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            for p, value in params.items():
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
-                self.hyperparam[p] = value
+        for p, value in params.items():
 
-            return self
+            self.hyperparam[p] = value
+
+        return self
 </code></pre>
+</details>
                 
                   
                 

@@ -969,106 +969,97 @@
                 
                 
                 <h1 id="module-fritoydata">Module fri.toydata</h1>
-<p>??? example "View Source"
-        import numpy as np</p>
-<pre><code>    from fri import ProblemName
+<details class="example"><summary>View Source</summary><pre><code>import numpy as np
 
-    from .gen_data import genRegressionData, genClassificationData, genOrdinalRegressionData
+from fri import ProblemName
 
-    from .gen_lupi import genLupiData
+from .gen_data import genRegressionData, genClassificationData, genOrdinalRegressionData
 
+from .gen_lupi import genLupiData
 
+__all__ = [
 
-    __all__ = [
+    "genRegressionData",
 
-        "genRegressionData",
+    "genClassificationData",
 
-        "genClassificationData",
+    "genOrdinalRegressionData",
 
-        "genOrdinalRegressionData",
+    "genLupiData",
 
-        "genLupiData",
+]
 
-    ]
+def quick_generate(problem: object, **kwargs) -&gt; [np.ndarray, np.ndarray]:
 
+    """
 
+    Method to wrap individual data generation functions.
 
+    Allows passing `problem` as a string such as "classification" or `ProblemName` object of the corresponding type.
 
+    For possible kwargs see `genClassificationData' or `genLupiData`.
 
-    def quick_generate(problem: object, **kwargs) -&gt; [np.ndarray, np.ndarray]:
+    Parameters
 
-        """
+    ----------
 
-        Method to wrap individual data generation functions.
+    problem : str or `ProblemName`
 
-        Allows passing `problem` as a string such as "classification" or `ProblemName` object of the corresponding type.
+        Type of data to generate (e.g. "classification" or `ProblemName.CLASSIFICATION`
 
-        For possible kwargs see `genClassificationData' or `genLupiData`.
+    kwargs : **dict
 
+        arguments to pass to the generation functions
 
+    Returns
 
-        Parameters
+    -------
 
-        ----------
+    Tuple[numpy.ndarray, numpy.ndarray]
 
-        problem : str or `ProblemName`
+    """
 
-            Type of data to generate (e.g. "classification" or `ProblemName.CLASSIFICATION`
+    if problem is "regression" or problem is ProblemName.REGRESSION:
 
-        kwargs : **dict
+        gen = genRegressionData
 
-            arguments to pass to the generation functions
+    elif problem is "classification" or problem is ProblemName.CLASSIFICATION:
 
+        gen = genClassificationData
 
+    elif problem is "ordreg" or problem is ProblemName.ORDINALREGRESSION:
 
-        Returns
+        gen = genOrdinalRegressionData
 
-        -------
+    elif problem is "lupi_regression" or problem is ProblemName.LUPI_REGRESSION:
 
-        Tuple[numpy.ndarray, numpy.ndarray]
+        gen = genLupiData
 
-        """
+        kwargs["problemName"] = ProblemName.LUPI_REGRESSION
 
-        if problem is "regression" or problem is ProblemName.REGRESSION:
+    elif problem is "lupi_classification" or problem is ProblemName.LUPI_CLASSIFICATION:
 
-            gen = genRegressionData
+        gen = genLupiData
 
-        elif problem is "classification" or problem is ProblemName.CLASSIFICATION:
+        kwargs["problemName"] = ProblemName.LUPI_CLASSIFICATION
 
-            gen = genClassificationData
+    elif problem is "lupi_ordreg" or problem is ProblemName.LUPI_ORDREGRESSION:
 
-        elif problem is "ordreg" or problem is ProblemName.ORDINALREGRESSION:
+        gen = genLupiData
 
-            gen = genOrdinalRegressionData
+        kwargs["problemName"] = ProblemName.LUPI_ORDREGRESSION
 
-        elif problem is "lupi_regression" or problem is ProblemName.LUPI_REGRESSION:
+    else:
 
-            gen = genLupiData
+        raise ValueError(
 
-            kwargs["problemName"] = ProblemName.LUPI_REGRESSION
+            "Unknown problem type. Try 'regression', 'classification' or 'ordreg' and/or add 'lupi_' prefix"
 
-        elif problem is "lupi_classification" or problem is ProblemName.LUPI_CLASSIFICATION:
+        )
 
-            gen = genLupiData
-
-            kwargs["problemName"] = ProblemName.LUPI_CLASSIFICATION
-
-        elif problem is "lupi_ordreg" or problem is ProblemName.LUPI_ORDREGRESSION:
-
-            gen = genLupiData
-
-            kwargs["problemName"] = ProblemName.LUPI_ORDREGRESSION
-
-        else:
-
-            raise ValueError(
-
-                "Unknown problem type. Try 'regression', 'classification' or 'ordreg' and/or add 'lupi_' prefix"
-
-            )
-
-        return gen(**kwargs)
+    return gen(**kwargs)
 </code></pre>
+</details>
 <h2 id="sub-modules">Sub-modules</h2>
 <ul>
 <li><a href="gen_data/">fri.toydata.gen_data</a></li>
@@ -1077,14 +1068,14 @@
 <h2 id="functions">Functions</h2>
 <h3 id="genclassificationdata">genClassificationData</h3>
 <pre><code class="python3">def genClassificationData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.1,
-    flip_y:float=0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.1,
+    flip_y: float = 0,
+    random_state: object = None,
     partition=None
 )
 </code></pre>
@@ -1130,200 +1121,179 @@ y.shape
 </blockquote>
 </blockquote>
 </blockquote>
-<p>??? example "View Source"
-        def genClassificationData(</p>
-<pre><code>        n_samples: int = 100,
+<details class="example"><summary>View Source</summary><pre><code>def genClassificationData(
 
-        n_features: int = 2,
+    n_samples: int = 100,
 
-        n_redundant: int = 0,
+    n_features: int = 2,
 
-        n_strel: int = 1,
+    n_redundant: int = 0,
 
-        n_repeated: int = 0,
+    n_strel: int = 1,
 
-        noise: float = 0.1,
+    n_repeated: int = 0,
 
-        flip_y: float = 0,
+    noise: float = 0.1,
 
-        random_state: object = None,
+    flip_y: float = 0,
 
-        partition=None,
+    random_state: object = None,
 
-    ):
+    partition=None,
 
-        """Generate synthetic classification data
+):
 
+    """Generate synthetic classification data
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    n_samples : int, optional
 
-        n_samples : int, optional
+        Number of samples
 
-            Number of samples
+    n_features : int, optional
 
-        n_features : int, optional
+        Number of features
 
-            Number of features
+    n_redundant : int, optional
 
-        n_redundant : int, optional
+        Number of features which are part of redundant subsets (weakly relevant)
 
-            Number of features which are part of redundant subsets (weakly relevant)
+    n_strel : int, optional
 
-        n_strel : int, optional
+        Number of features which are mandatory for the underlying model (strongly relevant)
 
-            Number of features which are mandatory for the underlying model (strongly relevant)
+    n_repeated : int, optional
 
-        n_repeated : int, optional
+        Number of features which are clones of existing ones.
 
-            Number of features which are clones of existing ones.
+    noise : float
 
-        noise : float
+        Added gaussian noise to data. Parameter scales Std of normal distribution.
 
-            Added gaussian noise to data. Parameter scales Std of normal distribution.
+    flip_y : float, optional
 
-        flip_y : float, optional
+        Ratio of samples randomly switched to wrong class.
 
-            Ratio of samples randomly switched to wrong class.
+    random_state : object, optional
 
-        random_state : object, optional
+        Randomstate object used for generation.
 
-            Randomstate object used for generation.
+    Returns
 
+    -------
 
+    X : array of shape [n_samples, n_features]
 
-        Returns
+        The generated samples.
 
-        -------
+    y : array of shape [n_samples]
 
-        X : array of shape [n_samples, n_features]
+        The output classes.
 
-            The generated samples.
+    Raises
 
-        y : array of shape [n_samples]
+    ------
 
-            The output classes.
+    ValueError
 
+        Description
 
+    ValueError
 
-        Raises
+    Wrong parameters for specified amonut of features/samples.
 
-        ------
+    Examples
 
-        ValueError
+    ---------
 
-            Description
+    &gt;&gt;&gt; X,y = genClassificationData(n_samples=200)
 
-        ValueError
+    Generating dataset with d=2,n=200,strongly=1,weakly=0, partition of weakly=None
 
-        Wrong parameters for specified amonut of features/samples.
+    &gt;&gt;&gt; X.shape
 
+    (200, 2)
 
+    &gt;&gt;&gt; y.shape
 
+    (200,)
 
+    """
 
-        Examples
+    _checkParam(**locals())
 
-        ---------
+    random_state = check_random_state(random_state)
 
-        &gt;&gt;&gt; X,y = genClassificationData(n_samples=200)
+    X = np.zeros((n_samples, n_features))
 
-        Generating dataset with d=2,n=200,strongly=1,weakly=0, partition of weakly=None
+    # Find partitions which defíne the weakly relevant subsets
 
-        &gt;&gt;&gt; X.shape
+    if partition is None and n_redundant &gt; 0:
 
-        (200, 2)
+        partition = [n_redundant]
 
-        &gt;&gt;&gt; y.shape
+        part_size = 1
 
-        (200,)
+    elif partition is not None:
 
-        """
+        part_size = len(partition)
 
-        _checkParam(**locals())
+    else:
 
-        random_state = check_random_state(random_state)
+        part_size = 0
 
+    X_informative, Y = generate_binary_classification_problem(
 
+        n_samples, n_strel + part_size, random_state
 
-        X = np.zeros((n_samples, n_features))
+    )
 
+    X = _fillVariableSpace(
 
+        X_informative,
 
-        # Find partitions which defíne the weakly relevant subsets
+        random_state,
 
-        if partition is None and n_redundant &gt; 0:
+        n_features=n_features,
 
-            partition = [n_redundant]
+        n_redundant=n_redundant,
 
-            part_size = 1
+        n_strel=n_strel,
 
-        elif partition is not None:
+        n_repeated=n_repeated,
 
-            part_size = len(partition)
+        partition=partition,
 
-        else:
+    )
 
-            part_size = 0
+    # Add target noise
 
+    if flip_y &gt; 0:
 
+        n_flip = int(flip_y * n_samples)
 
-        X_informative, Y = generate_binary_classification_problem(
+        Y[random_state.choice(n_samples, n_flip)] *= -1
 
-            n_samples, n_strel + part_size, random_state
+    # Add gaussian noise to data
 
-        )
+    X = X + random_state.normal(size=(n_samples, n_features), scale=noise / X.std())
 
-
-
-        X = _fillVariableSpace(
-
-            X_informative,
-
-            random_state,
-
-            n_features=n_features,
-
-            n_redundant=n_redundant,
-
-            n_strel=n_strel,
-
-            n_repeated=n_repeated,
-
-            partition=partition,
-
-        )
-
-        # Add target noise
-
-        if flip_y &gt; 0:
-
-            n_flip = int(flip_y * n_samples)
-
-            Y[random_state.choice(n_samples, n_flip)] *= -1
-
-
-
-        # Add gaussian noise to data
-
-        X = X + random_state.normal(size=(n_samples, n_features), scale=noise / X.std())
-
-
-
-        return X, Y
+    return X, Y
 </code></pre>
+</details>
 <h3 id="genlupidata">genLupiData</h3>
 <pre><code class="python3">def genLupiData(
-    problemName:fri.ProblemName,
-    n_samples:int=100,
-    random_state:object=None,
-    n_ordinal_bins:int=3,
-    n_strel:int=1,
-    n_weakrel:int=0,
-    n_repeated:int=0,
-    n_irrel:int=0,
+    problemName: fri.ProblemName,
+    n_samples: int = 100,
+    random_state: object = None,
+    n_ordinal_bins: int = 3,
+    n_strel: int = 1,
+    n_weakrel: int = 0,
+    n_repeated: int = 0,
+    n_irrel: int = 0,
     label_noise=0.0
 )
 </code></pre>
@@ -1359,247 +1329,220 @@ y : array of shape [n_samples]
     In case of problemType == 'classification' : values are in [0,1]
     In case of problemType == 'regression' : values are continious
     In case of problemType == 'ordinalRegression' : values are in [0, n_ordinal_bins]</p>
-<p>??? example "View Source"
-        def genLupiData(</p>
-<pre><code>        problemName: ProblemName,
+<details class="example"><summary>View Source</summary><pre><code>def genLupiData(
 
-        n_samples: int = 100,
+    problemName: ProblemName,
 
-        random_state: object = None,
+    n_samples: int = 100,
 
-        n_ordinal_bins: int = 3,
+    random_state: object = None,
 
-        n_strel: int = 1,
+    n_ordinal_bins: int = 3,
 
-        n_weakrel: int = 0,
+    n_strel: int = 1,
 
-        n_repeated: int = 0,
+    n_weakrel: int = 0,
 
-        n_irrel: int = 0,
+    n_repeated: int = 0,
 
-        label_noise=0.0,
+    n_irrel: int = 0,
 
-    ):
+    label_noise=0.0,
+
+):
+
+    """
+
+            Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
+
+            Parameters
+
+            ----------
+
+            problemName : ProblemName
+
+                Defines the type of y-values of the problem. Example `ProblemName.CLASSIFICATION`.
+
+            n_samples : int, optional
+
+                Number of samples
+
+            random_state : object, optional
+
+                Randomstate object used for generation.
+
+            n_ordinal_bins : int, optional
+
+                Number of bins in which the regressional target variable is split to form the ordinal classes,
+
+                Only has an effect if problemType == 'ordinalRegression'
+
+            n_strel : int, optional
+
+                Number of features which are mandatory for the underlying model (strongly relevant)
+
+            n_weakrel : int, optional
+
+                Number of weakly relevant features
+
+            n_repeated : int, optional
+
+                Number of features which are clones of existing ones.
+
+            n_irrel : int, optional
+
+                Number of features which are irrelevant to the underlying model
+
+            label_noise: float, optional
+
+                Percentage of labels which get permutated.
+
+            Returns
+
+            -------
+
+            X : array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel)]
+
+                The generated samples
+
+            X_priv : array with same shape as X
+
+                The generated privileged samples
+
+            y : array of shape [n_samples]
+
+                The generated target values
+
+                In case of problemType == 'classification' : values are in [0,1]
+
+                In case of problemType == 'regression' : values are continious
+
+                In case of problemType == 'ordinalRegression' : values are in [0, n_ordinal_bins]
 
         """
 
-                Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
+    random_state = check_random_state(random_state)
 
+    n_informative = n_strel + (n_weakrel &gt; 0)
 
+    # Create truth (prototype) vector which contains true feature contributions
 
-                Parameters
+    # We enforce minimum of 0.1 to circumvent problems when testing for relevance
 
-                ----------
+    w = random_state.uniform(low=0.5, high=1, size=n_informative)
 
-                problemName : ProblemName
+    X_informative = random_state.normal(size=(n_samples, n_informative))
 
-                    Defines the type of y-values of the problem. Example `ProblemName.CLASSIFICATION`.
+    scores = np.dot(X_informative, w)
 
-                n_samples : int, optional
+    n_features = n_strel + n_weakrel + n_repeated + n_irrel
 
-                    Number of samples
+    X_priv = _fillVariableSpace(
 
-                random_state : object, optional
+        X_informative,
 
-                    Randomstate object used for generation.
+        random_state,
 
-                n_ordinal_bins : int, optional
+        n_features=n_features,
 
-                    Number of bins in which the regressional target variable is split to form the ordinal classes,
+        n_redundant=n_weakrel,
 
-                    Only has an effect if problemType == 'ordinalRegression'
+        n_strel=n_strel,
 
-                n_strel : int, optional
+        n_repeated=n_repeated,
 
-                    Number of features which are mandatory for the underlying model (strongly relevant)
+        partition=[n_weakrel],
 
-                n_weakrel : int, optional
+    )
 
-                    Number of weakly relevant features
+    if (
 
-                n_repeated : int, optional
+        problemName == "classification"
 
-                    Number of features which are clones of existing ones.
+        or problemName == ProblemName.LUPI_CLASSIFICATION
 
-                n_irrel : int, optional
+    ):
 
-                    Number of features which are irrelevant to the underlying model
+        e = random_state.normal(
 
-                label_noise: float, optional
-
-                    Percentage of labels which get permutated.
-
-
-
-
-
-                Returns
-
-                -------
-
-                X : array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel)]
-
-                    The generated samples
-
-                X_priv : array with same shape as X
-
-                    The generated privileged samples
-
-                y : array of shape [n_samples]
-
-                    The generated target values
-
-                    In case of problemType == 'classification' : values are in [0,1]
-
-                    In case of problemType == 'regression' : values are continious
-
-                    In case of problemType == 'ordinalRegression' : values are in [0, n_ordinal_bins]
-
-
-
-
-
-            """
-
-
-
-        random_state = check_random_state(random_state)
-
-        n_informative = n_strel + (n_weakrel &gt; 0)
-
-
-
-        # Create truth (prototype) vector which contains true feature contributions
-
-        # We enforce minimum of 0.1 to circumvent problems when testing for relevance
-
-        w = random_state.uniform(low=0.5, high=1, size=n_informative)
-
-        X_informative = random_state.normal(size=(n_samples, n_informative))
-
-        scores = np.dot(X_informative, w)
-
-
-
-        n_features = n_strel + n_weakrel + n_repeated + n_irrel
-
-        X_priv = _fillVariableSpace(
-
-            X_informative,
-
-            random_state,
-
-            n_features=n_features,
-
-            n_redundant=n_weakrel,
-
-            n_strel=n_strel,
-
-            n_repeated=n_repeated,
-
-            partition=[n_weakrel],
+            size=(n_samples, X_priv.shape[1]), scale=0.65 / X_priv.std()
 
         )
 
+        X = X_priv + e
 
+        y = np.zeros_like(scores)
 
-        if (
+        y[scores &gt; 0] = 1
 
-            problemName == "classification"
+        y[scores &lt;= 0] = -1
 
-            or problemName == ProblemName.LUPI_CLASSIFICATION
+    elif problemName == "regression" or problemName == ProblemName.LUPI_REGRESSION:
 
-        ):
+        e = random_state.normal(
 
-            e = random_state.normal(
+            size=(n_samples, X_priv.shape[1]), scale=0.5 / X_priv.std()
 
-                size=(n_samples, X_priv.shape[1]), scale=0.65 / X_priv.std()
+        )
 
-            )
+        X = X_priv + e
 
-            X = X_priv + e
+        y = scores
 
-            y = np.zeros_like(scores)
+    elif (
 
-            y[scores &gt; 0] = 1
+        problemName == "ordinalRegression"
 
-            y[scores &lt;= 0] = -1
+        or problemName == ProblemName.LUPI_ORDREGRESSION
 
+    ):
 
+        e = random_state.normal(
 
-        elif problemName == "regression" or problemName == ProblemName.LUPI_REGRESSION:
+            size=(n_samples, X_priv.shape[1]), scale=0.2 / X_priv.std()
 
-            e = random_state.normal(
+        )
 
-                size=(n_samples, X_priv.shape[1]), scale=0.5 / X_priv.std()
+        X = X_priv + e
 
-            )
+        step = 1 / (n_ordinal_bins)
 
-            X = X_priv + e
+        quantiles = [i * step for i in range(1, n_ordinal_bins)]
 
-            y = scores
+        bs = np.quantile(scores, quantiles)
 
-        elif (
+        bs = np.append(bs, np.inf)
 
-            problemName == "ordinalRegression"
+        scores = scores[:, np.newaxis]
 
-            or problemName == ProblemName.LUPI_ORDREGRESSION
+        y = np.sum(scores - bs &gt;= 0, -1)
 
-        ):
+    if n_irrel &gt; 0:
 
-            e = random_state.normal(
+        X = np.hstack([X, random_state.normal(size=(n_samples, n_irrel))])
 
-                size=(n_samples, X_priv.shape[1]), scale=0.2 / X_priv.std()
+        X_priv = np.hstack([X_priv, random_state.normal(size=(n_samples, n_irrel))])
 
-            )
+    if label_noise &gt; 0:
 
-            X = X_priv + e
+        sample = random_state.choice(len(y), int(len(y) * label_noise))
 
+        y[sample] = random_state.permutation(y[sample])
 
-
-            step = 1 / (n_ordinal_bins)
-
-            quantiles = [i * step for i in range(1, n_ordinal_bins)]
-
-            bs = np.quantile(scores, quantiles)
-
-            bs = np.append(bs, np.inf)
-
-            scores = scores[:, np.newaxis]
-
-            y = np.sum(scores - bs &gt;= 0, -1)
-
-
-
-        if n_irrel &gt; 0:
-
-            X = np.hstack([X, random_state.normal(size=(n_samples, n_irrel))])
-
-            X_priv = np.hstack([X_priv, random_state.normal(size=(n_samples, n_irrel))])
-
-
-
-        if label_noise &gt; 0:
-
-            sample = random_state.choice(len(y), int(len(y) * label_noise))
-
-            y[sample] = random_state.permutation(y[sample])
-
-
-
-        return (X, X_priv, y.squeeze())
+    return (X, X_priv, y.squeeze())
 </code></pre>
+</details>
 <h3 id="genordinalregressiondata">genOrdinalRegressionData</h3>
 <pre><code class="python3">def genOrdinalRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
     partition=None,
-    n_target_bins:int=3
+    n_target_bins: int = 3
 )
 </code></pre>
 
@@ -1629,187 +1572,162 @@ y : array of shape [n_samples]
 <h2 id="raises_1">Raises</h2>
 <p>ValueError
 Wrong parameters for specified amonut of features/samples.</p>
-<p>??? example "View Source"
-        def genOrdinalRegressionData(</p>
-<pre><code>        n_samples: int = 100,
+<details class="example"><summary>View Source</summary><pre><code>def genOrdinalRegressionData(
 
-        n_features: int = 2,
+    n_samples: int = 100,
 
-        n_redundant: int = 0,
+    n_features: int = 2,
 
-        n_strel: int = 1,
+    n_redundant: int = 0,
 
-        n_repeated: int = 0,
+    n_strel: int = 1,
 
-        noise: float = 0.0,
+    n_repeated: int = 0,
 
-        random_state: object = None,
+    noise: float = 0.0,
 
-        partition=None,
+    random_state: object = None,
 
-        n_target_bins: int = 3,
+    partition=None,
 
-    ):
+    n_target_bins: int = 3,
 
-        """
+):
 
-        Generate ordinal regression data
+    """
 
+    Generate ordinal regression data
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    n_samples : int, optional
 
-        n_samples : int, optional
+        Number of samples
 
-            Number of samples
+    n_features : int, optional
 
-        n_features : int, optional
+        Number of features
 
-            Number of features
+    n_redundant : int, optional
 
-        n_redundant : int, optional
+        Number of features which are part of redundant subsets (weakly relevant)
 
-            Number of features which are part of redundant subsets (weakly relevant)
+    n_strel : int, optional
 
-        n_strel : int, optional
+        Number of features which are mandatory for the underlying model (strongly relevant)
 
-            Number of features which are mandatory for the underlying model (strongly relevant)
+    n_repeated : int, optional
 
-        n_repeated : int, optional
+        Number of features which are clones of existing ones.
 
-            Number of features which are clones of existing ones.
+    noise : float, optional
 
-        noise : float, optional
+        Noise of the created samples around ground truth.
 
-            Noise of the created samples around ground truth.
+    random_state : object, optional
 
-        random_state : object, optional
+        Randomstate object used for generation.
 
-            Randomstate object used for generation.
+    n_target_bins : int, optional
 
-        n_target_bins : int, optional
+        Number of bins in which the regressional target variable is split to form the ordinal classes
 
-            Number of bins in which the regressional target variable is split to form the ordinal classes
+    Returns
 
+    -------
 
+    X : array of shape [n_samples, n_features]
 
-        Returns
+        The generated samples.
 
-        -------
+    y : array of shape [n_samples]
 
-        X : array of shape [n_samples, n_features]
+        The output values (target).
 
-            The generated samples.
+    Raises
 
-        y : array of shape [n_samples]
+    ------
 
-            The output values (target).
+    ValueError
 
+    Wrong parameters for specified amonut of features/samples.
 
+    """
 
-        Raises
+    _checkParam(**locals())
 
-        ------
+    random_state = check_random_state(random_state)
 
-        ValueError
+    if not n_target_bins &gt; 1:
 
-        Wrong parameters for specified amonut of features/samples.
+        raise ValueError("At least 2 target bins needed")
 
-        """
+    # Use normal regression data as starting point
 
+    X_regression, Y_regression = genRegressionData(
 
+        n_samples=int(n_samples),
 
-        _checkParam(**locals())
+        n_features=int(n_features),
 
-        random_state = check_random_state(random_state)
+        n_redundant=int(n_redundant),
 
+        n_strel=int(n_strel),
 
+        n_repeated=int(n_repeated),
 
-        if not n_target_bins &gt; 1:
+        noise=0,
 
-            raise ValueError("At least 2 target bins needed")
+        random_state=random_state,
 
+        partition=partition,
 
+    )
 
-        # Use normal regression data as starting point
+    bin_size = int(np.floor(n_samples / n_target_bins))
 
-        X_regression, Y_regression = genRegressionData(
+    rest = int(n_samples - (bin_size * n_target_bins))
 
-            n_samples=int(n_samples),
+    # Sort the target values and rearange the data accordingly
 
-            n_features=int(n_features),
+    sort_indices = np.argsort(Y_regression)
 
-            n_redundant=int(n_redundant),
+    X = X_regression[sort_indices]
 
-            n_strel=int(n_strel),
+    Y = Y_regression[sort_indices]
 
-            n_repeated=int(n_repeated),
+    # Assign ordinal classes as target values
 
-            noise=0,
+    for i in range(n_target_bins):
 
-            random_state=random_state,
+        Y[bin_size * i : bin_size * (i + 1)] = i
 
-            partition=partition,
+    # Put non divisable rest into last bin
 
-        )
+    if rest &gt; 0:
 
+        Y[-rest:] = n_target_bins - 1
 
+    X, Y = shuffle(X, Y, random_state=random_state)
 
-        bin_size = int(np.floor(n_samples / n_target_bins))
+    # Add gaussian noise to data
 
-        rest = int(n_samples - (bin_size * n_target_bins))
+    X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
 
-
-
-        # Sort the target values and rearange the data accordingly
-
-        sort_indices = np.argsort(Y_regression)
-
-        X = X_regression[sort_indices]
-
-        Y = Y_regression[sort_indices]
-
-
-
-        # Assign ordinal classes as target values
-
-        for i in range(n_target_bins):
-
-            Y[bin_size * i : bin_size * (i + 1)] = i
-
-
-
-        # Put non divisable rest into last bin
-
-        if rest &gt; 0:
-
-            Y[-rest:] = n_target_bins - 1
-
-
-
-        X, Y = shuffle(X, Y, random_state=random_state)
-
-
-
-        # Add gaussian noise to data
-
-        X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
-
-
-
-        return X, Y
+    return X, Y
 </code></pre>
+</details>
 <h3 id="genregressiondata">genRegressionData</h3>
 <pre><code class="python3">def genRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
+    n_samples: int = 100,
+    n_features: int = 2,
+    n_redundant: int = 0,
+    n_strel: int = 1,
+    n_repeated: int = 0,
+    noise: float = 0.0,
+    random_state: object = None,
     partition=None
 ) -&gt; object
 </code></pre>
@@ -1838,162 +1756,143 @@ y : array of shape [n_samples]
 <h2 id="raises_2">Raises</h2>
 <p>ValueError
 Wrong parameters for specified amonut of features/samples.</p>
-<p>??? example "View Source"
-        def genRegressionData(</p>
-<pre><code>        n_samples: int = 100,
+<details class="example"><summary>View Source</summary><pre><code>def genRegressionData(
 
-        n_features: int = 2,
+    n_samples: int = 100,
 
-        n_redundant: int = 0,
+    n_features: int = 2,
 
-        n_strel: int = 1,
+    n_redundant: int = 0,
 
-        n_repeated: int = 0,
+    n_strel: int = 1,
 
-        noise: float = 0.0,
+    n_repeated: int = 0,
 
-        random_state: object = None,
+    noise: float = 0.0,
 
-        partition=None,
+    random_state: object = None,
 
-    ) -&gt; object:
+    partition=None,
 
-        """Generate synthetic regression data
+) -&gt; object:
 
+    """Generate synthetic regression data
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    n_samples : int, optional
 
-        n_samples : int, optional
+        Number of samples
 
-            Number of samples
+    n_features : int, optional
 
-        n_features : int, optional
+        Number of features
 
-            Number of features
+    n_redundant : int, optional
 
-        n_redundant : int, optional
+        Number of features which are part of redundant subsets (weakly relevant)
 
-            Number of features which are part of redundant subsets (weakly relevant)
+    n_strel : int, optional
 
-        n_strel : int, optional
+        Number of features which are mandatory for the underlying model (strongly relevant)
 
-            Number of features which are mandatory for the underlying model (strongly relevant)
+    n_repeated : int, optional
 
-        n_repeated : int, optional
+        Number of features which are clones of existing ones.
 
-            Number of features which are clones of existing ones.
+    noise : float, optional
 
-        noise : float, optional
+        Noise of the created samples around ground truth.
 
-            Noise of the created samples around ground truth.
+    random_state : object, optional
 
-        random_state : object, optional
+        Randomstate object used for generation.
 
-            Randomstate object used for generation.
+    Returns
 
+    -------
 
+    X : array of shape [n_samples, n_features]
 
-        Returns
+        The generated samples.
 
-        -------
+    y : array of shape [n_samples]
 
-        X : array of shape [n_samples, n_features]
+        The output values (target).
 
-            The generated samples.
+    Raises
 
-        y : array of shape [n_samples]
+    ------
 
-            The output values (target).
+    ValueError
 
+    Wrong parameters for specified amonut of features/samples.
 
+    """
 
-        Raises
+    _checkParam(**locals())
 
-        ------
+    random_state = check_random_state(random_state)
 
-        ValueError
+    # Find partitions which defíne the weakly relevant subsets
 
-        Wrong parameters for specified amonut of features/samples.
+    if partition is None and n_redundant &gt; 0:
 
-        """
+        partition = [n_redundant]
 
+        part_size = 1
 
+    elif partition is not None:
 
-        _checkParam(**locals())
+        part_size = len(partition)
 
-        random_state = check_random_state(random_state)
+    else:
 
+        part_size = 0
 
+    n_informative = n_strel + part_size
 
-        # Find partitions which defíne the weakly relevant subsets
+    X = random_state.randn(n_samples, n_informative)
 
-        if partition is None and n_redundant &gt; 0:
+    ground_truth = np.zeros((n_informative, 1))
 
-            partition = [n_redundant]
+    ground_truth[:n_informative, :] = 0.3
 
-            part_size = 1
+    bias = 0
 
-        elif partition is not None:
+    y = np.dot(X, ground_truth) + bias
 
-            part_size = len(partition)
+    # Add noise
 
-        else:
+    if noise &gt; 0.0:
 
-            part_size = 0
+        y += random_state.normal(scale=noise, size=y.shape)
 
+    X = _fillVariableSpace(
 
+        X,
 
-        n_informative = n_strel + part_size
+        random_state,
 
+        n_features=n_features,
 
+        n_redundant=n_redundant,
 
-        X = random_state.randn(n_samples, n_informative)
+        n_strel=n_strel,
 
-        ground_truth = np.zeros((n_informative, 1))
+        n_repeated=n_repeated,
 
-        ground_truth[:n_informative, :] = 0.3
+        partition=partition,
 
-        bias = 0
+    )
 
+    y = np.squeeze(y)
 
-
-        y = np.dot(X, ground_truth) + bias
-
-
-
-        # Add noise
-
-        if noise &gt; 0.0:
-
-            y += random_state.normal(scale=noise, size=y.shape)
-
-
-
-        X = _fillVariableSpace(
-
-            X,
-
-            random_state,
-
-            n_features=n_features,
-
-            n_redundant=n_redundant,
-
-            n_strel=n_strel,
-
-            n_repeated=n_repeated,
-
-            partition=partition,
-
-        )
-
-        y = np.squeeze(y)
-
-        return X, y
+    return X, y
 </code></pre>
+</details>
                 
                   
                 

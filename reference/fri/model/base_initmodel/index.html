@@ -1251,170 +1251,135 @@
                 
                 
                 <h1 id="module-frimodelbase_initmodel">Module fri.model.base_initmodel</h1>
-<p>??? example "View Source"
-        from abc import ABC, abstractmethod</p>
-<pre><code>    from sklearn.base import BaseEstimator
+<details class="example"><summary>View Source</summary><pre><code>from abc import ABC, abstractmethod
 
+from sklearn.base import BaseEstimator
 
+class InitModel(ABC, BaseEstimator):
 
+    def __init__(self, **parameters):
 
+        if parameters is None:
 
-    class InitModel(ABC, BaseEstimator):
+            parameters = {}
 
-        def __init__(self, **parameters):
+        self.hyperparam = parameters
 
-            if parameters is None:
+        self._model_state = {}
 
-                parameters = {}
+    def _get_param_names(cls):
 
-            self.hyperparam = parameters
+        return sorted(cls.hyperparameter())
 
-            self._model_state = {}
+    @classmethod
 
+    @abstractmethod
 
+    def hyperparameter(cls):
 
-        def _get_param_names(cls):
+        raise NotImplementedError
 
-            return sorted(cls.hyperparameter())
+    def get_params(self, deep=True):
 
+        return self.hyperparam
 
+    def set_params(self, **params):
 
-        @classmethod
+        for p, value in params.items():
 
-        @abstractmethod
+            self.hyperparam[p] = value
 
-        def hyperparameter(cls):
+        return self
 
-            raise NotImplementedError
+    @abstractmethod
 
+    def fit(self, X, y, **kwargs):
 
+        pass
 
-        def get_params(self, deep=True):
+    @abstractmethod
 
-            return self.hyperparam
+    def predict(self, X):
 
+        pass
 
+    @abstractmethod
 
-        def set_params(self, **params):
+    def score(self, X, y, **kwargs):
 
-            for p, value in params.items():
+        pass
 
-                self.hyperparam[p] = value
+    @classmethod
 
-            return self
+    def make_scorer(self):
 
+        return None, None
 
+    @property
 
-        @abstractmethod
+    def constraints(self):
 
-        def fit(self, X, y, **kwargs):
+        return self._constraints
 
-            pass
+    @constraints.setter
 
+    def constraints(self, constraints):
 
+        self._constraints = constraints
 
-        @abstractmethod
+    @property
 
-        def predict(self, X):
+    def model_state(self):
 
-            pass
+        return self._model_state
 
+    @model_state.setter
 
+    def model_state(self, params):
 
-        @abstractmethod
+        self._model_state = params
 
-        def score(self, X, y, **kwargs):
+    @property
 
-            pass
+    def L1_factor(self):
 
+        try:
 
+            return self.constraints["w_l1"]
 
-        @classmethod
+        except:
 
-        def make_scorer(self):
+            raise NotImplementedError(
 
-            return None, None
+                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w)."
 
+            )
 
+    @property
 
-        @property
+    def solver_params(cls):
 
-        def constraints(self):
+        return {"solver": "ECOS"}
 
-            return self._constraints
+class LUPI_InitModel(InitModel):
 
+    @property
 
+    def L1_factor_priv(self):
 
-        @constraints.setter
+        try:
 
-        def constraints(self, constraints):
+            return self.constraints["w_priv_l1"]
 
-            self._constraints = constraints
+        except:
 
+            raise NotImplementedError(
 
+                "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv)."
 
-        @property
-
-        def model_state(self):
-
-            return self._model_state
-
-
-
-        @model_state.setter
-
-        def model_state(self, params):
-
-            self._model_state = params
-
-
-
-        @property
-
-        def L1_factor(self):
-
-            try:
-
-                return self.constraints["w_l1"]
-
-            except:
-
-                raise NotImplementedError(
-
-                    "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w)."
-
-                )
-
-
-
-        @property
-
-        def solver_params(cls):
-
-            return {"solver": "ECOS"}
-
-
-
-
-
-    class LUPI_InitModel(InitModel):
-
-        @property
-
-        def L1_factor_priv(self):
-
-            try:
-
-                return self.constraints["w_priv_l1"]
-
-            except:
-
-                raise NotImplementedError(
-
-                    "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv)."
-
-                )
+            )
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="initmodel">InitModel</h3>
 <pre><code class="python3">class InitModel(
@@ -1424,140 +1389,113 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class InitModel(ABC, BaseEstimator):</p>
-<pre><code>        def __init__(self, **parameters):
+<details class="example"><summary>View Source</summary><pre><code>class InitModel(ABC, BaseEstimator):
 
-            if parameters is None:
+    def __init__(self, **parameters):
 
-                parameters = {}
+        if parameters is None:
 
-            self.hyperparam = parameters
+            parameters = {}
 
-            self._model_state = {}
+        self.hyperparam = parameters
 
+        self._model_state = {}
 
+    def _get_param_names(cls):
 
-        def _get_param_names(cls):
+        return sorted(cls.hyperparameter())
 
-            return sorted(cls.hyperparameter())
+    @classmethod
 
+    @abstractmethod
 
+    def hyperparameter(cls):
 
-        @classmethod
+        raise NotImplementedError
 
-        @abstractmethod
+    def get_params(self, deep=True):
 
-        def hyperparameter(cls):
+        return self.hyperparam
 
-            raise NotImplementedError
+    def set_params(self, **params):
 
+        for p, value in params.items():
 
+            self.hyperparam[p] = value
 
-        def get_params(self, deep=True):
+        return self
 
-            return self.hyperparam
+    @abstractmethod
 
+    def fit(self, X, y, **kwargs):
 
+        pass
 
-        def set_params(self, **params):
+    @abstractmethod
 
-            for p, value in params.items():
+    def predict(self, X):
 
-                self.hyperparam[p] = value
+        pass
 
-            return self
+    @abstractmethod
 
+    def score(self, X, y, **kwargs):
 
+        pass
 
-        @abstractmethod
+    @classmethod
 
-        def fit(self, X, y, **kwargs):
+    def make_scorer(self):
 
-            pass
+        return None, None
 
+    @property
 
+    def constraints(self):
 
-        @abstractmethod
+        return self._constraints
 
-        def predict(self, X):
+    @constraints.setter
 
-            pass
+    def constraints(self, constraints):
 
+        self._constraints = constraints
 
+    @property
 
-        @abstractmethod
+    def model_state(self):
 
-        def score(self, X, y, **kwargs):
+        return self._model_state
 
-            pass
+    @model_state.setter
 
+    def model_state(self, params):
 
+        self._model_state = params
 
-        @classmethod
+    @property
 
-        def make_scorer(self):
+    def L1_factor(self):
 
-            return None, None
+        try:
 
+            return self.constraints["w_l1"]
 
+        except:
 
-        @property
+            raise NotImplementedError(
 
-        def constraints(self):
+                "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w)."
 
-            return self._constraints
+            )
 
+    @property
 
+    def solver_params(cls):
 
-        @constraints.setter
-
-        def constraints(self, constraints):
-
-            self._constraints = constraints
-
-
-
-        @property
-
-        def model_state(self):
-
-            return self._model_state
-
-
-
-        @model_state.setter
-
-        def model_state(self, params):
-
-            self._model_state = params
-
-
-
-        @property
-
-        def L1_factor(self):
-
-            try:
-
-                return self.constraints["w_l1"]
-
-            except:
-
-                raise NotImplementedError(
-
-                    "Baseline model does not provide (L1) normalization constant. Expected l1 norm of model weights (e.g. w)."
-
-                )
-
-
-
-        @property
-
-        def solver_params(cls):
-
-            return {"solver": "ECOS"}
+        return {"solver": "ECOS"}
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -1579,26 +1517,28 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        @abstractmethod
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-        def hyperparameter(cls):
+    @abstractmethod
 
-            raise NotImplementedError
+    def hyperparameter(cls):
+
+        raise NotImplementedError
 </code></pre>
+</details>
 <h5 id="make_scorer">make_scorer</h5>
 <pre><code class="python3">def make_scorer(
 
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def make_scorer(self):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return None, None
+    def make_scorer(self):
+
+        return None, None
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">L1_factor
 </code></pre>
@@ -1622,12 +1562,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def fit(self, X, y, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def fit(self, X, y, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="get_params">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -1643,10 +1584,11 @@ inheritance.</p>
 <h2 id="returns">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            return self.hyperparam
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+
+        return self.hyperparam
 </code></pre>
+</details>
 <h5 id="predict">predict</h5>
 <pre><code class="python3">def predict(
     self,
@@ -1654,12 +1596,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def predict(self, X):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def predict(self, X):
+
+        pass
 </code></pre>
+</details>
 <h5 id="score">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -1669,12 +1612,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def score(self, X, y, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def score(self, X, y, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="set_params">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -1689,14 +1633,15 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_1">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            for p, value in params.items():
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
-                self.hyperparam[p] = value
+        for p, value in params.items():
 
-            return self
+            self.hyperparam[p] = value
+
+        return self
 </code></pre>
+</details>
 <h3 id="lupi_initmodel">LUPI_InitModel</h3>
 <pre><code class="python3">class LUPI_InitModel(
     **parameters
@@ -1705,24 +1650,25 @@ component of a nested object.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_InitModel(InitModel):</p>
-<pre><code>        @property
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_InitModel(InitModel):
 
-        def L1_factor_priv(self):
+    @property
 
-            try:
+    def L1_factor_priv(self):
 
-                return self.constraints["w_priv_l1"]
+        try:
 
-            except:
+            return self.constraints["w_priv_l1"]
 
-                raise NotImplementedError(
+        except:
 
-                    "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv)."
+            raise NotImplementedError(
 
-                )
+                "Baseline model does not provide LUPI (L1) normalization constant. Expected l1 norm of LUPI model weights (e.g. w_priv)."
+
+            )
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>
@@ -1742,26 +1688,28 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        @abstractmethod
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-        def hyperparameter(cls):
+    @abstractmethod
 
-            raise NotImplementedError
+    def hyperparameter(cls):
+
+        raise NotImplementedError
 </code></pre>
+</details>
 <h5 id="make_scorer_1">make_scorer</h5>
 <pre><code class="python3">def make_scorer(
 
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def make_scorer(self):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return None, None
+    def make_scorer(self):
+
+        return None, None
 </code></pre>
+</details>
 <h4 id="instance-variables_1">Instance variables</h4>
 <pre><code class="python3">L1_factor
 </code></pre>
@@ -1788,12 +1736,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def fit(self, X, y, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def fit(self, X, y, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="get_params_1">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -1809,10 +1758,11 @@ inheritance.</p>
 <h2 id="returns_2">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            return self.hyperparam
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+
+        return self.hyperparam
 </code></pre>
+</details>
 <h5 id="predict_1">predict</h5>
 <pre><code class="python3">def predict(
     self,
@@ -1820,12 +1770,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def predict(self, X):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def predict(self, X):
+
+        pass
 </code></pre>
+</details>
 <h5 id="score_1">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -1835,12 +1786,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def score(self, X, y, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            pass
+    def score(self, X, y, **kwargs):
+
+        pass
 </code></pre>
+</details>
 <h5 id="set_params_1">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -1855,14 +1807,15 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_3">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            for p, value in params.items():
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
-                self.hyperparam[p] = value
+        for p, value in params.items():
 
-            return self
+            self.hyperparam[p] = value
+
+        return self
 </code></pre>
+</details>
                 
                   
                 

@@ -1527,508 +1527,391 @@
                 
                 
                 <h1 id="module-frimodelordinal_regression">Module fri.model.ordinal_regression</h1>
-<p>??? example "View Source"
-        import cvxpy as cvx</p>
-<pre><code>    import numpy as np
+<details class="example"><summary>View Source</summary><pre><code>import cvxpy as cvx
 
-    from sklearn.metrics import make_scorer
+import numpy as np
 
-    from sklearn.utils import check_X_y
+from sklearn.metrics import make_scorer
 
+from sklearn.utils import check_X_y
 
+from .base_cvxproblem import Relevance_CVXProblem
 
-    from .base_cvxproblem import Relevance_CVXProblem
+from .base_initmodel import InitModel
 
-    from .base_initmodel import InitModel
+from .base_type import ProblemType
 
-    from .base_type import ProblemType
+class OrdinalRegression(ProblemType):
 
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C"]
 
+    @property
 
-    class OrdinalRegression(ProblemType):
+    def get_initmodel_template(cls):
 
-        @classmethod
+        return OrdinalRegression_SVM
 
-        def parameters(cls):
+    @property
 
-            return ["C"]
+    def get_cvxproblem_template(cls):
 
+        return OrdinalRegression_Relevance_Bound
 
+    def relax_factors(cls):
 
-        @property
+        return ["loss_slack", "w_l1_slack"]
 
-        def get_initmodel_template(cls):
+    def preprocessing(self, data, **kwargs):
 
-            return OrdinalRegression_SVM
+        X, y = data
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-        @property
+        if np.min(y) &gt; 0:
 
-        def get_cvxproblem_template(cls):
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
-            return OrdinalRegression_Relevance_Bound
+            y = y - np.min(y)
 
+        return X, y
 
+class OrdinalRegression_SVM(InitModel):
 
-        def relax_factors(cls):
+    @classmethod
 
-            return ["loss_slack", "w_l1_slack"]
+    def hyperparameter(cls):
 
+        return ["C"]
 
+    def fit(self, X, y, **kwargs):
 
-        def preprocessing(self, data, **kwargs):
+        (n, d) = X.shape
 
-            X, y = data
+        C = self.hyperparam["C"]
 
+        self.classes_ = np.unique(y)
 
+        original_bins = sorted(self.classes_)
 
-            # Check that X and y have correct shape
+        n_bins = len(original_bins)
 
-            X, y = check_X_y(X, y)
+        bins = np.arange(n_bins)
 
-            if np.min(y) &gt; 0:
+        get_old_bin = dict(zip(bins, original_bins))
 
-                print("First ordinal class has index &gt; 0. Shifting index...")
+        w = cvx.Variable(shape=(d), name="w")
 
-                y = y - np.min(y)
+        # For ordinal regression we use two slack variables, we observe the slack in both directions
 
+        slack_left = cvx.Variable(shape=(n), name="slack_left")
 
+        slack_right = cvx.Variable(shape=(n), name="slack_right")
 
-            return X, y
+        # We have an offset for every bin boundary
 
+        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
 
+        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
 
+        # Add constraints for slack into left neighboring bins
 
-    class OrdinalRegression_SVM(InitModel):
+        for i in range(n_bins - 1):
 
-        @classmethod
+            indices = np.where(y == get_old_bin[i])
 
-        def hyperparameter(cls):
+            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
 
-            return ["C"]
+        # Add constraints for slack into right neighboring bins
 
+        for i in range(1, n_bins):
 
+            indices = np.where(y == get_old_bin[i])
 
-        def fit(self, X, y, **kwargs):
+            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
 
-            (n, d) = X.shape
+        # Add explicit constraint, that all bins are ascending
 
+        for i in range(n_bins - 2):
 
+            constraints.append(b_s[i] &lt;= b_s[i + 1])
 
-            C = self.hyperparam["C"]
+        # Solve problem.
 
+        solver_params = self.solver_params
 
+        problem = cvx.Problem(objective, constraints)
 
-            self.classes_ = np.unique(y)
+        problem.solve(**solver_params)
 
-            original_bins = sorted(self.classes_)
+        w = w.value
 
-            n_bins = len(original_bins)
+        b_s = b_s.value
 
-            bins = np.arange(n_bins)
+        slack_left = np.asarray(slack_left.value).flatten()
 
-            get_old_bin = dict(zip(bins, original_bins))
+        slack_right = np.asarray(slack_right.value).flatten()
 
+        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
 
+        loss = np.sum(slack_left + slack_right)
 
-            w = cvx.Variable(shape=(d), name="w")
+        w_l1 = np.linalg.norm(w, ord=1)
 
-            # For ordinal regression we use two slack variables, we observe the slack in both directions
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-            slack_left = cvx.Variable(shape=(n), name="slack_left")
+        return self
 
-            slack_right = cvx.Variable(shape=(n), name="slack_right")
+    def predict(self, X):
 
-            # We have an offset for every bin boundary
+        w = self.model_state["w"]
 
-            b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        b_s = self.model_state["b_s"]
 
+        scores = np.dot(X, w.T)[np.newaxis]
 
+        bin_thresholds = np.append(b_s, np.inf)
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+        # If thresholds are smaller than score the value belongs to the bigger bin
 
-            constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+        # after subtracting we check for positive elements
 
+        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
 
+        return self.classes_[indices]
 
-            # Add constraints for slack into left neighboring bins
+    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
-            for i in range(n_bins - 1):
+        X, y = check_X_y(X, y)
 
-                indices = np.where(y == get_old_bin[i])
+        prediction = self.predict(X)
 
-                constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
+        return score
 
+    def make_scorer(self):
 
-            # Add constraints for slack into right neighboring bins
+        # Use multiple scores for ordinal regression
 
-            for i in range(1, n_bins):
+        mze = make_scorer(ordinal_scores, error_type="mze")
 
-                indices = np.where(y == get_old_bin[i])
+        mae = make_scorer(ordinal_scores, error_type="mae")
 
-                constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+        mmae = make_scorer(ordinal_scores, error_type="mmae")
 
+        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
 
+        return scorer, "mmae"
 
-            # Add explicit constraint, that all bins are ascending
+def ordinal_scores(y, prediction, error_type, return_error=False):
 
-            for i in range(n_bins - 2):
+    """Score function for ordinal problems.
 
-                constraints.append(b_s[i] &lt;= b_s[i + 1])
+    Parameters
 
+    ----------
 
+    y : target class vector
 
-            # Solve problem.
+        Truth vector
 
-            solver_params = self.solver_params
+    prediction : prediction class vector
 
-            problem = cvx.Problem(objective, constraints)
+        Predicted classes
 
-            problem.solve(**solver_params)
+    error_type : str
 
+        Error type "mze","mae","mmae"
 
+    return_error : bool, optional
 
-            w = w.value
+        Return error (lower is better) or score (inverted, higher is better)
 
-            b_s = b_s.value
+    Returns
 
-            slack_left = np.asarray(slack_left.value).flatten()
+    -------
 
-            slack_right = np.asarray(slack_right.value).flatten()
+    float
 
-            self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
+        Error or score depending on 'return_error'
 
+    Raises
 
+    ------
 
-            loss = np.sum(slack_left + slack_right)
+    ValueError
 
-            w_l1 = np.linalg.norm(w, ord=1)
+        When using wrong error_type
 
-            self.constraints = {"loss": loss, "w_l1": w_l1}
+    """
 
-            return self
+    n = len(y)
 
+    classes = np.unique(y)
 
+    n_bins = len(classes)
 
-        def predict(self, X):
+    max_dist = n_bins - 1
 
-            w = self.model_state["w"]
+    # If only one class available, we dont need to average
 
-            b_s = self.model_state["b_s"]
+    if max_dist == 0:
 
+        error_type = "mze"
 
+    def mze(prediction, y):
 
-            scores = np.dot(X, w.T)[np.newaxis]
+        return np.sum(prediction != y)
 
-            bin_thresholds = np.append(b_s, np.inf)
+    def mae(prediction, y):
 
+        return np.sum(np.abs(prediction - y))
 
+    # Score based on mean zero-one error
 
-            # If thresholds are smaller than score the value belongs to the bigger bin
+    if error_type == "mze":
 
-            # after subtracting we check for positive elements
+        error = mze(prediction, y) / n
 
-            indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
+        score = 1 - error
 
-            return self.classes_[indices]
+    # Score based on mean absolute error
 
+    elif error_type == "mae":
 
+        error = mae(prediction, y) / n
 
-        def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
+        score = (max_dist - error) / max_dist
 
+    # Score based on macro-averaged mean absolute error
 
+    elif error_type == "mmae":
 
-            X, y = check_X_y(X, y)
+        sum = 0
 
+        for i in range(n_bins):
 
+            samples = y == i
 
-            prediction = self.predict(X)
+            n_samples = np.sum(samples)
 
-            score = ordinal_scores(y, prediction, error_type, return_error=return_error)
+            if n_samples &gt; 0:
 
+                bin_error = mae(prediction[samples], y[samples]) / n_samples
 
+                sum += bin_error
 
-            return score
+        error = sum / n_bins
 
+        score = (max_dist - error) / max_dist
 
+    else:
 
-        def make_scorer(self):
+        raise ValueError("error_type {} not available!'".format(error_type))
 
-            # Use multiple scores for ordinal regression
+    if return_error:
 
-            mze = make_scorer(ordinal_scores, error_type="mze")
+        return error
 
-            mae = make_scorer(ordinal_scores, error_type="mae")
+    else:
 
-            mmae = make_scorer(ordinal_scores, error_type="mmae")
+        return score
 
-            scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
 
-            return scorer, "mmae"
+    def init_objective_UB(self, sign=None, **kwargs):
 
+        self.add_constraint(
 
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
 
+        )
 
+        self._objective = cvx.Maximize(self.feature_relevance)
 
-    def ordinal_scores(y, prediction, error_type, return_error=False):
+    def init_objective_LB(self, **kwargs):
 
-        """Score function for ordinal problems.
+        self.add_constraint(
 
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
 
+        )
 
-        Parameters
+        self._objective = cvx.Minimize(self.feature_relevance)
 
-        ----------
+    def _init_constraints(self, parameters, init_model_constraints):
 
-        y : target class vector
+        n_bins = len(np.unique(self.y))
 
-            Truth vector
+        # Upper constraints from initial model
 
-        prediction : prediction class vector
+        l1_w = init_model_constraints["w_l1"]
 
-            Predicted classes
+        init_loss = init_model_constraints["loss"]
 
-        error_type : str
+        C = parameters["C"]
 
-            Error type "mze","mae","mmae"
+        # New Variables
 
-        return_error : bool, optional
+        self.w = cvx.Variable(shape=(self.d), name="w")
 
-            Return error (lower is better) or score (inverted, higher is better)
+        # For ordinal regression we use two slack variables, we observe the slack in both directions
 
+        self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
 
+        self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
 
-        Returns
+        # We have an offset for every bin boundary
 
-        -------
+        self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
-        float
+        # New Constraints
 
-            Error or score depending on 'return_error'
+        self.loss = cvx.sum(self.slack_left + self.slack_right)
 
+        self.weight_norm = cvx.norm(self.w, 1)
 
+        for i in range(n_bins - 1):
 
-        Raises
-
-        ------
-
-        ValueError
-
-            When using wrong error_type
-
-        """
-
-        n = len(y)
-
-        classes = np.unique(y)
-
-        n_bins = len(classes)
-
-        max_dist = n_bins - 1
-
-        # If only one class available, we dont need to average
-
-        if max_dist == 0:
-
-            error_type = "mze"
-
-
-
-        def mze(prediction, y):
-
-            return np.sum(prediction != y)
-
-
-
-        def mae(prediction, y):
-
-            return np.sum(np.abs(prediction - y))
-
-
-
-        # Score based on mean zero-one error
-
-        if error_type == "mze":
-
-            error = mze(prediction, y) / n
-
-            score = 1 - error
-
-
-
-        # Score based on mean absolute error
-
-        elif error_type == "mae":
-
-            error = mae(prediction, y) / n
-
-            score = (max_dist - error) / max_dist
-
-
-
-        # Score based on macro-averaged mean absolute error
-
-        elif error_type == "mmae":
-
-            sum = 0
-
-            for i in range(n_bins):
-
-                samples = y == i
-
-                n_samples = np.sum(samples)
-
-                if n_samples &gt; 0:
-
-                    bin_error = mae(prediction[samples], y[samples]) / n_samples
-
-                    sum += bin_error
-
-
-
-            error = sum / n_bins
-
-            score = (max_dist - error) / max_dist
-
-        else:
-
-            raise ValueError("error_type {} not available!'".format(error_type))
-
-
-
-        if return_error:
-
-            return error
-
-        else:
-
-            return score
-
-
-
-
-
-    class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
-
-        def init_objective_UB(self, sign=None, **kwargs):
-
-
+            indices = np.where(self.y == i)
 
             self.add_constraint(
 
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
+                self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
 
             )
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        for i in range(1, n_bins):
 
-
-
-        def init_objective_LB(self, **kwargs):
+            indices = np.where(self.y == i)
 
             self.add_constraint(
 
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+                self.X[indices] * self.w + self.slack_right[indices]
+
+                &gt;= self.b_s[i - 1] + 1
 
             )
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        for i in range(n_bins - 2):
 
+            self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
 
+        self.add_constraint(self.weight_norm &lt;= l1_w)
 
-        def _init_constraints(self, parameters, init_model_constraints):
+        self.add_constraint(C * self.loss &lt;= C * init_loss)
 
-
-
-            n_bins = len(np.unique(self.y))
-
-
-
-            # Upper constraints from initial model
-
-            l1_w = init_model_constraints["w_l1"]
-
-            init_loss = init_model_constraints["loss"]
-
-
-
-            C = parameters["C"]
-
-
-
-            # New Variables
-
-            self.w = cvx.Variable(shape=(self.d), name="w")
-
-
-
-            # For ordinal regression we use two slack variables, we observe the slack in both directions
-
-            self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
-
-            self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
-
-
-
-            # We have an offset for every bin boundary
-
-            self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
-
-
-
-            # New Constraints
-
-            self.loss = cvx.sum(self.slack_left + self.slack_right)
-
-            self.weight_norm = cvx.norm(self.w, 1)
-
-
-
-            for i in range(n_bins - 1):
-
-                indices = np.where(self.y == i)
-
-                self.add_constraint(
-
-                    self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
-
-                )
-
-
-
-            for i in range(1, n_bins):
-
-                indices = np.where(self.y == i)
-
-                self.add_constraint(
-
-                    self.X[indices] * self.w + self.slack_right[indices]
-
-                    &gt;= self.b_s[i - 1] + 1
-
-                )
-
-
-
-            for i in range(n_bins - 2):
-
-                self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
-
-
-
-            self.add_constraint(self.weight_norm &lt;= l1_w)
-
-            self.add_constraint(C * self.loss &lt;= C * init_loss)
-
-
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <h2 id="functions">Functions</h2>
 <h3 id="ordinal_scores">ordinal_scores</h3>
 <pre><code class="python3">def ordinal_scores(
@@ -2055,140 +1938,121 @@ return_error : bool, optional
 <h2 id="raises">Raises</h2>
 <p>ValueError
     When using wrong error_type</p>
-<p>??? example "View Source"
-        def ordinal_scores(y, prediction, error_type, return_error=False):</p>
-<pre><code>        """Score function for ordinal problems.
+<details class="example"><summary>View Source</summary><pre><code>def ordinal_scores(y, prediction, error_type, return_error=False):
 
+    """Score function for ordinal problems.
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    y : target class vector
 
-        y : target class vector
+        Truth vector
 
-            Truth vector
+    prediction : prediction class vector
 
-        prediction : prediction class vector
+        Predicted classes
 
-            Predicted classes
+    error_type : str
 
-        error_type : str
+        Error type "mze","mae","mmae"
 
-            Error type "mze","mae","mmae"
+    return_error : bool, optional
 
-        return_error : bool, optional
+        Return error (lower is better) or score (inverted, higher is better)
 
-            Return error (lower is better) or score (inverted, higher is better)
+    Returns
 
+    -------
 
+    float
 
-        Returns
+        Error or score depending on 'return_error'
 
-        -------
+    Raises
 
-        float
+    ------
 
-            Error or score depending on 'return_error'
+    ValueError
 
+        When using wrong error_type
 
+    """
 
-        Raises
+    n = len(y)
 
-        ------
+    classes = np.unique(y)
 
-        ValueError
+    n_bins = len(classes)
 
-            When using wrong error_type
+    max_dist = n_bins - 1
 
-        """
+    # If only one class available, we dont need to average
 
-        n = len(y)
+    if max_dist == 0:
 
-        classes = np.unique(y)
+        error_type = "mze"
 
-        n_bins = len(classes)
+    def mze(prediction, y):
 
-        max_dist = n_bins - 1
+        return np.sum(prediction != y)
 
-        # If only one class available, we dont need to average
+    def mae(prediction, y):
 
-        if max_dist == 0:
+        return np.sum(np.abs(prediction - y))
 
-            error_type = "mze"
+    # Score based on mean zero-one error
 
+    if error_type == "mze":
 
+        error = mze(prediction, y) / n
 
-        def mze(prediction, y):
+        score = 1 - error
 
-            return np.sum(prediction != y)
+    # Score based on mean absolute error
 
+    elif error_type == "mae":
 
+        error = mae(prediction, y) / n
 
-        def mae(prediction, y):
+        score = (max_dist - error) / max_dist
 
-            return np.sum(np.abs(prediction - y))
+    # Score based on macro-averaged mean absolute error
 
+    elif error_type == "mmae":
 
+        sum = 0
 
-        # Score based on mean zero-one error
+        for i in range(n_bins):
 
-        if error_type == "mze":
+            samples = y == i
 
-            error = mze(prediction, y) / n
+            n_samples = np.sum(samples)
 
-            score = 1 - error
+            if n_samples &gt; 0:
 
+                bin_error = mae(prediction[samples], y[samples]) / n_samples
 
+                sum += bin_error
 
-        # Score based on mean absolute error
+        error = sum / n_bins
 
-        elif error_type == "mae":
+        score = (max_dist - error) / max_dist
 
-            error = mae(prediction, y) / n
+    else:
 
-            score = (max_dist - error) / max_dist
+        raise ValueError("error_type {} not available!'".format(error_type))
 
+    if return_error:
 
+        return error
 
-        # Score based on macro-averaged mean absolute error
+    else:
 
-        elif error_type == "mmae":
-
-            sum = 0
-
-            for i in range(n_bins):
-
-                samples = y == i
-
-                n_samples = np.sum(samples)
-
-                if n_samples &gt; 0:
-
-                    bin_error = mae(prediction[samples], y[samples]) / n_samples
-
-                    sum += bin_error
-
-
-
-            error = sum / n_bins
-
-            score = (max_dist - error) / max_dist
-
-        else:
-
-            raise ValueError("error_type {} not available!'".format(error_type))
-
-
-
-        if return_error:
-
-            return error
-
-        else:
-
-            return score
+        return score
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="ordinalregression">OrdinalRegression</h3>
 <pre><code class="python3">class OrdinalRegression(
@@ -2198,58 +2062,47 @@ return_error : bool, optional
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class OrdinalRegression(ProblemType):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression(ProblemType):
 
-        def parameters(cls):
+    @classmethod
 
-            return ["C"]
+    def parameters(cls):
 
+        return ["C"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def get_initmodel_template(cls):
+        return OrdinalRegression_SVM
 
-            return OrdinalRegression_SVM
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return OrdinalRegression_Relevance_Bound
 
-        @property
+    def relax_factors(cls):
 
-        def get_cvxproblem_template(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return OrdinalRegression_Relevance_Bound
+    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-        def relax_factors(cls):
+        X, y = check_X_y(X, y)
 
-            return ["loss_slack", "w_l1_slack"]
+        if np.min(y) &gt; 0:
 
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
+            y = y - np.min(y)
 
-        def preprocessing(self, data, **kwargs):
-
-            X, y = data
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-            if np.min(y) &gt; 0:
-
-                print("First ordinal class has index &gt; 0. Shifting index...")
-
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -2263,12 +2116,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C"]
+    def parameters(cls):
+
+        return ["C"]
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -2283,20 +2137,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -2304,48 +2160,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -2353,28 +2210,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -2382,10 +2240,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -2393,10 +2252,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -2405,26 +2265,23 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, **kwargs):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-            # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
 
-            X, y = check_X_y(X, y)
+        if np.min(y) &gt; 0:
 
-            if np.min(y) &gt; 0:
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
-                print("First ordinal class has index &gt; 0. Shifting index...")
+            y = y - np.min(y)
 
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -2433,24 +2290,26 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="ordinalregression_relevance_bound">OrdinalRegression_Relevance_Bound</h3>
 <pre><code class="python3">class OrdinalRegression_Relevance_Bound(
-    current_feature:int,
-    data:tuple,
+    current_feature: int,
+    data: tuple,
     hyperparameters,
     best_model_constraints,
     preset_model=None,
@@ -2462,122 +2321,93 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):</p>
-<pre><code>        def init_objective_UB(self, sign=None, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
 
+    def init_objective_UB(self, sign=None, **kwargs):
 
+        self.add_constraint(
+
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
+
+        )
+
+        self._objective = cvx.Maximize(self.feature_relevance)
+
+    def init_objective_LB(self, **kwargs):
+
+        self.add_constraint(
+
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+
+        )
+
+        self._objective = cvx.Minimize(self.feature_relevance)
+
+    def _init_constraints(self, parameters, init_model_constraints):
+
+        n_bins = len(np.unique(self.y))
+
+        # Upper constraints from initial model
+
+        l1_w = init_model_constraints["w_l1"]
+
+        init_loss = init_model_constraints["loss"]
+
+        C = parameters["C"]
+
+        # New Variables
+
+        self.w = cvx.Variable(shape=(self.d), name="w")
+
+        # For ordinal regression we use two slack variables, we observe the slack in both directions
+
+        self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
+
+        self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
+
+        # We have an offset for every bin boundary
+
+        self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+
+        # New Constraints
+
+        self.loss = cvx.sum(self.slack_left + self.slack_right)
+
+        self.weight_norm = cvx.norm(self.w, 1)
+
+        for i in range(n_bins - 1):
+
+            indices = np.where(self.y == i)
 
             self.add_constraint(
 
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
+                self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
 
             )
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        for i in range(1, n_bins):
 
-
-
-        def init_objective_LB(self, **kwargs):
+            indices = np.where(self.y == i)
 
             self.add_constraint(
 
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+                self.X[indices] * self.w + self.slack_right[indices]
+
+                &gt;= self.b_s[i - 1] + 1
 
             )
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        for i in range(n_bins - 2):
 
+            self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
 
+        self.add_constraint(self.weight_norm &lt;= l1_w)
 
-        def _init_constraints(self, parameters, init_model_constraints):
+        self.add_constraint(C * self.loss &lt;= C * init_loss)
 
-
-
-            n_bins = len(np.unique(self.y))
-
-
-
-            # Upper constraints from initial model
-
-            l1_w = init_model_constraints["w_l1"]
-
-            init_loss = init_model_constraints["loss"]
-
-
-
-            C = parameters["C"]
-
-
-
-            # New Variables
-
-            self.w = cvx.Variable(shape=(self.d), name="w")
-
-
-
-            # For ordinal regression we use two slack variables, we observe the slack in both directions
-
-            self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
-
-            self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
-
-
-
-            # We have an offset for every bin boundary
-
-            self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
-
-
-
-            # New Constraints
-
-            self.loss = cvx.sum(self.slack_left + self.slack_right)
-
-            self.weight_norm = cvx.norm(self.w, 1)
-
-
-
-            for i in range(n_bins - 1):
-
-                indices = np.where(self.y == i)
-
-                self.add_constraint(
-
-                    self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
-
-                )
-
-
-
-            for i in range(1, n_bins):
-
-                indices = np.where(self.y == i)
-
-                self.add_constraint(
-
-                    self.X[indices] * self.w + self.slack_right[indices]
-
-                    &gt;= self.b_s[i - 1] + 1
-
-                )
-
-
-
-            for i in range(n_bins - 2):
-
-                self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
-
-
-
-            self.add_constraint(self.weight_norm &lt;= l1_w)
-
-            self.add_constraint(C * self.loss &lt;= C * init_loss)
-
-
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>
@@ -2595,32 +2425,34 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            max_value = max(vals)
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            return max_value
+        max_value = max(vals)
+
+        return max_value
 </code></pre>
+</details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
 <pre><code class="python3">def aggregate_min_candidates(
     min_problems_candidates
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-            min_value = min(vals)
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-            return min_value
+        min_value = min(vals)
+
+        return min_value
 </code></pre>
+</details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
 <pre><code class="python3">def generate_lower_bound_problem(
     best_hyperparameters,
@@ -2633,27 +2465,88 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_lower_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+</code></pre>
+</details>
+<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
+<pre><code class="python3">def generate_upper_bound_problem(
+    best_hyperparameters,
+    init_constraints,
+    best_model_state,
+    data,
+    di,
+    preset_model,
+    probeID=-1
+)
+</code></pre>
+
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -2673,72 +2566,13 @@ inheritance.</p>
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 </code></pre>
-<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
-
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_upper_bound_problem(
-
-            cls,
-
-            best_hyperparameters,
-
-            init_constraints,
-
-            best_model_state,
-
-            data,
-
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-</code></pre>
+</details>
 <h4 id="instance-variables_1">Instance variables</h4>
 <pre><code class="python3">accepted_status
 </code></pre>
@@ -2775,10 +2609,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def add_constraint(self, new):</p>
-<pre><code>            self._constraints.append(new)
+<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
+
+        self._constraints.append(new)
 </code></pre>
+</details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
 <pre><code class="python3">def init_objective_LB(
     self,
@@ -2786,16 +2621,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_LB(self, **kwargs):</p>
-<pre><code>            self.add_constraint(
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-                cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+        self.add_constraint(
 
-            )
+            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        )
+
+        self._objective = cvx.Minimize(self.feature_relevance)
 </code></pre>
+</details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
 <pre><code class="python3">def init_objective_UB(
     self,
@@ -2804,16 +2640,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_UB(self, sign=None, **kwargs):</p>
-<pre><code>            self.add_constraint(
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, sign=None, **kwargs):
 
-                self.feature_relevance &lt;= sign * self.w[self.current_feature]
+        self.add_constraint(
 
-            )
+            self.feature_relevance &lt;= sign * self.w[self.current_feature]
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        )
+
+        self._objective = cvx.Maximize(self.feature_relevance)
 </code></pre>
+</details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
 <pre><code class="python3">def preprocessing_data(
     self,
@@ -2822,58 +2659,58 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing_data(self, data, best_model_state):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-            self.n = X.shape[0]
+        X, y = data
 
-            self.d = X.shape[1]
+        self.n = X.shape[0]
 
-            self.X = X
+        self.d = X.shape[1]
 
-            self.y = np.array(y)
+        self.X = X
+
+        self.y = np.array(y)
 </code></pre>
+</details>
 <h5 id="solve">solve</h5>
 <pre><code class="python3">def solve(
     self
 ) -&gt; object
 </code></pre>
 
-<p>??? example "View Source"
-            def solve(self) -&gt; object:</p>
-<pre><code>            # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # We init cvx problem here because pickling LP solver objects is problematic
 
-            self._cvx_problem = cvx.Problem(
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
-                objective=self.objective, constraints=self.constraints
+        self._cvx_problem = cvx.Problem(
 
-            )
+            objective=self.objective, constraints=self.constraints
 
-            try:
+        )
 
-                # print("Solve", self)
+        try:
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            # print("Solve", self)
 
-            except SolverError:
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-                # We ignore Solver Errors, which are common with our framework:
+        except SolverError:
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # We ignore Solver Errors, which are common with our framework:
 
-                pass
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
+        self._solver_status = self._cvx_problem.status
 
-            self._solver_status = self._cvx_problem.status
+        # self._cvx_problem = None
 
-            # self._cvx_problem = None
-
-            return self
+        return self
 </code></pre>
+</details>
 <h3 id="ordinalregression_svm">OrdinalRegression_SVM</h3>
 <pre><code class="python3">class OrdinalRegression_SVM(
     **parameters
@@ -2882,174 +2719,137 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class OrdinalRegression_SVM(InitModel):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression_SVM(InitModel):
 
-        def hyperparameter(cls):
+    @classmethod
 
-            return ["C"]
+    def hyperparameter(cls):
 
+        return ["C"]
 
+    def fit(self, X, y, **kwargs):
 
-        def fit(self, X, y, **kwargs):
+        (n, d) = X.shape
 
-            (n, d) = X.shape
+        C = self.hyperparam["C"]
 
+        self.classes_ = np.unique(y)
 
+        original_bins = sorted(self.classes_)
 
-            C = self.hyperparam["C"]
+        n_bins = len(original_bins)
 
+        bins = np.arange(n_bins)
 
+        get_old_bin = dict(zip(bins, original_bins))
 
-            self.classes_ = np.unique(y)
+        w = cvx.Variable(shape=(d), name="w")
 
-            original_bins = sorted(self.classes_)
+        # For ordinal regression we use two slack variables, we observe the slack in both directions
 
-            n_bins = len(original_bins)
+        slack_left = cvx.Variable(shape=(n), name="slack_left")
 
-            bins = np.arange(n_bins)
+        slack_right = cvx.Variable(shape=(n), name="slack_right")
 
-            get_old_bin = dict(zip(bins, original_bins))
+        # We have an offset for every bin boundary
 
+        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
 
-            w = cvx.Variable(shape=(d), name="w")
+        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
 
-            # For ordinal regression we use two slack variables, we observe the slack in both directions
+        # Add constraints for slack into left neighboring bins
 
-            slack_left = cvx.Variable(shape=(n), name="slack_left")
+        for i in range(n_bins - 1):
 
-            slack_right = cvx.Variable(shape=(n), name="slack_right")
+            indices = np.where(y == get_old_bin[i])
 
-            # We have an offset for every bin boundary
+            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
 
-            b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        # Add constraints for slack into right neighboring bins
 
+        for i in range(1, n_bins):
 
+            indices = np.where(y == get_old_bin[i])
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
 
-            constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+        # Add explicit constraint, that all bins are ascending
 
+        for i in range(n_bins - 2):
 
+            constraints.append(b_s[i] &lt;= b_s[i + 1])
 
-            # Add constraints for slack into left neighboring bins
+        # Solve problem.
 
-            for i in range(n_bins - 1):
+        solver_params = self.solver_params
 
-                indices = np.where(y == get_old_bin[i])
+        problem = cvx.Problem(objective, constraints)
 
-                constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+        problem.solve(**solver_params)
 
+        w = w.value
 
+        b_s = b_s.value
 
-            # Add constraints for slack into right neighboring bins
+        slack_left = np.asarray(slack_left.value).flatten()
 
-            for i in range(1, n_bins):
+        slack_right = np.asarray(slack_right.value).flatten()
 
-                indices = np.where(y == get_old_bin[i])
+        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
 
-                constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+        loss = np.sum(slack_left + slack_right)
 
+        w_l1 = np.linalg.norm(w, ord=1)
 
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-            # Add explicit constraint, that all bins are ascending
+        return self
 
-            for i in range(n_bins - 2):
+    def predict(self, X):
 
-                constraints.append(b_s[i] &lt;= b_s[i + 1])
+        w = self.model_state["w"]
 
+        b_s = self.model_state["b_s"]
 
+        scores = np.dot(X, w.T)[np.newaxis]
 
-            # Solve problem.
+        bin_thresholds = np.append(b_s, np.inf)
 
-            solver_params = self.solver_params
+        # If thresholds are smaller than score the value belongs to the bigger bin
 
-            problem = cvx.Problem(objective, constraints)
+        # after subtracting we check for positive elements
 
-            problem.solve(**solver_params)
+        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
 
+        return self.classes_[indices]
 
+    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
-            w = w.value
+        X, y = check_X_y(X, y)
 
-            b_s = b_s.value
+        prediction = self.predict(X)
 
-            slack_left = np.asarray(slack_left.value).flatten()
+        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
-            slack_right = np.asarray(slack_right.value).flatten()
+        return score
 
-            self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
+    def make_scorer(self):
 
+        # Use multiple scores for ordinal regression
 
+        mze = make_scorer(ordinal_scores, error_type="mze")
 
-            loss = np.sum(slack_left + slack_right)
+        mae = make_scorer(ordinal_scores, error_type="mae")
 
-            w_l1 = np.linalg.norm(w, ord=1)
+        mmae = make_scorer(ordinal_scores, error_type="mmae")
 
-            self.constraints = {"loss": loss, "w_l1": w_l1}
+        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
 
-            return self
-
-
-
-        def predict(self, X):
-
-            w = self.model_state["w"]
-
-            b_s = self.model_state["b_s"]
-
-
-
-            scores = np.dot(X, w.T)[np.newaxis]
-
-            bin_thresholds = np.append(b_s, np.inf)
-
-
-
-            # If thresholds are smaller than score the value belongs to the bigger bin
-
-            # after subtracting we check for positive elements
-
-            indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
-
-            return self.classes_[indices]
-
-
-
-        def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
-
-
-
-            X, y = check_X_y(X, y)
-
-
-
-            prediction = self.predict(X)
-
-            score = ordinal_scores(y, prediction, error_type, return_error=return_error)
-
-
-
-            return score
-
-
-
-        def make_scorer(self):
-
-            # Use multiple scores for ordinal regression
-
-            mze = make_scorer(ordinal_scores, error_type="mze")
-
-            mae = make_scorer(ordinal_scores, error_type="mae")
-
-            mmae = make_scorer(ordinal_scores, error_type="mmae")
-
-            scorer = {"mze": mze, "mae": mae, "mmae": mmae}
-
-            return scorer, "mmae"
+        return scorer, "mmae"
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
 <ul>
@@ -3064,12 +2864,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def hyperparameter(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C"]
+    def hyperparameter(cls):
+
+        return ["C"]
 </code></pre>
+</details>
 <h4 id="instance-variables_2">Instance variables</h4>
 <pre><code class="python3">L1_factor
 </code></pre>
@@ -3093,106 +2894,87 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def fit(self, X, y, **kwargs):</p>
-<pre><code>            (n, d) = X.shape
+<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X, y, **kwargs):
 
+        (n, d) = X.shape
 
+        C = self.hyperparam["C"]
 
-            C = self.hyperparam["C"]
+        self.classes_ = np.unique(y)
 
+        original_bins = sorted(self.classes_)
 
+        n_bins = len(original_bins)
 
-            self.classes_ = np.unique(y)
+        bins = np.arange(n_bins)
 
-            original_bins = sorted(self.classes_)
+        get_old_bin = dict(zip(bins, original_bins))
 
-            n_bins = len(original_bins)
+        w = cvx.Variable(shape=(d), name="w")
 
-            bins = np.arange(n_bins)
+        # For ordinal regression we use two slack variables, we observe the slack in both directions
 
-            get_old_bin = dict(zip(bins, original_bins))
+        slack_left = cvx.Variable(shape=(n), name="slack_left")
 
+        slack_right = cvx.Variable(shape=(n), name="slack_right")
 
+        # We have an offset for every bin boundary
 
-            w = cvx.Variable(shape=(d), name="w")
+        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
 
-            # For ordinal regression we use two slack variables, we observe the slack in both directions
+        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
 
-            slack_left = cvx.Variable(shape=(n), name="slack_left")
+        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
 
-            slack_right = cvx.Variable(shape=(n), name="slack_right")
+        # Add constraints for slack into left neighboring bins
 
-            # We have an offset for every bin boundary
+        for i in range(n_bins - 1):
 
-            b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+            indices = np.where(y == get_old_bin[i])
 
+            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
 
+        # Add constraints for slack into right neighboring bins
 
-            objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+        for i in range(1, n_bins):
 
-            constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+            indices = np.where(y == get_old_bin[i])
 
+            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
 
+        # Add explicit constraint, that all bins are ascending
 
-            # Add constraints for slack into left neighboring bins
+        for i in range(n_bins - 2):
 
-            for i in range(n_bins - 1):
+            constraints.append(b_s[i] &lt;= b_s[i + 1])
 
-                indices = np.where(y == get_old_bin[i])
+        # Solve problem.
 
-                constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+        solver_params = self.solver_params
 
+        problem = cvx.Problem(objective, constraints)
 
+        problem.solve(**solver_params)
 
-            # Add constraints for slack into right neighboring bins
+        w = w.value
 
-            for i in range(1, n_bins):
+        b_s = b_s.value
 
-                indices = np.where(y == get_old_bin[i])
+        slack_left = np.asarray(slack_left.value).flatten()
 
-                constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+        slack_right = np.asarray(slack_right.value).flatten()
 
+        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
 
+        loss = np.sum(slack_left + slack_right)
 
-            # Add explicit constraint, that all bins are ascending
+        w_l1 = np.linalg.norm(w, ord=1)
 
-            for i in range(n_bins - 2):
+        self.constraints = {"loss": loss, "w_l1": w_l1}
 
-                constraints.append(b_s[i] &lt;= b_s[i + 1])
-
-
-
-            # Solve problem.
-
-            solver_params = self.solver_params
-
-            problem = cvx.Problem(objective, constraints)
-
-            problem.solve(**solver_params)
-
-
-
-            w = w.value
-
-            b_s = b_s.value
-
-            slack_left = np.asarray(slack_left.value).flatten()
-
-            slack_right = np.asarray(slack_right.value).flatten()
-
-            self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
-
-
-
-            loss = np.sum(slack_left + slack_right)
-
-            w_l1 = np.linalg.norm(w, ord=1)
-
-            self.constraints = {"loss": loss, "w_l1": w_l1}
-
-            return self
+        return self
 </code></pre>
+</details>
 <h5 id="get_params">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -3208,30 +2990,32 @@ inheritance.</p>
 <h2 id="returns_1">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            return self.hyperparam
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+
+        return self.hyperparam
 </code></pre>
+</details>
 <h5 id="make_scorer">make_scorer</h5>
 <pre><code class="python3">def make_scorer(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def make_scorer(self):</p>
-<pre><code>            # Use multiple scores for ordinal regression
+<details class="example"><summary>View Source</summary><pre><code>    def make_scorer(self):
 
-            mze = make_scorer(ordinal_scores, error_type="mze")
+        # Use multiple scores for ordinal regression
 
-            mae = make_scorer(ordinal_scores, error_type="mae")
+        mze = make_scorer(ordinal_scores, error_type="mze")
 
-            mmae = make_scorer(ordinal_scores, error_type="mmae")
+        mae = make_scorer(ordinal_scores, error_type="mae")
 
-            scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+        mmae = make_scorer(ordinal_scores, error_type="mmae")
 
-            return scorer, "mmae"
+        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+
+        return scorer, "mmae"
 </code></pre>
+</details>
 <h5 id="predict">predict</h5>
 <pre><code class="python3">def predict(
     self,
@@ -3239,28 +3023,25 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def predict(self, X):</p>
-<pre><code>            w = self.model_state["w"]
+<details class="example"><summary>View Source</summary><pre><code>    def predict(self, X):
 
-            b_s = self.model_state["b_s"]
+        w = self.model_state["w"]
 
+        b_s = self.model_state["b_s"]
 
+        scores = np.dot(X, w.T)[np.newaxis]
 
-            scores = np.dot(X, w.T)[np.newaxis]
+        bin_thresholds = np.append(b_s, np.inf)
 
-            bin_thresholds = np.append(b_s, np.inf)
+        # If thresholds are smaller than score the value belongs to the bigger bin
 
+        # after subtracting we check for positive elements
 
+        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
 
-            # If thresholds are smaller than score the value belongs to the bigger bin
-
-            # after subtracting we check for positive elements
-
-            indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
-
-            return self.classes_[indices]
+        return self.classes_[indices]
 </code></pre>
+</details>
 <h5 id="score">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -3272,20 +3053,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def score(self, X, y, error_type="mmae", return_error=False, **kwargs):</p>
-<pre><code>            X, y = check_X_y(X, y)
+<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
+        X, y = check_X_y(X, y)
 
+        prediction = self.predict(X)
 
-            prediction = self.predict(X)
+        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
 
-            score = ordinal_scores(y, prediction, error_type, return_error=return_error)
-
-
-
-            return score
+        return score
 </code></pre>
+</details>
 <h5 id="set_params">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -3300,14 +3078,15 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_2">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            for p, value in params.items():
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
-                self.hyperparam[p] = value
+        for p, value in params.items():
 
-            return self
+            self.hyperparam[p] = value
+
+        return self
 </code></pre>
+</details>
                 
                   
                 

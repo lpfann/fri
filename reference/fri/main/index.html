@@ -1381,530 +1381,435 @@
                 
                 
                 <h1 id="module-frimain">Module fri.main</h1>
-<p>??? example "View Source"
-        from sklearn.base import BaseEstimator</p>
-<pre><code>    from sklearn.exceptions import NotFittedError
+<details class="example"><summary>View Source</summary><pre><code>from sklearn.base import BaseEstimator
 
-    from sklearn.feature_selection.base import SelectorMixin
+from sklearn.exceptions import NotFittedError
 
-    from sklearn.utils import check_random_state
+from sklearn.feature_selection.base import SelectorMixin
 
-    from sklearn.utils.validation import check_is_fitted
+from sklearn.utils import check_random_state
 
+from sklearn.utils.validation import check_is_fitted
 
+from fri.compute import RelevanceBoundsIntervals
 
-    from fri.compute import RelevanceBoundsIntervals
+from fri.model.base_type import ProblemType
 
-    from fri.model.base_type import ProblemType
+from fri.parameter_searcher import find_best_model
 
-    from fri.parameter_searcher import find_best_model
+RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
 
+class NotFeasibleForParameters(Exception):
 
+    """ Problem was infeasible with the current parameter set.
 
-    RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
+    """
 
+class FRIBase(BaseEstimator, SelectorMixin):
 
+    def __init__(
 
+        self,
 
+        problem_type: ProblemType,
 
-    class NotFeasibleForParameters(Exception):
+        random_state=None,
 
-        """ Problem was infeasible with the current parameter set.
+        n_jobs=1,
+
+        verbose=0,
+
+        n_param_search=30,
+
+        n_probe_features=40,
+
+        normalize=True,
+
+        **kwargs,
+
+    ):
 
         """
 
+        Parameters
 
+        ----------
 
+        problem_type : abc.ABCMeta
 
+        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
 
-    class FRIBase(BaseEstimator, SelectorMixin):
+        n_jobs : int
 
-        def __init__(
+        verbose : int
 
-            self,
+        n_param_search : int
 
-            problem_type: ProblemType,
+        n_probe_features : int
 
-            random_state=None,
+        normalize : bool
 
-            n_jobs=1,
+        kwargs :
 
-            verbose=0,
+        Attributes
 
-            n_param_search=30,
+        ----------
 
-            n_probe_features=40,
+        interval_ : array-like
 
-            normalize=True,
+         Feature relevance Intervals
+
+        optim_model_ : `InitModel`
+
+        Baseline model fitted on data
+
+        relevance_classes_ : list(int)
+
+        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+
+        relevance_classes_string_ : list(str)
+
+        Classes of relevance encoded as string
+
+        allrel_prediction_ : list(int)
+
+        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+
+        """
+
+        self.n_probe_features = n_probe_features
+
+        self.n_param_search = n_param_search
+
+        # assert issubclass(problem_type, ProblemType)
+
+        self.problem_type_ = problem_type(**kwargs)
+
+        self.random_state = check_random_state(random_state)
+
+        self.n_jobs = n_jobs
+
+        self.verbose = verbose
+
+        self.normalize = normalize
+
+        self.interval_ = None
+
+        self.optim_model_ = None
+
+        self.relevance_classes_ = None
+
+        self.relevance_classes_string_ = None
+
+        self.allrel_prediction_ = None
+
+    def fit(self, X, y, lupi_features=0, **kwargs):
+
+        """
+
+        Method to fit model on data.
+
+        Parameters
+
+        ----------
+
+        X : numpy.ndarray
+
+        y : numpy.ndarray
+
+        lupi_features : int
+
+            Amount of features which are considered privileged information in `X`.
+
+            The data is expected to be structured in a way that all lupi features are at the end of the set.
+
+            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+
+        kwargs : dict
+
+            Dictionary of additional keyword arguments depending on the `model`.
+
+        Returns
+
+        -------
+
+        `FRIBase`
+
+        """
+
+        self.lupi_features_ = lupi_features
+
+        self.n_samples_ = X.shape[0]
+
+        self.n_features_ = X.shape[1] - lupi_features
+
+        self.optim_model_, best_score = self._fit_baseline(
+
+            X, y, lupi_features, **kwargs
+
+        )
+
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+
+            data,
+
+            self.problem_type_,
+
+            self.optim_model_,
+
+            self.random_state,
+
+            self.n_probe_features,
+
+            self.n_jobs,
+
+            self.verbose,
+
+            normalize=self.normalize,
+
+        )
+
+        if lupi_features == 0:
+
+            self.interval_, feature_classes = (
+
+                self._relevance_bounds_computer.get_normalized_intervals()
+
+            )
+
+        else:
+
+            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+
+                lupi_features=lupi_features
+
+            )
+
+        self._get_relevance_mask(feature_classes)
+
+        # Return the classifier
+
+        return self
+
+    def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
+
+        # Preprocessing
+
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+
+        # Get predefined template for our init. model
+
+        init_model_template = self.problem_type_.get_initmodel_template
+
+        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+
+        hyperparameters = self.problem_type_.get_all_parameters()
+
+        # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
+
+        search_samples = self.n_param_search
+
+        # Find an optimal, fitted model using hyperparemeter search
+
+        optimal_model, best_score = find_best_model(
+
+            init_model_template,
+
+            hyperparameters,
+
+            data,
+
+            self.random_state,
+
+            search_samples,
+
+            self.n_jobs,
+
+            self.verbose,
+
+            lupi_features=lupi_features,
 
             **kwargs,
 
-        ):
+        )
 
-            """
+        return optimal_model, best_score
 
+    def _get_relevance_mask(self, prediction):
 
+        """Determines relevancy using feature relevance interval values
 
-            Parameters
+        Parameters
 
-            ----------
+        ----------
 
-            problem_type : abc.ABCMeta
+        fpr : float, optional
 
-            random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+            false positive rate allowed under H_0
 
-            n_jobs : int
+        Returns
 
-            verbose : int
+        -------
 
-            n_param_search : int
+        boolean array
 
-            n_probe_features : int
+            Relevancy prediction for each feature
 
-            normalize : bool
+        """
 
-            kwargs :
+        self.relevance_classes_ = prediction
 
+        self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
 
+        self.allrel_prediction_ = prediction &gt; 0
 
-            Attributes
+        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
 
-            ----------
+        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
 
-            interval_ : array-like
+        self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
 
-             Feature relevance Intervals
+        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
 
+        return self.allrel_prediction_
 
+    def _n_selected_features(self):
 
-            optim_model_ : `InitModel`
+        """
 
-            Baseline model fitted on data
+        Returns the number of selected features.
 
+        -------
 
+        """
 
-            relevance_classes_ : list(int)
+        check_is_fitted(self, "allrel_prediction_")
 
-            Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+        return sum(self.allrel_prediction_)
 
+    def _get_support_mask(self):
 
+        """Method for SelectorMixin
 
-            relevance_classes_string_ : list(str)
+        Returns
 
-            Classes of relevance encoded as string
+        -------
 
+        boolean array
 
+        """
 
-            allrel_prediction_ : list(int)
+        return self.allrel_prediction_
 
-            Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+    def score(self, X, y):
 
-            """
+        """
 
+        Using fitted model predict points for `X` and compare to truth `y`.
 
+        Parameters
 
-            self.n_probe_features = n_probe_features
+        ----------
 
-            self.n_param_search = n_param_search
+        X : numpy.ndarray
 
+        y : numpy.ndarray
 
+        Returns
 
-            # assert issubclass(problem_type, ProblemType)
+        -------
 
-            self.problem_type_ = problem_type(**kwargs)
+        Model specific score (0 is worst, 1 is best)
 
+        """
 
+        if self.optim_model_:
 
-            self.random_state = check_random_state(random_state)
+            return self.optim_model_.score(X, y)
 
-            self.n_jobs = n_jobs
+        else:
 
-            self.verbose = verbose
+            raise NotFittedError()
 
-            self.normalize = normalize
+    def constrained_intervals(self, preset: dict):
 
+        """
 
+        Method to return relevance intervals which are constrained using preset ranges or values.
 
-            self.interval_ = None
+        Parameters
 
-            self.optim_model_ = None
+        ----------
 
-            self.relevance_classes_ = None
+        preset : dict like, {i:float} or {i:[float,float]}
 
-            self.relevance_classes_string_ = None
+            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
 
-            self.allrel_prediction_ = None
+            Example: To set  feature 0 to a fixed value use
 
+            &gt;&gt;&gt; preset = {0: 0.1}
 
+            or to use the minimum relevance bound
 
-        def fit(self, X, y, lupi_features=0, **kwargs):
+            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
 
-            """
+        Returns
 
-            Method to fit model on data.
+        -------
 
+        array like
 
+            Relevance bounds with user constraints
 
-            Parameters
+        """
 
-            ----------
+        # Do we have intervals?
 
-            X : numpy.ndarray
+        check_is_fitted(self, "interval_")
 
-            y : numpy.ndarray
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
 
-            lupi_features : int
+            preset=preset, lupi_features=self.lupi_features_
 
-                Amount of features which are considered privileged information in `X`.
+        )
 
-                The data is expected to be structured in a way that all lupi features are at the end of the set.
+    def print_interval_with_class(self):
 
-                For example `lupi_features=1` would denote the last column of `X` to be privileged.
+        """
 
-            kwargs : dict
+        Pretty print the relevance intervals and determined feature relevance class
 
-                Dictionary of additional keyword arguments depending on the `model`.
+        """
 
+        output = ""
 
+        if self.interval_ is None:
 
-            Returns
+            output += "Model is not fitted."
 
-            -------
+        output += "############## Relevance bounds ##############\n"
 
-            `FRIBase`
+        output += "feature: [LB -- UB], relevance class\n"
 
-            """
+        for i in range(self.n_features_ + self.lupi_features_):
 
-            self.lupi_features_ = lupi_features
+            if i == self.n_features_:
 
-            self.n_samples_ = X.shape[0]
+                output += "########## LUPI Relevance bounds\n"
 
-            self.n_features_ = X.shape[1] - lupi_features
+            output += (
 
-
-
-            self.optim_model_, best_score = self._fit_baseline(
-
-                X, y, lupi_features, **kwargs
+                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
 
             )
 
+            output += f" {self.relevance_classes_string_[i]}\n"
 
-
-            data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-            self._relevance_bounds_computer = RelevanceBoundsIntervals(
-
-                data,
-
-                self.problem_type_,
-
-                self.optim_model_,
-
-                self.random_state,
-
-                self.n_probe_features,
-
-                self.n_jobs,
-
-                self.verbose,
-
-                normalize=self.normalize,
-
-            )
-
-            if lupi_features == 0:
-
-                self.interval_, feature_classes = (
-
-                    self._relevance_bounds_computer.get_normalized_intervals()
-
-                )
-
-            else:
-
-                self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
-
-                    lupi_features=lupi_features
-
-                )
-
-            self._get_relevance_mask(feature_classes)
-
-
-
-            # Return the classifier
-
-            return self
-
-
-
-        def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
-
-
-
-            # Preprocessing
-
-            data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-            # Get predefined template for our init. model
-
-            init_model_template = self.problem_type_.get_initmodel_template
-
-            # Get hyperparameters which are predefined to our model template and can be seleted by user choice
-
-            hyperparameters = self.problem_type_.get_all_parameters()
-
-            # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
-
-            search_samples = self.n_param_search
-
-            # Find an optimal, fitted model using hyperparemeter search
-
-            optimal_model, best_score = find_best_model(
-
-                init_model_template,
-
-                hyperparameters,
-
-                data,
-
-                self.random_state,
-
-                search_samples,
-
-                self.n_jobs,
-
-                self.verbose,
-
-                lupi_features=lupi_features,
-
-                **kwargs,
-
-            )
-
-            return optimal_model, best_score
-
-
-
-        def _get_relevance_mask(self, prediction):
-
-            """Determines relevancy using feature relevance interval values
-
-            Parameters
-
-            ----------
-
-            fpr : float, optional
-
-                false positive rate allowed under H_0
-
-            Returns
-
-            -------
-
-            boolean array
-
-                Relevancy prediction for each feature
-
-            """
-
-
-
-            self.relevance_classes_ = prediction
-
-            self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
-
-            self.allrel_prediction_ = prediction &gt; 0
-
-
-
-            self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
-
-            self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
-
-            self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
-
-            self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
-
-
-
-            return self.allrel_prediction_
-
-
-
-        def _n_selected_features(self):
-
-            """
-
-
-
-            Returns the number of selected features.
-
-            -------
-
-
-
-            """
-
-            check_is_fitted(self, "allrel_prediction_")
-
-            return sum(self.allrel_prediction_)
-
-
-
-        def _get_support_mask(self):
-
-            """Method for SelectorMixin
-
-            Returns
-
-            -------
-
-            boolean array
-
-            """
-
-            return self.allrel_prediction_
-
-
-
-        def score(self, X, y):
-
-            """
-
-            Using fitted model predict points for `X` and compare to truth `y`.
-
-
-
-            Parameters
-
-            ----------
-
-            X : numpy.ndarray
-
-            y : numpy.ndarray
-
-
-
-            Returns
-
-            -------
-
-            Model specific score (0 is worst, 1 is best)
-
-            """
-
-            if self.optim_model_:
-
-                return self.optim_model_.score(X, y)
-
-            else:
-
-                raise NotFittedError()
-
-
-
-        def constrained_intervals(self, preset: dict):
-
-            """
-
-            Method to return relevance intervals which are constrained using preset ranges or values.
-
-
-
-            Parameters
-
-            ----------
-
-            preset : dict like, {i:float} or {i:[float,float]}
-
-                Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
-
-
-
-                Example: To set  feature 0 to a fixed value use
-
-
-
-                &gt;&gt;&gt; preset = {0: 0.1}
-
-
-
-                or to use the minimum relevance bound
-
-
-
-                &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
-
-
-
-            Returns
-
-            -------
-
-            array like
-
-                Relevance bounds with user constraints
-
-            """
-
-
-
-            # Do we have intervals?
-
-            check_is_fitted(self, "interval_")
-
-
-
-            return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
-
-                preset=preset, lupi_features=self.lupi_features_
-
-            )
-
-
-
-        def print_interval_with_class(self):
-
-            """
-
-
-
-            Pretty print the relevance intervals and determined feature relevance class
-
-
-
-            """
-
-            output = ""
-
-            if self.interval_ is None:
-
-                output += "Model is not fitted."
-
-
-
-            output += "############## Relevance bounds ##############\n"
-
-            output += "feature: [LB -- UB], relevance class\n"
-
-            for i in range(self.n_features_ + self.lupi_features_):
-
-                if i == self.n_features_:
-
-                    output += "########## LUPI Relevance bounds\n"
-
-                output += (
-
-                    f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
-
-                )
-
-                output += f" {self.relevance_classes_string_[i]}\n"
-
-            return output
+        return output
 </code></pre>
+</details>
 <h2 id="variables">Variables</h2>
 <pre><code class="python3">RELEVANCE_MAPPING
 </code></pre>
@@ -1912,7 +1817,7 @@
 <h2 id="classes">Classes</h2>
 <h3 id="fribase">FRIBase</h3>
 <pre><code class="python3">class FRIBase(
-    problem_type:fri.model.base_type.ProblemType,
+    problem_type: fri.model.base_type.ProblemType,
     random_state=None,
     n_jobs=1,
     verbose=0,
@@ -1928,494 +1833,411 @@
 <p>All estimators should specify all the parameters that can be set
 at the class level in their <code>__init__</code> as explicit keyword
 arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
-<p>??? example "View Source"
-        class FRIBase(BaseEstimator, SelectorMixin):</p>
-<pre><code>        def __init__(
+<details class="example"><summary>View Source</summary><pre><code>class FRIBase(BaseEstimator, SelectorMixin):
 
-            self,
+    def __init__(
 
-            problem_type: ProblemType,
+        self,
 
-            random_state=None,
+        problem_type: ProblemType,
 
-            n_jobs=1,
+        random_state=None,
 
-            verbose=0,
+        n_jobs=1,
 
-            n_param_search=30,
+        verbose=0,
 
-            n_probe_features=40,
+        n_param_search=30,
 
-            normalize=True,
+        n_probe_features=40,
+
+        normalize=True,
+
+        **kwargs,
+
+    ):
+
+        """
+
+        Parameters
+
+        ----------
+
+        problem_type : abc.ABCMeta
+
+        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+
+        n_jobs : int
+
+        verbose : int
+
+        n_param_search : int
+
+        n_probe_features : int
+
+        normalize : bool
+
+        kwargs :
+
+        Attributes
+
+        ----------
+
+        interval_ : array-like
+
+         Feature relevance Intervals
+
+        optim_model_ : `InitModel`
+
+        Baseline model fitted on data
+
+        relevance_classes_ : list(int)
+
+        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+
+        relevance_classes_string_ : list(str)
+
+        Classes of relevance encoded as string
+
+        allrel_prediction_ : list(int)
+
+        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+
+        """
+
+        self.n_probe_features = n_probe_features
+
+        self.n_param_search = n_param_search
+
+        # assert issubclass(problem_type, ProblemType)
+
+        self.problem_type_ = problem_type(**kwargs)
+
+        self.random_state = check_random_state(random_state)
+
+        self.n_jobs = n_jobs
+
+        self.verbose = verbose
+
+        self.normalize = normalize
+
+        self.interval_ = None
+
+        self.optim_model_ = None
+
+        self.relevance_classes_ = None
+
+        self.relevance_classes_string_ = None
+
+        self.allrel_prediction_ = None
+
+    def fit(self, X, y, lupi_features=0, **kwargs):
+
+        """
+
+        Method to fit model on data.
+
+        Parameters
+
+        ----------
+
+        X : numpy.ndarray
+
+        y : numpy.ndarray
+
+        lupi_features : int
+
+            Amount of features which are considered privileged information in `X`.
+
+            The data is expected to be structured in a way that all lupi features are at the end of the set.
+
+            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+
+        kwargs : dict
+
+            Dictionary of additional keyword arguments depending on the `model`.
+
+        Returns
+
+        -------
+
+        `FRIBase`
+
+        """
+
+        self.lupi_features_ = lupi_features
+
+        self.n_samples_ = X.shape[0]
+
+        self.n_features_ = X.shape[1] - lupi_features
+
+        self.optim_model_, best_score = self._fit_baseline(
+
+            X, y, lupi_features, **kwargs
+
+        )
+
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+
+            data,
+
+            self.problem_type_,
+
+            self.optim_model_,
+
+            self.random_state,
+
+            self.n_probe_features,
+
+            self.n_jobs,
+
+            self.verbose,
+
+            normalize=self.normalize,
+
+        )
+
+        if lupi_features == 0:
+
+            self.interval_, feature_classes = (
+
+                self._relevance_bounds_computer.get_normalized_intervals()
+
+            )
+
+        else:
+
+            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+
+                lupi_features=lupi_features
+
+            )
+
+        self._get_relevance_mask(feature_classes)
+
+        # Return the classifier
+
+        return self
+
+    def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
+
+        # Preprocessing
+
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+
+        # Get predefined template for our init. model
+
+        init_model_template = self.problem_type_.get_initmodel_template
+
+        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+
+        hyperparameters = self.problem_type_.get_all_parameters()
+
+        # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
+
+        search_samples = self.n_param_search
+
+        # Find an optimal, fitted model using hyperparemeter search
+
+        optimal_model, best_score = find_best_model(
+
+            init_model_template,
+
+            hyperparameters,
+
+            data,
+
+            self.random_state,
+
+            search_samples,
+
+            self.n_jobs,
+
+            self.verbose,
+
+            lupi_features=lupi_features,
 
             **kwargs,
 
-        ):
+        )
 
-            """
+        return optimal_model, best_score
 
+    def _get_relevance_mask(self, prediction):
 
+        """Determines relevancy using feature relevance interval values
 
-            Parameters
+        Parameters
 
-            ----------
+        ----------
 
-            problem_type : abc.ABCMeta
+        fpr : float, optional
 
-            random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+            false positive rate allowed under H_0
 
-            n_jobs : int
+        Returns
 
-            verbose : int
+        -------
 
-            n_param_search : int
+        boolean array
 
-            n_probe_features : int
+            Relevancy prediction for each feature
 
-            normalize : bool
+        """
 
-            kwargs :
+        self.relevance_classes_ = prediction
 
+        self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
 
+        self.allrel_prediction_ = prediction &gt; 0
 
-            Attributes
+        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
 
-            ----------
+        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
 
-            interval_ : array-like
+        self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
 
-             Feature relevance Intervals
+        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
 
+        return self.allrel_prediction_
 
+    def _n_selected_features(self):
 
-            optim_model_ : `InitModel`
+        """
 
-            Baseline model fitted on data
+        Returns the number of selected features.
 
+        -------
 
+        """
 
-            relevance_classes_ : list(int)
+        check_is_fitted(self, "allrel_prediction_")
 
-            Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+        return sum(self.allrel_prediction_)
 
+    def _get_support_mask(self):
 
+        """Method for SelectorMixin
 
-            relevance_classes_string_ : list(str)
+        Returns
 
-            Classes of relevance encoded as string
+        -------
 
+        boolean array
 
+        """
 
-            allrel_prediction_ : list(int)
+        return self.allrel_prediction_
 
-            Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+    def score(self, X, y):
 
-            """
+        """
 
+        Using fitted model predict points for `X` and compare to truth `y`.
 
+        Parameters
 
-            self.n_probe_features = n_probe_features
+        ----------
 
-            self.n_param_search = n_param_search
+        X : numpy.ndarray
 
+        y : numpy.ndarray
 
+        Returns
 
-            # assert issubclass(problem_type, ProblemType)
+        -------
 
-            self.problem_type_ = problem_type(**kwargs)
+        Model specific score (0 is worst, 1 is best)
 
+        """
 
+        if self.optim_model_:
 
-            self.random_state = check_random_state(random_state)
+            return self.optim_model_.score(X, y)
 
-            self.n_jobs = n_jobs
+        else:
 
-            self.verbose = verbose
+            raise NotFittedError()
 
-            self.normalize = normalize
+    def constrained_intervals(self, preset: dict):
 
+        """
 
+        Method to return relevance intervals which are constrained using preset ranges or values.
 
-            self.interval_ = None
+        Parameters
 
-            self.optim_model_ = None
+        ----------
 
-            self.relevance_classes_ = None
+        preset : dict like, {i:float} or {i:[float,float]}
 
-            self.relevance_classes_string_ = None
+            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
 
-            self.allrel_prediction_ = None
+            Example: To set  feature 0 to a fixed value use
 
+            &gt;&gt;&gt; preset = {0: 0.1}
 
+            or to use the minimum relevance bound
 
-        def fit(self, X, y, lupi_features=0, **kwargs):
+            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
 
-            """
+        Returns
 
-            Method to fit model on data.
+        -------
 
+        array like
 
+            Relevance bounds with user constraints
 
-            Parameters
+        """
 
-            ----------
+        # Do we have intervals?
 
-            X : numpy.ndarray
+        check_is_fitted(self, "interval_")
 
-            y : numpy.ndarray
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
 
-            lupi_features : int
+            preset=preset, lupi_features=self.lupi_features_
 
-                Amount of features which are considered privileged information in `X`.
+        )
 
-                The data is expected to be structured in a way that all lupi features are at the end of the set.
+    def print_interval_with_class(self):
 
-                For example `lupi_features=1` would denote the last column of `X` to be privileged.
+        """
 
-            kwargs : dict
+        Pretty print the relevance intervals and determined feature relevance class
 
-                Dictionary of additional keyword arguments depending on the `model`.
+        """
 
+        output = ""
 
+        if self.interval_ is None:
 
-            Returns
+            output += "Model is not fitted."
 
-            -------
+        output += "############## Relevance bounds ##############\n"
 
-            `FRIBase`
+        output += "feature: [LB -- UB], relevance class\n"
 
-            """
+        for i in range(self.n_features_ + self.lupi_features_):
 
-            self.lupi_features_ = lupi_features
+            if i == self.n_features_:
 
-            self.n_samples_ = X.shape[0]
+                output += "########## LUPI Relevance bounds\n"
 
-            self.n_features_ = X.shape[1] - lupi_features
+            output += (
 
-
-
-            self.optim_model_, best_score = self._fit_baseline(
-
-                X, y, lupi_features, **kwargs
+                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
 
             )
 
+            output += f" {self.relevance_classes_string_[i]}\n"
 
-
-            data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-            self._relevance_bounds_computer = RelevanceBoundsIntervals(
-
-                data,
-
-                self.problem_type_,
-
-                self.optim_model_,
-
-                self.random_state,
-
-                self.n_probe_features,
-
-                self.n_jobs,
-
-                self.verbose,
-
-                normalize=self.normalize,
-
-            )
-
-            if lupi_features == 0:
-
-                self.interval_, feature_classes = (
-
-                    self._relevance_bounds_computer.get_normalized_intervals()
-
-                )
-
-            else:
-
-                self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
-
-                    lupi_features=lupi_features
-
-                )
-
-            self._get_relevance_mask(feature_classes)
-
-
-
-            # Return the classifier
-
-            return self
-
-
-
-        def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
-
-
-
-            # Preprocessing
-
-            data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-            # Get predefined template for our init. model
-
-            init_model_template = self.problem_type_.get_initmodel_template
-
-            # Get hyperparameters which are predefined to our model template and can be seleted by user choice
-
-            hyperparameters = self.problem_type_.get_all_parameters()
-
-            # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
-
-            search_samples = self.n_param_search
-
-            # Find an optimal, fitted model using hyperparemeter search
-
-            optimal_model, best_score = find_best_model(
-
-                init_model_template,
-
-                hyperparameters,
-
-                data,
-
-                self.random_state,
-
-                search_samples,
-
-                self.n_jobs,
-
-                self.verbose,
-
-                lupi_features=lupi_features,
-
-                **kwargs,
-
-            )
-
-            return optimal_model, best_score
-
-
-
-        def _get_relevance_mask(self, prediction):
-
-            """Determines relevancy using feature relevance interval values
-
-            Parameters
-
-            ----------
-
-            fpr : float, optional
-
-                false positive rate allowed under H_0
-
-            Returns
-
-            -------
-
-            boolean array
-
-                Relevancy prediction for each feature
-
-            """
-
-
-
-            self.relevance_classes_ = prediction
-
-            self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
-
-            self.allrel_prediction_ = prediction &gt; 0
-
-
-
-            self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
-
-            self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
-
-            self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
-
-            self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
-
-
-
-            return self.allrel_prediction_
-
-
-
-        def _n_selected_features(self):
-
-            """
-
-
-
-            Returns the number of selected features.
-
-            -------
-
-
-
-            """
-
-            check_is_fitted(self, "allrel_prediction_")
-
-            return sum(self.allrel_prediction_)
-
-
-
-        def _get_support_mask(self):
-
-            """Method for SelectorMixin
-
-            Returns
-
-            -------
-
-            boolean array
-
-            """
-
-            return self.allrel_prediction_
-
-
-
-        def score(self, X, y):
-
-            """
-
-            Using fitted model predict points for `X` and compare to truth `y`.
-
-
-
-            Parameters
-
-            ----------
-
-            X : numpy.ndarray
-
-            y : numpy.ndarray
-
-
-
-            Returns
-
-            -------
-
-            Model specific score (0 is worst, 1 is best)
-
-            """
-
-            if self.optim_model_:
-
-                return self.optim_model_.score(X, y)
-
-            else:
-
-                raise NotFittedError()
-
-
-
-        def constrained_intervals(self, preset: dict):
-
-            """
-
-            Method to return relevance intervals which are constrained using preset ranges or values.
-
-
-
-            Parameters
-
-            ----------
-
-            preset : dict like, {i:float} or {i:[float,float]}
-
-                Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
-
-
-
-                Example: To set  feature 0 to a fixed value use
-
-
-
-                &gt;&gt;&gt; preset = {0: 0.1}
-
-
-
-                or to use the minimum relevance bound
-
-
-
-                &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
-
-
-
-            Returns
-
-            -------
-
-            array like
-
-                Relevance bounds with user constraints
-
-            """
-
-
-
-            # Do we have intervals?
-
-            check_is_fitted(self, "interval_")
-
-
-
-            return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
-
-                preset=preset, lupi_features=self.lupi_features_
-
-            )
-
-
-
-        def print_interval_with_class(self):
-
-            """
-
-
-
-            Pretty print the relevance intervals and determined feature relevance class
-
-
-
-            """
-
-            output = ""
-
-            if self.interval_ is None:
-
-                output += "Model is not fitted."
-
-
-
-            output += "############## Relevance bounds ##############\n"
-
-            output += "feature: [LB -- UB], relevance class\n"
-
-            for i in range(self.n_features_ + self.lupi_features_):
-
-                if i == self.n_features_:
-
-                    output += "########## LUPI Relevance bounds\n"
-
-                output += (
-
-                    f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
-
-                )
-
-                output += f" {self.relevance_classes_string_[i]}\n"
-
-            return output
+        return output
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -2431,7 +2253,7 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
 <h5 id="constrained_intervals">constrained_intervals</h5>
 <pre><code class="python3">def constrained_intervals(
     self,
-    preset:dict
+    preset: dict
 )
 </code></pre>
 
@@ -2450,64 +2272,49 @@ or to use the minimum relevance bound
 <h2 id="returns">Returns</h2>
 <p>array like
     Relevance bounds with user constraints</p>
-<p>??? example "View Source"
-            def constrained_intervals(self, preset: dict):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def constrained_intervals(self, preset: dict):
 
-            Method to return relevance intervals which are constrained using preset ranges or values.
+        """
 
+        Method to return relevance intervals which are constrained using preset ranges or values.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        preset : dict like, {i:float} or {i:[float,float]}
 
-            preset : dict like, {i:float} or {i:[float,float]}
+            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
 
-                Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
+            Example: To set  feature 0 to a fixed value use
 
+            &gt;&gt;&gt; preset = {0: 0.1}
 
+            or to use the minimum relevance bound
 
-                Example: To set  feature 0 to a fixed value use
+            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
 
+        Returns
 
+        -------
 
-                &gt;&gt;&gt; preset = {0: 0.1}
+        array like
 
+            Relevance bounds with user constraints
 
+        """
 
-                or to use the minimum relevance bound
+        # Do we have intervals?
 
+        check_is_fitted(self, "interval_")
 
+        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
 
-                &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
+            preset=preset, lupi_features=self.lupi_features_
 
-
-
-            Returns
-
-            -------
-
-            array like
-
-                Relevance bounds with user constraints
-
-            """
-
-
-
-            # Do we have intervals?
-
-            check_is_fitted(self, "interval_")
-
-
-
-            return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
-
-                preset=preset, lupi_features=self.lupi_features_
-
-            )
+        )
 </code></pre>
+</details>
 <h5 id="fit">fit</h5>
 <pre><code class="python3">def fit(
     self,
@@ -2530,106 +2337,97 @@ kwargs : dict
     Dictionary of additional keyword arguments depending on the <code>model</code>.</p>
 <h2 id="returns_1">Returns</h2>
 <p><code>FRIBase</code></p>
-<p>??? example "View Source"
-            def fit(self, X, y, lupi_features=0, **kwargs):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X, y, lupi_features=0, **kwargs):
 
-            Method to fit model on data.
+        """
 
+        Method to fit model on data.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        X : numpy.ndarray
 
-            X : numpy.ndarray
+        y : numpy.ndarray
 
-            y : numpy.ndarray
+        lupi_features : int
 
-            lupi_features : int
+            Amount of features which are considered privileged information in `X`.
 
-                Amount of features which are considered privileged information in `X`.
+            The data is expected to be structured in a way that all lupi features are at the end of the set.
 
-                The data is expected to be structured in a way that all lupi features are at the end of the set.
+            For example `lupi_features=1` would denote the last column of `X` to be privileged.
 
-                For example `lupi_features=1` would denote the last column of `X` to be privileged.
+        kwargs : dict
 
-            kwargs : dict
+            Dictionary of additional keyword arguments depending on the `model`.
 
-                Dictionary of additional keyword arguments depending on the `model`.
+        Returns
 
+        -------
 
+        `FRIBase`
 
-            Returns
+        """
 
-            -------
+        self.lupi_features_ = lupi_features
 
-            `FRIBase`
+        self.n_samples_ = X.shape[0]
 
-            """
+        self.n_features_ = X.shape[1] - lupi_features
 
-            self.lupi_features_ = lupi_features
+        self.optim_model_, best_score = self._fit_baseline(
 
-            self.n_samples_ = X.shape[0]
+            X, y, lupi_features, **kwargs
 
-            self.n_features_ = X.shape[1] - lupi_features
+        )
 
+        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
 
+        self._relevance_bounds_computer = RelevanceBoundsIntervals(
 
-            self.optim_model_, best_score = self._fit_baseline(
+            data,
 
-                X, y, lupi_features, **kwargs
+            self.problem_type_,
+
+            self.optim_model_,
+
+            self.random_state,
+
+            self.n_probe_features,
+
+            self.n_jobs,
+
+            self.verbose,
+
+            normalize=self.normalize,
+
+        )
+
+        if lupi_features == 0:
+
+            self.interval_, feature_classes = (
+
+                self._relevance_bounds_computer.get_normalized_intervals()
 
             )
 
+        else:
 
+            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
 
-            data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
-
-            self._relevance_bounds_computer = RelevanceBoundsIntervals(
-
-                data,
-
-                self.problem_type_,
-
-                self.optim_model_,
-
-                self.random_state,
-
-                self.n_probe_features,
-
-                self.n_jobs,
-
-                self.verbose,
-
-                normalize=self.normalize,
+                lupi_features=lupi_features
 
             )
 
-            if lupi_features == 0:
+        self._get_relevance_mask(feature_classes)
 
-                self.interval_, feature_classes = (
+        # Return the classifier
 
-                    self._relevance_bounds_computer.get_normalized_intervals()
-
-                )
-
-            else:
-
-                self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
-
-                    lupi_features=lupi_features
-
-                )
-
-            self._get_relevance_mask(feature_classes)
-
-
-
-            # Return the classifier
-
-            return self
+        return self
 </code></pre>
+</details>
 <h5 id="fit_transform">fit_transform</h5>
 <pre><code class="python3">def fit_transform(
     self,
@@ -2650,62 +2448,53 @@ and returns a transformed version of X.</p>
 <h2 id="returns_2">Returns</h2>
 <p>X_new : numpy array of shape [n_samples, n_features_new]
     Transformed array.</p>
-<p>??? example "View Source"
-            def fit_transform(self, X, y=None, **fit_params):</p>
-<pre><code>            """Fit to data, then transform it.
+<details class="example"><summary>View Source</summary><pre><code>    def fit_transform(self, X, y=None, **fit_params):
 
+        """Fit to data, then transform it.
 
+        Fits transformer to X and y with optional parameters fit_params
 
-            Fits transformer to X and y with optional parameters fit_params
+        and returns a transformed version of X.
 
-            and returns a transformed version of X.
+        Parameters
 
+        ----------
 
+        X : numpy array of shape [n_samples, n_features]
 
-            Parameters
+            Training set.
 
-            ----------
+        y : numpy array of shape [n_samples]
 
-            X : numpy array of shape [n_samples, n_features]
+            Target values.
 
-                Training set.
+        Returns
 
+        -------
 
+        X_new : numpy array of shape [n_samples, n_features_new]
 
-            y : numpy array of shape [n_samples]
+            Transformed array.
 
-                Target values.
+        """
 
+        # non-optimized default implementation; override when a better
 
+        # method is possible for a given clustering algorithm
 
-            Returns
+        if y is None:
 
-            -------
+            # fit method of arity 1 (unsupervised transformation)
 
-            X_new : numpy array of shape [n_samples, n_features_new]
+            return self.fit(X, **fit_params).transform(X)
 
-                Transformed array.
+        else:
 
+            # fit method of arity 2 (supervised transformation)
 
-
-            """
-
-            # non-optimized default implementation; override when a better
-
-            # method is possible for a given clustering algorithm
-
-            if y is None:
-
-                # fit method of arity 1 (unsupervised transformation)
-
-                return self.fit(X, **fit_params).transform(X)
-
-            else:
-
-                # fit method of arity 2 (supervised transformation)
-
-                return self.fit(X, y, **fit_params).transform(X)
+            return self.fit(X, y, **fit_params).transform(X)
 </code></pre>
+</details>
 <h5 id="get_params">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -2721,50 +2510,47 @@ and returns a transformed version of X.</p>
 <h2 id="returns_3">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            """Get parameters for this estimator.
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
 
+        """Get parameters for this estimator.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        deep : boolean, optional
 
-            deep : boolean, optional
+            If True, will return the parameters for this estimator and
 
-                If True, will return the parameters for this estimator and
+            contained subobjects that are estimators.
 
-                contained subobjects that are estimators.
+        Returns
 
+        -------
 
+        params : mapping of string to any
 
-            Returns
+            Parameter names mapped to their values.
 
-            -------
+        """
 
-            params : mapping of string to any
+        out = dict()
 
-                Parameter names mapped to their values.
+        for key in self._get_param_names():
 
-            """
+            value = getattr(self, key, None)
 
-            out = dict()
+            if deep and hasattr(value, 'get_params'):
 
-            for key in self._get_param_names():
+                deep_items = value.get_params().items()
 
-                value = getattr(self, key, None)
+                out.update((key + '__' + k, val) for k, val in deep_items)
 
-                if deep and hasattr(value, 'get_params'):
+            out[key] = value
 
-                    deep_items = value.get_params().items()
-
-                    out.update((key + '__' + k, val) for k, val in deep_items)
-
-                out[key] = value
-
-            return out
+        return out
 </code></pre>
+</details>
 <h5 id="get_support">get_support</h5>
 <pre><code class="python3">def get_support(
     self,
@@ -2785,50 +2571,47 @@ and returns a transformed version of X.</p>
     corresponding feature is selected for retention. If <code>indices</code> is
     True, this is an integer array of shape [# output features] whose
     values are indices into the input feature vector.</p>
-<p>??? example "View Source"
-            def get_support(self, indices=False):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def get_support(self, indices=False):
 
-            Get a mask, or integer index, of the features selected
+        """
 
+        Get a mask, or integer index, of the features selected
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        indices : boolean (default False)
 
-            indices : boolean (default False)
+            If True, the return value will be an array of integers, rather
 
-                If True, the return value will be an array of integers, rather
+            than a boolean mask.
 
-                than a boolean mask.
+        Returns
 
+        -------
 
+        support : array
 
-            Returns
+            An index that selects the retained features from a feature vector.
 
-            -------
+            If `indices` is False, this is a boolean array of shape
 
-            support : array
+            [# input features], in which an element is True iff its
 
-                An index that selects the retained features from a feature vector.
+            corresponding feature is selected for retention. If `indices` is
 
-                If `indices` is False, this is a boolean array of shape
+            True, this is an integer array of shape [# output features] whose
 
-                [# input features], in which an element is True iff its
+            values are indices into the input feature vector.
 
-                corresponding feature is selected for retention. If `indices` is
+        """
 
-                True, this is an integer array of shape [# output features] whose
+        mask = self._get_support_mask()
 
-                values are indices into the input feature vector.
-
-            """
-
-            mask = self._get_support_mask()
-
-            return mask if not indices else np.where(mask)[0]
+        return mask if not indices else np.where(mask)[0]
 </code></pre>
+</details>
 <h5 id="inverse_transform">inverse_transform</h5>
 <pre><code class="python3">def inverse_transform(
     self,
@@ -2844,80 +2627,73 @@ and returns a transformed version of X.</p>
 <p>X_r : array of shape [n_samples, n_original_features]
     <code>X</code> with columns of zeros inserted where features would have
     been removed by <code>transform</code>.</p>
-<p>??? example "View Source"
-            def inverse_transform(self, X):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def inverse_transform(self, X):
 
-            Reverse the transformation operation
+        """
 
+        Reverse the transformation operation
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        X : array of shape [n_samples, n_selected_features]
 
-            X : array of shape [n_samples, n_selected_features]
+            The input samples.
 
-                The input samples.
+        Returns
 
+        -------
 
+        X_r : array of shape [n_samples, n_original_features]
 
-            Returns
+            `X` with columns of zeros inserted where features would have
 
-            -------
+            been removed by `transform`.
 
-            X_r : array of shape [n_samples, n_original_features]
+        """
 
-                `X` with columns of zeros inserted where features would have
+        if issparse(X):
 
-                been removed by `transform`.
+            X = X.tocsc()
 
-            """
+            # insert additional entries in indptr:
 
-            if issparse(X):
+            # e.g. if transform changed indptr from [0 2 6 7] to [0 2 3]
 
-                X = X.tocsc()
+            # col_nonzeros here will be [2 0 1] so indptr becomes [0 2 2 3]
 
-                # insert additional entries in indptr:
+            it = self.inverse_transform(np.diff(X.indptr).reshape(1, -1))
 
-                # e.g. if transform changed indptr from [0 2 6 7] to [0 2 3]
+            col_nonzeros = it.ravel()
 
-                # col_nonzeros here will be [2 0 1] so indptr becomes [0 2 2 3]
+            indptr = np.concatenate([[0], np.cumsum(col_nonzeros)])
 
-                it = self.inverse_transform(np.diff(X.indptr).reshape(1, -1))
+            Xt = csc_matrix((X.data, X.indices, indptr),
 
-                col_nonzeros = it.ravel()
-
-                indptr = np.concatenate([[0], np.cumsum(col_nonzeros)])
-
-                Xt = csc_matrix((X.data, X.indices, indptr),
-
-                                shape=(X.shape[0], len(indptr) - 1), dtype=X.dtype)
-
-                return Xt
-
-
-
-            support = self.get_support()
-
-            X = check_array(X, dtype=None)
-
-            if support.sum() != X.shape[1]:
-
-                raise ValueError("X has a different shape than during fitting.")
-
-
-
-            if X.ndim == 1:
-
-                X = X[None, :]
-
-            Xt = np.zeros((X.shape[0], support.size), dtype=X.dtype)
-
-            Xt[:, support] = X
+                            shape=(X.shape[0], len(indptr) - 1), dtype=X.dtype)
 
             return Xt
+
+        support = self.get_support()
+
+        X = check_array(X, dtype=None)
+
+        if support.sum() != X.shape[1]:
+
+            raise ValueError("X has a different shape than during fitting.")
+
+        if X.ndim == 1:
+
+            X = X[None, :]
+
+        Xt = np.zeros((X.shape[0], support.size), dtype=X.dtype)
+
+        Xt[:, support] = X
+
+        return Xt
 </code></pre>
+</details>
 <h5 id="print_interval_with_class">print_interval_with_class</h5>
 <pre><code class="python3">def print_interval_with_class(
     self
@@ -2925,46 +2701,41 @@ and returns a transformed version of X.</p>
 </code></pre>
 
 <p>Pretty print the relevance intervals and determined feature relevance class</p>
-<p>??? example "View Source"
-            def print_interval_with_class(self):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def print_interval_with_class(self):
 
+        """
 
+        Pretty print the relevance intervals and determined feature relevance class
 
-            Pretty print the relevance intervals and determined feature relevance class
+        """
 
+        output = ""
 
+        if self.interval_ is None:
 
-            """
+            output += "Model is not fitted."
 
-            output = ""
+        output += "############## Relevance bounds ##############\n"
 
-            if self.interval_ is None:
+        output += "feature: [LB -- UB], relevance class\n"
 
-                output += "Model is not fitted."
+        for i in range(self.n_features_ + self.lupi_features_):
 
+            if i == self.n_features_:
 
+                output += "########## LUPI Relevance bounds\n"
 
-            output += "############## Relevance bounds ##############\n"
+            output += (
 
-            output += "feature: [LB -- UB], relevance class\n"
+                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
 
-            for i in range(self.n_features_ + self.lupi_features_):
+            )
 
-                if i == self.n_features_:
+            output += f" {self.relevance_classes_string_[i]}\n"
 
-                    output += "########## LUPI Relevance bounds\n"
-
-                output += (
-
-                    f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
-
-                )
-
-                output += f" {self.relevance_classes_string_[i]}\n"
-
-            return output
+        return output
 </code></pre>
+</details>
 <h5 id="score">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -2979,40 +2750,37 @@ and returns a transformed version of X.</p>
 y : numpy.ndarray</p>
 <h2 id="returns_6">Returns</h2>
 <p>Model specific score (0 is worst, 1 is best)</p>
-<p>??? example "View Source"
-            def score(self, X, y):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y):
 
-            Using fitted model predict points for `X` and compare to truth `y`.
+        """
 
+        Using fitted model predict points for `X` and compare to truth `y`.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        X : numpy.ndarray
 
-            X : numpy.ndarray
+        y : numpy.ndarray
 
-            y : numpy.ndarray
+        Returns
 
+        -------
 
+        Model specific score (0 is worst, 1 is best)
 
-            Returns
+        """
 
-            -------
+        if self.optim_model_:
 
-            Model specific score (0 is worst, 1 is best)
+            return self.optim_model_.score(X, y)
 
-            """
+        else:
 
-            if self.optim_model_:
-
-                return self.optim_model_.score(X, y)
-
-            else:
-
-                raise NotFittedError()
+            raise NotFittedError()
 </code></pre>
+</details>
 <h5 id="set_params">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -3027,78 +2795,67 @@ y : numpy.ndarray</p>
 component of a nested object.</p>
 <h2 id="returns_7">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            """Set the parameters of this estimator.
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
+        """Set the parameters of this estimator.
 
+        The method works on simple estimators as well as on nested objects
 
-            The method works on simple estimators as well as on nested objects
+        (such as pipelines). The latter have parameters of the form
 
-            (such as pipelines). The latter have parameters of the form
+        ``&lt;component&gt;__&lt;parameter&gt;`` so that it's possible to update each
 
-            ``&lt;component&gt;__&lt;parameter&gt;`` so that it's possible to update each
+        component of a nested object.
 
-            component of a nested object.
+        Returns
 
+        -------
 
+        self
 
-            Returns
+        """
 
-            -------
+        if not params:
 
-            self
-
-            """
-
-            if not params:
-
-                # Simple optimization to gain speed (inspect is slow)
-
-                return self
-
-            valid_params = self.get_params(deep=True)
-
-
-
-            nested_params = defaultdict(dict)  # grouped by prefix
-
-            for key, value in params.items():
-
-                key, delim, sub_key = key.partition('__')
-
-                if key not in valid_params:
-
-                    raise ValueError('Invalid parameter %s for estimator %s. '
-
-                                     'Check the list of available parameters '
-
-                                     'with `estimator.get_params().keys()`.' %
-
-                                     (key, self))
-
-
-
-                if delim:
-
-                    nested_params[key][sub_key] = value
-
-                else:
-
-                    setattr(self, key, value)
-
-                    valid_params[key] = value
-
-
-
-            for key, sub_params in nested_params.items():
-
-                valid_params[key].set_params(**sub_params)
-
-
+            # Simple optimization to gain speed (inspect is slow)
 
             return self
+
+        valid_params = self.get_params(deep=True)
+
+        nested_params = defaultdict(dict)  # grouped by prefix
+
+        for key, value in params.items():
+
+            key, delim, sub_key = key.partition('__')
+
+            if key not in valid_params:
+
+                raise ValueError('Invalid parameter %s for estimator %s. '
+
+                                 'Check the list of available parameters '
+
+                                 'with `estimator.get_params().keys()`.' %
+
+                                 (key, self))
+
+            if delim:
+
+                nested_params[key][sub_key] = value
+
+            else:
+
+                setattr(self, key, value)
+
+                valid_params[key] = value
+
+        for key, sub_params in nested_params.items():
+
+            valid_params[key].set_params(**sub_params)
+
+        return self
 </code></pre>
+</details>
 <h5 id="transform">transform</h5>
 <pre><code class="python3">def transform(
     self,
@@ -3113,52 +2870,49 @@ component of a nested object.</p>
 <h2 id="returns_8">Returns</h2>
 <p>X_r : array of shape [n_samples, n_selected_features]
     The input samples with only the selected features.</p>
-<p>??? example "View Source"
-            def transform(self, X):</p>
-<pre><code>            """Reduce X to the selected features.
+<details class="example"><summary>View Source</summary><pre><code>    def transform(self, X):
 
+        """Reduce X to the selected features.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        X : array of shape [n_samples, n_features]
 
-            X : array of shape [n_samples, n_features]
+            The input samples.
 
-                The input samples.
+        Returns
 
+        -------
 
+        X_r : array of shape [n_samples, n_selected_features]
 
-            Returns
+            The input samples with only the selected features.
 
-            -------
+        """
 
-            X_r : array of shape [n_samples, n_selected_features]
+        X = check_array(X, dtype=None, accept_sparse='csr')
 
-                The input samples with only the selected features.
+        mask = self.get_support()
 
-            """
+        if not mask.any():
 
-            X = check_array(X, dtype=None, accept_sparse='csr')
+            warn("No features were selected: either the data is"
 
-            mask = self.get_support()
+                 " too noisy or the selection test too strict.",
 
-            if not mask.any():
+                 UserWarning)
 
-                warn("No features were selected: either the data is"
+            return np.empty(0).reshape((X.shape[0], 0))
 
-                     " too noisy or the selection test too strict.",
+        if len(mask) != X.shape[1]:
 
-                     UserWarning)
+            raise ValueError("X has a different shape than during fitting.")
 
-                return np.empty(0).reshape((X.shape[0], 0))
-
-            if len(mask) != X.shape[1]:
-
-                raise ValueError("X has a different shape than during fitting.")
-
-            return X[:, safe_mask(X, mask)]
+        return X[:, safe_mask(X, mask)]
 </code></pre>
+</details>
 <h3 id="notfeasibleforparameters">NotFeasibleForParameters</h3>
 <pre><code class="python3">class NotFeasibleForParameters(
     /,
@@ -3168,12 +2922,13 @@ component of a nested object.</p>
 </code></pre>
 
 <p>Problem was infeasible with the current parameter set.</p>
-<p>??? example "View Source"
-        class NotFeasibleForParameters(Exception):</p>
-<pre><code>        """ Problem was infeasible with the current parameter set.
+<details class="example"><summary>View Source</summary><pre><code>class NotFeasibleForParameters(Exception):
 
-        """
+    """ Problem was infeasible with the current parameter set.
+
+    """
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>

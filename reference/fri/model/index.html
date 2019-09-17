@@ -2185,36 +2185,35 @@
                 
                 
                 <h1 id="module-frimodel">Module fri.model</h1>
-<p>??? example "View Source"
-        from .classification import Classification</p>
-<pre><code>    from .lupi_classification import LUPI_Classification
+<details class="example"><summary>View Source</summary><pre><code>from .classification import Classification
 
-    from .lupi_ordinal_regression import LUPI_OrdinalRegression
+from .lupi_classification import LUPI_Classification
 
-    from .lupi_regression import LUPI_Regression
+from .lupi_ordinal_regression import LUPI_OrdinalRegression
 
-    from .ordinal_regression import OrdinalRegression
+from .lupi_regression import LUPI_Regression
 
-    from .regression import Regression
+from .ordinal_regression import OrdinalRegression
 
+from .regression import Regression
 
+__all__ = [
 
-    __all__ = [
+    "Classification",
 
-        "Classification",
+    "Regression",
 
-        "Regression",
+    "OrdinalRegression",
 
-        "OrdinalRegression",
+    "LUPI_Classification",
 
-        "LUPI_Classification",
+    "LUPI_Regression",
 
-        "LUPI_Regression",
+    "LUPI_OrdinalRegression",
 
-        "LUPI_OrdinalRegression",
-
-    ]
+]
 </code></pre>
+</details>
 <h2 id="sub-modules">Sub-modules</h2>
 <ul>
 <li><a href="base_cvxproblem/">fri.model.base_cvxproblem</a></li>
@@ -2237,70 +2236,55 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Classification(ProblemType):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class Classification(ProblemType):
 
-        def parameters(cls):
+    @classmethod
 
-            return ["C"]
+    def parameters(cls):
 
+        return ["C"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def get_initmodel_template(cls):
+        return Classification_SVM
 
-            return Classification_SVM
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return Classification_Relevance_Bound
 
-        @property
+    def relax_factors(cls):
 
-        def get_cvxproblem_template(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return Classification_Relevance_Bound
+    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-        def relax_factors(cls):
+        X, y = check_X_y(X, y)
 
-            return ["loss_slack", "w_l1_slack"]
+        # Store the classes seen during fit
 
+        classes_ = unique_labels(y)
 
+        if len(classes_) &gt; 2:
 
-        def preprocessing(self, data, **kwargs):
+            raise ValueError("Only binary class data supported")
 
-            X, y = data
+        # Negative class is set to -1 for decision surface
 
-            # Check that X and y have correct shape
+        y = preprocessing.LabelEncoder().fit_transform(y)
 
-            X, y = check_X_y(X, y)
+        y[y == 0] = -1
 
-
-
-            # Store the classes seen during fit
-
-            classes_ = unique_labels(y)
-
-
-
-            if len(classes_) &gt; 2:
-
-                raise ValueError("Only binary class data supported")
-
-
-
-            # Negative class is set to -1 for decision surface
-
-            y = preprocessing.LabelEncoder().fit_transform(y)
-
-            y[y == 0] = -1
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -2314,12 +2298,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C"]
+    def parameters(cls):
+
+        return ["C"]
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -2334,20 +2319,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -2355,48 +2342,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -2404,28 +2392,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -2433,10 +2422,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -2444,10 +2434,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -2456,38 +2447,31 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, **kwargs):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
-            # Check that X and y have correct shape
+        X, y = data
 
-            X, y = check_X_y(X, y)
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
+        # Store the classes seen during fit
 
-            # Store the classes seen during fit
+        classes_ = unique_labels(y)
 
-            classes_ = unique_labels(y)
+        if len(classes_) &gt; 2:
 
+            raise ValueError("Only binary class data supported")
 
+        # Negative class is set to -1 for decision surface
 
-            if len(classes_) &gt; 2:
+        y = preprocessing.LabelEncoder().fit_transform(y)
 
-                raise ValueError("Only binary class data supported")
+        y[y == 0] = -1
 
-
-
-            # Negative class is set to -1 for decision surface
-
-            y = preprocessing.LabelEncoder().fit_transform(y)
-
-            y[y == 0] = -1
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -2496,20 +2480,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="lupi_classification">LUPI_Classification</h3>
 <pre><code class="python3">class LUPI_Classification(
     **kwargs
@@ -2518,112 +2504,87 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Classification(ProblemType):</p>
-<pre><code>        def __init__(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Classification(ProblemType):
 
-            super().__init__(**kwargs)
+    def __init__(self, **kwargs):
 
-            self._lupi_features = None
+        super().__init__(**kwargs)
 
+        self._lupi_features = None
 
+    @property
 
-        @property
+    def lupi_features(self):
 
-        def lupi_features(self):
+        return self._lupi_features
 
-            return self._lupi_features
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 
-        @classmethod
+    @property
 
-        def parameters(cls):
+    def get_initmodel_template(cls):
 
-            return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return LUPI_Classification_SVM
 
+    @property
 
+    def get_cvxproblem_template(cls):
 
-        @property
+        return LUPI_Classification_Relevance_Bound
 
-        def get_initmodel_template(cls):
+    def relax_factors(cls):
 
-            return LUPI_Classification_SVM
+        return ["loss_slack", "w_l1_slack"]
 
+    def preprocessing(self, data, lupi_features=None):
 
+        X, y = data
 
-        @property
+        d = X.shape[1]
 
-        def get_cvxproblem_template(cls):
+        if lupi_features is None:
 
-            return LUPI_Classification_Relevance_Bound
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
+        if not isinstance(lupi_features, int):
 
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-        def relax_factors(cls):
+        if not 0 &lt; lupi_features &lt; d:
 
-            return ["loss_slack", "w_l1_slack"]
+            raise ValueError(
 
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
+            )
 
-        def preprocessing(self, data, lupi_features=None):
+        self._lupi_features = lupi_features
 
-            X, y = data
+        # Check that X and y have correct shape
 
-            d = X.shape[1]
+        X, y = check_X_y(X, y)
 
+        # Store the classes seen during fit
 
+        classes_ = unique_labels(y)
 
-            if lupi_features is None:
+        if len(classes_) &gt; 2:
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            raise ValueError("Only binary class data supported")
 
-            if not isinstance(lupi_features, int):
+        # Negative class is set to -1 for decision surface
 
-                raise ValueError("Argument 'lupi_features' is not type int.")
+        y = preprocessing.LabelEncoder().fit_transform(y)
 
-            if not 0 &lt; lupi_features &lt; d:
+        y[y == 0] = -1
 
-                raise ValueError(
-
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
-
-                )
-
-
-
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            # Store the classes seen during fit
-
-            classes_ = unique_labels(y)
-
-
-
-            if len(classes_) &gt; 2:
-
-                raise ValueError("Only binary class data supported")
-
-
-
-            # Negative class is set to -1 for decision surface
-
-            y = preprocessing.LabelEncoder().fit_transform(y)
-
-            y[y == 0] = -1
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>
@@ -2637,12 +2598,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+    def parameters(cls):
+
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 </code></pre>
+</details>
 <h4 id="instance-variables_1">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -2660,20 +2622,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors_1">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter_1">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -2681,48 +2645,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors_1">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -2730,28 +2695,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints_1">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -2759,10 +2725,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing_1">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -2770,10 +2737,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing_1">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -2782,64 +2750,51 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, lupi_features=None):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-            d = X.shape[1]
+        X, y = data
 
+        d = X.shape[1]
 
+        if lupi_features is None:
 
-            if lupi_features is None:
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        if not isinstance(lupi_features, int):
 
-            if not isinstance(lupi_features, int):
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-                raise ValueError("Argument 'lupi_features' is not type int.")
+        if not 0 &lt; lupi_features &lt; d:
 
-            if not 0 &lt; lupi_features &lt; d:
+            raise ValueError(
 
-                raise ValueError(
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            )
 
-                )
+        self._lupi_features = lupi_features
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-            self._lupi_features = lupi_features
+        # Store the classes seen during fit
 
+        classes_ = unique_labels(y)
 
+        if len(classes_) &gt; 2:
 
-            # Check that X and y have correct shape
+            raise ValueError("Only binary class data supported")
 
-            X, y = check_X_y(X, y)
+        # Negative class is set to -1 for decision surface
 
+        y = preprocessing.LabelEncoder().fit_transform(y)
 
+        y[y == 0] = -1
 
-            # Store the classes seen during fit
-
-            classes_ = unique_labels(y)
-
-
-
-            if len(classes_) &gt; 2:
-
-                raise ValueError("Only binary class data supported")
-
-
-
-            # Negative class is set to -1 for decision surface
-
-            y = preprocessing.LabelEncoder().fit_transform(y)
-
-            y[y == 0] = -1
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint_1">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -2848,20 +2803,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors_1">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="lupi_ordinalregression">LUPI_OrdinalRegression</h3>
 <pre><code class="python3">class LUPI_OrdinalRegression(
     **kwargs
@@ -2870,98 +2827,79 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_OrdinalRegression(ProblemType):</p>
-<pre><code>        def __init__(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_OrdinalRegression(ProblemType):
 
-            super().__init__(**kwargs)
+    def __init__(self, **kwargs):
 
-            self._lupi_features = None
+        super().__init__(**kwargs)
 
+        self._lupi_features = None
 
+    @property
 
-        @property
+    def lupi_features(self):
 
-        def lupi_features(self):
+        return self._lupi_features
 
-            return self._lupi_features
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 
-        @classmethod
+    @property
 
-        def parameters(cls):
+    def get_initmodel_template(cls):
 
-            return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return LUPI_OrdinalRegression_SVM
 
+    @property
 
+    def get_cvxproblem_template(cls):
 
-        @property
+        return LUPI_OrdinalRegression_Relevance_Bound
 
-        def get_initmodel_template(cls):
+    def relax_factors(cls):
 
-            return LUPI_OrdinalRegression_SVM
+        return ["loss_slack", "w_l1_slack"]
 
+    def preprocessing(self, data, lupi_features=None):
 
+        X, y = data
 
-        @property
+        d = X.shape[1]
 
-        def get_cvxproblem_template(cls):
+        if lupi_features is None:
 
-            return LUPI_OrdinalRegression_Relevance_Bound
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
+        if not isinstance(lupi_features, int):
 
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-        def relax_factors(cls):
+        if not 0 &lt; lupi_features &lt; d:
 
-            return ["loss_slack", "w_l1_slack"]
+            raise ValueError(
 
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
+            )
 
-        def preprocessing(self, data, lupi_features=None):
+        self._lupi_features = lupi_features
 
-            X, y = data
+        # Check that X and y have correct shape
 
-            d = X.shape[1]
+        X, y = check_X_y(X, y)
 
+        if np.min(y) &gt; 0:
 
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
-            if lupi_features is None:
+            y = y - np.min(y)
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
-
-            if not isinstance(lupi_features, int):
-
-                raise ValueError("Argument 'lupi_features' is not type int.")
-
-            if not 0 &lt; lupi_features &lt; d:
-
-                raise ValueError(
-
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
-
-                )
-
-
-
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-            if np.min(y) &gt; 0:
-
-                print("First ordinal class has index &gt; 0. Shifting index...")
-
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
 <ul>
@@ -2975,12 +2913,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+    def parameters(cls):
+
+        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
 </code></pre>
+</details>
 <h4 id="instance-variables_2">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -2998,20 +2937,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors_2">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter_2">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -3019,48 +2960,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors_2">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -3068,28 +3010,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints_2">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -3097,10 +3040,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing_2">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -3108,10 +3052,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing_2">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -3120,50 +3065,43 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, lupi_features=None):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-            d = X.shape[1]
+        X, y = data
 
+        d = X.shape[1]
 
+        if lupi_features is None:
 
-            if lupi_features is None:
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        if not isinstance(lupi_features, int):
 
-            if not isinstance(lupi_features, int):
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-                raise ValueError("Argument 'lupi_features' is not type int.")
+        if not 0 &lt; lupi_features &lt; d:
 
-            if not 0 &lt; lupi_features &lt; d:
+            raise ValueError(
 
-                raise ValueError(
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            )
 
-                )
+        self._lupi_features = lupi_features
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-            self._lupi_features = lupi_features
+        if np.min(y) &gt; 0:
 
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
+            y = y - np.min(y)
 
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-            if np.min(y) &gt; 0:
-
-                print("First ordinal class has index &gt; 0. Shifting index...")
-
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint_2">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -3172,20 +3110,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors_2">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="lupi_regression">LUPI_Regression</h3>
 <pre><code class="python3">class LUPI_Regression(
     **kwargs
@@ -3194,92 +3134,73 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Regression(ProblemType):</p>
-<pre><code>        def __init__(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Regression(ProblemType):
 
-            super().__init__(**kwargs)
+    def __init__(self, **kwargs):
 
-            self._lupi_features = None
+        super().__init__(**kwargs)
 
+        self._lupi_features = None
 
+    @property
 
-        @property
+    def lupi_features(self):
 
-        def lupi_features(self):
+        return self._lupi_features
 
-            return self._lupi_features
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 
-        @classmethod
+    @property
 
-        def parameters(cls):
+    def get_initmodel_template(cls):
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+        return LUPI_Regression_SVM
 
+    @property
 
+    def get_cvxproblem_template(cls):
 
-        @property
+        return LUPI_Regression_Relevance_Bound
 
-        def get_initmodel_template(cls):
+    def relax_factors(cls):
 
-            return LUPI_Regression_SVM
+        return ["loss_slack", "w_l1_slack"]
 
+    def preprocessing(self, data, lupi_features=None):
 
+        X, y = data
 
-        @property
+        d = X.shape[1]
 
-        def get_cvxproblem_template(cls):
+        if lupi_features is None:
 
-            return LUPI_Regression_Relevance_Bound
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
+        if not isinstance(lupi_features, int):
 
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-        def relax_factors(cls):
+        if not 0 &lt; lupi_features &lt; d:
 
-            return ["loss_slack", "w_l1_slack"]
+            raise ValueError(
 
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
+            )
 
-        def preprocessing(self, data, lupi_features=None):
+        self._lupi_features = lupi_features
 
-            X, y = data
+        # Check that X and y have correct shape
 
-            d = X.shape[1]
+        X, y = check_X_y(X, y)
 
-
-
-            if lupi_features is None:
-
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
-
-            if not isinstance(lupi_features, int):
-
-                raise ValueError("Argument 'lupi_features' is not type int.")
-
-            if not 0 &lt; lupi_features &lt; d:
-
-                raise ValueError(
-
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
-
-                )
-
-
-
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_3">Ancestors (in MRO)</h4>
 <ul>
@@ -3293,12 +3214,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    def parameters(cls):
+
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 </code></pre>
+</details>
 <h4 id="instance-variables_3">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -3316,20 +3238,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors_3">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter_3">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -3337,48 +3261,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors_3">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -3386,28 +3311,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints_3">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -3415,10 +3341,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing_3">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -3426,10 +3353,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing_3">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -3438,44 +3366,37 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, lupi_features=None):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-            d = X.shape[1]
+        X, y = data
 
+        d = X.shape[1]
 
+        if lupi_features is None:
 
-            if lupi_features is None:
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        if not isinstance(lupi_features, int):
 
-            if not isinstance(lupi_features, int):
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-                raise ValueError("Argument 'lupi_features' is not type int.")
+        if not 0 &lt; lupi_features &lt; d:
 
-            if not 0 &lt; lupi_features &lt; d:
+            raise ValueError(
 
-                raise ValueError(
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            )
 
-                )
+        self._lupi_features = lupi_features
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint_3">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -3484,20 +3405,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors_3">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="ordinalregression">OrdinalRegression</h3>
 <pre><code class="python3">class OrdinalRegression(
     **kwargs
@@ -3506,58 +3429,47 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class OrdinalRegression(ProblemType):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression(ProblemType):
 
-        def parameters(cls):
+    @classmethod
 
-            return ["C"]
+    def parameters(cls):
 
+        return ["C"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def get_initmodel_template(cls):
+        return OrdinalRegression_SVM
 
-            return OrdinalRegression_SVM
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return OrdinalRegression_Relevance_Bound
 
-        @property
+    def relax_factors(cls):
 
-        def get_cvxproblem_template(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return OrdinalRegression_Relevance_Bound
+    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-        def relax_factors(cls):
+        X, y = check_X_y(X, y)
 
-            return ["loss_slack", "w_l1_slack"]
+        if np.min(y) &gt; 0:
 
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
+            y = y - np.min(y)
 
-        def preprocessing(self, data, **kwargs):
-
-            X, y = data
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-            if np.min(y) &gt; 0:
-
-                print("First ordinal class has index &gt; 0. Shifting index...")
-
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_4">Ancestors (in MRO)</h4>
 <ul>
@@ -3571,12 +3483,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C"]
+    def parameters(cls):
+
+        return ["C"]
 </code></pre>
+</details>
 <h4 id="instance-variables_4">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -3591,20 +3504,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors_4">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter_4">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -3612,48 +3527,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors_4">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -3661,28 +3577,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints_4">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -3690,10 +3607,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing_4">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -3701,10 +3619,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing_4">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -3713,26 +3632,23 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, **kwargs):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-            # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
 
-            X, y = check_X_y(X, y)
+        if np.min(y) &gt; 0:
 
-            if np.min(y) &gt; 0:
+            print("First ordinal class has index &gt; 0. Shifting index...")
 
-                print("First ordinal class has index &gt; 0. Shifting index...")
+            y = y - np.min(y)
 
-                y = y - np.min(y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint_4">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -3741,20 +3657,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors_4">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="regression">Regression</h3>
 <pre><code class="python3">class Regression(
     **kwargs
@@ -3763,52 +3681,41 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class Regression(ProblemType):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class Regression(ProblemType):
 
-        def parameters(cls):
+    @classmethod
 
-            return ["C", "epsilon"]
+    def parameters(cls):
 
+        return ["C", "epsilon"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def get_initmodel_template(cls):
+        return Regression_SVR
 
-            return Regression_SVR
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return Regression_Relevance_Bound
 
-        @property
+    def relax_factors(cls):
 
-        def get_cvxproblem_template(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return Regression_Relevance_Bound
+    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-        def relax_factors(cls):
+        X, y = check_X_y(X, y)
 
-            return ["loss_slack", "w_l1_slack"]
-
-
-
-        def preprocessing(self, data, **kwargs):
-
-            X, y = data
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_5">Ancestors (in MRO)</h4>
 <ul>
@@ -3822,12 +3729,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon"]
+    def parameters(cls):
+
+        return ["C", "epsilon"]
 </code></pre>
+</details>
 <h4 id="instance-variables_5">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -3842,20 +3750,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors_5">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter_5">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -3863,48 +3773,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors_5">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -3912,28 +3823,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints_5">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -3941,10 +3853,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing_5">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -3952,10 +3865,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing_5">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -3964,20 +3878,17 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, **kwargs):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
+        X, y = data
 
+        # Check that X and y have correct shape
 
-            # Check that X and y have correct shape
+        X, y = check_X_y(X, y)
 
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint_5">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -3986,20 +3897,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors_5">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
                 
                   
                 

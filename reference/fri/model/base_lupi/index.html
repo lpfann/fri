@@ -995,164 +995,141 @@
                 
                 
                 <h1 id="module-frimodelbase_lupi">Module fri.model.base_lupi</h1>
-<p>??? example "View Source"
-        from abc import abstractmethod</p>
-<pre><code>    from .base_cvxproblem import Relevance_CVXProblem
+<details class="example"><summary>View Source</summary><pre><code>from abc import abstractmethod
 
+from .base_cvxproblem import Relevance_CVXProblem
 
+class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
 
+    def __init__(
 
+        self,
 
-    class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
+        current_feature: int,
 
-        def __init__(
+        data: tuple,
 
-            self,
+        hyperparameters,
 
-            current_feature: int,
+        best_model_constraints,
 
-            data: tuple,
+        preset_model=None,
+
+        best_model_state=None,
+
+        probeID=-1,
+
+    ) -&gt; None:
+
+        super().__init__(
+
+            current_feature,
+
+            data,
 
             hyperparameters,
 
             best_model_constraints,
 
-            preset_model=None,
+            preset_model,
 
-            best_model_state=None,
+            best_model_state,
 
-            probeID=-1,
+            probeID,
 
-        ) -&gt; None:
+        )
 
-            super().__init__(
-
-                current_feature,
-
-                data,
-
-                hyperparameters,
-
-                best_model_constraints,
-
-                preset_model,
-
-                best_model_state,
-
-                probeID,
-
-            )
-
-
-
-        def preprocessing_data(self, data, best_model_state):
-
-            lupi_features = best_model_state["lupi_features"]
-
-            X_combined, y = data
-
-            X, X_priv = split_dataset(X_combined, lupi_features)
-
-            self.X_priv = X_priv
-
-            super().preprocessing_data((X, y), best_model_state)
-
-
-
-            assert lupi_features == X_priv.shape[1]
-
-            self.d_priv = lupi_features
-
-            # LUPI model, we need to offset the index
-
-            self.lupi_index = self.current_feature - self.d
-
-            if self.lupi_index &gt;= 0:
-
-                self.isPriv = True
-
-            else:
-
-                self.isPriv = False
-
-
-
-        def init_objective_UB(self, **kwargs):
-
-            # We have two models basically with different indexes
-
-            if self.isPriv:
-
-                self._init_objective_UB_LUPI(**kwargs)
-
-            else:
-
-                # We call sibling class of our lupi class, which is the normal problem
-
-                super().init_objective_UB(**kwargs)
-
-
-
-        def init_objective_LB(self, **kwargs):
-
-            # We have two models basically with different indexes
-
-            if self.isPriv:
-
-                self._init_objective_LB_LUPI(**kwargs)
-
-            else:
-
-                # We call sibling class of our lupi class, which is the normal problem
-
-                super().init_objective_LB(**kwargs)
-
-
-
-        @abstractmethod
-
-        def _init_objective_LB_LUPI(self, **kwargs):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def _init_objective_UB_LUPI(self, **kwargs):
-
-            pass
-
-
-
-
-
-    def split_dataset(X_combined, lupi_features):
-
-        assert X_combined.shape[1] &gt; lupi_features
-
-        X = X_combined[:, :-lupi_features]
-
-        X_priv = X_combined[:, -lupi_features:]
-
-        return X, X_priv
-
-
-
-
-
-    def is_lupi_feature(di, data, best_model_state):
+    def preprocessing_data(self, data, best_model_state):
 
         lupi_features = best_model_state["lupi_features"]
 
-        X_combined, _ = data
+        X_combined, y = data
 
-        d = X_combined.shape[1] - lupi_features
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-        lupi_index = di - d
+        self.X_priv = X_priv
 
-        return lupi_index &gt;= 0
+        super().preprocessing_data((X, y), best_model_state)
+
+        assert lupi_features == X_priv.shape[1]
+
+        self.d_priv = lupi_features
+
+        # LUPI model, we need to offset the index
+
+        self.lupi_index = self.current_feature - self.d
+
+        if self.lupi_index &gt;= 0:
+
+            self.isPriv = True
+
+        else:
+
+            self.isPriv = False
+
+    def init_objective_UB(self, **kwargs):
+
+        # We have two models basically with different indexes
+
+        if self.isPriv:
+
+            self._init_objective_UB_LUPI(**kwargs)
+
+        else:
+
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_UB(**kwargs)
+
+    def init_objective_LB(self, **kwargs):
+
+        # We have two models basically with different indexes
+
+        if self.isPriv:
+
+            self._init_objective_LB_LUPI(**kwargs)
+
+        else:
+
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_LB(**kwargs)
+
+    @abstractmethod
+
+    def _init_objective_LB_LUPI(self, **kwargs):
+
+        pass
+
+    @abstractmethod
+
+    def _init_objective_UB_LUPI(self, **kwargs):
+
+        pass
+
+def split_dataset(X_combined, lupi_features):
+
+    assert X_combined.shape[1] &gt; lupi_features
+
+    X = X_combined[:, :-lupi_features]
+
+    X_priv = X_combined[:, -lupi_features:]
+
+    return X, X_priv
+
+def is_lupi_feature(di, data, best_model_state):
+
+    lupi_features = best_model_state["lupi_features"]
+
+    X_combined, _ = data
+
+    d = X_combined.shape[1] - lupi_features
+
+    lupi_index = di - d
+
+    return lupi_index &gt;= 0
 </code></pre>
+</details>
 <h2 id="functions">Functions</h2>
 <h3 id="is_lupi_feature">is_lupi_feature</h3>
 <pre><code class="python3">def is_lupi_feature(
@@ -1162,18 +1139,19 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-        def is_lupi_feature(di, data, best_model_state):</p>
-<pre><code>        lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><pre><code>def is_lupi_feature(di, data, best_model_state):
 
-        X_combined, _ = data
+    lupi_features = best_model_state["lupi_features"]
 
-        d = X_combined.shape[1] - lupi_features
+    X_combined, _ = data
 
-        lupi_index = di - d
+    d = X_combined.shape[1] - lupi_features
 
-        return lupi_index &gt;= 0
+    lupi_index = di - d
+
+    return lupi_index &gt;= 0
 </code></pre>
+</details>
 <h3 id="split_dataset">split_dataset</h3>
 <pre><code class="python3">def split_dataset(
     X_combined,
@@ -1181,21 +1159,22 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-        def split_dataset(X_combined, lupi_features):</p>
-<pre><code>        assert X_combined.shape[1] &gt; lupi_features
+<details class="example"><summary>View Source</summary><pre><code>def split_dataset(X_combined, lupi_features):
 
-        X = X_combined[:, :-lupi_features]
+    assert X_combined.shape[1] &gt; lupi_features
 
-        X_priv = X_combined[:, -lupi_features:]
+    X = X_combined[:, :-lupi_features]
 
-        return X, X_priv
+    X_priv = X_combined[:, -lupi_features:]
+
+    return X, X_priv
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="lupi_relevance_cvxproblem">LUPI_Relevance_CVXProblem</h3>
 <pre><code class="python3">class LUPI_Relevance_CVXProblem(
-    current_feature:int,
-    data:tuple,
+    current_feature: int,
+    data: tuple,
     hyperparameters,
     best_model_constraints,
     preset_model=None,
@@ -1206,126 +1185,115 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):</p>
-<pre><code>        def __init__(
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
 
-            self,
+    def __init__(
 
-            current_feature: int,
+        self,
 
-            data: tuple,
+        current_feature: int,
+
+        data: tuple,
+
+        hyperparameters,
+
+        best_model_constraints,
+
+        preset_model=None,
+
+        best_model_state=None,
+
+        probeID=-1,
+
+    ) -&gt; None:
+
+        super().__init__(
+
+            current_feature,
+
+            data,
 
             hyperparameters,
 
             best_model_constraints,
 
-            preset_model=None,
+            preset_model,
 
-            best_model_state=None,
+            best_model_state,
 
-            probeID=-1,
+            probeID,
 
-        ) -&gt; None:
+        )
 
-            super().__init__(
+    def preprocessing_data(self, data, best_model_state):
 
-                current_feature,
+        lupi_features = best_model_state["lupi_features"]
 
-                data,
+        X_combined, y = data
 
-                hyperparameters,
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-                best_model_constraints,
+        self.X_priv = X_priv
 
-                preset_model,
+        super().preprocessing_data((X, y), best_model_state)
 
-                best_model_state,
+        assert lupi_features == X_priv.shape[1]
 
-                probeID,
+        self.d_priv = lupi_features
 
-            )
+        # LUPI model, we need to offset the index
 
+        self.lupi_index = self.current_feature - self.d
 
+        if self.lupi_index &gt;= 0:
 
-        def preprocessing_data(self, data, best_model_state):
+            self.isPriv = True
 
-            lupi_features = best_model_state["lupi_features"]
+        else:
 
-            X_combined, y = data
+            self.isPriv = False
 
-            X, X_priv = split_dataset(X_combined, lupi_features)
+    def init_objective_UB(self, **kwargs):
 
-            self.X_priv = X_priv
+        # We have two models basically with different indexes
 
-            super().preprocessing_data((X, y), best_model_state)
+        if self.isPriv:
 
+            self._init_objective_UB_LUPI(**kwargs)
 
+        else:
 
-            assert lupi_features == X_priv.shape[1]
+            # We call sibling class of our lupi class, which is the normal problem
 
-            self.d_priv = lupi_features
+            super().init_objective_UB(**kwargs)
 
-            # LUPI model, we need to offset the index
+    def init_objective_LB(self, **kwargs):
 
-            self.lupi_index = self.current_feature - self.d
+        # We have two models basically with different indexes
 
-            if self.lupi_index &gt;= 0:
+        if self.isPriv:
 
-                self.isPriv = True
+            self._init_objective_LB_LUPI(**kwargs)
 
-            else:
+        else:
 
-                self.isPriv = False
+            # We call sibling class of our lupi class, which is the normal problem
 
+            super().init_objective_LB(**kwargs)
 
+    @abstractmethod
 
-        def init_objective_UB(self, **kwargs):
+    def _init_objective_LB_LUPI(self, **kwargs):
 
-            # We have two models basically with different indexes
+        pass
 
-            if self.isPriv:
+    @abstractmethod
 
-                self._init_objective_UB_LUPI(**kwargs)
+    def _init_objective_UB_LUPI(self, **kwargs):
 
-            else:
-
-                # We call sibling class of our lupi class, which is the normal problem
-
-                super().init_objective_UB(**kwargs)
-
-
-
-        def init_objective_LB(self, **kwargs):
-
-            # We have two models basically with different indexes
-
-            if self.isPriv:
-
-                self._init_objective_LB_LUPI(**kwargs)
-
-            else:
-
-                # We call sibling class of our lupi class, which is the normal problem
-
-                super().init_objective_LB(**kwargs)
-
-
-
-        @abstractmethod
-
-        def _init_objective_LB_LUPI(self, **kwargs):
-
-            pass
-
-
-
-        @abstractmethod
-
-        def _init_objective_UB_LUPI(self, **kwargs):
-
-            pass
+        pass
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -1345,32 +1313,34 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            max_value = max(vals)
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            return max_value
+        max_value = max(vals)
+
+        return max_value
 </code></pre>
+</details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
 <pre><code class="python3">def aggregate_min_candidates(
     min_problems_candidates
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-            min_value = min(vals)
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-            return min_value
+        min_value = min(vals)
+
+        return min_value
 </code></pre>
+</details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
 <pre><code class="python3">def generate_lower_bound_problem(
     best_hyperparameters,
@@ -1383,27 +1353,88 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_lower_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
+
+        yield problem
+</code></pre>
+</details>
+<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
+<pre><code class="python3">def generate_upper_bound_problem(
+    best_hyperparameters,
+    init_constraints,
+    best_model_state,
+    data,
+    di,
+    preset_model,
+    probeID=-1
+)
+</code></pre>
+
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        for sign in [-1, 1]:
 
             problem = cls(
 
@@ -1423,72 +1454,13 @@ inheritance.</p>
 
             )
 
-            problem.init_objective_LB()
+            problem.init_objective_UB(sign=sign)
 
-            problem.isLowerBound = True
+            problem.isLowerBound = False
 
             yield problem
 </code></pre>
-<h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
-
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_upper_bound_problem(
-
-            cls,
-
-            best_hyperparameters,
-
-            init_constraints,
-
-            best_model_state,
-
-            data,
-
-            di,
-
-            preset_model,
-
-            probeID=-1,
-
-        ):
-
-            for sign in [-1, 1]:
-
-                problem = cls(
-
-                    di,
-
-                    data,
-
-                    best_hyperparameters,
-
-                    init_constraints,
-
-                    preset_model=preset_model,
-
-                    best_model_state=best_model_state,
-
-                    probeID=probeID,
-
-                )
-
-                problem.init_objective_UB(sign=sign)
-
-                problem.isLowerBound = False
-
-                yield problem
-</code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">accepted_status
 </code></pre>
@@ -1525,10 +1497,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def add_constraint(self, new):</p>
-<pre><code>            self._constraints.append(new)
+<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
+
+        self._constraints.append(new)
 </code></pre>
+</details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
 <pre><code class="python3">def init_objective_LB(
     self,
@@ -1536,20 +1509,21 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_LB(self, **kwargs):</p>
-<pre><code>            # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-            if self.isPriv:
+        # We have two models basically with different indexes
 
-                self._init_objective_LB_LUPI(**kwargs)
+        if self.isPriv:
 
-            else:
+            self._init_objective_LB_LUPI(**kwargs)
 
-                # We call sibling class of our lupi class, which is the normal problem
+        else:
 
-                super().init_objective_LB(**kwargs)
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_LB(**kwargs)
 </code></pre>
+</details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
 <pre><code class="python3">def init_objective_UB(
     self,
@@ -1557,20 +1531,21 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_UB(self, **kwargs):</p>
-<pre><code>            # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, **kwargs):
 
-            if self.isPriv:
+        # We have two models basically with different indexes
 
-                self._init_objective_UB_LUPI(**kwargs)
+        if self.isPriv:
 
-            else:
+            self._init_objective_UB_LUPI(**kwargs)
 
-                # We call sibling class of our lupi class, which is the normal problem
+        else:
 
-                super().init_objective_UB(**kwargs)
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_UB(**kwargs)
 </code></pre>
+</details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
 <pre><code class="python3">def preprocessing_data(
     self,
@@ -1579,76 +1554,74 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing_data(self, data, best_model_state):</p>
-<pre><code>            lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-            X_combined, y = data
+        lupi_features = best_model_state["lupi_features"]
 
-            X, X_priv = split_dataset(X_combined, lupi_features)
+        X_combined, y = data
 
-            self.X_priv = X_priv
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-            super().preprocessing_data((X, y), best_model_state)
+        self.X_priv = X_priv
 
+        super().preprocessing_data((X, y), best_model_state)
 
+        assert lupi_features == X_priv.shape[1]
 
-            assert lupi_features == X_priv.shape[1]
+        self.d_priv = lupi_features
 
-            self.d_priv = lupi_features
+        # LUPI model, we need to offset the index
 
-            # LUPI model, we need to offset the index
+        self.lupi_index = self.current_feature - self.d
 
-            self.lupi_index = self.current_feature - self.d
+        if self.lupi_index &gt;= 0:
 
-            if self.lupi_index &gt;= 0:
+            self.isPriv = True
 
-                self.isPriv = True
+        else:
 
-            else:
-
-                self.isPriv = False
+            self.isPriv = False
 </code></pre>
+</details>
 <h5 id="solve">solve</h5>
 <pre><code class="python3">def solve(
     self
 ) -&gt; object
 </code></pre>
 
-<p>??? example "View Source"
-            def solve(self) -&gt; object:</p>
-<pre><code>            # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # We init cvx problem here because pickling LP solver objects is problematic
 
-            self._cvx_problem = cvx.Problem(
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
-                objective=self.objective, constraints=self.constraints
+        self._cvx_problem = cvx.Problem(
 
-            )
+            objective=self.objective, constraints=self.constraints
 
-            try:
+        )
 
-                # print("Solve", self)
+        try:
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            # print("Solve", self)
 
-            except SolverError:
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-                # We ignore Solver Errors, which are common with our framework:
+        except SolverError:
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # We ignore Solver Errors, which are common with our framework:
 
-                pass
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
+        self._solver_status = self._cvx_problem.status
 
-            self._solver_status = self._cvx_problem.status
+        # self._cvx_problem = None
 
-            # self._cvx_problem = None
-
-            return self
+        return self
 </code></pre>
+</details>
                 
                   
                 

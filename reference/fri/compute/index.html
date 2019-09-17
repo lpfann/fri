@@ -923,928 +923,783 @@
                 
                 
                 <h1 id="module-fricompute">Module fri.compute</h1>
-<p>??? example "View Source"
-        import logging</p>
-<pre><code>    from collections import defaultdict
+<details class="example"><summary>View Source</summary><pre><code>import logging
 
+from collections import defaultdict
 
+import joblib
 
-    import joblib
+import numpy as np
 
-    import numpy as np
+from scipy import stats
 
-    from scipy import stats
+from fri.model.base_cvxproblem import Relevance_CVXProblem
 
+from fri.model.base_initmodel import InitModel
 
+from fri.model.base_type import ProblemType
 
-    from fri.model.base_cvxproblem import Relevance_CVXProblem
+from fri.utils import permutate_feature_in_data
 
-    from fri.model.base_initmodel import InitModel
+MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
 
-    from fri.model.base_type import ProblemType
+def _start_solver_worker(bound: Relevance_CVXProblem):
 
-    from fri.utils import permutate_feature_in_data
+    """
 
+    Worker thread method for parallel computation
 
+    """
 
-    MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
+    return bound.solve()
 
+class RelevanceBoundsIntervals(object):
 
+    def __init__(
 
+        self,
 
+        data,
 
-    def _start_solver_worker(bound: Relevance_CVXProblem):
+        problem_type: ProblemType,
 
-        """
+        best_init_model: InitModel,
 
-        Worker thread method for parallel computation
+        random_state,
 
-        """
+        n_resampling,
 
-        return bound.solve()
+        n_jobs,
 
+        verbose,
 
+        normalize=True,
 
+    ):
 
+        self.data = data
 
-    class RelevanceBoundsIntervals(object):
+        self.problem_type = problem_type
 
-        def __init__(
+        self.verbose = verbose
 
-            self,
+        self.n_jobs = n_jobs
 
-            data,
+        self.n_resampling = n_resampling
 
-            problem_type: ProblemType,
+        self.random_state = random_state
 
-            best_init_model: InitModel,
+        self.best_init_model = best_init_model
 
-            random_state,
+        self.best_hyperparameters = best_init_model.hyperparam
 
-            n_resampling,
+        self.normalize = normalize
 
-            n_jobs,
+        # Relax constraints to improve stability
 
-            verbose,
+        relaxed_constraints = problem_type.get_relaxed_constraints(
 
-            normalize=True,
+            best_init_model.constraints
 
-        ):
+        )
 
-            self.data = data
+        self.init_constraints = relaxed_constraints
 
-            self.problem_type = problem_type
+    def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
 
-            self.verbose = verbose
+        # We define a list of all the features we want to compute relevance bounds for
 
-            self.n_jobs = n_jobs
+        X, _ = self.data  # TODO: handle other data formats
 
-            self.n_resampling = n_resampling
+        all_d = X.shape[1]
 
-            self.random_state = random_state
+        normal_d = all_d - lupi_features
 
-            self.best_init_model = best_init_model
+        # Compute relevance bounds and probes for normal features and LUPI
 
-            self.best_hyperparameters = best_init_model.hyperparam
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
 
-            self.normalize = normalize
+            d_n = _get_necessary_dimensions(normal_d, presetModel)
 
+            rb = self.compute_relevance_bounds(d_n, parallel=parallel)
 
+            probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
 
-            # Relax constraints to improve stability
+            probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
 
-            relaxed_constraints = problem_type.get_relaxed_constraints(
+            d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
 
-                best_init_model.constraints
+            rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
+
+            probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
+
+            probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
+
+        probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
+
+        #
+
+        # Postprocess
+
+        #
+
+        # Get Scaling Parameters
+
+        l1 = self.init_constraints["w_l1"]
+
+        l1_priv = self.init_constraints["w_priv_l1"]
+
+        l1 = l1 + l1_priv
+
+        # Normalize Normal and Lupi features
+
+        rb_norm = self._postprocessing(l1, rb)
+
+        rb_l_norm = self._postprocessing(l1, rb_l)
+
+        interval_ = np.concatenate([rb_norm, rb_l_norm])
+
+        # Normalize Probes
+
+        probe_lower = self._postprocessing(l1, probe_lower)
+
+        probe_upper = self._postprocessing(l1, probe_upper)
+
+        probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
+
+        probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
+
+        #
+
+        #
+
+        # Classify features
+
+        fc = feature_classification(
+
+            probe_lower, probe_upper, rb_norm, verbose=self.verbose
+
+        )
+
+        fc_l = feature_classification(
+
+            probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
+
+        )
+
+        fc_both = np.concatenate([fc, fc_l])
+
+        return interval_, fc_both
+
+    def get_normalized_intervals(self, presetModel=None):
+
+        # We define a list of all the features we want to compute relevance bounds for
+
+        X, _ = self.data  # TODO: handle other data formats
+
+        d = X.shape[1]
+
+        # Depending on the preset model, we dont need to compute all bounds
+
+        # e.g. in the case of fixed features we skip those
+
+        dims = _get_necessary_dimensions(d, presetModel)
+
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+
+            relevance_bounds = self.compute_relevance_bounds(
+
+                dims, parallel=parallel, presetModel=presetModel
 
             )
 
-            self.init_constraints = relaxed_constraints
+            probe_values_upper = self.compute_probe_values(
 
-
-
-        def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
-
-
-
-            # We define a list of all the features we want to compute relevance bounds for
-
-            X, _ = self.data  # TODO: handle other data formats
-
-            all_d = X.shape[1]
-
-            normal_d = all_d - lupi_features
-
-
-
-            # Compute relevance bounds and probes for normal features and LUPI
-
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-
-                d_n = _get_necessary_dimensions(normal_d, presetModel)
-
-                rb = self.compute_relevance_bounds(d_n, parallel=parallel)
-
-                probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
-
-                probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
-
-
-
-                d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
-
-                rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
-
-                probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
-
-                probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
-
-            probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
-
-            #
-
-            # Postprocess
-
-            #
-
-
-
-            # Get Scaling Parameters
-
-            l1 = self.init_constraints["w_l1"]
-
-            l1_priv = self.init_constraints["w_priv_l1"]
-
-            l1 = l1 + l1_priv
-
-
-
-            # Normalize Normal and Lupi features
-
-            rb_norm = self._postprocessing(l1, rb)
-
-            rb_l_norm = self._postprocessing(l1, rb_l)
-
-            interval_ = np.concatenate([rb_norm, rb_l_norm])
-
-
-
-            # Normalize Probes
-
-            probe_lower = self._postprocessing(l1, probe_lower)
-
-            probe_upper = self._postprocessing(l1, probe_upper)
-
-            probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
-
-            probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
-
-
-
-            #
-
-            #
-
-            # Classify features
-
-            fc = feature_classification(
-
-                probe_lower, probe_upper, rb_norm, verbose=self.verbose
+                dims, isUpper=True, parallel=parallel, presetModel=presetModel
 
             )
 
-            fc_l = feature_classification(
+            probe_values_lower = self.compute_probe_values(
 
-                probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
-
-            )
-
-            fc_both = np.concatenate([fc, fc_l])
-
-
-
-            return interval_, fc_both
-
-
-
-        def get_normalized_intervals(self, presetModel=None):
-
-            # We define a list of all the features we want to compute relevance bounds for
-
-            X, _ = self.data  # TODO: handle other data formats
-
-            d = X.shape[1]
-
-            # Depending on the preset model, we dont need to compute all bounds
-
-            # e.g. in the case of fixed features we skip those
-
-            dims = _get_necessary_dimensions(d, presetModel)
-
-
-
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-
-                relevance_bounds = self.compute_relevance_bounds(
-
-                    dims, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_upper = self.compute_probe_values(
-
-                    dims, isUpper=True, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_lower = self.compute_probe_values(
-
-                    dims, isUpper=False, parallel=parallel, presetModel=presetModel
-
-                )
-
-
-
-            # Postprocess bounds
-
-            norm_bounds = self._postprocessing(
-
-                self.best_init_model.L1_factor, relevance_bounds
+                dims, isUpper=False, parallel=parallel, presetModel=presetModel
 
             )
 
-            norm_probe_values_upper = self._postprocessing(
+        # Postprocess bounds
 
-                self.best_init_model.L1_factor, probe_values_upper
+        norm_bounds = self._postprocessing(
 
-            )
+            self.best_init_model.L1_factor, relevance_bounds
 
-            norm_probe_values_lower = self._postprocessing(
+        )
 
-                self.best_init_model.L1_factor, probe_values_lower
+        norm_probe_values_upper = self._postprocessing(
 
-            )
+            self.best_init_model.L1_factor, probe_values_upper
 
-            feature_classes = feature_classification(
+        )
 
-                norm_probe_values_lower,
+        norm_probe_values_lower = self._postprocessing(
 
-                norm_probe_values_upper,
+            self.best_init_model.L1_factor, probe_values_lower
 
-                norm_bounds,
+        )
 
-                verbose=self.verbose,
+        feature_classes = feature_classification(
 
-            )
+            norm_probe_values_lower,
 
+            norm_probe_values_upper,
 
+            norm_bounds,
 
-            return norm_bounds, feature_classes
+            verbose=self.verbose,
 
+        )
 
+        return norm_bounds, feature_classes
 
-        def compute_relevance_bounds(
+    def compute_relevance_bounds(
 
-            self, dims, parallel=None, presetModel=None, solverargs=None
+        self, dims, parallel=None, presetModel=None, solverargs=None
 
-        ):
+    ):
 
-            init_model_state = self.best_init_model.model_state
+        init_model_state = self.best_init_model.model_state
 
+        work_queue = self._generate_relevance_bounds_tasks(
 
+            dims, self.data, presetModel, init_model_state
 
-            work_queue = self._generate_relevance_bounds_tasks(
+        )
 
-                dims, self.data, presetModel, init_model_state
+        # Solve relevance bounds in parallel (when available)
 
-            )
+        if parallel is None:
 
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
+        bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
 
-            # Solve relevance bounds in parallel (when available)
+        # Retrieve results and aggregate values in dict
 
-            if parallel is None:
+        solved_bounds = defaultdict(list)
 
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
+        for finished_bound in bound_results:
 
-            bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
+            # Only add bounds with feasible solutions
 
+            if finished_bound.is_solved:
 
+                solved_bounds[finished_bound.current_feature].append(finished_bound)
 
-            # Retrieve results and aggregate values in dict
+        # Initalize array for pair of bounds(= intervals)
 
-            solved_bounds = defaultdict(list)
+        length = len(dims)
 
-            for finished_bound in bound_results:
+        intervals = np.zeros((length, 2))
 
+        for abs_index, rel_index in zip(dims, range(length)):
 
+            # Return interval for feature i (can be a fixed value when set beforehand)
 
-                # Only add bounds with feasible solutions
+            interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
 
-                if finished_bound.is_solved:
+            intervals[rel_index] = interval_i
 
-                    solved_bounds[finished_bound.current_feature].append(finished_bound)
+        return intervals  # TODO: add model model_state (omega, bias) to return value
 
+    def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
 
+        # Get model parameters
 
-            # Initalize array for pair of bounds(= intervals)
+        init_model_state = self.best_init_model.model_state
 
-            length = len(dims)
+        # Prepare parallel framework
 
-            intervals = np.zeros((length, 2))
+        if parallel is None:
 
-            for abs_index, rel_index in zip(dims, range(length)):
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
-                # Return interval for feature i (can be a fixed value when set beforehand)
+        # Generate
 
-                interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
+        probe_queue = self._generate_probe_value_tasks(
 
-                intervals[rel_index] = interval_i
-
-
-
-            return intervals  # TODO: add model model_state (omega, bias) to return value
-
-
-
-        def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
-
-            # Get model parameters
-
-            init_model_state = self.best_init_model.model_state
-
-
-
-            # Prepare parallel framework
-
-            if parallel is None:
-
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
-
-
-
-            # Generate
-
-            probe_queue = self._generate_probe_value_tasks(
-
-                self.data,
-
-                dims,
-
-                isUpper,
-
-                self.n_resampling,
-
-                self.random_state,
-
-                presetModel,
-
-                init_model_state,
-
-            )
-
-            # Compute solution
-
-            probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
-
-            # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
-
-
-
-            candidates = defaultdict(list)
-
-            for candidate in probe_results:
-
-                # Only add bounds with feasible solutions
-
-                if candidate.is_solved:
-
-                    candidates[candidate.probeID].append(candidate)
-
-            probe_values = []
-
-            for probes_for_ID in candidates.values():
-
-                if isUpper:
-
-                    probe_values.append(
-
-                        self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-
-                            probes_for_ID
-
-                        )
-
-                    )
-
-                else:
-
-                    probe_values.append(
-
-                        self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-
-                            probes_for_ID
-
-                        )
-
-                    )
-
-
-
-            return np.array(probe_values)
-
-
-
-        def _generate_relevance_bounds_tasks(
-
-            self, dims, data, preset_model=None, best_model_state=None
-
-        ):
-
-            # Do not compute bounds for fixed features
-
-            if preset_model is not None:
-
-                dims = [di for di in dims if di not in preset_model]
-
-
-
-            # Instantiate objects for computation later
-
-            for di in dims:
-
-                # Add Lower Bound problem(s) to work list
-
-                yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data,
-
-                    di,
-
-                    preset_model,
-
-                )
-
-
-
-                # Add problem(s) for Upper bound
-
-                yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data,
-
-                    di,
-
-                    preset_model,
-
-                )
-
-
-
-        def _generate_probe_value_tasks(
-
-            self,
-
-            data,
+            self.data,
 
             dims,
 
             isUpper,
 
-            n_resampling,
+            self.n_resampling,
 
-            random_state,
+            self.random_state,
 
-            preset_model=None,
+            presetModel,
 
-            best_model_state=None,
+            init_model_state,
 
-        ):
+        )
+
+        # Compute solution
+
+        probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
+
+        # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+
+        candidates = defaultdict(list)
+
+        for candidate in probe_results:
+
+            # Only add bounds with feasible solutions
+
+            if candidate.is_solved:
+
+                candidates[candidate.probeID].append(candidate)
+
+        probe_values = []
+
+        for probes_for_ID in candidates.values():
 
             if isUpper:
 
-                factory = (
+                probe_values.append(
 
-                    self.problem_type.get_cvxproblem_template.generate_upper_bound_problem
+                    self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+
+                        probes_for_ID
+
+                    )
 
                 )
 
             else:
 
-                factory = (
+                probe_values.append(
 
-                    self.problem_type.get_cvxproblem_template.generate_lower_bound_problem
+                    self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
 
-                )
+                        probes_for_ID
 
-
-
-            # Random sample n_resampling shadow features by permuting real features and computing upper bound
-
-            random_choice = random_state.choice(a=dims, size=n_resampling)
-
-
-
-            # Instantiate objects
-
-            for i, di in enumerate(random_choice):
-
-                data_perm = permutate_feature_in_data(data, di, random_state)
-
-
-
-                # We only use upper bounds as probe features
-
-                yield from factory(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data_perm,
-
-                    di,
-
-                    preset_model,
-
-                    probeID=i,
+                    )
 
                 )
 
+        return np.array(probe_values)
 
+    def _generate_relevance_bounds_tasks(
 
-        def _create_interval(
-
-            self, feature: int, solved_bounds: dict, presetModel: dict = None
-
-        ):
-
-            # Return preset values for fixed features
-
-            if presetModel is not None:
-
-                if feature in presetModel:
-
-                    return presetModel[feature].squeeze()
-
-
-
-            all_bounds = solved_bounds[feature]
-
-            min_problems_candidates = [p for p in all_bounds if p.isLowerBound]
-
-            max_problems_candidates = [p for p in all_bounds if not p.isLowerBound]
-
-            if len(all_bounds) &lt; 2:
-
-                logging.error(
-
-                    f"(Some) relevance bounds for feature {feature} were not solved."
-
-                )
-
-                raise Exception("Infeasible bound(s).")
-
-            lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-
-                min_problems_candidates
-
-            )
-
-            upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-
-                max_problems_candidates
-
-            )
-
-            return lower_bound, upper_bound
-
-
-
-        def compute_single_preset_relevance_bounds(
-
-            self, i: int, signed_preset_i: [float, float]
-
-        ):
-
-            """
-
-            Method to run method once for one restricted feature
-
-            Parameters
-
-            ----------
-
-            i:
-
-                restricted feature
-
-            signed_preset_i:
-
-                restricted range of feature i (set before optimization = preset)
-
-
-
-            """
-
-            preset = {i: signed_preset_i}
-
-
-
-            rangevector = self.compute_multi_preset_relevance_bounds(preset)
-
-
-
-            return rangevector
-
-
-
-        def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
-
-            """
-
-            Method to run method with preset values
-
-
-
-            Parameters
-
-            ----------
-
-            lupi_features
-
-            """
-
-
-
-            # The user is working with normalized values while we compute them unscaled
-
-            if self.normalize:
-
-                normalized = {}
-
-                for k, v in preset.items():
-
-                    normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
-
-                preset = normalized
-
-
-
-            # Add sign to presets
-
-            preset = self._add_sign_to_preset(preset)
-
-
-
-            # Calculate all bounds with feature i set to min_i
-
-            if lupi_features &gt; 0:
-
-                rangevector, f_classes = self.get_normalized_lupi_intervals(
-
-                    lupi_features, presetModel=preset
-
-                )
-
-            else:
-
-                rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
-
-
-
-            return rangevector
-
-
-
-        def _add_sign_to_preset(self, unsigned_presets):
-
-            """
-
-            We need signed presets for our convex problem definition later.
-
-            We reuse the coefficients of the optimal model for this
-
-
-
-            Parameters
-
-            ----------
-
-            unsigned_presets : dict
-
-
-
-            Returns
-
-            -------
-
-            dict
-
-            """
-
-
-
-            signed_presets = {}
-
-            # Obtain optimal model parameters
-
-            w = self.best_init_model.model_state["w"]
-
-            sum = 0
-
-            for i, preset in unsigned_presets.items():
-
-                preset = np.array(preset)
-
-                if preset.size == 1:
-
-                    preset = np.repeat(preset, 2)
-
-                unsigned_preset_i = np.sign(w[i]) * preset
-
-                # accumulate maximal feature  contribution
-
-                sum += unsigned_preset_i[1]  # Take upper preset
-
-                signed_presets[i] = unsigned_preset_i
-
-
-
-            # Check if unsigned_presets makes sense
-
-            l1 = self.init_constraints["w_l1"]
-
-            if sum &gt; l1:
-
-                print("maximum L1 norm of presets: ", sum)
-
-                print("L1 allowed:", l1)
-
-                print("Presets are not feasible. Try lowering values.")
-
-                return
-
-
-
-            return signed_presets
-
-
-
-        def _postprocessing(self, L1, rangevector, round_to_zero=True):
-
-            if self.normalize:
-
-                assert L1 &gt; 0
-
-                rangevector = rangevector.copy() / L1
-
-
-
-            if round_to_zero:
-
-                rangevector[rangevector &lt;= 1e-11] = 0
-
-            return rangevector
-
-
-
-
-
-    def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
-
-        dims = np.arange(start, d)
-
-
-
-        # if presetModel is not None:
-
-        #    # Exclude fixed (preset) dimensions from being redundantly computed
-
-        #    dims = [di for di in dims if di not in presetModel.keys()]
-
-        # TODO: check the removal of this block
-
-        return dims
-
-
-
-
-
-    def feature_classification(
-
-        probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0
+        self, dims, data, preset_model=None, best_model_state=None
 
     ):
 
-        logging.debug("**** Feature Selection ****")
+        # Do not compute bounds for fixed features
 
-        logging.debug("Generating Lower Probe Statistic")
+        if preset_model is not None:
 
-        lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
+            dims = [di for di in dims if di not in preset_model]
 
-        logging.debug("Generating Upper Probe Statistic")
+        # Instantiate objects for computation later
 
-        upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
+        for di in dims:
 
+            # Add Lower Bound problem(s) to work list
 
+            yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(
 
-        weakly = relevance_bounds[:, 1] &gt; upper_stat[1]
+                self.best_hyperparameters,
 
-        strongly = relevance_bounds[:, 0] &gt; lower_stat[1]
+                self.init_constraints,
 
-        both = np.logical_and(weakly, strongly)
+                best_model_state,
 
-        prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
+                data,
 
-        prediction[weakly] = 1
+                di,
 
-        prediction[both] = 2
-
-
-
-        return prediction
-
-
-
-
-
-    def create_probe_statistic(probe_values, fpr, verbose=0):
-
-        # Create prediction interval statistics based on randomly permutated probe features (based on real features)
-
-        n = len(probe_values)
-
-
-
-        if n == 0:
-
-            if verbose &gt; 0:
-
-                logging.info(
-
-                    "All probes were infeasible. All features considered relevant."
-
-                )
-
-            #    # If all probes were infeasible we expect an empty list
-
-            #    # If they are infeasible it also means that only strongly relevant features were in the data
-
-            #    # As such we just set the prediction without considering the statistics
-
-            mean = 0
-
-        else:
-
-            probe_values = np.asarray(probe_values)
-
-            mean = probe_values.mean()
-
-
-
-        if mean == 0:
-
-            lower_threshold, upper_threshold = mean, mean
-
-            s = 0
-
-        else:
-
-            s = probe_values.std()
-
-            lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-
-            upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-
-
-
-        if verbose &gt; 0:
-
-            print(
-
-                f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
+                preset_model,
 
             )
 
+            # Add problem(s) for Upper bound
 
+            yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(
 
-        return lower_threshold, upper_threshold
+                self.best_hyperparameters,
+
+                self.init_constraints,
+
+                best_model_state,
+
+                data,
+
+                di,
+
+                preset_model,
+
+            )
+
+    def _generate_probe_value_tasks(
+
+        self,
+
+        data,
+
+        dims,
+
+        isUpper,
+
+        n_resampling,
+
+        random_state,
+
+        preset_model=None,
+
+        best_model_state=None,
+
+    ):
+
+        if isUpper:
+
+            factory = (
+
+                self.problem_type.get_cvxproblem_template.generate_upper_bound_problem
+
+            )
+
+        else:
+
+            factory = (
+
+                self.problem_type.get_cvxproblem_template.generate_lower_bound_problem
+
+            )
+
+        # Random sample n_resampling shadow features by permuting real features and computing upper bound
+
+        random_choice = random_state.choice(a=dims, size=n_resampling)
+
+        # Instantiate objects
+
+        for i, di in enumerate(random_choice):
+
+            data_perm = permutate_feature_in_data(data, di, random_state)
+
+            # We only use upper bounds as probe features
+
+            yield from factory(
+
+                self.best_hyperparameters,
+
+                self.init_constraints,
+
+                best_model_state,
+
+                data_perm,
+
+                di,
+
+                preset_model,
+
+                probeID=i,
+
+            )
+
+    def _create_interval(
+
+        self, feature: int, solved_bounds: dict, presetModel: dict = None
+
+    ):
+
+        # Return preset values for fixed features
+
+        if presetModel is not None:
+
+            if feature in presetModel:
+
+                return presetModel[feature].squeeze()
+
+        all_bounds = solved_bounds[feature]
+
+        min_problems_candidates = [p for p in all_bounds if p.isLowerBound]
+
+        max_problems_candidates = [p for p in all_bounds if not p.isLowerBound]
+
+        if len(all_bounds) &lt; 2:
+
+            logging.error(
+
+                f"(Some) relevance bounds for feature {feature} were not solved."
+
+            )
+
+            raise Exception("Infeasible bound(s).")
+
+        lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
+
+            min_problems_candidates
+
+        )
+
+        upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+
+            max_problems_candidates
+
+        )
+
+        return lower_bound, upper_bound
+
+    def compute_single_preset_relevance_bounds(
+
+        self, i: int, signed_preset_i: [float, float]
+
+    ):
+
+        """
+
+        Method to run method once for one restricted feature
+
+        Parameters
+
+        ----------
+
+        i:
+
+            restricted feature
+
+        signed_preset_i:
+
+            restricted range of feature i (set before optimization = preset)
+
+        """
+
+        preset = {i: signed_preset_i}
+
+        rangevector = self.compute_multi_preset_relevance_bounds(preset)
+
+        return rangevector
+
+    def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
+
+        """
+
+        Method to run method with preset values
+
+        Parameters
+
+        ----------
+
+        lupi_features
+
+        """
+
+        # The user is working with normalized values while we compute them unscaled
+
+        if self.normalize:
+
+            normalized = {}
+
+            for k, v in preset.items():
+
+                normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
+
+            preset = normalized
+
+        # Add sign to presets
+
+        preset = self._add_sign_to_preset(preset)
+
+        # Calculate all bounds with feature i set to min_i
+
+        if lupi_features &gt; 0:
+
+            rangevector, f_classes = self.get_normalized_lupi_intervals(
+
+                lupi_features, presetModel=preset
+
+            )
+
+        else:
+
+            rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
+
+        return rangevector
+
+    def _add_sign_to_preset(self, unsigned_presets):
+
+        """
+
+        We need signed presets for our convex problem definition later.
+
+        We reuse the coefficients of the optimal model for this
+
+        Parameters
+
+        ----------
+
+        unsigned_presets : dict
+
+        Returns
+
+        -------
+
+        dict
+
+        """
+
+        signed_presets = {}
+
+        # Obtain optimal model parameters
+
+        w = self.best_init_model.model_state["w"]
+
+        sum = 0
+
+        for i, preset in unsigned_presets.items():
+
+            preset = np.array(preset)
+
+            if preset.size == 1:
+
+                preset = np.repeat(preset, 2)
+
+            unsigned_preset_i = np.sign(w[i]) * preset
+
+            # accumulate maximal feature  contribution
+
+            sum += unsigned_preset_i[1]  # Take upper preset
+
+            signed_presets[i] = unsigned_preset_i
+
+        # Check if unsigned_presets makes sense
+
+        l1 = self.init_constraints["w_l1"]
+
+        if sum &gt; l1:
+
+            print("maximum L1 norm of presets: ", sum)
+
+            print("L1 allowed:", l1)
+
+            print("Presets are not feasible. Try lowering values.")
+
+            return
+
+        return signed_presets
+
+    def _postprocessing(self, L1, rangevector, round_to_zero=True):
+
+        if self.normalize:
+
+            assert L1 &gt; 0
+
+            rangevector = rangevector.copy() / L1
+
+        if round_to_zero:
+
+            rangevector[rangevector &lt;= 1e-11] = 0
+
+        return rangevector
+
+def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
+
+    dims = np.arange(start, d)
+
+    # if presetModel is not None:
+
+    #    # Exclude fixed (preset) dimensions from being redundantly computed
+
+    #    dims = [di for di in dims if di not in presetModel.keys()]
+
+    # TODO: check the removal of this block
+
+    return dims
+
+def feature_classification(
+
+    probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0
+
+):
+
+    logging.debug("**** Feature Selection ****")
+
+    logging.debug("Generating Lower Probe Statistic")
+
+    lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
+
+    logging.debug("Generating Upper Probe Statistic")
+
+    upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
+
+    weakly = relevance_bounds[:, 1] &gt; upper_stat[1]
+
+    strongly = relevance_bounds[:, 0] &gt; lower_stat[1]
+
+    both = np.logical_and(weakly, strongly)
+
+    prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
+
+    prediction[weakly] = 1
+
+    prediction[both] = 2
+
+    return prediction
+
+def create_probe_statistic(probe_values, fpr, verbose=0):
+
+    # Create prediction interval statistics based on randomly permutated probe features (based on real features)
+
+    n = len(probe_values)
+
+    if n == 0:
+
+        if verbose &gt; 0:
+
+            logging.info(
+
+                "All probes were infeasible. All features considered relevant."
+
+            )
+
+        #    # If all probes were infeasible we expect an empty list
+
+        #    # If they are infeasible it also means that only strongly relevant features were in the data
+
+        #    # As such we just set the prediction without considering the statistics
+
+        mean = 0
+
+    else:
+
+        probe_values = np.asarray(probe_values)
+
+        mean = probe_values.mean()
+
+    if mean == 0:
+
+        lower_threshold, upper_threshold = mean, mean
+
+        s = 0
+
+    else:
+
+        s = probe_values.std()
+
+        lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+
+        upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+
+    if verbose &gt; 0:
+
+        print(
+
+            f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
+
+        )
+
+    return lower_threshold, upper_threshold
 </code></pre>
+</details>
 <h2 id="variables">Variables</h2>
 <pre><code class="python3">MIN_N_PROBE_FEATURES
 </code></pre>
@@ -1858,68 +1713,61 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-        def create_probe_statistic(probe_values, fpr, verbose=0):</p>
-<pre><code>        # Create prediction interval statistics based on randomly permutated probe features (based on real features)
+<details class="example"><summary>View Source</summary><pre><code>def create_probe_statistic(probe_values, fpr, verbose=0):
 
-        n = len(probe_values)
+    # Create prediction interval statistics based on randomly permutated probe features (based on real features)
 
+    n = len(probe_values)
 
-
-        if n == 0:
-
-            if verbose &gt; 0:
-
-                logging.info(
-
-                    "All probes were infeasible. All features considered relevant."
-
-                )
-
-            #    # If all probes were infeasible we expect an empty list
-
-            #    # If they are infeasible it also means that only strongly relevant features were in the data
-
-            #    # As such we just set the prediction without considering the statistics
-
-            mean = 0
-
-        else:
-
-            probe_values = np.asarray(probe_values)
-
-            mean = probe_values.mean()
-
-
-
-        if mean == 0:
-
-            lower_threshold, upper_threshold = mean, mean
-
-            s = 0
-
-        else:
-
-            s = probe_values.std()
-
-            lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-
-            upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-
-
+    if n == 0:
 
         if verbose &gt; 0:
 
-            print(
+            logging.info(
 
-                f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
+                "All probes were infeasible. All features considered relevant."
 
             )
 
+        #    # If all probes were infeasible we expect an empty list
 
+        #    # If they are infeasible it also means that only strongly relevant features were in the data
 
-        return lower_threshold, upper_threshold
+        #    # As such we just set the prediction without considering the statistics
+
+        mean = 0
+
+    else:
+
+        probe_values = np.asarray(probe_values)
+
+        mean = probe_values.mean()
+
+    if mean == 0:
+
+        lower_threshold, upper_threshold = mean, mean
+
+        s = 0
+
+    else:
+
+        s = probe_values.std()
+
+        lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+
+        upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+
+    if verbose &gt; 0:
+
+        print(
+
+            f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
+
+        )
+
+    return lower_threshold, upper_threshold
 </code></pre>
+</details>
 <h3 id="feature_classification">feature_classification</h3>
 <pre><code class="python3">def feature_classification(
     probes_low,
@@ -1930,46 +1778,43 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-        def feature_classification(</p>
-<pre><code>        probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0
+<details class="example"><summary>View Source</summary><pre><code>def feature_classification(
 
-    ):
+    probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0
 
-        logging.debug("**** Feature Selection ****")
+):
 
-        logging.debug("Generating Lower Probe Statistic")
+    logging.debug("**** Feature Selection ****")
 
-        lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
+    logging.debug("Generating Lower Probe Statistic")
 
-        logging.debug("Generating Upper Probe Statistic")
+    lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
 
-        upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
+    logging.debug("Generating Upper Probe Statistic")
 
+    upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
 
+    weakly = relevance_bounds[:, 1] &gt; upper_stat[1]
 
-        weakly = relevance_bounds[:, 1] &gt; upper_stat[1]
+    strongly = relevance_bounds[:, 0] &gt; lower_stat[1]
 
-        strongly = relevance_bounds[:, 0] &gt; lower_stat[1]
+    both = np.logical_and(weakly, strongly)
 
-        both = np.logical_and(weakly, strongly)
+    prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
 
-        prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
+    prediction[weakly] = 1
 
-        prediction[weakly] = 1
+    prediction[both] = 2
 
-        prediction[both] = 2
-
-
-
-        return prediction
+    return prediction
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="relevanceboundsintervals">RelevanceBoundsIntervals</h3>
 <pre><code class="python3">class RelevanceBoundsIntervals(
     data,
-    problem_type:fri.model.base_type.ProblemType,
-    best_init_model:fri.model.base_initmodel.InitModel,
+    problem_type: fri.model.base_type.ProblemType,
+    best_init_model: fri.model.base_initmodel.InitModel,
     random_state,
     n_resampling,
     n_jobs,
@@ -1978,760 +1823,655 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-        class RelevanceBoundsIntervals(object):</p>
-<pre><code>        def __init__(
+<details class="example"><summary>View Source</summary><pre><code>class RelevanceBoundsIntervals(object):
 
-            self,
+    def __init__(
 
-            data,
+        self,
 
-            problem_type: ProblemType,
+        data,
 
-            best_init_model: InitModel,
+        problem_type: ProblemType,
 
-            random_state,
+        best_init_model: InitModel,
 
-            n_resampling,
+        random_state,
 
-            n_jobs,
+        n_resampling,
 
-            verbose,
+        n_jobs,
 
-            normalize=True,
+        verbose,
 
-        ):
+        normalize=True,
 
-            self.data = data
+    ):
 
-            self.problem_type = problem_type
+        self.data = data
 
-            self.verbose = verbose
+        self.problem_type = problem_type
 
-            self.n_jobs = n_jobs
+        self.verbose = verbose
 
-            self.n_resampling = n_resampling
+        self.n_jobs = n_jobs
 
-            self.random_state = random_state
+        self.n_resampling = n_resampling
 
-            self.best_init_model = best_init_model
+        self.random_state = random_state
 
-            self.best_hyperparameters = best_init_model.hyperparam
+        self.best_init_model = best_init_model
 
-            self.normalize = normalize
+        self.best_hyperparameters = best_init_model.hyperparam
 
+        self.normalize = normalize
 
+        # Relax constraints to improve stability
 
-            # Relax constraints to improve stability
+        relaxed_constraints = problem_type.get_relaxed_constraints(
 
-            relaxed_constraints = problem_type.get_relaxed_constraints(
+            best_init_model.constraints
 
-                best_init_model.constraints
+        )
+
+        self.init_constraints = relaxed_constraints
+
+    def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
+
+        # We define a list of all the features we want to compute relevance bounds for
+
+        X, _ = self.data  # TODO: handle other data formats
+
+        all_d = X.shape[1]
+
+        normal_d = all_d - lupi_features
+
+        # Compute relevance bounds and probes for normal features and LUPI
+
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+
+            d_n = _get_necessary_dimensions(normal_d, presetModel)
+
+            rb = self.compute_relevance_bounds(d_n, parallel=parallel)
+
+            probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
+
+            probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
+
+            d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
+
+            rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
+
+            probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
+
+            probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
+
+        probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
+
+        #
+
+        # Postprocess
+
+        #
+
+        # Get Scaling Parameters
+
+        l1 = self.init_constraints["w_l1"]
+
+        l1_priv = self.init_constraints["w_priv_l1"]
+
+        l1 = l1 + l1_priv
+
+        # Normalize Normal and Lupi features
+
+        rb_norm = self._postprocessing(l1, rb)
+
+        rb_l_norm = self._postprocessing(l1, rb_l)
+
+        interval_ = np.concatenate([rb_norm, rb_l_norm])
+
+        # Normalize Probes
+
+        probe_lower = self._postprocessing(l1, probe_lower)
+
+        probe_upper = self._postprocessing(l1, probe_upper)
+
+        probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
+
+        probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
+
+        #
+
+        #
+
+        # Classify features
+
+        fc = feature_classification(
+
+            probe_lower, probe_upper, rb_norm, verbose=self.verbose
+
+        )
+
+        fc_l = feature_classification(
+
+            probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
+
+        )
+
+        fc_both = np.concatenate([fc, fc_l])
+
+        return interval_, fc_both
+
+    def get_normalized_intervals(self, presetModel=None):
+
+        # We define a list of all the features we want to compute relevance bounds for
+
+        X, _ = self.data  # TODO: handle other data formats
+
+        d = X.shape[1]
+
+        # Depending on the preset model, we dont need to compute all bounds
+
+        # e.g. in the case of fixed features we skip those
+
+        dims = _get_necessary_dimensions(d, presetModel)
+
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+
+            relevance_bounds = self.compute_relevance_bounds(
+
+                dims, parallel=parallel, presetModel=presetModel
 
             )
 
-            self.init_constraints = relaxed_constraints
+            probe_values_upper = self.compute_probe_values(
 
-
-
-        def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
-
-
-
-            # We define a list of all the features we want to compute relevance bounds for
-
-            X, _ = self.data  # TODO: handle other data formats
-
-            all_d = X.shape[1]
-
-            normal_d = all_d - lupi_features
-
-
-
-            # Compute relevance bounds and probes for normal features and LUPI
-
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-
-                d_n = _get_necessary_dimensions(normal_d, presetModel)
-
-                rb = self.compute_relevance_bounds(d_n, parallel=parallel)
-
-                probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
-
-                probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
-
-
-
-                d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
-
-                rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
-
-                probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
-
-                probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
-
-            probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
-
-            #
-
-            # Postprocess
-
-            #
-
-
-
-            # Get Scaling Parameters
-
-            l1 = self.init_constraints["w_l1"]
-
-            l1_priv = self.init_constraints["w_priv_l1"]
-
-            l1 = l1 + l1_priv
-
-
-
-            # Normalize Normal and Lupi features
-
-            rb_norm = self._postprocessing(l1, rb)
-
-            rb_l_norm = self._postprocessing(l1, rb_l)
-
-            interval_ = np.concatenate([rb_norm, rb_l_norm])
-
-
-
-            # Normalize Probes
-
-            probe_lower = self._postprocessing(l1, probe_lower)
-
-            probe_upper = self._postprocessing(l1, probe_upper)
-
-            probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
-
-            probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
-
-
-
-            #
-
-            #
-
-            # Classify features
-
-            fc = feature_classification(
-
-                probe_lower, probe_upper, rb_norm, verbose=self.verbose
+                dims, isUpper=True, parallel=parallel, presetModel=presetModel
 
             )
 
-            fc_l = feature_classification(
+            probe_values_lower = self.compute_probe_values(
 
-                probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
-
-            )
-
-            fc_both = np.concatenate([fc, fc_l])
-
-
-
-            return interval_, fc_both
-
-
-
-        def get_normalized_intervals(self, presetModel=None):
-
-            # We define a list of all the features we want to compute relevance bounds for
-
-            X, _ = self.data  # TODO: handle other data formats
-
-            d = X.shape[1]
-
-            # Depending on the preset model, we dont need to compute all bounds
-
-            # e.g. in the case of fixed features we skip those
-
-            dims = _get_necessary_dimensions(d, presetModel)
-
-
-
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
-
-                relevance_bounds = self.compute_relevance_bounds(
-
-                    dims, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_upper = self.compute_probe_values(
-
-                    dims, isUpper=True, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_lower = self.compute_probe_values(
-
-                    dims, isUpper=False, parallel=parallel, presetModel=presetModel
-
-                )
-
-
-
-            # Postprocess bounds
-
-            norm_bounds = self._postprocessing(
-
-                self.best_init_model.L1_factor, relevance_bounds
+                dims, isUpper=False, parallel=parallel, presetModel=presetModel
 
             )
 
-            norm_probe_values_upper = self._postprocessing(
+        # Postprocess bounds
 
-                self.best_init_model.L1_factor, probe_values_upper
+        norm_bounds = self._postprocessing(
 
-            )
+            self.best_init_model.L1_factor, relevance_bounds
 
-            norm_probe_values_lower = self._postprocessing(
+        )
 
-                self.best_init_model.L1_factor, probe_values_lower
+        norm_probe_values_upper = self._postprocessing(
 
-            )
+            self.best_init_model.L1_factor, probe_values_upper
 
-            feature_classes = feature_classification(
+        )
 
-                norm_probe_values_lower,
+        norm_probe_values_lower = self._postprocessing(
 
-                norm_probe_values_upper,
+            self.best_init_model.L1_factor, probe_values_lower
 
-                norm_bounds,
+        )
 
-                verbose=self.verbose,
+        feature_classes = feature_classification(
 
-            )
+            norm_probe_values_lower,
 
+            norm_probe_values_upper,
 
+            norm_bounds,
 
-            return norm_bounds, feature_classes
+            verbose=self.verbose,
 
+        )
 
+        return norm_bounds, feature_classes
 
-        def compute_relevance_bounds(
+    def compute_relevance_bounds(
 
-            self, dims, parallel=None, presetModel=None, solverargs=None
+        self, dims, parallel=None, presetModel=None, solverargs=None
 
-        ):
+    ):
 
-            init_model_state = self.best_init_model.model_state
+        init_model_state = self.best_init_model.model_state
 
+        work_queue = self._generate_relevance_bounds_tasks(
 
+            dims, self.data, presetModel, init_model_state
 
-            work_queue = self._generate_relevance_bounds_tasks(
+        )
 
-                dims, self.data, presetModel, init_model_state
+        # Solve relevance bounds in parallel (when available)
 
-            )
+        if parallel is None:
 
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
+        bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
 
-            # Solve relevance bounds in parallel (when available)
+        # Retrieve results and aggregate values in dict
 
-            if parallel is None:
+        solved_bounds = defaultdict(list)
 
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
+        for finished_bound in bound_results:
 
-            bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
+            # Only add bounds with feasible solutions
 
+            if finished_bound.is_solved:
 
+                solved_bounds[finished_bound.current_feature].append(finished_bound)
 
-            # Retrieve results and aggregate values in dict
+        # Initalize array for pair of bounds(= intervals)
 
-            solved_bounds = defaultdict(list)
+        length = len(dims)
 
-            for finished_bound in bound_results:
+        intervals = np.zeros((length, 2))
 
+        for abs_index, rel_index in zip(dims, range(length)):
 
+            # Return interval for feature i (can be a fixed value when set beforehand)
 
-                # Only add bounds with feasible solutions
+            interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
 
-                if finished_bound.is_solved:
+            intervals[rel_index] = interval_i
 
-                    solved_bounds[finished_bound.current_feature].append(finished_bound)
+        return intervals  # TODO: add model model_state (omega, bias) to return value
 
+    def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
 
+        # Get model parameters
 
-            # Initalize array for pair of bounds(= intervals)
+        init_model_state = self.best_init_model.model_state
 
-            length = len(dims)
+        # Prepare parallel framework
 
-            intervals = np.zeros((length, 2))
+        if parallel is None:
 
-            for abs_index, rel_index in zip(dims, range(length)):
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
-                # Return interval for feature i (can be a fixed value when set beforehand)
+        # Generate
 
-                interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
+        probe_queue = self._generate_probe_value_tasks(
 
-                intervals[rel_index] = interval_i
-
-
-
-            return intervals  # TODO: add model model_state (omega, bias) to return value
-
-
-
-        def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
-
-            # Get model parameters
-
-            init_model_state = self.best_init_model.model_state
-
-
-
-            # Prepare parallel framework
-
-            if parallel is None:
-
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
-
-
-
-            # Generate
-
-            probe_queue = self._generate_probe_value_tasks(
-
-                self.data,
-
-                dims,
-
-                isUpper,
-
-                self.n_resampling,
-
-                self.random_state,
-
-                presetModel,
-
-                init_model_state,
-
-            )
-
-            # Compute solution
-
-            probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
-
-            # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
-
-
-
-            candidates = defaultdict(list)
-
-            for candidate in probe_results:
-
-                # Only add bounds with feasible solutions
-
-                if candidate.is_solved:
-
-                    candidates[candidate.probeID].append(candidate)
-
-            probe_values = []
-
-            for probes_for_ID in candidates.values():
-
-                if isUpper:
-
-                    probe_values.append(
-
-                        self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-
-                            probes_for_ID
-
-                        )
-
-                    )
-
-                else:
-
-                    probe_values.append(
-
-                        self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-
-                            probes_for_ID
-
-                        )
-
-                    )
-
-
-
-            return np.array(probe_values)
-
-
-
-        def _generate_relevance_bounds_tasks(
-
-            self, dims, data, preset_model=None, best_model_state=None
-
-        ):
-
-            # Do not compute bounds for fixed features
-
-            if preset_model is not None:
-
-                dims = [di for di in dims if di not in preset_model]
-
-
-
-            # Instantiate objects for computation later
-
-            for di in dims:
-
-                # Add Lower Bound problem(s) to work list
-
-                yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data,
-
-                    di,
-
-                    preset_model,
-
-                )
-
-
-
-                # Add problem(s) for Upper bound
-
-                yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data,
-
-                    di,
-
-                    preset_model,
-
-                )
-
-
-
-        def _generate_probe_value_tasks(
-
-            self,
-
-            data,
+            self.data,
 
             dims,
 
             isUpper,
 
-            n_resampling,
+            self.n_resampling,
 
-            random_state,
+            self.random_state,
 
-            preset_model=None,
+            presetModel,
 
-            best_model_state=None,
+            init_model_state,
 
-        ):
+        )
+
+        # Compute solution
+
+        probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
+
+        # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+
+        candidates = defaultdict(list)
+
+        for candidate in probe_results:
+
+            # Only add bounds with feasible solutions
+
+            if candidate.is_solved:
+
+                candidates[candidate.probeID].append(candidate)
+
+        probe_values = []
+
+        for probes_for_ID in candidates.values():
 
             if isUpper:
 
-                factory = (
+                probe_values.append(
 
-                    self.problem_type.get_cvxproblem_template.generate_upper_bound_problem
+                    self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+
+                        probes_for_ID
+
+                    )
 
                 )
 
             else:
 
-                factory = (
+                probe_values.append(
 
-                    self.problem_type.get_cvxproblem_template.generate_lower_bound_problem
+                    self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
 
-                )
+                        probes_for_ID
 
-
-
-            # Random sample n_resampling shadow features by permuting real features and computing upper bound
-
-            random_choice = random_state.choice(a=dims, size=n_resampling)
-
-
-
-            # Instantiate objects
-
-            for i, di in enumerate(random_choice):
-
-                data_perm = permutate_feature_in_data(data, di, random_state)
-
-
-
-                # We only use upper bounds as probe features
-
-                yield from factory(
-
-                    self.best_hyperparameters,
-
-                    self.init_constraints,
-
-                    best_model_state,
-
-                    data_perm,
-
-                    di,
-
-                    preset_model,
-
-                    probeID=i,
+                    )
 
                 )
 
+        return np.array(probe_values)
 
+    def _generate_relevance_bounds_tasks(
 
-        def _create_interval(
+        self, dims, data, preset_model=None, best_model_state=None
 
-            self, feature: int, solved_bounds: dict, presetModel: dict = None
+    ):
 
-        ):
+        # Do not compute bounds for fixed features
 
-            # Return preset values for fixed features
+        if preset_model is not None:
 
-            if presetModel is not None:
+            dims = [di for di in dims if di not in preset_model]
 
-                if feature in presetModel:
+        # Instantiate objects for computation later
 
-                    return presetModel[feature].squeeze()
+        for di in dims:
 
+            # Add Lower Bound problem(s) to work list
 
+            yield from self.problem_type.get_cvxproblem_template.generate_lower_bound_problem(
 
-            all_bounds = solved_bounds[feature]
+                self.best_hyperparameters,
 
-            min_problems_candidates = [p for p in all_bounds if p.isLowerBound]
+                self.init_constraints,
 
-            max_problems_candidates = [p for p in all_bounds if not p.isLowerBound]
+                best_model_state,
 
-            if len(all_bounds) &lt; 2:
+                data,
 
-                logging.error(
+                di,
 
-                    f"(Some) relevance bounds for feature {feature} were not solved."
-
-                )
-
-                raise Exception("Infeasible bound(s).")
-
-            lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-
-                min_problems_candidates
+                preset_model,
 
             )
 
-            upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+            # Add problem(s) for Upper bound
 
-                max_problems_candidates
+            yield from self.problem_type.get_cvxproblem_template.generate_upper_bound_problem(
+
+                self.best_hyperparameters,
+
+                self.init_constraints,
+
+                best_model_state,
+
+                data,
+
+                di,
+
+                preset_model,
 
             )
 
-            return lower_bound, upper_bound
+    def _generate_probe_value_tasks(
 
+        self,
 
+        data,
 
-        def compute_single_preset_relevance_bounds(
+        dims,
 
-            self, i: int, signed_preset_i: [float, float]
+        isUpper,
 
-        ):
+        n_resampling,
 
-            """
+        random_state,
 
-            Method to run method once for one restricted feature
+        preset_model=None,
 
-            Parameters
+        best_model_state=None,
 
-            ----------
+    ):
 
-            i:
+        if isUpper:
 
-                restricted feature
+            factory = (
 
-            signed_preset_i:
+                self.problem_type.get_cvxproblem_template.generate_upper_bound_problem
 
-                restricted range of feature i (set before optimization = preset)
+            )
 
+        else:
 
+            factory = (
 
-            """
+                self.problem_type.get_cvxproblem_template.generate_lower_bound_problem
 
-            preset = {i: signed_preset_i}
+            )
 
+        # Random sample n_resampling shadow features by permuting real features and computing upper bound
 
+        random_choice = random_state.choice(a=dims, size=n_resampling)
 
-            rangevector = self.compute_multi_preset_relevance_bounds(preset)
+        # Instantiate objects
 
+        for i, di in enumerate(random_choice):
 
+            data_perm = permutate_feature_in_data(data, di, random_state)
 
-            return rangevector
+            # We only use upper bounds as probe features
 
+            yield from factory(
 
+                self.best_hyperparameters,
 
-        def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
+                self.init_constraints,
 
-            """
+                best_model_state,
 
-            Method to run method with preset values
+                data_perm,
 
+                di,
 
+                preset_model,
 
-            Parameters
+                probeID=i,
 
-            ----------
+            )
 
-            lupi_features
+    def _create_interval(
 
-            """
+        self, feature: int, solved_bounds: dict, presetModel: dict = None
 
+    ):
 
+        # Return preset values for fixed features
 
-            # The user is working with normalized values while we compute them unscaled
+        if presetModel is not None:
 
-            if self.normalize:
+            if feature in presetModel:
 
-                normalized = {}
+                return presetModel[feature].squeeze()
 
-                for k, v in preset.items():
+        all_bounds = solved_bounds[feature]
 
-                    normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
+        min_problems_candidates = [p for p in all_bounds if p.isLowerBound]
 
-                preset = normalized
+        max_problems_candidates = [p for p in all_bounds if not p.isLowerBound]
 
+        if len(all_bounds) &lt; 2:
 
+            logging.error(
 
-            # Add sign to presets
+                f"(Some) relevance bounds for feature {feature} were not solved."
 
-            preset = self._add_sign_to_preset(preset)
+            )
 
+            raise Exception("Infeasible bound(s).")
 
+        lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
 
-            # Calculate all bounds with feature i set to min_i
+            min_problems_candidates
 
-            if lupi_features &gt; 0:
+        )
 
-                rangevector, f_classes = self.get_normalized_lupi_intervals(
+        upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
 
-                    lupi_features, presetModel=preset
+            max_problems_candidates
 
-                )
+        )
 
-            else:
+        return lower_bound, upper_bound
 
-                rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
+    def compute_single_preset_relevance_bounds(
 
+        self, i: int, signed_preset_i: [float, float]
 
+    ):
 
-            return rangevector
+        """
 
+        Method to run method once for one restricted feature
 
+        Parameters
 
-        def _add_sign_to_preset(self, unsigned_presets):
+        ----------
 
-            """
+        i:
 
-            We need signed presets for our convex problem definition later.
+            restricted feature
 
-            We reuse the coefficients of the optimal model for this
+        signed_preset_i:
 
+            restricted range of feature i (set before optimization = preset)
 
+        """
 
-            Parameters
+        preset = {i: signed_preset_i}
 
-            ----------
+        rangevector = self.compute_multi_preset_relevance_bounds(preset)
 
-            unsigned_presets : dict
+        return rangevector
 
+    def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
 
+        """
 
-            Returns
+        Method to run method with preset values
 
-            -------
+        Parameters
 
-            dict
+        ----------
 
-            """
+        lupi_features
 
+        """
 
+        # The user is working with normalized values while we compute them unscaled
 
-            signed_presets = {}
+        if self.normalize:
 
-            # Obtain optimal model parameters
+            normalized = {}
 
-            w = self.best_init_model.model_state["w"]
+            for k, v in preset.items():
 
-            sum = 0
+                normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
 
-            for i, preset in unsigned_presets.items():
+            preset = normalized
 
-                preset = np.array(preset)
+        # Add sign to presets
 
-                if preset.size == 1:
+        preset = self._add_sign_to_preset(preset)
 
-                    preset = np.repeat(preset, 2)
+        # Calculate all bounds with feature i set to min_i
 
-                unsigned_preset_i = np.sign(w[i]) * preset
+        if lupi_features &gt; 0:
 
-                # accumulate maximal feature  contribution
+            rangevector, f_classes = self.get_normalized_lupi_intervals(
 
-                sum += unsigned_preset_i[1]  # Take upper preset
+                lupi_features, presetModel=preset
 
-                signed_presets[i] = unsigned_preset_i
+            )
 
+        else:
 
+            rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
 
-            # Check if unsigned_presets makes sense
+        return rangevector
 
-            l1 = self.init_constraints["w_l1"]
+    def _add_sign_to_preset(self, unsigned_presets):
 
-            if sum &gt; l1:
+        """
 
-                print("maximum L1 norm of presets: ", sum)
+        We need signed presets for our convex problem definition later.
 
-                print("L1 allowed:", l1)
+        We reuse the coefficients of the optimal model for this
 
-                print("Presets are not feasible. Try lowering values.")
+        Parameters
 
-                return
+        ----------
 
+        unsigned_presets : dict
 
+        Returns
 
-            return signed_presets
+        -------
 
+        dict
 
+        """
 
-        def _postprocessing(self, L1, rangevector, round_to_zero=True):
+        signed_presets = {}
 
-            if self.normalize:
+        # Obtain optimal model parameters
 
-                assert L1 &gt; 0
+        w = self.best_init_model.model_state["w"]
 
-                rangevector = rangevector.copy() / L1
+        sum = 0
 
+        for i, preset in unsigned_presets.items():
 
+            preset = np.array(preset)
 
-            if round_to_zero:
+            if preset.size == 1:
 
-                rangevector[rangevector &lt;= 1e-11] = 0
+                preset = np.repeat(preset, 2)
 
-            return rangevector
+            unsigned_preset_i = np.sign(w[i]) * preset
+
+            # accumulate maximal feature  contribution
+
+            sum += unsigned_preset_i[1]  # Take upper preset
+
+            signed_presets[i] = unsigned_preset_i
+
+        # Check if unsigned_presets makes sense
+
+        l1 = self.init_constraints["w_l1"]
+
+        if sum &gt; l1:
+
+            print("maximum L1 norm of presets: ", sum)
+
+            print("L1 allowed:", l1)
+
+            print("Presets are not feasible. Try lowering values.")
+
+            return
+
+        return signed_presets
+
+    def _postprocessing(self, L1, rangevector, round_to_zero=True):
+
+        if self.normalize:
+
+            assert L1 &gt; 0
+
+            rangevector = rangevector.copy() / L1
+
+        if round_to_zero:
+
+            rangevector[rangevector &lt;= 1e-11] = 0
+
+        return rangevector
 </code></pre>
+</details>
 <hr />
 <h4 id="methods">Methods</h4>
 <h5 id="compute_multi_preset_relevance_bounds">compute_multi_preset_relevance_bounds</h5>
@@ -2745,62 +2485,53 @@
 <p>Method to run method with preset values</p>
 <h2 id="parameters">Parameters</h2>
 <p>lupi_features</p>
-<p>??? example "View Source"
-            def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def compute_multi_preset_relevance_bounds(self, preset, lupi_features=0):
 
-            Method to run method with preset values
+        """
 
+        Method to run method with preset values
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        lupi_features
 
-            lupi_features
+        """
 
-            """
+        # The user is working with normalized values while we compute them unscaled
 
+        if self.normalize:
 
+            normalized = {}
 
-            # The user is working with normalized values while we compute them unscaled
+            for k, v in preset.items():
 
-            if self.normalize:
+                normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
 
-                normalized = {}
+            preset = normalized
 
-                for k, v in preset.items():
+        # Add sign to presets
 
-                    normalized[k] = np.asarray(v) * self.best_init_model.L1_factor
+        preset = self._add_sign_to_preset(preset)
 
-                preset = normalized
+        # Calculate all bounds with feature i set to min_i
 
+        if lupi_features &gt; 0:
 
+            rangevector, f_classes = self.get_normalized_lupi_intervals(
 
-            # Add sign to presets
+                lupi_features, presetModel=preset
 
-            preset = self._add_sign_to_preset(preset)
+            )
 
+        else:
 
+            rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
 
-            # Calculate all bounds with feature i set to min_i
-
-            if lupi_features &gt; 0:
-
-                rangevector, f_classes = self.get_normalized_lupi_intervals(
-
-                    lupi_features, presetModel=preset
-
-                )
-
-            else:
-
-                rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
-
-
-
-            return rangevector
+        return rangevector
 </code></pre>
+</details>
 <h5 id="compute_probe_values">compute_probe_values</h5>
 <pre><code class="python3">def compute_probe_values(
     self,
@@ -2811,92 +2542,85 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):</p>
-<pre><code>            # Get model parameters
+<details class="example"><summary>View Source</summary><pre><code>    def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
 
-            init_model_state = self.best_init_model.model_state
+        # Get model parameters
 
+        init_model_state = self.best_init_model.model_state
 
+        # Prepare parallel framework
 
-            # Prepare parallel framework
+        if parallel is None:
 
-            if parallel is None:
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
+        # Generate
 
+        probe_queue = self._generate_probe_value_tasks(
 
+            self.data,
 
-            # Generate
+            dims,
 
-            probe_queue = self._generate_probe_value_tasks(
+            isUpper,
 
-                self.data,
+            self.n_resampling,
 
-                dims,
+            self.random_state,
 
-                isUpper,
+            presetModel,
 
-                self.n_resampling,
+            init_model_state,
 
-                self.random_state,
+        )
 
-                presetModel,
+        # Compute solution
 
-                init_model_state,
+        probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
 
-            )
+        # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
 
-            # Compute solution
+        candidates = defaultdict(list)
 
-            probe_results = parallel(map(joblib.delayed(_start_solver_worker), probe_queue))
+        for candidate in probe_results:
 
-            # probe_values.extend([probe.objective.value for probe in probe_results if probe.is_solved])
+            # Only add bounds with feasible solutions
 
+            if candidate.is_solved:
 
+                candidates[candidate.probeID].append(candidate)
 
-            candidates = defaultdict(list)
+        probe_values = []
 
-            for candidate in probe_results:
+        for probes_for_ID in candidates.values():
 
-                # Only add bounds with feasible solutions
+            if isUpper:
 
-                if candidate.is_solved:
+                probe_values.append(
 
-                    candidates[candidate.probeID].append(candidate)
+                    self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
 
-            probe_values = []
-
-            for probes_for_ID in candidates.values():
-
-                if isUpper:
-
-                    probe_values.append(
-
-                        self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-
-                            probes_for_ID
-
-                        )
+                        probes_for_ID
 
                     )
 
-                else:
+                )
 
-                    probe_values.append(
+            else:
 
-                        self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
+                probe_values.append(
 
-                            probes_for_ID
+                    self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
 
-                        )
+                        probes_for_ID
 
                     )
 
+                )
 
-
-            return np.array(probe_values)
+        return np.array(probe_values)
 </code></pre>
+</details>
 <h5 id="compute_relevance_bounds">compute_relevance_bounds</h5>
 <pre><code class="python3">def compute_relevance_bounds(
     self,
@@ -2907,73 +2631,62 @@
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def compute_relevance_bounds(</p>
-<pre><code>            self, dims, parallel=None, presetModel=None, solverargs=None
+<details class="example"><summary>View Source</summary><pre><code>    def compute_relevance_bounds(
 
-        ):
+        self, dims, parallel=None, presetModel=None, solverargs=None
 
-            init_model_state = self.best_init_model.model_state
+    ):
 
+        init_model_state = self.best_init_model.model_state
 
+        work_queue = self._generate_relevance_bounds_tasks(
 
-            work_queue = self._generate_relevance_bounds_tasks(
+            dims, self.data, presetModel, init_model_state
 
-                dims, self.data, presetModel, init_model_state
+        )
 
-            )
+        # Solve relevance bounds in parallel (when available)
 
+        if parallel is None:
 
+            parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
 
-            # Solve relevance bounds in parallel (when available)
+        bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
 
-            if parallel is None:
+        # Retrieve results and aggregate values in dict
 
-                parallel = joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose)
+        solved_bounds = defaultdict(list)
 
-            bound_results = parallel(map(joblib.delayed(_start_solver_worker), work_queue))
+        for finished_bound in bound_results:
 
+            # Only add bounds with feasible solutions
 
+            if finished_bound.is_solved:
 
-            # Retrieve results and aggregate values in dict
+                solved_bounds[finished_bound.current_feature].append(finished_bound)
 
-            solved_bounds = defaultdict(list)
+        # Initalize array for pair of bounds(= intervals)
 
-            for finished_bound in bound_results:
+        length = len(dims)
 
+        intervals = np.zeros((length, 2))
 
+        for abs_index, rel_index in zip(dims, range(length)):
 
-                # Only add bounds with feasible solutions
+            # Return interval for feature i (can be a fixed value when set beforehand)
 
-                if finished_bound.is_solved:
+            interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
 
-                    solved_bounds[finished_bound.current_feature].append(finished_bound)
+            intervals[rel_index] = interval_i
 
-
-
-            # Initalize array for pair of bounds(= intervals)
-
-            length = len(dims)
-
-            intervals = np.zeros((length, 2))
-
-            for abs_index, rel_index in zip(dims, range(length)):
-
-                # Return interval for feature i (can be a fixed value when set beforehand)
-
-                interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
-
-                intervals[rel_index] = interval_i
-
-
-
-            return intervals  # TODO: add model model_state (omega, bias) to return value
+        return intervals  # TODO: add model model_state (omega, bias) to return value
 </code></pre>
+</details>
 <h5 id="compute_single_preset_relevance_bounds">compute_single_preset_relevance_bounds</h5>
 <pre><code class="python3">def compute_single_preset_relevance_bounds(
     self,
-    i:int,
-    signed_preset_i:[&lt;class 'float'&gt;, &lt;class 'float'&gt;]
+    i: int,
+    signed_preset_i: [&lt;class 'float'&gt;, &lt;class 'float'&gt;]
 )
 </code></pre>
 
@@ -2984,42 +2697,37 @@ Parameters</p>
     restricted feature
 signed_preset_i:
     restricted range of feature i (set before optimization = preset)</p>
-<p>??? example "View Source"
-            def compute_single_preset_relevance_bounds(</p>
-<pre><code>            self, i: int, signed_preset_i: [float, float]
+<details class="example"><summary>View Source</summary><pre><code>    def compute_single_preset_relevance_bounds(
 
-        ):
+        self, i: int, signed_preset_i: [float, float]
 
-            """
+    ):
 
-            Method to run method once for one restricted feature
+        """
 
-            Parameters
+        Method to run method once for one restricted feature
 
-            ----------
+        Parameters
 
-            i:
+        ----------
 
-                restricted feature
+        i:
 
-            signed_preset_i:
+            restricted feature
 
-                restricted range of feature i (set before optimization = preset)
+        signed_preset_i:
 
+            restricted range of feature i (set before optimization = preset)
 
+        """
 
-            """
+        preset = {i: signed_preset_i}
 
-            preset = {i: signed_preset_i}
+        rangevector = self.compute_multi_preset_relevance_bounds(preset)
 
-
-
-            rangevector = self.compute_multi_preset_relevance_bounds(preset)
-
-
-
-            return rangevector
+        return rangevector
 </code></pre>
+</details>
 <h5 id="get_normalized_intervals">get_normalized_intervals</h5>
 <pre><code class="python3">def get_normalized_intervals(
     self,
@@ -3027,80 +2735,75 @@ signed_preset_i:
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_normalized_intervals(self, presetModel=None):</p>
-<pre><code>            # We define a list of all the features we want to compute relevance bounds for
+<details class="example"><summary>View Source</summary><pre><code>    def get_normalized_intervals(self, presetModel=None):
 
-            X, _ = self.data  # TODO: handle other data formats
+        # We define a list of all the features we want to compute relevance bounds for
 
-            d = X.shape[1]
+        X, _ = self.data  # TODO: handle other data formats
 
-            # Depending on the preset model, we dont need to compute all bounds
+        d = X.shape[1]
 
-            # e.g. in the case of fixed features we skip those
+        # Depending on the preset model, we dont need to compute all bounds
 
-            dims = _get_necessary_dimensions(d, presetModel)
+        # e.g. in the case of fixed features we skip those
 
+        dims = _get_necessary_dimensions(d, presetModel)
 
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
 
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+            relevance_bounds = self.compute_relevance_bounds(
 
-                relevance_bounds = self.compute_relevance_bounds(
-
-                    dims, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_upper = self.compute_probe_values(
-
-                    dims, isUpper=True, parallel=parallel, presetModel=presetModel
-
-                )
-
-                probe_values_lower = self.compute_probe_values(
-
-                    dims, isUpper=False, parallel=parallel, presetModel=presetModel
-
-                )
-
-
-
-            # Postprocess bounds
-
-            norm_bounds = self._postprocessing(
-
-                self.best_init_model.L1_factor, relevance_bounds
+                dims, parallel=parallel, presetModel=presetModel
 
             )
 
-            norm_probe_values_upper = self._postprocessing(
+            probe_values_upper = self.compute_probe_values(
 
-                self.best_init_model.L1_factor, probe_values_upper
-
-            )
-
-            norm_probe_values_lower = self._postprocessing(
-
-                self.best_init_model.L1_factor, probe_values_lower
+                dims, isUpper=True, parallel=parallel, presetModel=presetModel
 
             )
 
-            feature_classes = feature_classification(
+            probe_values_lower = self.compute_probe_values(
 
-                norm_probe_values_lower,
-
-                norm_probe_values_upper,
-
-                norm_bounds,
-
-                verbose=self.verbose,
+                dims, isUpper=False, parallel=parallel, presetModel=presetModel
 
             )
 
+        # Postprocess bounds
 
+        norm_bounds = self._postprocessing(
 
-            return norm_bounds, feature_classes
+            self.best_init_model.L1_factor, relevance_bounds
+
+        )
+
+        norm_probe_values_upper = self._postprocessing(
+
+            self.best_init_model.L1_factor, probe_values_upper
+
+        )
+
+        norm_probe_values_lower = self._postprocessing(
+
+            self.best_init_model.L1_factor, probe_values_lower
+
+        )
+
+        feature_classes = feature_classification(
+
+            norm_probe_values_lower,
+
+            norm_probe_values_upper,
+
+            norm_bounds,
+
+            verbose=self.verbose,
+
+        )
+
+        return norm_bounds, feature_classes
 </code></pre>
+</details>
 <h5 id="get_normalized_lupi_intervals">get_normalized_lupi_intervals</h5>
 <pre><code class="python3">def get_normalized_lupi_intervals(
     self,
@@ -3109,106 +2812,93 @@ signed_preset_i:
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):</p>
-<pre><code>            # We define a list of all the features we want to compute relevance bounds for
+<details class="example"><summary>View Source</summary><pre><code>    def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
 
-            X, _ = self.data  # TODO: handle other data formats
+        # We define a list of all the features we want to compute relevance bounds for
 
-            all_d = X.shape[1]
+        X, _ = self.data  # TODO: handle other data formats
 
-            normal_d = all_d - lupi_features
+        all_d = X.shape[1]
 
+        normal_d = all_d - lupi_features
 
+        # Compute relevance bounds and probes for normal features and LUPI
 
-            # Compute relevance bounds and probes for normal features and LUPI
+        with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
 
-            with joblib.Parallel(n_jobs=self.n_jobs, verbose=self.verbose) as parallel:
+            d_n = _get_necessary_dimensions(normal_d, presetModel)
 
-                d_n = _get_necessary_dimensions(normal_d, presetModel)
+            rb = self.compute_relevance_bounds(d_n, parallel=parallel)
 
-                rb = self.compute_relevance_bounds(d_n, parallel=parallel)
+            probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
 
-                probe_upper = self.compute_probe_values(d_n, True, parallel=parallel)
+            probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
 
-                probe_lower = self.compute_probe_values(d_n, False, parallel=parallel)
+            d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
 
+            rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
 
+            probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
 
-                d_l = _get_necessary_dimensions(all_d, presetModel, start=normal_d)
+            probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
 
-                rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
+        probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
 
-                probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
+        #
 
-                probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
+        # Postprocess
 
-            probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
+        #
 
-            #
+        # Get Scaling Parameters
 
-            # Postprocess
+        l1 = self.init_constraints["w_l1"]
 
-            #
+        l1_priv = self.init_constraints["w_priv_l1"]
 
+        l1 = l1 + l1_priv
 
+        # Normalize Normal and Lupi features
 
-            # Get Scaling Parameters
+        rb_norm = self._postprocessing(l1, rb)
 
-            l1 = self.init_constraints["w_l1"]
+        rb_l_norm = self._postprocessing(l1, rb_l)
 
-            l1_priv = self.init_constraints["w_priv_l1"]
+        interval_ = np.concatenate([rb_norm, rb_l_norm])
 
-            l1 = l1 + l1_priv
+        # Normalize Probes
 
+        probe_lower = self._postprocessing(l1, probe_lower)
 
+        probe_upper = self._postprocessing(l1, probe_upper)
 
-            # Normalize Normal and Lupi features
+        probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
 
-            rb_norm = self._postprocessing(l1, rb)
+        probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
 
-            rb_l_norm = self._postprocessing(l1, rb_l)
+        #
 
-            interval_ = np.concatenate([rb_norm, rb_l_norm])
+        #
 
+        # Classify features
 
+        fc = feature_classification(
 
-            # Normalize Probes
+            probe_lower, probe_upper, rb_norm, verbose=self.verbose
 
-            probe_lower = self._postprocessing(l1, probe_lower)
+        )
 
-            probe_upper = self._postprocessing(l1, probe_upper)
+        fc_l = feature_classification(
 
-            probe_priv_lower = self._postprocessing(l1, probe_priv_lower)
+            probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
 
-            probe_priv_upper = self._postprocessing(l1, probe_priv_upper)
+        )
 
+        fc_both = np.concatenate([fc, fc_l])
 
-
-            #
-
-            #
-
-            # Classify features
-
-            fc = feature_classification(
-
-                probe_lower, probe_upper, rb_norm, verbose=self.verbose
-
-            )
-
-            fc_l = feature_classification(
-
-                probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
-
-            )
-
-            fc_both = np.concatenate([fc, fc_l])
-
-
-
-            return interval_, fc_both
+        return interval_, fc_both
 </code></pre>
+</details>
                 
                   
                 

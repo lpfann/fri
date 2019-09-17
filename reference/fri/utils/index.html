@@ -761,70 +761,61 @@
                 
                 
                 <h1 id="module-friutils">Module fri.utils</h1>
-<p>??? example "View Source"
-        import numpy as np</p>
-<pre><code>    def distance(u, v):
+<details class="example"><summary>View Source</summary><pre><code>import numpy as np
 
-        """
+def distance(u, v):
 
-        Distance measure custom made for feature comparison.
+    """
 
+    Distance measure custom made for feature comparison.
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    u: first feature
 
-        u: first feature
+    v: second feature
 
-        v: second feature
+    Returns
 
+    -------
 
+    """
 
-        Returns
+    u = np.asarray(u)
 
-        -------
+    v = np.asarray(v)
 
+    # Euclidean differences
 
+    diff = (u - v) ** 2
 
-        """
+    # Nullify pairwise contribution
 
-        u = np.asarray(u)
+    diff[u == 0] = 0
 
-        v = np.asarray(v)
+    diff[v == 0] = 0
 
-        # Euclidean differences
+    return np.sqrt(np.sum(diff))
 
-        diff = (u - v) ** 2
+def permutate_feature_in_data(data, feature_i, random_state):
 
-        # Nullify pairwise contribution
+    X, y = data
 
-        diff[u == 0] = 0
+    X_copy = np.copy(X)
 
-        diff[v == 0] = 0
+    # Permute selected feature
 
-        return np.sqrt(np.sum(diff))
+    permutated_feature = random_state.permutation(X_copy[:, feature_i])
 
+    # Add permutation back to dataset
 
+    X_copy[:, feature_i] = permutated_feature
 
-
-
-    def permutate_feature_in_data(data, feature_i, random_state):
-
-        X, y = data
-
-        X_copy = np.copy(X)
-
-        # Permute selected feature
-
-        permutated_feature = random_state.permutation(X_copy[:, feature_i])
-
-        # Add permutation back to dataset
-
-        X_copy[:, feature_i] = permutated_feature
-
-        return X_copy, y
+    return X_copy, y
 </code></pre>
+</details>
 <h2 id="functions">Functions</h2>
 <h3 id="distance">distance</h3>
 <pre><code class="python3">def distance(
@@ -838,48 +829,43 @@
 <p>u: first feature
 v: second feature</p>
 <h2 id="returns">Returns</h2>
-<p>??? example "View Source"
-        def distance(u, v):</p>
-<pre><code>        """
+<details class="example"><summary>View Source</summary><pre><code>def distance(u, v):
 
-        Distance measure custom made for feature comparison.
+    """
 
+    Distance measure custom made for feature comparison.
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    u: first feature
 
-        u: first feature
+    v: second feature
 
-        v: second feature
+    Returns
 
+    -------
 
+    """
 
-        Returns
+    u = np.asarray(u)
 
-        -------
+    v = np.asarray(v)
 
+    # Euclidean differences
 
+    diff = (u - v) ** 2
 
-        """
+    # Nullify pairwise contribution
 
-        u = np.asarray(u)
+    diff[u == 0] = 0
 
-        v = np.asarray(v)
+    diff[v == 0] = 0
 
-        # Euclidean differences
-
-        diff = (u - v) ** 2
-
-        # Nullify pairwise contribution
-
-        diff[u == 0] = 0
-
-        diff[v == 0] = 0
-
-        return np.sqrt(np.sum(diff))
+    return np.sqrt(np.sum(diff))
 </code></pre>
+</details>
 <h3 id="permutate_feature_in_data">permutate_feature_in_data</h3>
 <pre><code class="python3">def permutate_feature_in_data(
     data,
@@ -888,22 +874,23 @@ v: second feature</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-        def permutate_feature_in_data(data, feature_i, random_state):</p>
-<pre><code>        X, y = data
+<details class="example"><summary>View Source</summary><pre><code>def permutate_feature_in_data(data, feature_i, random_state):
 
-        X_copy = np.copy(X)
+    X, y = data
 
-        # Permute selected feature
+    X_copy = np.copy(X)
 
-        permutated_feature = random_state.permutation(X_copy[:, feature_i])
+    # Permute selected feature
 
-        # Add permutation back to dataset
+    permutated_feature = random_state.permutation(X_copy[:, feature_i])
 
-        X_copy[:, feature_i] = permutated_feature
+    # Add permutation back to dataset
 
-        return X_copy, y
+    X_copy[:, feature_i] = permutated_feature
+
+    return X_copy, y
 </code></pre>
+</details>
                 
                   
                 

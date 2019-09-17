@@ -955,190 +955,157 @@
                 
                 
                 <h1 id="module-frimodelbase_type">Module fri.model.base_type</h1>
-<p>??? example "View Source"
-        from abc import ABC, abstractmethod</p>
-<pre><code>    import scipy.stats
+<details class="example"><summary>View Source</summary><pre><code>from abc import ABC, abstractmethod
 
+import scipy.stats
 
+class ProblemType(ABC):
 
+    def __init__(self, **kwargs):
 
+        self.chosen_parameters_ = {}
 
-    class ProblemType(ABC):
+        for p in self.parameters():
 
-        def __init__(self, **kwargs):
+            if p in kwargs:
 
+                if kwargs[p] is not None:
 
+                    self.chosen_parameters_[p] = kwargs[p]
 
-            self.chosen_parameters_ = {}
+        self.relax_factors_ = {}
 
+        for p in self.relax_factors():
 
+            if p in kwargs:
 
-            for p in self.parameters():
+                if kwargs[p] is not None:
 
-                if p in kwargs:
+                    self.relax_factors_[p] = kwargs[p]
 
-                    if kwargs[p] is not None:
+    @classmethod
 
-                        self.chosen_parameters_[p] = kwargs[p]
+    @abstractmethod
 
+    def parameters(cls):
 
+        raise NotImplementedError
 
-            self.relax_factors_ = {}
+    def get_chosen_parameter(self, p):
 
-            for p in self.relax_factors():
+        try:
 
-                if p in kwargs:
+            return [
 
-                    if kwargs[p] is not None:
+                self.chosen_parameters_[p]
 
-                        self.relax_factors_[p] = kwargs[p]
+            ]  # We return list for param search function
 
+        except:
 
+            # # TODO: rewrite the parameter logic
 
-        @classmethod
+            # # TODO: move this to subclass
 
-        @abstractmethod
+            if p == "scaling_lupi_w":
 
-        def parameters(cls):
+                # return [0.1, 1, 10, 100, 1000]
 
-            raise NotImplementedError
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
+            # if p == "scaling_lupi_loss":
 
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-        def get_chosen_parameter(self, p):
+            #    # p&gt;1 encourages usage of lupi function
+
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+
+            if p == "C":
+
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+
+            if p == "epsilon":
+
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
+
+    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+
+    @classmethod
+
+    @abstractmethod
+
+    def relax_factors(cls):
+
+        raise NotImplementedError
+
+    def get_chosen_relax_factors(self, p):
+
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
 
             try:
 
-                return [
-
-                    self.chosen_parameters_[p]
-
-                ]  # We return list for param search function
-
-            except:
-
-                # # TODO: rewrite the parameter logic
-
-                # # TODO: move this to subclass
-
-                if p == "scaling_lupi_w":
-
-                    # return [0.1, 1, 10, 100, 1000]
-
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
-
-                # if p == "scaling_lupi_loss":
-
-                #    # value 0&gt;p&lt;1 causes standard svm solution
-
-                #    # p&gt;1 encourages usage of lupi function
-
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
-
-                if p == "C":
-
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
-
-                if p == "epsilon":
-
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
-
-                else:
-
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
-
-
-
-        def get_all_parameters(self):
-
-            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-
-
-
-        @classmethod
-
-        @abstractmethod
-
-        def relax_factors(cls):
-
-            raise NotImplementedError
-
-
-
-        def get_chosen_relax_factors(self, p):
-
-            try:
-
-                factor = self.relax_factors_[p]
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
+        return factor
 
-            if factor &lt; 0:
+    def get_all_relax_factors(self):
 
-                raise ValueError("Slack Factor multiplier is positive!")
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 
-            return factor
+    @property
 
+    @abstractmethod
 
+    def get_initmodel_template(self):
 
-        def get_all_relax_factors(self):
+        pass
 
-            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+    @property
 
+    @abstractmethod
 
+    def get_cvxproblem_template(self):
 
-        @property
+        pass
 
-        @abstractmethod
+    @abstractmethod
 
-        def get_initmodel_template(self):
+    def preprocessing(self, data, lupi_features=None):
 
-            pass
+        return data
 
+    def postprocessing(self, bounds):
 
+        return bounds
 
-        @property
+    def get_relaxed_constraints(self, constraints):
 
-        @abstractmethod
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 
-        def get_cvxproblem_template(self):
+    def relax_constraint(self, key, value):
 
-            pass
-
-
-
-        @abstractmethod
-
-        def preprocessing(self, data, lupi_features=None):
-
-            return data
-
-
-
-        def postprocessing(self, bounds):
-
-            return bounds
-
-
-
-        def get_relaxed_constraints(self, constraints):
-
-            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-
-
-
-        def relax_constraint(self, key, value):
-
-            return value * (1 + self.get_chosen_relax_factors(key))
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="problemtype">ProblemType</h3>
 <pre><code class="python3">class ProblemType(
@@ -1148,182 +1115,153 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class ProblemType(ABC):</p>
-<pre><code>        def __init__(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class ProblemType(ABC):
 
+    def __init__(self, **kwargs):
 
+        self.chosen_parameters_ = {}
 
-            self.chosen_parameters_ = {}
+        for p in self.parameters():
 
+            if p in kwargs:
 
+                if kwargs[p] is not None:
 
-            for p in self.parameters():
+                    self.chosen_parameters_[p] = kwargs[p]
 
-                if p in kwargs:
+        self.relax_factors_ = {}
 
-                    if kwargs[p] is not None:
+        for p in self.relax_factors():
 
-                        self.chosen_parameters_[p] = kwargs[p]
+            if p in kwargs:
 
+                if kwargs[p] is not None:
 
+                    self.relax_factors_[p] = kwargs[p]
 
-            self.relax_factors_ = {}
+    @classmethod
 
-            for p in self.relax_factors():
+    @abstractmethod
 
-                if p in kwargs:
+    def parameters(cls):
 
-                    if kwargs[p] is not None:
+        raise NotImplementedError
 
-                        self.relax_factors_[p] = kwargs[p]
+    def get_chosen_parameter(self, p):
 
+        try:
 
+            return [
 
-        @classmethod
+                self.chosen_parameters_[p]
 
-        @abstractmethod
+            ]  # We return list for param search function
 
-        def parameters(cls):
+        except:
 
-            raise NotImplementedError
+            # # TODO: rewrite the parameter logic
 
+            # # TODO: move this to subclass
 
+            if p == "scaling_lupi_w":
 
-        def get_chosen_parameter(self, p):
+                # return [0.1, 1, 10, 100, 1000]
 
-            try:
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                return [
+            # if p == "scaling_lupi_loss":
 
-                    self.chosen_parameters_[p]
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                ]  # We return list for param search function
+            #    # p&gt;1 encourages usage of lupi function
 
-            except:
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                # # TODO: rewrite the parameter logic
+            if p == "C":
 
-                # # TODO: move this to subclass
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                if p == "scaling_lupi_w":
+            if p == "epsilon":
 
-                    # return [0.1, 1, 10, 100, 1000]
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+            else:
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+    def get_all_parameters(self):
 
-                #    # p&gt;1 encourages usage of lupi function
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+    @classmethod
 
-                if p == "C":
+    @abstractmethod
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+    def relax_factors(cls):
 
-                if p == "epsilon":
+        raise NotImplementedError
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+    def get_chosen_relax_factors(self, p):
 
-                else:
+        try:
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            factor = self.relax_factors_[p]
 
-
-
-        def get_all_parameters(self):
-
-            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-
-
-
-        @classmethod
-
-        @abstractmethod
-
-        def relax_factors(cls):
-
-            raise NotImplementedError
-
-
-
-        def get_chosen_relax_factors(self, p):
+        except KeyError:
 
             try:
 
-                factor = self.relax_factors_[p]
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
+        return factor
 
-            if factor &lt; 0:
+    def get_all_relax_factors(self):
 
-                raise ValueError("Slack Factor multiplier is positive!")
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 
-            return factor
+    @property
 
+    @abstractmethod
 
+    def get_initmodel_template(self):
 
-        def get_all_relax_factors(self):
+        pass
 
-            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+    @property
 
+    @abstractmethod
 
+    def get_cvxproblem_template(self):
 
-        @property
+        pass
 
-        @abstractmethod
+    @abstractmethod
 
-        def get_initmodel_template(self):
+    def preprocessing(self, data, lupi_features=None):
 
-            pass
+        return data
 
+    def postprocessing(self, bounds):
 
+        return bounds
 
-        @property
+    def get_relaxed_constraints(self, constraints):
 
-        @abstractmethod
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 
-        def get_cvxproblem_template(self):
+    def relax_constraint(self, key, value):
 
-            pass
-
-
-
-        @abstractmethod
-
-        def preprocessing(self, data, lupi_features=None):
-
-            return data
-
-
-
-        def postprocessing(self, bounds):
-
-            return bounds
-
-
-
-        def get_relaxed_constraints(self, constraints):
-
-            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-
-
-
-        def relax_constraint(self, key, value):
-
-            return value * (1 + self.get_chosen_relax_factors(key))
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -1345,28 +1283,30 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        @abstractmethod
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-        def parameters(cls):
+    @abstractmethod
 
-            raise NotImplementedError
+    def parameters(cls):
+
+        raise NotImplementedError
 </code></pre>
+</details>
 <h5 id="relax_factors">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
 
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        @abstractmethod
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-        def relax_factors(cls):
+    @abstractmethod
 
-            raise NotImplementedError
+    def relax_factors(cls):
+
+        raise NotImplementedError
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -1381,20 +1321,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -1402,48 +1344,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -1451,28 +1394,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -1480,10 +1424,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -1491,10 +1436,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -1503,12 +1449,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @abstractmethod</p>
-<pre><code>        def preprocessing(self, data, lupi_features=None):
+<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-            return data
+    def preprocessing(self, data, lupi_features=None):
+
+        return data
 </code></pre>
+</details>
 <h5 id="relax_constraint">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -1517,10 +1464,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
                 
                   
                 

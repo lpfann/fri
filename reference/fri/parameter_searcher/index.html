@@ -726,222 +726,199 @@ Depending on the input model we sample parameters from a random distribution.
 The sampling rate can be increased.
 The model with the best internally defined accuracy is picked.
 To increase robustness we use cross validation.</p>
-<p>??? example "View Source"
-        """</p>
-<pre><code>        In this class we use hyperparameter search to find parameters needed in our model.
+<details class="example"><summary>View Source</summary><pre><code>"""
 
-        Depending on the input model we sample parameters from a random distribution.
+    In this class we use hyperparameter search to find parameters needed in our model.
 
-        The sampling rate can be increased.
+    Depending on the input model we sample parameters from a random distribution.
 
-        The model with the best internally defined accuracy is picked.
+    The sampling rate can be increased.
 
-        To increase robustness we use cross validation.
+    The model with the best internally defined accuracy is picked.
+
+    To increase robustness we use cross validation.
+
+"""
+
+import warnings
+
+from sklearn.exceptions import FitFailedWarning
+
+warnings.filterwarnings(action="ignore", category=FitFailedWarning)
+
+from pprint import pprint
+
+from typing import Tuple
+
+import numpy as np
+
+from sklearn.model_selection import RandomizedSearchCV
+
+from fri.model.base_initmodel import InitModel
+
+def find_best_model(
+
+    model_template: InitModel,
+
+    hyperparameters: dict,
+
+    data: Tuple[np.ndarray, np.ndarray],
+
+    random_state: np.random.RandomState,
+
+    n_iter: int,
+
+    n_jobs: int,
+
+    verbose: int = 0,
+
+    lupi_features=None,
+
+    kwargs: dict = None,
+
+) -&gt; Tuple[InitModel, float]:
 
     """
 
-    import warnings
+    Search function which wraps `sklearns`  `RandomizedSearchCV` function.
 
+    We use distributions and parameters defined in the `model_template`.
 
+    Parameters
 
-    from sklearn.exceptions import FitFailedWarning
+    ----------
 
+    model_template : InitModel
 
+        A model template which is used to fit data.
 
-    warnings.filterwarnings(action="ignore", category=FitFailedWarning)
+    hyperparameters : dict
 
+        Dictionary of hyperparameters.
 
+    data : tuple
 
-    from pprint import pprint
+        Tuple of data (X,y)
 
-    from typing import Tuple
+    random_state : RandomState
 
+        numpy RandomState object
 
+    n_iter : int
 
-    import numpy as np
+        Amount of search samples.
 
-    from sklearn.model_selection import RandomizedSearchCV
+    n_jobs : int
 
+        Allows multiprocessing with `n_jobs` threads.
 
+    verbose : int
 
-    from fri.model.base_initmodel import InitModel
+        Allows verbose output when `verbose&gt;0`.
 
+    lupi_features : int
 
+        Amount of lupi_features
 
+    kwargs : dict
 
+        Placeholder, dict to pass into fit functions.
 
-    def find_best_model(
+    """
 
-        model_template: InitModel,
+    model = model_template()
 
-        hyperparameters: dict,
+    scorer, metric = model.make_scorer()
 
-        data: Tuple[np.ndarray, np.ndarray],
+    if scorer is None:
 
-        random_state: np.random.RandomState,
+        refit = True
 
-        n_iter: int,
+    else:
 
-        n_jobs: int,
+        refit = metric
 
-        verbose: int = 0,
+    searcher = RandomizedSearchCV(
 
-        lupi_features=None,
+        model,
 
-        kwargs: dict = None,
+        hyperparameters,
 
-    ) -&gt; Tuple[InitModel, float]:
+        scoring=scorer,
 
-        """
+        random_state=random_state,
 
-        Search function which wraps `sklearns`  `RandomizedSearchCV` function.
+        refit=refit,
 
-        We use distributions and parameters defined in the `model_template`.
+        cv=3,
 
+        n_iter=n_iter,
 
+        n_jobs=n_jobs,
 
-        Parameters
+        error_score=np.nan,
 
-        ----------
+        verbose=verbose,
 
-        model_template : InitModel
+    )
 
-            A model template which is used to fit data.
+    X, y = data
 
-        hyperparameters : dict
+    # Ignore warnings for extremely bad model_state (when precision=0)
 
-            Dictionary of hyperparameters.
+    with warnings.catch_warnings():
 
-        data : tuple
+        warnings.simplefilter("ignore")
 
-            Tuple of data (X,y)
+        searcher.fit(X, y, lupi_features=lupi_features)
 
-        random_state : RandomState
+    best_model: InitModel = searcher.best_estimator_
 
-            numpy RandomState object
+    best_score = best_model.score(X, y)
 
-        n_iter : int
+    if verbose &gt; 0:
 
-            Amount of search samples.
+        print("*" * 20, "Best found baseline model", "*" * 20)
 
-        n_jobs : int
+        pprint(best_model)
 
-            Allows multiprocessing with `n_jobs` threads.
+        print("score: ", best_score)
 
-        verbose : int
+        for k, v in best_model.constraints.items():
 
-            Allows verbose output when `verbose&gt;0`.
+            pprint((f"{k}: {v}"))
 
-        lupi_features : int
+        for k, v in best_model.model_state.items():
 
-            Amount of lupi_features
+            if hasattr(v, "shape"):
 
-        kwargs : dict
+                pprint((f"{k}: shape {v.shape}"))
 
-            Placeholder, dict to pass into fit functions.
+            else:
 
-        """
+                if "slack" in k:
 
-        model = model_template()
-
-
-
-        scorer, metric = model.make_scorer()
-
-        if scorer is None:
-
-            refit = True
-
-        else:
-
-            refit = metric
-
-
-
-        searcher = RandomizedSearchCV(
-
-            model,
-
-            hyperparameters,
-
-            scoring=scorer,
-
-            random_state=random_state,
-
-            refit=refit,
-
-            cv=3,
-
-            n_iter=n_iter,
-
-            n_jobs=n_jobs,
-
-            error_score=np.nan,
-
-            verbose=verbose,
-
-        )
-
-
-
-        X, y = data
-
-        # Ignore warnings for extremely bad model_state (when precision=0)
-
-        with warnings.catch_warnings():
-
-            warnings.simplefilter("ignore")
-
-            searcher.fit(X, y, lupi_features=lupi_features)
-
-
-
-        best_model: InitModel = searcher.best_estimator_
-
-        best_score = best_model.score(X, y)
-
-        if verbose &gt; 0:
-
-            print("*" * 20, "Best found baseline model", "*" * 20)
-
-            pprint(best_model)
-
-            print("score: ", best_score)
-
-            for k, v in best_model.constraints.items():
+                    continue
 
                 pprint((f"{k}: {v}"))
 
-            for k, v in best_model.model_state.items():
+        print("*" * 30)
 
-                if hasattr(v, "shape"):
-
-                    pprint((f"{k}: shape {v.shape}"))
-
-                else:
-
-                    if "slack" in k:
-
-                        continue
-
-                    pprint((f"{k}: {v}"))
-
-            print("*" * 30)
-
-        return best_model, best_score
+    return best_model, best_score
 </code></pre>
+</details>
 <h2 id="functions">Functions</h2>
 <h3 id="find_best_model">find_best_model</h3>
 <pre><code class="python3">def find_best_model(
-    model_template:fri.model.base_initmodel.InitModel,
-    hyperparameters:dict,
-    data:Tuple[numpy.ndarray, numpy.ndarray],
-    random_state:numpy.random.mtrand.RandomState,
-    n_iter:int,
-    n_jobs:int,
-    verbose:int=0,
+    model_template: fri.model.base_initmodel.InitModel,
+    hyperparameters: dict,
+    data: Tuple[numpy.ndarray, numpy.ndarray],
+    random_state: numpy.random.mtrand.RandomState,
+    n_iter: int,
+    n_jobs: int,
+    verbose: int = 0,
     lupi_features=None,
-    kwargs:dict=None
+    kwargs: dict = None
 ) -&gt; Tuple[fri.model.base_initmodel.InitModel, float]
 </code></pre>
 
@@ -966,166 +943,157 @@ lupi_features : int
     Amount of lupi_features
 kwargs : dict
     Placeholder, dict to pass into fit functions.</p>
-<p>??? example "View Source"
-        def find_best_model(</p>
-<pre><code>        model_template: InitModel,
+<details class="example"><summary>View Source</summary><pre><code>def find_best_model(
 
-        hyperparameters: dict,
+    model_template: InitModel,
 
-        data: Tuple[np.ndarray, np.ndarray],
+    hyperparameters: dict,
 
-        random_state: np.random.RandomState,
+    data: Tuple[np.ndarray, np.ndarray],
 
-        n_iter: int,
+    random_state: np.random.RandomState,
 
-        n_jobs: int,
+    n_iter: int,
 
-        verbose: int = 0,
+    n_jobs: int,
 
-        lupi_features=None,
+    verbose: int = 0,
 
-        kwargs: dict = None,
+    lupi_features=None,
 
-    ) -&gt; Tuple[InitModel, float]:
+    kwargs: dict = None,
 
-        """
+) -&gt; Tuple[InitModel, float]:
 
-        Search function which wraps `sklearns`  `RandomizedSearchCV` function.
+    """
 
-        We use distributions and parameters defined in the `model_template`.
+    Search function which wraps `sklearns`  `RandomizedSearchCV` function.
 
+    We use distributions and parameters defined in the `model_template`.
 
+    Parameters
 
-        Parameters
+    ----------
 
-        ----------
+    model_template : InitModel
 
-        model_template : InitModel
+        A model template which is used to fit data.
 
-            A model template which is used to fit data.
+    hyperparameters : dict
 
-        hyperparameters : dict
+        Dictionary of hyperparameters.
 
-            Dictionary of hyperparameters.
+    data : tuple
 
-        data : tuple
+        Tuple of data (X,y)
 
-            Tuple of data (X,y)
+    random_state : RandomState
 
-        random_state : RandomState
+        numpy RandomState object
 
-            numpy RandomState object
+    n_iter : int
 
-        n_iter : int
+        Amount of search samples.
 
-            Amount of search samples.
+    n_jobs : int
 
-        n_jobs : int
+        Allows multiprocessing with `n_jobs` threads.
 
-            Allows multiprocessing with `n_jobs` threads.
+    verbose : int
 
-        verbose : int
+        Allows verbose output when `verbose&gt;0`.
 
-            Allows verbose output when `verbose&gt;0`.
+    lupi_features : int
 
-        lupi_features : int
+        Amount of lupi_features
 
-            Amount of lupi_features
+    kwargs : dict
 
-        kwargs : dict
+        Placeholder, dict to pass into fit functions.
 
-            Placeholder, dict to pass into fit functions.
+    """
 
-        """
+    model = model_template()
 
-        model = model_template()
+    scorer, metric = model.make_scorer()
 
+    if scorer is None:
 
+        refit = True
 
-        scorer, metric = model.make_scorer()
+    else:
 
-        if scorer is None:
+        refit = metric
 
-            refit = True
+    searcher = RandomizedSearchCV(
 
-        else:
+        model,
 
-            refit = metric
+        hyperparameters,
 
+        scoring=scorer,
 
+        random_state=random_state,
 
-        searcher = RandomizedSearchCV(
+        refit=refit,
 
-            model,
+        cv=3,
 
-            hyperparameters,
+        n_iter=n_iter,
 
-            scoring=scorer,
+        n_jobs=n_jobs,
 
-            random_state=random_state,
+        error_score=np.nan,
 
-            refit=refit,
+        verbose=verbose,
 
-            cv=3,
+    )
 
-            n_iter=n_iter,
+    X, y = data
 
-            n_jobs=n_jobs,
+    # Ignore warnings for extremely bad model_state (when precision=0)
 
-            error_score=np.nan,
+    with warnings.catch_warnings():
 
-            verbose=verbose,
+        warnings.simplefilter("ignore")
 
-        )
+        searcher.fit(X, y, lupi_features=lupi_features)
 
+    best_model: InitModel = searcher.best_estimator_
 
+    best_score = best_model.score(X, y)
 
-        X, y = data
+    if verbose &gt; 0:
 
-        # Ignore warnings for extremely bad model_state (when precision=0)
+        print("*" * 20, "Best found baseline model", "*" * 20)
 
-        with warnings.catch_warnings():
+        pprint(best_model)
 
-            warnings.simplefilter("ignore")
+        print("score: ", best_score)
 
-            searcher.fit(X, y, lupi_features=lupi_features)
+        for k, v in best_model.constraints.items():
 
+            pprint((f"{k}: {v}"))
 
+        for k, v in best_model.model_state.items():
 
-        best_model: InitModel = searcher.best_estimator_
+            if hasattr(v, "shape"):
 
-        best_score = best_model.score(X, y)
+                pprint((f"{k}: shape {v.shape}"))
 
-        if verbose &gt; 0:
+            else:
 
-            print("*" * 20, "Best found baseline model", "*" * 20)
+                if "slack" in k:
 
-            pprint(best_model)
-
-            print("score: ", best_score)
-
-            for k, v in best_model.constraints.items():
+                    continue
 
                 pprint((f"{k}: {v}"))
 
-            for k, v in best_model.model_state.items():
+        print("*" * 30)
 
-                if hasattr(v, "shape"):
-
-                    pprint((f"{k}: shape {v.shape}"))
-
-                else:
-
-                    if "slack" in k:
-
-                        continue
-
-                    pprint((f"{k}: {v}"))
-
-            print("*" * 30)
-
-        return best_model, best_score
+    return best_model, best_score
 </code></pre>
+</details>
                 
                   
                 

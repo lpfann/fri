@@ -1483,610 +1483,521 @@
                 
                 
                 <h1 id="module-frimodellupi_regression">Module fri.model.lupi_regression</h1>
-<p>??? example "View Source"
-        from itertools import product</p>
-<pre><code>    import cvxpy as cvx
+<details class="example"><summary>View Source</summary><pre><code>from itertools import product
 
-    import numpy as np
+import cvxpy as cvx
 
-    from sklearn.metrics import r2_score
+import numpy as np
 
-    from sklearn.metrics.regression import _check_reg_targets
+from sklearn.metrics import r2_score
 
-    from sklearn.utils import check_X_y
+from sklearn.metrics.regression import _check_reg_targets
 
+from sklearn.utils import check_X_y
 
+from fri.model.base_lupi import (
 
-    from fri.model.base_lupi import (
+    LUPI_Relevance_CVXProblem,
 
-        LUPI_Relevance_CVXProblem,
+    split_dataset,
 
-        split_dataset,
+    is_lupi_feature,
 
-        is_lupi_feature,
+)
 
-    )
+from fri.model.regression import Regression_Relevance_Bound
 
-    from fri.model.regression import Regression_Relevance_Bound
+from .base_initmodel import LUPI_InitModel
 
-    from .base_initmodel import LUPI_InitModel
+from .base_type import ProblemType
 
-    from .base_type import ProblemType
+class LUPI_Regression(ProblemType):
 
+    def __init__(self, **kwargs):
 
+        super().__init__(**kwargs)
 
+        self._lupi_features = None
 
+    @property
 
-    class LUPI_Regression(ProblemType):
+    def lupi_features(self):
 
-        def __init__(self, **kwargs):
+        return self._lupi_features
 
-            super().__init__(**kwargs)
+    @classmethod
 
-            self._lupi_features = None
+    def parameters(cls):
 
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 
+    @property
 
-        @property
+    def get_initmodel_template(cls):
 
-        def lupi_features(self):
+        return LUPI_Regression_SVM
 
-            return self._lupi_features
+    @property
 
+    def get_cvxproblem_template(cls):
 
+        return LUPI_Regression_Relevance_Bound
 
-        @classmethod
+    def relax_factors(cls):
 
-        def parameters(cls):
+        return ["loss_slack", "w_l1_slack"]
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    def preprocessing(self, data, lupi_features=None):
 
+        X, y = data
 
+        d = X.shape[1]
 
-        @property
+        if lupi_features is None:
 
-        def get_initmodel_template(cls):
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
-            return LUPI_Regression_SVM
+        if not isinstance(lupi_features, int):
 
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
+        if not 0 &lt; lupi_features &lt; d:
 
-        @property
+            raise ValueError(
 
-        def get_cvxproblem_template(cls):
-
-            return LUPI_Regression_Relevance_Bound
-
-
-
-        def relax_factors(cls):
-
-            return ["loss_slack", "w_l1_slack"]
-
-
-
-        def preprocessing(self, data, lupi_features=None):
-
-            X, y = data
-
-            d = X.shape[1]
-
-
-
-            if lupi_features is None:
-
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
-
-            if not isinstance(lupi_features, int):
-
-                raise ValueError("Argument 'lupi_features' is not type int.")
-
-            if not 0 &lt; lupi_features &lt; d:
-
-                raise ValueError(
-
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
-
-                )
-
-
-
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
-
-
-
-
-
-    class LUPI_Regression_SVM(LUPI_InitModel):
-
-        @classmethod
-
-        def hyperparameter(cls):
-
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
-
-
-
-        def fit(self, X_combined, y, lupi_features=None):
-
-            """
-
-
-
-            Parameters
-
-            ----------
-
-            lupi_features : int
-
-                Number of features in dataset which are considered privileged information (PI).
-
-                PI features are expected to be the last features in the dataset.
-
-
-
-            """
-
-            if lupi_features is None:
-
-                raise ValueError("No lupi_features argument given.")
-
-            self.lupi_features = lupi_features
-
-            X, X_priv = split_dataset(X_combined, lupi_features)
-
-            (n, d) = X.shape
-
-
-
-            # Get parameters from CV model without any feature contstraints
-
-            C = self.hyperparam["C"]
-
-            epsilon = self.hyperparam["epsilon"]
-
-            scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-
-            scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
-
-
-
-            # Initalize Variables in cvxpy
-
-            w = cvx.Variable(shape=(d), name="w")
-
-            b = cvx.Variable(name="bias")
-
-            w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
-
-            b_priv_pos = cvx.Variable(name="bias_priv_pos")
-
-            w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
-
-            b_priv_neg = cvx.Variable(name="bias_priv_neg")
-
-            slack = cvx.Variable(shape=(n), name="slack")
-
-
-
-            # Define functions for better readability
-
-            priv_function_pos = X_priv * w_priv_pos + b_priv_pos
-
-            priv_function_neg = X_priv * w_priv_neg + b_priv_neg
-
-
-
-            # Combined loss of lupi function and normal slacks, scaled by two constants
-
-            priv_loss_pos = cvx.sum(priv_function_pos)
-
-            priv_loss_neg = cvx.sum(priv_function_neg)
-
-            priv_loss = priv_loss_pos + priv_loss_neg
-
-            slack_loss = cvx.sum(slack)
-
-            loss = scaling_lupi_loss * priv_loss + slack_loss
-
-
-
-            # L1 norm regularization of both functions with 1 scaling constant
-
-            weight_regularization = 0.5 * (
-
-                cvx.norm(w, 1)
-
-                + scaling_lupi_w
-
-                * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
             )
 
+        self._lupi_features = lupi_features
 
+        # Check that X and y have correct shape
 
-            constraints = [
+        X, y = check_X_y(X, y)
 
-                y - X * w - b &lt;= epsilon + priv_function_pos + slack,
+        return X, y
 
-                X * w + b - y &lt;= epsilon + priv_function_neg + slack,
+class LUPI_Regression_SVM(LUPI_InitModel):
 
-                priv_function_pos &gt;= 0,
+    @classmethod
 
-                priv_function_neg &gt;= 0,
+    def hyperparameter(cls):
 
-                # priv_loss_pos &gt;= 0,
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 
-                # priv_loss_neg &gt;= 0,
+    def fit(self, X_combined, y, lupi_features=None):
 
-                # slack_loss &gt;= 0,
+        """
 
-                slack &gt;= 0,
+        Parameters
 
-                # loss &gt;= 0,
+        ----------
 
-            ]
+        lupi_features : int
 
-            objective = cvx.Minimize(C * loss + weight_regularization)
+            Number of features in dataset which are considered privileged information (PI).
 
+            PI features are expected to be the last features in the dataset.
 
+        """
 
-            # Solve problem.
+        if lupi_features is None:
 
-            solver_params = self.solver_params
+            raise ValueError("No lupi_features argument given.")
 
-            problem = cvx.Problem(objective, constraints)
+        self.lupi_features = lupi_features
 
-            problem.solve(**solver_params)
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
+        (n, d) = X.shape
 
+        # Get parameters from CV model without any feature contstraints
 
-            self.model_state = {
+        C = self.hyperparam["C"]
 
-                "signs_pos": priv_function_pos.value &gt; 0,
+        epsilon = self.hyperparam["epsilon"]
 
-                "signs_neg": priv_function_neg.value &gt; 0,
+        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
 
-                "w": w.value,
+        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
-                "w_priv_pos": w_priv_pos.value,
+        # Initalize Variables in cvxpy
 
-                "w_priv_neg": w_priv_neg.value,
+        w = cvx.Variable(shape=(d), name="w")
 
-                "b": b.value,
+        b = cvx.Variable(name="bias")
 
-                "b_priv_pos": b_priv_pos.value,
+        w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
 
-                "b_priv_neg": b_priv_neg.value,
+        b_priv_pos = cvx.Variable(name="bias_priv_pos")
 
-                "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
+        w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
 
-            }
+        b_priv_neg = cvx.Variable(name="bias_priv_neg")
 
-            w_l1 = np.linalg.norm(w.value, ord=1)
+        slack = cvx.Variable(shape=(n), name="slack")
 
-            w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
+        # Define functions for better readability
 
-            w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
+        priv_function_pos = X_priv * w_priv_pos + b_priv_pos
 
-            # We take the mean to combine all submodels (for priv) into a single normalization factor
+        priv_function_neg = X_priv * w_priv_neg + b_priv_neg
 
-            w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
+        # Combined loss of lupi function and normal slacks, scaled by two constants
 
-            self.constraints = {
+        priv_loss_pos = cvx.sum(priv_function_pos)
 
-                "priv_loss": priv_loss.value,
+        priv_loss_neg = cvx.sum(priv_function_neg)
 
-                "scaling_lupi_loss": scaling_lupi_loss,
+        priv_loss = priv_loss_pos + priv_loss_neg
 
-                # "loss_slack": slack_loss.value,
+        slack_loss = cvx.sum(slack)
 
-                "loss": loss.value,
+        loss = scaling_lupi_loss * priv_loss + slack_loss
 
-                "w_l1": w_l1,
+        # L1 norm regularization of both functions with 1 scaling constant
 
-                "w_priv_l1": w_priv_l1,
+        weight_regularization = 0.5 * (
 
-                "w_priv_pos_l1": w_priv_pos_l1,
+            cvx.norm(w, 1)
 
-                "w_priv_neg_l1": w_priv_neg_l1,
+            + scaling_lupi_w
 
-            }
+            * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
 
-            return self
+        )
 
+        constraints = [
 
+            y - X * w - b &lt;= epsilon + priv_function_pos + slack,
 
-        @property
+            X * w + b - y &lt;= epsilon + priv_function_neg + slack,
 
-        def solver_params(cls):
+            priv_function_pos &gt;= 0,
 
-            return {"solver": "ECOS", "verbose": False}
+            priv_function_neg &gt;= 0,
 
+            # priv_loss_pos &gt;= 0,
 
+            # priv_loss_neg &gt;= 0,
 
-        def predict(self, X):
+            # slack_loss &gt;= 0,
 
-            """
+            slack &gt;= 0,
 
-            Method to predict points using svm classification rule.
+            # loss &gt;= 0,
 
-            We use both normal and priv. features.
+        ]
 
-            This function is mainly used for CV purposes to find the best parameters according to score.
+        objective = cvx.Minimize(C * loss + weight_regularization)
 
+        # Solve problem.
 
+        solver_params = self.solver_params
 
-            Parameters
+        problem = cvx.Problem(objective, constraints)
 
-            ----------
+        problem.solve(**solver_params)
 
-            X : numpy.ndarray
+        self.model_state = {
 
-            """
+            "signs_pos": priv_function_pos.value &gt; 0,
 
-            X, X_priv = split_dataset(X, self.lupi_features)
+            "signs_neg": priv_function_neg.value &gt; 0,
 
-            w = self.model_state["w"]
+            "w": w.value,
 
-            b = self.model_state["b"]
+            "w_priv_pos": w_priv_pos.value,
 
+            "w_priv_neg": w_priv_neg.value,
 
+            "b": b.value,
 
-            y = np.dot(X, w) + b
+            "b_priv_pos": b_priv_pos.value,
 
+            "b_priv_neg": b_priv_neg.value,
 
+            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
 
-            return y
+        }
 
+        w_l1 = np.linalg.norm(w.value, ord=1)
 
+        w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
 
-        def score(self, X, y, **kwargs):
+        w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
 
-            prediction = self.predict(X)
+        # We take the mean to combine all submodels (for priv) into a single normalization factor
 
-            _check_reg_targets(y, prediction, None)
+        w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
 
+        self.constraints = {
 
+            "priv_loss": priv_loss.value,
 
-            score = r2_score(y, prediction)
+            "scaling_lupi_loss": scaling_lupi_loss,
 
-            return score
+            # "loss_slack": slack_loss.value,
 
+            "loss": loss.value,
 
+            "w_l1": w_l1,
 
+            "w_priv_l1": w_priv_l1,
 
+            "w_priv_pos_l1": w_priv_pos_l1,
 
-    class LUPI_Regression_Relevance_Bound(
+            "w_priv_neg_l1": w_priv_neg_l1,
 
-        LUPI_Relevance_CVXProblem, Regression_Relevance_Bound
+        }
+
+        return self
+
+    @property
+
+    def solver_params(cls):
+
+        return {"solver": "ECOS", "verbose": False}
+
+    def predict(self, X):
+
+        """
+
+        Method to predict points using svm classification rule.
+
+        We use both normal and priv. features.
+
+        This function is mainly used for CV purposes to find the best parameters according to score.
+
+        Parameters
+
+        ----------
+
+        X : numpy.ndarray
+
+        """
+
+        X, X_priv = split_dataset(X, self.lupi_features)
+
+        w = self.model_state["w"]
+
+        b = self.model_state["b"]
+
+        y = np.dot(X, w) + b
+
+        return y
+
+    def score(self, X, y, **kwargs):
+
+        prediction = self.predict(X)
+
+        _check_reg_targets(y, prediction, None)
+
+        score = r2_score(y, prediction)
+
+        return score
+
+class LUPI_Regression_Relevance_Bound(
+
+    LUPI_Relevance_CVXProblem, Regression_Relevance_Bound
+
+):
+
+    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
 
     ):
 
-        @classmethod
+        is_priv = is_lupi_feature(
 
-        def generate_upper_bound_problem(
+            di, data, best_model_state
 
-            cls,
+        )  # Is it a lupi feature where we need additional candidate problems?
 
-            best_hyperparameters,
+        if not is_priv:
 
-            init_constraints,
+            yield from super().generate_upper_bound_problem(
 
-            best_model_state,
+                best_hyperparameters,
 
-            data,
+                init_constraints,
 
-            di,
+                best_model_state,
 
-            preset_model,
+                data,
 
-            probeID=-1,
+                di,
 
-        ):
+                preset_model,
 
-            is_priv = is_lupi_feature(
+                probeID=probeID,
 
-                di, data, best_model_state
+            )
 
-            )  # Is it a lupi feature where we need additional candidate problems?
+        else:
 
+            for sign, pos in product([1, -1], [True, False]):
 
+                problem = cls(
 
-            if not is_priv:
+                    di,
 
-                yield from super().generate_upper_bound_problem(
+                    data,
 
                     best_hyperparameters,
 
                     init_constraints,
 
-                    best_model_state,
+                    preset_model=preset_model,
 
-                    data,
-
-                    di,
-
-                    preset_model,
+                    best_model_state=best_model_state,
 
                     probeID=probeID,
 
                 )
 
-            else:
+                problem.init_objective_UB(sign=sign, pos=pos)
 
-                for sign, pos in product([1, -1], [True, False]):
+                yield problem
 
-                    problem = cls(
+    def _init_objective_LB_LUPI(self, **kwargs):
 
-                        di,
+        self.add_constraint(
 
-                        data,
+            cvx.abs(self.w_priv_pos[self.lupi_index]) &lt;= self.feature_relevance
 
-                        best_hyperparameters,
+        )
 
-                        init_constraints,
+        self.add_constraint(
 
-                        preset_model=preset_model,
+            cvx.abs(self.w_priv_neg[self.lupi_index]) &lt;= self.feature_relevance
 
-                        best_model_state=best_model_state,
+        )
 
-                        probeID=probeID,
+        self._objective = cvx.Minimize(self.feature_relevance)
 
-                    )
+    def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
 
-                    problem.init_objective_UB(sign=sign, pos=pos)
-
-                    yield problem
-
-
-
-        def _init_objective_LB_LUPI(self, **kwargs):
+        if pos:
 
             self.add_constraint(
 
-                cvx.abs(self.w_priv_pos[self.lupi_index]) &lt;= self.feature_relevance
+                self.feature_relevance &lt;= sign * self.w_priv_pos[self.lupi_index]
 
             )
+
+        else:
 
             self.add_constraint(
 
-                cvx.abs(self.w_priv_neg[self.lupi_index]) &lt;= self.feature_relevance
+                self.feature_relevance &lt;= sign * self.w_priv_neg[self.lupi_index]
 
             )
 
+        self._objective = cvx.Maximize(self.feature_relevance)
 
+    def _init_constraints(self, parameters, init_model_constraints):
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        # Upper constraints from best initial model
 
+        l1_w = init_model_constraints["w_l1"]
 
+        self.l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
 
-        def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
+        self.l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
 
-            if pos:
+        init_loss = init_model_constraints["loss"]
 
-                self.add_constraint(
+        epsilon = parameters["epsilon"]
 
-                    self.feature_relevance &lt;= sign * self.w_priv_pos[self.lupi_index]
+        scaling_lupi_loss = init_model_constraints["scaling_lupi_loss"]
 
-                )
+        # New Variables
 
-            else:
+        w = cvx.Variable(shape=(self.d), name="w")
 
-                self.add_constraint(
+        b = cvx.Variable(name="b")
 
-                    self.feature_relevance &lt;= sign * self.w_priv_neg[self.lupi_index]
+        w_priv_pos = cvx.Variable(self.d_priv, name="w_priv_pos")
 
-                )
+        b_priv_pos = cvx.Variable(name="bias_priv_pos")
 
+        w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_neg")
 
+        b_priv_neg = cvx.Variable(name="bias_priv_neg")
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        slack = cvx.Variable(shape=(self.n))
 
+        priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
 
+        priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
 
-        def _init_constraints(self, parameters, init_model_constraints):
+        priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
 
-            # Upper constraints from best initial model
+        loss = priv_loss + cvx.sum(slack)
 
-            l1_w = init_model_constraints["w_l1"]
+        weight_norm = cvx.norm(w, 1)
 
-            self.l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
+        self.weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
 
-            self.l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
+        self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
 
-            init_loss = init_model_constraints["loss"]
+        self.add_constraint(
 
-            epsilon = parameters["epsilon"]
+            self.y - self.X * w - b &lt;= epsilon + priv_function_pos + slack
 
-            scaling_lupi_loss = init_model_constraints["scaling_lupi_loss"]
+        )
 
+        self.add_constraint(
 
+            self.X * w + b - self.y &lt;= epsilon + priv_function_neg + slack
 
-            # New Variables
+        )
 
-            w = cvx.Variable(shape=(self.d), name="w")
+        self.add_constraint(priv_function_pos &gt;= 0)
 
-            b = cvx.Variable(name="b")
+        self.add_constraint(priv_function_neg &gt;= 0)
 
-            w_priv_pos = cvx.Variable(self.d_priv, name="w_priv_pos")
+        self.add_constraint(loss &lt;= init_loss)
 
-            b_priv_pos = cvx.Variable(name="bias_priv_pos")
+        self.add_constraint(slack &gt;= 0)
 
-            w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_neg")
+        sum_norms = weight_norm + self.weight_norm_priv_pos + self.weight_norm_priv_neg
 
-            b_priv_neg = cvx.Variable(name="bias_priv_neg")
+        self.add_constraint(sum_norms &lt;= l1_w)
 
-            slack = cvx.Variable(shape=(self.n))
+        # self.add_constraint(self.weight_norm_priv_pos &lt;= self.l1_priv_w_pos)
 
+        # self.add_constraint(self.weight_norm_priv_neg &lt;= self.l1_priv_w_neg)
 
+        # Save values for object use later
 
-            priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
+        self.w = w
 
-            priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
+        self.w_priv_pos = w_priv_pos
 
-            priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
+        self.w_priv_neg = w_priv_neg
 
-            loss = priv_loss + cvx.sum(slack)
-
-            weight_norm = cvx.norm(w, 1)
-
-            self.weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
-
-            self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
-
-
-
-            self.add_constraint(
-
-                self.y - self.X * w - b &lt;= epsilon + priv_function_pos + slack
-
-            )
-
-            self.add_constraint(
-
-                self.X * w + b - self.y &lt;= epsilon + priv_function_neg + slack
-
-            )
-
-            self.add_constraint(priv_function_pos &gt;= 0)
-
-            self.add_constraint(priv_function_neg &gt;= 0)
-
-            self.add_constraint(loss &lt;= init_loss)
-
-            self.add_constraint(slack &gt;= 0)
-
-            sum_norms = weight_norm + self.weight_norm_priv_pos + self.weight_norm_priv_neg
-
-            self.add_constraint(sum_norms &lt;= l1_w)
-
-            # self.add_constraint(self.weight_norm_priv_pos &lt;= self.l1_priv_w_pos)
-
-            # self.add_constraint(self.weight_norm_priv_neg &lt;= self.l1_priv_w_neg)
-
-
-
-            # Save values for object use later
-
-            self.w = w
-
-            self.w_priv_pos = w_priv_pos
-
-            self.w_priv_neg = w_priv_neg
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <h2 id="classes">Classes</h2>
 <h3 id="lupi_regression">LUPI_Regression</h3>
 <pre><code class="python3">class LUPI_Regression(
@@ -2096,92 +2007,73 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Regression(ProblemType):</p>
-<pre><code>        def __init__(self, **kwargs):
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Regression(ProblemType):
 
-            super().__init__(**kwargs)
+    def __init__(self, **kwargs):
 
-            self._lupi_features = None
+        super().__init__(**kwargs)
 
+        self._lupi_features = None
 
+    @property
 
-        @property
+    def lupi_features(self):
 
-        def lupi_features(self):
+        return self._lupi_features
 
-            return self._lupi_features
+    @classmethod
 
+    def parameters(cls):
 
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 
-        @classmethod
+    @property
 
-        def parameters(cls):
+    def get_initmodel_template(cls):
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+        return LUPI_Regression_SVM
 
+    @property
 
+    def get_cvxproblem_template(cls):
 
-        @property
+        return LUPI_Regression_Relevance_Bound
 
-        def get_initmodel_template(cls):
+    def relax_factors(cls):
 
-            return LUPI_Regression_SVM
+        return ["loss_slack", "w_l1_slack"]
 
+    def preprocessing(self, data, lupi_features=None):
 
+        X, y = data
 
-        @property
+        d = X.shape[1]
 
-        def get_cvxproblem_template(cls):
+        if lupi_features is None:
 
-            return LUPI_Regression_Relevance_Bound
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
+        if not isinstance(lupi_features, int):
 
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-        def relax_factors(cls):
+        if not 0 &lt; lupi_features &lt; d:
 
-            return ["loss_slack", "w_l1_slack"]
+            raise ValueError(
 
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
+            )
 
-        def preprocessing(self, data, lupi_features=None):
+        self._lupi_features = lupi_features
 
-            X, y = data
+        # Check that X and y have correct shape
 
-            d = X.shape[1]
+        X, y = check_X_y(X, y)
 
-
-
-            if lupi_features is None:
-
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
-
-            if not isinstance(lupi_features, int):
-
-                raise ValueError("Argument 'lupi_features' is not type int.")
-
-            if not 0 &lt; lupi_features &lt; d:
-
-                raise ValueError(
-
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
-
-                )
-
-
-
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
@@ -2195,12 +2087,13 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def parameters(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    def parameters(cls):
+
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 </code></pre>
+</details>
 <h4 id="instance-variables">Instance variables</h4>
 <pre><code class="python3">get_cvxproblem_template
 </code></pre>
@@ -2218,20 +2111,22 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_parameters(self):</p>
-<pre><code>            return {p: self.get_chosen_parameter(p) for p in self.parameters()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
+
+        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 </code></pre>
+</details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
 <pre><code class="python3">def get_all_relax_factors(
     self
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_all_relax_factors(self):</p>
-<pre><code>            return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
+
+        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 </code></pre>
+</details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
 <pre><code class="python3">def get_chosen_parameter(
     self,
@@ -2239,48 +2134,49 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_parameter(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-                return [
+        try:
 
-                    self.chosen_parameters_[p]
+            return [
 
-                ]  # We return list for param search function
+                self.chosen_parameters_[p]
 
-            except:
+            ]  # We return list for param search function
 
-                # # TODO: rewrite the parameter logic
+        except:
 
-                # # TODO: move this to subclass
+            # # TODO: rewrite the parameter logic
 
-                if p == "scaling_lupi_w":
+            # # TODO: move this to subclass
 
-                    # return [0.1, 1, 10, 100, 1000]
+            if p == "scaling_lupi_w":
 
-                    return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # return [0.1, 1, 10, 100, 1000]
 
-                # if p == "scaling_lupi_loss":
+                return scipy.stats.reciprocal(a=1e-15, b=1e10)
 
-                #    # value 0&gt;p&lt;1 causes standard svm solution
+            # if p == "scaling_lupi_loss":
 
-                #    # p&gt;1 encourages usage of lupi function
+            #    # value 0&gt;p&lt;1 causes standard svm solution
 
-                #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # p&gt;1 encourages usage of lupi function
 
-                if p == "C":
+            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
 
-                    return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            if p == "C":
 
-                if p == "epsilon":
+                return scipy.stats.reciprocal(a=1e-5, b=1e5)
 
-                    return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            if p == "epsilon":
 
-                else:
+                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
 
-                    return scipy.stats.reciprocal(a=1e-10, b=1e10)
+            else:
+
+                return scipy.stats.reciprocal(a=1e-10, b=1e10)
 </code></pre>
+</details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
 <pre><code class="python3">def get_chosen_relax_factors(
     self,
@@ -2288,28 +2184,29 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_chosen_relax_factors(self, p):</p>
-<pre><code>            try:
+<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-                factor = self.relax_factors_[p]
+        try:
+
+            factor = self.relax_factors_[p]
+
+        except KeyError:
+
+            try:
+
+                factor = self.relax_factors_[p + "_slack"]
 
             except KeyError:
 
-                try:
+                factor = 0.1
 
-                    factor = self.relax_factors_[p + "_slack"]
+        if factor &lt; 0:
 
-                except KeyError:
+            raise ValueError("Slack Factor multiplier is positive!")
 
-                    factor = 0.1
-
-            if factor &lt; 0:
-
-                raise ValueError("Slack Factor multiplier is positive!")
-
-            return factor
+        return factor
 </code></pre>
+</details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
 <pre><code class="python3">def get_relaxed_constraints(
     self,
@@ -2317,10 +2214,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def get_relaxed_constraints(self, constraints):</p>
-<pre><code>            return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
+<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
+
+        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 </code></pre>
+</details>
 <h5 id="postprocessing">postprocessing</h5>
 <pre><code class="python3">def postprocessing(
     self,
@@ -2328,10 +2226,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def postprocessing(self, bounds):</p>
-<pre><code>            return bounds
+<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
+
+        return bounds
 </code></pre>
+</details>
 <h5 id="preprocessing">preprocessing</h5>
 <pre><code class="python3">def preprocessing(
     self,
@@ -2340,44 +2239,37 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing(self, data, lupi_features=None):</p>
-<pre><code>            X, y = data
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-            d = X.shape[1]
+        X, y = data
 
+        d = X.shape[1]
 
+        if lupi_features is None:
 
-            if lupi_features is None:
+            raise ValueError("Argument 'lupi_features' missing in fit() call.")
 
-                raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        if not isinstance(lupi_features, int):
 
-            if not isinstance(lupi_features, int):
+            raise ValueError("Argument 'lupi_features' is not type int.")
 
-                raise ValueError("Argument 'lupi_features' is not type int.")
+        if not 0 &lt; lupi_features &lt; d:
 
-            if not 0 &lt; lupi_features &lt; d:
+            raise ValueError(
 
-                raise ValueError(
+                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
 
-                    "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            )
 
-                )
+        self._lupi_features = lupi_features
 
+        # Check that X and y have correct shape
 
+        X, y = check_X_y(X, y)
 
-            self._lupi_features = lupi_features
-
-
-
-            # Check that X and y have correct shape
-
-            X, y = check_X_y(X, y)
-
-
-
-            return X, y
+        return X, y
 </code></pre>
+</details>
 <h5 id="relax_constraint">relax_constraint</h5>
 <pre><code class="python3">def relax_constraint(
     self,
@@ -2386,24 +2278,26 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_constraint(self, key, value):</p>
-<pre><code>            return value * (1 + self.get_chosen_relax_factors(key))
+<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
+
+        return value * (1 + self.get_chosen_relax_factors(key))
 </code></pre>
+</details>
 <h5 id="relax_factors">relax_factors</h5>
 <pre><code class="python3">def relax_factors(
     cls
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def relax_factors(cls):</p>
-<pre><code>            return ["loss_slack", "w_l1_slack"]
+<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
+
+        return ["loss_slack", "w_l1_slack"]
 </code></pre>
+</details>
 <h3 id="lupi_regression_relevance_bound">LUPI_Regression_Relevance_Bound</h3>
 <pre><code class="python3">class LUPI_Regression_Relevance_Bound(
-    current_feature:int,
-    data:tuple,
+    current_feature: int,
+    data: tuple,
     hyperparameters,
     best_model_constraints,
     preset_model=None,
@@ -2414,226 +2308,207 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Regression_Relevance_Bound(</p>
-<pre><code>        LUPI_Relevance_CVXProblem, Regression_Relevance_Bound
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Regression_Relevance_Bound(
+
+    LUPI_Relevance_CVXProblem, Regression_Relevance_Bound
+
+):
+
+    @classmethod
+
+    def generate_upper_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
 
     ):
 
-        @classmethod
+        is_priv = is_lupi_feature(
 
-        def generate_upper_bound_problem(
+            di, data, best_model_state
 
-            cls,
+        )  # Is it a lupi feature where we need additional candidate problems?
 
-            best_hyperparameters,
+        if not is_priv:
 
-            init_constraints,
+            yield from super().generate_upper_bound_problem(
 
-            best_model_state,
+                best_hyperparameters,
 
-            data,
+                init_constraints,
 
-            di,
+                best_model_state,
 
-            preset_model,
+                data,
 
-            probeID=-1,
+                di,
 
-        ):
+                preset_model,
 
-            is_priv = is_lupi_feature(
+                probeID=probeID,
 
-                di, data, best_model_state
+            )
 
-            )  # Is it a lupi feature where we need additional candidate problems?
+        else:
 
+            for sign, pos in product([1, -1], [True, False]):
 
+                problem = cls(
 
-            if not is_priv:
+                    di,
 
-                yield from super().generate_upper_bound_problem(
+                    data,
 
                     best_hyperparameters,
 
                     init_constraints,
 
-                    best_model_state,
+                    preset_model=preset_model,
 
-                    data,
-
-                    di,
-
-                    preset_model,
+                    best_model_state=best_model_state,
 
                     probeID=probeID,
 
                 )
 
-            else:
+                problem.init_objective_UB(sign=sign, pos=pos)
 
-                for sign, pos in product([1, -1], [True, False]):
+                yield problem
 
-                    problem = cls(
+    def _init_objective_LB_LUPI(self, **kwargs):
 
-                        di,
+        self.add_constraint(
 
-                        data,
+            cvx.abs(self.w_priv_pos[self.lupi_index]) &lt;= self.feature_relevance
 
-                        best_hyperparameters,
+        )
 
-                        init_constraints,
+        self.add_constraint(
 
-                        preset_model=preset_model,
+            cvx.abs(self.w_priv_neg[self.lupi_index]) &lt;= self.feature_relevance
 
-                        best_model_state=best_model_state,
+        )
 
-                        probeID=probeID,
+        self._objective = cvx.Minimize(self.feature_relevance)
 
-                    )
+    def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
 
-                    problem.init_objective_UB(sign=sign, pos=pos)
-
-                    yield problem
-
-
-
-        def _init_objective_LB_LUPI(self, **kwargs):
+        if pos:
 
             self.add_constraint(
 
-                cvx.abs(self.w_priv_pos[self.lupi_index]) &lt;= self.feature_relevance
+                self.feature_relevance &lt;= sign * self.w_priv_pos[self.lupi_index]
 
             )
+
+        else:
 
             self.add_constraint(
 
-                cvx.abs(self.w_priv_neg[self.lupi_index]) &lt;= self.feature_relevance
+                self.feature_relevance &lt;= sign * self.w_priv_neg[self.lupi_index]
 
             )
 
+        self._objective = cvx.Maximize(self.feature_relevance)
 
+    def _init_constraints(self, parameters, init_model_constraints):
 
-            self._objective = cvx.Minimize(self.feature_relevance)
+        # Upper constraints from best initial model
 
+        l1_w = init_model_constraints["w_l1"]
 
+        self.l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
 
-        def _init_objective_UB_LUPI(self, pos=None, sign=None, **kwargs):
+        self.l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
 
-            if pos:
+        init_loss = init_model_constraints["loss"]
 
-                self.add_constraint(
+        epsilon = parameters["epsilon"]
 
-                    self.feature_relevance &lt;= sign * self.w_priv_pos[self.lupi_index]
+        scaling_lupi_loss = init_model_constraints["scaling_lupi_loss"]
 
-                )
+        # New Variables
 
-            else:
+        w = cvx.Variable(shape=(self.d), name="w")
 
-                self.add_constraint(
+        b = cvx.Variable(name="b")
 
-                    self.feature_relevance &lt;= sign * self.w_priv_neg[self.lupi_index]
+        w_priv_pos = cvx.Variable(self.d_priv, name="w_priv_pos")
 
-                )
+        b_priv_pos = cvx.Variable(name="bias_priv_pos")
 
+        w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_neg")
 
+        b_priv_neg = cvx.Variable(name="bias_priv_neg")
 
-            self._objective = cvx.Maximize(self.feature_relevance)
+        slack = cvx.Variable(shape=(self.n))
 
+        priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
 
+        priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
 
-        def _init_constraints(self, parameters, init_model_constraints):
+        priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
 
-            # Upper constraints from best initial model
+        loss = priv_loss + cvx.sum(slack)
 
-            l1_w = init_model_constraints["w_l1"]
+        weight_norm = cvx.norm(w, 1)
 
-            self.l1_priv_w_pos = init_model_constraints["w_priv_pos_l1"]
+        self.weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
 
-            self.l1_priv_w_neg = init_model_constraints["w_priv_neg_l1"]
+        self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
 
-            init_loss = init_model_constraints["loss"]
+        self.add_constraint(
 
-            epsilon = parameters["epsilon"]
+            self.y - self.X * w - b &lt;= epsilon + priv_function_pos + slack
 
-            scaling_lupi_loss = init_model_constraints["scaling_lupi_loss"]
+        )
 
+        self.add_constraint(
 
+            self.X * w + b - self.y &lt;= epsilon + priv_function_neg + slack
 
-            # New Variables
+        )
 
-            w = cvx.Variable(shape=(self.d), name="w")
+        self.add_constraint(priv_function_pos &gt;= 0)
 
-            b = cvx.Variable(name="b")
+        self.add_constraint(priv_function_neg &gt;= 0)
 
-            w_priv_pos = cvx.Variable(self.d_priv, name="w_priv_pos")
+        self.add_constraint(loss &lt;= init_loss)
 
-            b_priv_pos = cvx.Variable(name="bias_priv_pos")
+        self.add_constraint(slack &gt;= 0)
 
-            w_priv_neg = cvx.Variable(self.d_priv, name="w_priv_neg")
+        sum_norms = weight_norm + self.weight_norm_priv_pos + self.weight_norm_priv_neg
 
-            b_priv_neg = cvx.Variable(name="bias_priv_neg")
+        self.add_constraint(sum_norms &lt;= l1_w)
 
-            slack = cvx.Variable(shape=(self.n))
+        # self.add_constraint(self.weight_norm_priv_pos &lt;= self.l1_priv_w_pos)
 
+        # self.add_constraint(self.weight_norm_priv_neg &lt;= self.l1_priv_w_neg)
 
+        # Save values for object use later
 
-            priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
+        self.w = w
 
-            priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
+        self.w_priv_pos = w_priv_pos
 
-            priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
+        self.w_priv_neg = w_priv_neg
 
-            loss = priv_loss + cvx.sum(slack)
-
-            weight_norm = cvx.norm(w, 1)
-
-            self.weight_norm_priv_pos = cvx.norm(w_priv_pos, 1)
-
-            self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
-
-
-
-            self.add_constraint(
-
-                self.y - self.X * w - b &lt;= epsilon + priv_function_pos + slack
-
-            )
-
-            self.add_constraint(
-
-                self.X * w + b - self.y &lt;= epsilon + priv_function_neg + slack
-
-            )
-
-            self.add_constraint(priv_function_pos &gt;= 0)
-
-            self.add_constraint(priv_function_neg &gt;= 0)
-
-            self.add_constraint(loss &lt;= init_loss)
-
-            self.add_constraint(slack &gt;= 0)
-
-            sum_norms = weight_norm + self.weight_norm_priv_pos + self.weight_norm_priv_neg
-
-            self.add_constraint(sum_norms &lt;= l1_w)
-
-            # self.add_constraint(self.weight_norm_priv_pos &lt;= self.l1_priv_w_pos)
-
-            # self.add_constraint(self.weight_norm_priv_neg &lt;= self.l1_priv_w_neg)
-
-
-
-            # Save values for object use later
-
-            self.w = w
-
-            self.w_priv_pos = w_priv_pos
-
-            self.w_priv_neg = w_priv_neg
-
-            self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
+        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
 <ul>
@@ -2649,32 +2524,34 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    def aggregate_max_candidates(cls, max_problems_candidates):
 
-            max_value = max(vals)
+        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
 
-            return max_value
+        max_value = max(vals)
+
+        return max_value
 </code></pre>
+</details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
 <pre><code class="python3">def aggregate_min_candidates(
     min_problems_candidates
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    def aggregate_min_candidates(cls, min_problems_candidates):
 
-            min_value = min(vals)
+        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
 
-            return min_value
+        min_value = min(vals)
+
+        return min_value
 </code></pre>
+</details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
 <pre><code class="python3">def generate_lower_bound_problem(
     best_hyperparameters,
@@ -2687,52 +2564,53 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_lower_bound_problem(
+
+        cls,
+
+        best_hyperparameters,
+
+        init_constraints,
+
+        best_model_state,
+
+        data,
+
+        di,
+
+        preset_model,
+
+        probeID=-1,
+
+    ):
+
+        problem = cls(
+
+            di,
+
+            data,
 
             best_hyperparameters,
 
             init_constraints,
 
-            best_model_state,
+            preset_model=preset_model,
 
-            data,
+            best_model_state=best_model_state,
 
-            di,
+            probeID=probeID,
 
-            preset_model,
+        )
 
-            probeID=-1,
+        problem.init_objective_LB()
 
-        ):
+        problem.isLowerBound = True
 
-            problem = cls(
-
-                di,
-
-                data,
-
-                best_hyperparameters,
-
-                init_constraints,
-
-                preset_model=preset_model,
-
-                best_model_state=best_model_state,
-
-                probeID=probeID,
-
-            )
-
-            problem.init_objective_LB()
-
-            problem.isLowerBound = True
-
-            yield problem
+        yield problem
 </code></pre>
+</details>
 <h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
 <pre><code class="python3">def generate_upper_bound_problem(
     best_hyperparameters,
@@ -2745,82 +2623,81 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def generate_upper_bound_problem(
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            cls,
+    def generate_upper_bound_problem(
 
-            best_hyperparameters,
+        cls,
 
-            init_constraints,
+        best_hyperparameters,
 
-            best_model_state,
+        init_constraints,
 
-            data,
+        best_model_state,
 
-            di,
+        data,
 
-            preset_model,
+        di,
 
-            probeID=-1,
+        preset_model,
 
-        ):
+        probeID=-1,
 
-            is_priv = is_lupi_feature(
+    ):
 
-                di, data, best_model_state
+        is_priv = is_lupi_feature(
 
-            )  # Is it a lupi feature where we need additional candidate problems?
+            di, data, best_model_state
 
+        )  # Is it a lupi feature where we need additional candidate problems?
 
+        if not is_priv:
 
-            if not is_priv:
+            yield from super().generate_upper_bound_problem(
 
-                yield from super().generate_upper_bound_problem(
+                best_hyperparameters,
+
+                init_constraints,
+
+                best_model_state,
+
+                data,
+
+                di,
+
+                preset_model,
+
+                probeID=probeID,
+
+            )
+
+        else:
+
+            for sign, pos in product([1, -1], [True, False]):
+
+                problem = cls(
+
+                    di,
+
+                    data,
 
                     best_hyperparameters,
 
                     init_constraints,
 
-                    best_model_state,
+                    preset_model=preset_model,
 
-                    data,
-
-                    di,
-
-                    preset_model,
+                    best_model_state=best_model_state,
 
                     probeID=probeID,
 
                 )
 
-            else:
+                problem.init_objective_UB(sign=sign, pos=pos)
 
-                for sign, pos in product([1, -1], [True, False]):
-
-                    problem = cls(
-
-                        di,
-
-                        data,
-
-                        best_hyperparameters,
-
-                        init_constraints,
-
-                        preset_model=preset_model,
-
-                        best_model_state=best_model_state,
-
-                        probeID=probeID,
-
-                    )
-
-                    problem.init_objective_UB(sign=sign, pos=pos)
-
-                    yield problem
+                yield problem
 </code></pre>
+</details>
 <h4 id="instance-variables_1">Instance variables</h4>
 <pre><code class="python3">accepted_status
 </code></pre>
@@ -2857,10 +2734,11 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def add_constraint(self, new):</p>
-<pre><code>            self._constraints.append(new)
+<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
+
+        self._constraints.append(new)
 </code></pre>
+</details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
 <pre><code class="python3">def init_objective_LB(
     self,
@@ -2868,20 +2746,21 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_LB(self, **kwargs):</p>
-<pre><code>            # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-            if self.isPriv:
+        # We have two models basically with different indexes
 
-                self._init_objective_LB_LUPI(**kwargs)
+        if self.isPriv:
 
-            else:
+            self._init_objective_LB_LUPI(**kwargs)
 
-                # We call sibling class of our lupi class, which is the normal problem
+        else:
 
-                super().init_objective_LB(**kwargs)
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_LB(**kwargs)
 </code></pre>
+</details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
 <pre><code class="python3">def init_objective_UB(
     self,
@@ -2889,20 +2768,21 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def init_objective_UB(self, **kwargs):</p>
-<pre><code>            # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, **kwargs):
 
-            if self.isPriv:
+        # We have two models basically with different indexes
 
-                self._init_objective_UB_LUPI(**kwargs)
+        if self.isPriv:
 
-            else:
+            self._init_objective_UB_LUPI(**kwargs)
 
-                # We call sibling class of our lupi class, which is the normal problem
+        else:
 
-                super().init_objective_UB(**kwargs)
+            # We call sibling class of our lupi class, which is the normal problem
+
+            super().init_objective_UB(**kwargs)
 </code></pre>
+</details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
 <pre><code class="python3">def preprocessing_data(
     self,
@@ -2911,76 +2791,74 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def preprocessing_data(self, data, best_model_state):</p>
-<pre><code>            lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-            X_combined, y = data
+        lupi_features = best_model_state["lupi_features"]
 
-            X, X_priv = split_dataset(X_combined, lupi_features)
+        X_combined, y = data
 
-            self.X_priv = X_priv
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-            super().preprocessing_data((X, y), best_model_state)
+        self.X_priv = X_priv
 
+        super().preprocessing_data((X, y), best_model_state)
 
+        assert lupi_features == X_priv.shape[1]
 
-            assert lupi_features == X_priv.shape[1]
+        self.d_priv = lupi_features
 
-            self.d_priv = lupi_features
+        # LUPI model, we need to offset the index
 
-            # LUPI model, we need to offset the index
+        self.lupi_index = self.current_feature - self.d
 
-            self.lupi_index = self.current_feature - self.d
+        if self.lupi_index &gt;= 0:
 
-            if self.lupi_index &gt;= 0:
+            self.isPriv = True
 
-                self.isPriv = True
+        else:
 
-            else:
-
-                self.isPriv = False
+            self.isPriv = False
 </code></pre>
+</details>
 <h5 id="solve">solve</h5>
 <pre><code class="python3">def solve(
     self
 ) -&gt; object
 </code></pre>
 
-<p>??? example "View Source"
-            def solve(self) -&gt; object:</p>
-<pre><code>            # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-            # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # We init cvx problem here because pickling LP solver objects is problematic
 
-            self._cvx_problem = cvx.Problem(
+        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
 
-                objective=self.objective, constraints=self.constraints
+        self._cvx_problem = cvx.Problem(
 
-            )
+            objective=self.objective, constraints=self.constraints
 
-            try:
+        )
 
-                # print("Solve", self)
+        try:
 
-                self._cvx_problem.solve(**self.solver_kwargs)
+            # print("Solve", self)
 
-            except SolverError:
+            self._cvx_problem.solve(**self.solver_kwargs)
 
-                # We ignore Solver Errors, which are common with our framework:
+        except SolverError:
 
-                # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # We ignore Solver Errors, which are common with our framework:
 
-                pass
+            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
 
+            pass
 
+        self._solver_status = self._cvx_problem.status
 
-            self._solver_status = self._cvx_problem.status
+        # self._cvx_problem = None
 
-            # self._cvx_problem = None
-
-            return self
+        return self
 </code></pre>
+</details>
 <h3 id="lupi_regression_svm">LUPI_Regression_SVM</h3>
 <pre><code class="python3">class LUPI_Regression_SVM(
     **parameters
@@ -2989,262 +2867,227 @@ inheritance.</p>
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<p>??? example "View Source"
-        class LUPI_Regression_SVM(LUPI_InitModel):</p>
-<pre><code>        @classmethod
+<details class="example"><summary>View Source</summary><pre><code>class LUPI_Regression_SVM(LUPI_InitModel):
 
-        def hyperparameter(cls):
+    @classmethod
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    def hyperparameter(cls):
 
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 
+    def fit(self, X_combined, y, lupi_features=None):
 
-        def fit(self, X_combined, y, lupi_features=None):
+        """
 
-            """
+        Parameters
 
+        ----------
 
+        lupi_features : int
 
-            Parameters
+            Number of features in dataset which are considered privileged information (PI).
 
-            ----------
+            PI features are expected to be the last features in the dataset.
 
-            lupi_features : int
+        """
 
-                Number of features in dataset which are considered privileged information (PI).
+        if lupi_features is None:
 
-                PI features are expected to be the last features in the dataset.
+            raise ValueError("No lupi_features argument given.")
 
+        self.lupi_features = lupi_features
 
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-            """
+        (n, d) = X.shape
 
-            if lupi_features is None:
+        # Get parameters from CV model without any feature contstraints
 
-                raise ValueError("No lupi_features argument given.")
+        C = self.hyperparam["C"]
 
-            self.lupi_features = lupi_features
+        epsilon = self.hyperparam["epsilon"]
 
-            X, X_priv = split_dataset(X_combined, lupi_features)
+        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
 
-            (n, d) = X.shape
+        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
+        # Initalize Variables in cvxpy
 
+        w = cvx.Variable(shape=(d), name="w")
 
-            # Get parameters from CV model without any feature contstraints
+        b = cvx.Variable(name="bias")
 
-            C = self.hyperparam["C"]
+        w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
 
-            epsilon = self.hyperparam["epsilon"]
+        b_priv_pos = cvx.Variable(name="bias_priv_pos")
 
-            scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
 
-            scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        b_priv_neg = cvx.Variable(name="bias_priv_neg")
 
+        slack = cvx.Variable(shape=(n), name="slack")
 
+        # Define functions for better readability
 
-            # Initalize Variables in cvxpy
+        priv_function_pos = X_priv * w_priv_pos + b_priv_pos
 
-            w = cvx.Variable(shape=(d), name="w")
+        priv_function_neg = X_priv * w_priv_neg + b_priv_neg
 
-            b = cvx.Variable(name="bias")
+        # Combined loss of lupi function and normal slacks, scaled by two constants
 
-            w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
+        priv_loss_pos = cvx.sum(priv_function_pos)
 
-            b_priv_pos = cvx.Variable(name="bias_priv_pos")
+        priv_loss_neg = cvx.sum(priv_function_neg)
 
-            w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
+        priv_loss = priv_loss_pos + priv_loss_neg
 
-            b_priv_neg = cvx.Variable(name="bias_priv_neg")
+        slack_loss = cvx.sum(slack)
 
-            slack = cvx.Variable(shape=(n), name="slack")
+        loss = scaling_lupi_loss * priv_loss + slack_loss
 
+        # L1 norm regularization of both functions with 1 scaling constant
 
+        weight_regularization = 0.5 * (
 
-            # Define functions for better readability
+            cvx.norm(w, 1)
 
-            priv_function_pos = X_priv * w_priv_pos + b_priv_pos
+            + scaling_lupi_w
 
-            priv_function_neg = X_priv * w_priv_neg + b_priv_neg
+            * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
 
+        )
 
+        constraints = [
 
-            # Combined loss of lupi function and normal slacks, scaled by two constants
+            y - X * w - b &lt;= epsilon + priv_function_pos + slack,
 
-            priv_loss_pos = cvx.sum(priv_function_pos)
+            X * w + b - y &lt;= epsilon + priv_function_neg + slack,
 
-            priv_loss_neg = cvx.sum(priv_function_neg)
+            priv_function_pos &gt;= 0,
 
-            priv_loss = priv_loss_pos + priv_loss_neg
+            priv_function_neg &gt;= 0,
 
-            slack_loss = cvx.sum(slack)
+            # priv_loss_pos &gt;= 0,
 
-            loss = scaling_lupi_loss * priv_loss + slack_loss
+            # priv_loss_neg &gt;= 0,
 
+            # slack_loss &gt;= 0,
 
+            slack &gt;= 0,
 
-            # L1 norm regularization of both functions with 1 scaling constant
+            # loss &gt;= 0,
 
-            weight_regularization = 0.5 * (
+        ]
 
-                cvx.norm(w, 1)
+        objective = cvx.Minimize(C * loss + weight_regularization)
 
-                + scaling_lupi_w
+        # Solve problem.
 
-                * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
+        solver_params = self.solver_params
 
-            )
+        problem = cvx.Problem(objective, constraints)
 
+        problem.solve(**solver_params)
 
+        self.model_state = {
 
-            constraints = [
+            "signs_pos": priv_function_pos.value &gt; 0,
 
-                y - X * w - b &lt;= epsilon + priv_function_pos + slack,
+            "signs_neg": priv_function_neg.value &gt; 0,
 
-                X * w + b - y &lt;= epsilon + priv_function_neg + slack,
+            "w": w.value,
 
-                priv_function_pos &gt;= 0,
+            "w_priv_pos": w_priv_pos.value,
 
-                priv_function_neg &gt;= 0,
+            "w_priv_neg": w_priv_neg.value,
 
-                # priv_loss_pos &gt;= 0,
+            "b": b.value,
 
-                # priv_loss_neg &gt;= 0,
+            "b_priv_pos": b_priv_pos.value,
 
-                # slack_loss &gt;= 0,
+            "b_priv_neg": b_priv_neg.value,
 
-                slack &gt;= 0,
+            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
 
-                # loss &gt;= 0,
+        }
 
-            ]
+        w_l1 = np.linalg.norm(w.value, ord=1)
 
-            objective = cvx.Minimize(C * loss + weight_regularization)
+        w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
 
+        w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
 
+        # We take the mean to combine all submodels (for priv) into a single normalization factor
 
-            # Solve problem.
+        w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
 
-            solver_params = self.solver_params
+        self.constraints = {
 
-            problem = cvx.Problem(objective, constraints)
+            "priv_loss": priv_loss.value,
 
-            problem.solve(**solver_params)
+            "scaling_lupi_loss": scaling_lupi_loss,
 
+            # "loss_slack": slack_loss.value,
 
+            "loss": loss.value,
 
-            self.model_state = {
+            "w_l1": w_l1,
 
-                "signs_pos": priv_function_pos.value &gt; 0,
+            "w_priv_l1": w_priv_l1,
 
-                "signs_neg": priv_function_neg.value &gt; 0,
+            "w_priv_pos_l1": w_priv_pos_l1,
 
-                "w": w.value,
+            "w_priv_neg_l1": w_priv_neg_l1,
 
-                "w_priv_pos": w_priv_pos.value,
+        }
 
-                "w_priv_neg": w_priv_neg.value,
+        return self
 
-                "b": b.value,
+    @property
 
-                "b_priv_pos": b_priv_pos.value,
+    def solver_params(cls):
 
-                "b_priv_neg": b_priv_neg.value,
+        return {"solver": "ECOS", "verbose": False}
 
-                "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
+    def predict(self, X):
 
-            }
+        """
 
-            w_l1 = np.linalg.norm(w.value, ord=1)
+        Method to predict points using svm classification rule.
 
-            w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
+        We use both normal and priv. features.
 
-            w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
+        This function is mainly used for CV purposes to find the best parameters according to score.
 
-            # We take the mean to combine all submodels (for priv) into a single normalization factor
+        Parameters
 
-            w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
+        ----------
 
-            self.constraints = {
+        X : numpy.ndarray
 
-                "priv_loss": priv_loss.value,
+        """
 
-                "scaling_lupi_loss": scaling_lupi_loss,
+        X, X_priv = split_dataset(X, self.lupi_features)
 
-                # "loss_slack": slack_loss.value,
+        w = self.model_state["w"]
 
-                "loss": loss.value,
+        b = self.model_state["b"]
 
-                "w_l1": w_l1,
+        y = np.dot(X, w) + b
 
-                "w_priv_l1": w_priv_l1,
+        return y
 
-                "w_priv_pos_l1": w_priv_pos_l1,
+    def score(self, X, y, **kwargs):
 
-                "w_priv_neg_l1": w_priv_neg_l1,
+        prediction = self.predict(X)
 
-            }
+        _check_reg_targets(y, prediction, None)
 
-            return self
+        score = r2_score(y, prediction)
 
-
-
-        @property
-
-        def solver_params(cls):
-
-            return {"solver": "ECOS", "verbose": False}
-
-
-
-        def predict(self, X):
-
-            """
-
-            Method to predict points using svm classification rule.
-
-            We use both normal and priv. features.
-
-            This function is mainly used for CV purposes to find the best parameters according to score.
-
-
-
-            Parameters
-
-            ----------
-
-            X : numpy.ndarray
-
-            """
-
-            X, X_priv = split_dataset(X, self.lupi_features)
-
-            w = self.model_state["w"]
-
-            b = self.model_state["b"]
-
-
-
-            y = np.dot(X, w) + b
-
-
-
-            return y
-
-
-
-        def score(self, X, y, **kwargs):
-
-            prediction = self.predict(X)
-
-            _check_reg_targets(y, prediction, None)
-
-
-
-            score = r2_score(y, prediction)
-
-            return score
+        return score
 </code></pre>
+</details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
 <ul>
@@ -3260,24 +3103,26 @@ inheritance.</p>
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def hyperparameter(cls):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    def hyperparameter(cls):
+
+        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
 </code></pre>
+</details>
 <h5 id="make_scorer">make_scorer</h5>
 <pre><code class="python3">def make_scorer(
 
 )
 </code></pre>
 
-<p>??? example "View Source"
-            @classmethod</p>
-<pre><code>        def make_scorer(self):
+<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-            return None, None
+    def make_scorer(self):
+
+        return None, None
 </code></pre>
+</details>
 <h4 id="instance-variables_2">Instance variables</h4>
 <pre><code class="python3">L1_factor
 </code></pre>
@@ -3308,194 +3153,175 @@ inheritance.</p>
 <p>lupi_features : int
     Number of features in dataset which are considered privileged information (PI).
     PI features are expected to be the last features in the dataset.</p>
-<p>??? example "View Source"
-            def fit(self, X_combined, y, lupi_features=None):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X_combined, y, lupi_features=None):
 
+        """
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        lupi_features : int
 
-            lupi_features : int
+            Number of features in dataset which are considered privileged information (PI).
 
-                Number of features in dataset which are considered privileged information (PI).
+            PI features are expected to be the last features in the dataset.
 
-                PI features are expected to be the last features in the dataset.
+        """
 
+        if lupi_features is None:
 
+            raise ValueError("No lupi_features argument given.")
 
-            """
+        self.lupi_features = lupi_features
 
-            if lupi_features is None:
+        X, X_priv = split_dataset(X_combined, lupi_features)
 
-                raise ValueError("No lupi_features argument given.")
+        (n, d) = X.shape
 
-            self.lupi_features = lupi_features
+        # Get parameters from CV model without any feature contstraints
 
-            X, X_priv = split_dataset(X_combined, lupi_features)
+        C = self.hyperparam["C"]
 
-            (n, d) = X.shape
+        epsilon = self.hyperparam["epsilon"]
 
+        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
 
+        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
-            # Get parameters from CV model without any feature contstraints
+        # Initalize Variables in cvxpy
 
-            C = self.hyperparam["C"]
+        w = cvx.Variable(shape=(d), name="w")
 
-            epsilon = self.hyperparam["epsilon"]
+        b = cvx.Variable(name="bias")
 
-            scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
 
-            scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        b_priv_pos = cvx.Variable(name="bias_priv_pos")
 
+        w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
 
+        b_priv_neg = cvx.Variable(name="bias_priv_neg")
 
-            # Initalize Variables in cvxpy
+        slack = cvx.Variable(shape=(n), name="slack")
 
-            w = cvx.Variable(shape=(d), name="w")
+        # Define functions for better readability
 
-            b = cvx.Variable(name="bias")
+        priv_function_pos = X_priv * w_priv_pos + b_priv_pos
 
-            w_priv_pos = cvx.Variable(lupi_features, name="w_priv_pos")
+        priv_function_neg = X_priv * w_priv_neg + b_priv_neg
 
-            b_priv_pos = cvx.Variable(name="bias_priv_pos")
+        # Combined loss of lupi function and normal slacks, scaled by two constants
 
-            w_priv_neg = cvx.Variable(lupi_features, name="w_priv_neg")
+        priv_loss_pos = cvx.sum(priv_function_pos)
 
-            b_priv_neg = cvx.Variable(name="bias_priv_neg")
+        priv_loss_neg = cvx.sum(priv_function_neg)
 
-            slack = cvx.Variable(shape=(n), name="slack")
+        priv_loss = priv_loss_pos + priv_loss_neg
 
+        slack_loss = cvx.sum(slack)
 
+        loss = scaling_lupi_loss * priv_loss + slack_loss
 
-            # Define functions for better readability
+        # L1 norm regularization of both functions with 1 scaling constant
 
-            priv_function_pos = X_priv * w_priv_pos + b_priv_pos
+        weight_regularization = 0.5 * (
 
-            priv_function_neg = X_priv * w_priv_neg + b_priv_neg
+            cvx.norm(w, 1)
 
+            + scaling_lupi_w
 
+            * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
 
-            # Combined loss of lupi function and normal slacks, scaled by two constants
+        )
 
-            priv_loss_pos = cvx.sum(priv_function_pos)
+        constraints = [
 
-            priv_loss_neg = cvx.sum(priv_function_neg)
+            y - X * w - b &lt;= epsilon + priv_function_pos + slack,
 
-            priv_loss = priv_loss_pos + priv_loss_neg
+            X * w + b - y &lt;= epsilon + priv_function_neg + slack,
 
-            slack_loss = cvx.sum(slack)
+            priv_function_pos &gt;= 0,
 
-            loss = scaling_lupi_loss * priv_loss + slack_loss
+            priv_function_neg &gt;= 0,
 
+            # priv_loss_pos &gt;= 0,
 
+            # priv_loss_neg &gt;= 0,
 
-            # L1 norm regularization of both functions with 1 scaling constant
+            # slack_loss &gt;= 0,
 
-            weight_regularization = 0.5 * (
+            slack &gt;= 0,
 
-                cvx.norm(w, 1)
+            # loss &gt;= 0,
 
-                + scaling_lupi_w
+        ]
 
-                * (0.5 * cvx.norm(w_priv_pos, 1) + 0.5 * cvx.norm(w_priv_neg, 1))
+        objective = cvx.Minimize(C * loss + weight_regularization)
 
-            )
+        # Solve problem.
 
+        solver_params = self.solver_params
 
+        problem = cvx.Problem(objective, constraints)
 
-            constraints = [
+        problem.solve(**solver_params)
 
-                y - X * w - b &lt;= epsilon + priv_function_pos + slack,
+        self.model_state = {
 
-                X * w + b - y &lt;= epsilon + priv_function_neg + slack,
+            "signs_pos": priv_function_pos.value &gt; 0,
 
-                priv_function_pos &gt;= 0,
+            "signs_neg": priv_function_neg.value &gt; 0,
 
-                priv_function_neg &gt;= 0,
+            "w": w.value,
 
-                # priv_loss_pos &gt;= 0,
+            "w_priv_pos": w_priv_pos.value,
 
-                # priv_loss_neg &gt;= 0,
+            "w_priv_neg": w_priv_neg.value,
 
-                # slack_loss &gt;= 0,
+            "b": b.value,
 
-                slack &gt;= 0,
+            "b_priv_pos": b_priv_pos.value,
 
-                # loss &gt;= 0,
+            "b_priv_neg": b_priv_neg.value,
 
-            ]
+            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
 
-            objective = cvx.Minimize(C * loss + weight_regularization)
+        }
 
+        w_l1 = np.linalg.norm(w.value, ord=1)
 
+        w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
 
-            # Solve problem.
+        w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
 
-            solver_params = self.solver_params
+        # We take the mean to combine all submodels (for priv) into a single normalization factor
 
-            problem = cvx.Problem(objective, constraints)
+        w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
 
-            problem.solve(**solver_params)
+        self.constraints = {
 
+            "priv_loss": priv_loss.value,
 
+            "scaling_lupi_loss": scaling_lupi_loss,
 
-            self.model_state = {
+            # "loss_slack": slack_loss.value,
 
-                "signs_pos": priv_function_pos.value &gt; 0,
+            "loss": loss.value,
 
-                "signs_neg": priv_function_neg.value &gt; 0,
+            "w_l1": w_l1,
 
-                "w": w.value,
+            "w_priv_l1": w_priv_l1,
 
-                "w_priv_pos": w_priv_pos.value,
+            "w_priv_pos_l1": w_priv_pos_l1,
 
-                "w_priv_neg": w_priv_neg.value,
+            "w_priv_neg_l1": w_priv_neg_l1,
 
-                "b": b.value,
+        }
 
-                "b_priv_pos": b_priv_pos.value,
-
-                "b_priv_neg": b_priv_neg.value,
-
-                "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else,
-
-            }
-
-            w_l1 = np.linalg.norm(w.value, ord=1)
-
-            w_priv_pos_l1 = np.linalg.norm(w_priv_pos.value, ord=1)
-
-            w_priv_neg_l1 = np.linalg.norm(w_priv_neg.value, ord=1)
-
-            # We take the mean to combine all submodels (for priv) into a single normalization factor
-
-            w_priv_l1 = w_priv_pos_l1 + w_priv_neg_l1
-
-            self.constraints = {
-
-                "priv_loss": priv_loss.value,
-
-                "scaling_lupi_loss": scaling_lupi_loss,
-
-                # "loss_slack": slack_loss.value,
-
-                "loss": loss.value,
-
-                "w_l1": w_l1,
-
-                "w_priv_l1": w_priv_l1,
-
-                "w_priv_pos_l1": w_priv_pos_l1,
-
-                "w_priv_neg_l1": w_priv_neg_l1,
-
-            }
-
-            return self
+        return self
 </code></pre>
+</details>
 <h5 id="get_params">get_params</h5>
 <pre><code class="python3">def get_params(
     self,
@@ -3511,10 +3337,11 @@ inheritance.</p>
 <h2 id="returns">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<p>??? example "View Source"
-            def get_params(self, deep=True):</p>
-<pre><code>            return self.hyperparam
+<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+
+        return self.hyperparam
 </code></pre>
+</details>
 <h5 id="predict">predict</h5>
 <pre><code class="python3">def predict(
     self,
@@ -3527,40 +3354,35 @@ We use both normal and priv. features.
 This function is mainly used for CV purposes to find the best parameters according to score.</p>
 <h2 id="parameters_3">Parameters</h2>
 <p>X : numpy.ndarray</p>
-<p>??? example "View Source"
-            def predict(self, X):</p>
-<pre><code>            """
+<details class="example"><summary>View Source</summary><pre><code>    def predict(self, X):
 
-            Method to predict points using svm classification rule.
+        """
 
-            We use both normal and priv. features.
+        Method to predict points using svm classification rule.
 
-            This function is mainly used for CV purposes to find the best parameters according to score.
+        We use both normal and priv. features.
 
+        This function is mainly used for CV purposes to find the best parameters according to score.
 
+        Parameters
 
-            Parameters
+        ----------
 
-            ----------
+        X : numpy.ndarray
 
-            X : numpy.ndarray
+        """
 
-            """
+        X, X_priv = split_dataset(X, self.lupi_features)
 
-            X, X_priv = split_dataset(X, self.lupi_features)
+        w = self.model_state["w"]
 
-            w = self.model_state["w"]
+        b = self.model_state["b"]
 
-            b = self.model_state["b"]
+        y = np.dot(X, w) + b
 
-
-
-            y = np.dot(X, w) + b
-
-
-
-            return y
+        return y
 </code></pre>
+</details>
 <h5 id="score">score</h5>
 <pre><code class="python3">def score(
     self,
@@ -3570,18 +3392,17 @@ This function is mainly used for CV purposes to find the best parameters accordi
 )
 </code></pre>
 
-<p>??? example "View Source"
-            def score(self, X, y, **kwargs):</p>
-<pre><code>            prediction = self.predict(X)
+<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y, **kwargs):
 
-            _check_reg_targets(y, prediction, None)
+        prediction = self.predict(X)
 
+        _check_reg_targets(y, prediction, None)
 
+        score = r2_score(y, prediction)
 
-            score = r2_score(y, prediction)
-
-            return score
+        return score
 </code></pre>
+</details>
 <h5 id="set_params">set_params</h5>
 <pre><code class="python3">def set_params(
     self,
@@ -3596,14 +3417,15 @@ This function is mainly used for CV purposes to find the best parameters accordi
 component of a nested object.</p>
 <h2 id="returns_1">Returns</h2>
 <p>self</p>
-<p>??? example "View Source"
-            def set_params(self, **params):</p>
-<pre><code>            for p, value in params.items():
+<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
 
-                self.hyperparam[p] = value
+        for p, value in params.items():
 
-            return self
+            self.hyperparam[p] = value
+
+        return self
 </code></pre>
+</details>
                 
                   
                 
