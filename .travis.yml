@@ -5,7 +5,7 @@ stages:
   - linting
   - test
   - name: package
-    if: branch = master
+    if: branch = master AND tag IS present
 
 python:
   - "3.6"
