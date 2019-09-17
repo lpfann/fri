@@ -995,304 +995,315 @@
                 
                 
                 <h1 id="module-frimodelbase_lupi">Module fri.model.base_lupi</h1>
-<details class="example"><summary>View Source</summary><pre><code>from abc import abstractmethod
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s s-Atom">from</span> <span class="s s-Atom">abc</span> <span class="s s-Atom">import</span> <span class="s s-Atom">abstractmethod</span>
 
-from .base_cvxproblem import Relevance_CVXProblem
+<span class="s s-Atom">from</span> <span class="p">.</span><span class="s s-Atom">base_cvxproblem</span> <span class="s s-Atom">import</span> <span class="nv">Relevance_CVXProblem</span>
 
-class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
+<span class="s s-Atom">class</span> <span class="nv">LUPI_Relevance_CVXProblem</span><span class="p">(</span><span class="nv">Relevance_CVXProblem</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    def __init__(
+    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">init__</span><span class="p">(</span>
 
-        self,
+        <span class="s s-Atom">self</span><span class="p">,</span>
 
-        current_feature: int,
+        <span class="s s-Atom">current_feature:</span> <span class="s s-Atom">int</span><span class="p">,</span>
 
-        data: tuple,
+        <span class="nn">data</span><span class="p">:</span> <span class="s s-Atom">tuple</span><span class="p">,</span>
 
-        hyperparameters,
+        <span class="s s-Atom">hyperparameters</span><span class="p">,</span>
 
-        best_model_constraints,
+        <span class="s s-Atom">best_model_constraints</span><span class="p">,</span>
 
-        preset_model=None,
+        <span class="s s-Atom">preset_model</span><span class="o">=</span><span class="nv">None</span><span class="p">,</span>
 
-        best_model_state=None,
+        <span class="s s-Atom">best_model_state</span><span class="o">=</span><span class="nv">None</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="s s-Atom">probeID=-</span><span class="mi">1</span><span class="p">,</span>
 
-    ) -&gt; None:
+    <span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nv">None</span><span class="s s-Atom">:</span>
 
-        super().__init__(
+        <span class="nf">super</span><span class="p">().</span><span class="k">__</span><span class="nf">init__</span><span class="p">(</span>
 
-            current_feature,
+            <span class="s s-Atom">current_feature</span><span class="p">,</span>
 
-            data,
+            <span class="s s-Atom">data</span><span class="p">,</span>
 
-            hyperparameters,
+            <span class="s s-Atom">hyperparameters</span><span class="p">,</span>
 
-            best_model_constraints,
+            <span class="s s-Atom">best_model_constraints</span><span class="p">,</span>
 
-            preset_model,
+            <span class="s s-Atom">preset_model</span><span class="p">,</span>
 
-            best_model_state,
+            <span class="s s-Atom">best_model_state</span><span class="p">,</span>
 
-            probeID,
+            <span class="s s-Atom">probeID</span><span class="p">,</span>
 
-        )
+        <span class="p">)</span>
 
-    def preprocessing_data(self, data, best_model_state):
+    <span class="s s-Atom">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">data</span><span class="p">,</span> <span class="s s-Atom">best_model_state</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        lupi_features = best_model_state["lupi_features"]
+        <span class="s s-Atom">lupi_features</span> <span class="o">=</span> <span class="s s-Atom">best_model_state</span><span class="p">[</span><span class="s2">&quot;lupi_features&quot;</span><span class="p">]</span>
 
-        X_combined, y = data
+        <span class="nv">X_combined</span><span class="p">,</span> <span class="s s-Atom">y</span> <span class="o">=</span> <span class="s s-Atom">data</span>
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X</span><span class="p">,</span> <span class="nv">X_priv</span> <span class="o">=</span> <span class="nf">split_dataset</span><span class="p">(</span><span class="nv">X_combined</span><span class="p">,</span> <span class="s s-Atom">lupi_features</span><span class="p">)</span>
 
-        self.X_priv = X_priv
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_priv</span>
 
-        super().preprocessing_data((X, y), best_model_state)
+        <span class="nf">super</span><span class="p">().</span><span class="nf">preprocessing_data</span><span class="p">((</span><span class="nv">X</span><span class="p">,</span> <span class="s s-Atom">y</span><span class="p">),</span> <span class="s s-Atom">best_model_state</span><span class="p">)</span>
 
-        assert lupi_features == X_priv.shape[1]
+        <span class="s s-Atom">assert</span> <span class="s s-Atom">lupi_features</span> <span class="o">==</span> <span class="nv">X_priv</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        self.d_priv = lupi_features
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">d_priv</span> <span class="o">=</span> <span class="s s-Atom">lupi_features</span>
 
-        # LUPI model, we need to offset the index
+        <span class="s s-Atom">#</span> <span class="nv">LUPI</span> <span class="s s-Atom">model</span><span class="p">,</span> <span class="s s-Atom">we</span> <span class="s s-Atom">need</span> <span class="s s-Atom">to</span> <span class="s s-Atom">offset</span> <span class="s s-Atom">the</span> <span class="s s-Atom">index</span>
 
-        self.lupi_index = self.current_feature - self.d
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">lupi_index</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">current_feature</span> <span class="o">-</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">d</span>
 
-        if self.lupi_index &gt;= 0:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="s s-Atom">:</span>
 
-            self.isPriv = True
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isPriv</span> <span class="o">=</span> <span class="nv">True</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            self.isPriv = False
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isPriv</span> <span class="o">=</span> <span class="nv">False</span>
 
-    def init_objective_UB(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        # We have two models basically with different indexes
+        <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">have</span> <span class="s s-Atom">two</span> <span class="s s-Atom">models</span> <span class="s s-Atom">basically</span> <span class="s s-Atom">with</span> <span class="s s-Atom">different</span> <span class="s s-Atom">indexes</span>
 
-        if self.isPriv:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isPriv:</span>
 
-            self._init_objective_UB_LUPI(**kwargs)
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">init_objective_UB_LUPI</span><span class="p">(</span><span class="s s-Atom">**kwargs</span><span class="p">)</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+            <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">call</span> <span class="s s-Atom">sibling</span> <span class="s s-Atom">class</span> <span class="s s-Atom">of</span> <span class="s s-Atom">our</span> <span class="s s-Atom">lupi</span> <span class="s s-Atom">class</span><span class="p">,</span> <span class="s s-Atom">which</span> <span class="o">is</span> <span class="s s-Atom">the</span> <span class="s s-Atom">normal</span> <span class="s s-Atom">problem</span>
 
-            super().init_objective_UB(**kwargs)
+            <span class="nf">super</span><span class="p">().</span><span class="nf">init_objective_UB</span><span class="p">(</span><span class="s s-Atom">**kwargs</span><span class="p">)</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        # We have two models basically with different indexes
+        <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">have</span> <span class="s s-Atom">two</span> <span class="s s-Atom">models</span> <span class="s s-Atom">basically</span> <span class="s s-Atom">with</span> <span class="s s-Atom">different</span> <span class="s s-Atom">indexes</span>
 
-        if self.isPriv:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isPriv:</span>
 
-            self._init_objective_LB_LUPI(**kwargs)
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">init_objective_LB_LUPI</span><span class="p">(</span><span class="s s-Atom">**kwargs</span><span class="p">)</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+            <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">call</span> <span class="s s-Atom">sibling</span> <span class="s s-Atom">class</span> <span class="s s-Atom">of</span> <span class="s s-Atom">our</span> <span class="s s-Atom">lupi</span> <span class="s s-Atom">class</span><span class="p">,</span> <span class="s s-Atom">which</span> <span class="o">is</span> <span class="s s-Atom">the</span> <span class="s s-Atom">normal</span> <span class="s s-Atom">problem</span>
 
-            super().init_objective_LB(**kwargs)
+            <span class="nf">super</span><span class="p">().</span><span class="nf">init_objective_LB</span><span class="p">(</span><span class="s s-Atom">**kwargs</span><span class="p">)</span>
 
-    @abstractmethod
+    <span class="s s-Atom">@abstractmethod</span>
 
-    def _init_objective_LB_LUPI(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">init_objective_LB_LUPI</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        pass
+        <span class="s s-Atom">pass</span>
 
-    @abstractmethod
+    <span class="s s-Atom">@abstractmethod</span>
 
-    def _init_objective_UB_LUPI(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">init_objective_UB_LUPI</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        pass
+        <span class="s s-Atom">pass</span>
 
-def split_dataset(X_combined, lupi_features):
+<span class="s s-Atom">def</span> <span class="nf">split_dataset</span><span class="p">(</span><span class="nv">X_combined</span><span class="p">,</span> <span class="s s-Atom">lupi_features</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    assert X_combined.shape[1] &gt; lupi_features
+    <span class="s s-Atom">assert</span> <span class="nv">X_combined</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="s s-Atom">lupi_features</span>
 
-    X = X_combined[:, :-lupi_features]
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_combined</span><span class="p">[</span><span class="s s-Atom">:</span><span class="p">,</span> <span class="p">:-</span><span class="s s-Atom">lupi_features</span><span class="p">]</span>
 
-    X_priv = X_combined[:, -lupi_features:]
+    <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_combined</span><span class="p">[</span><span class="s s-Atom">:</span><span class="p">,</span> <span class="o">-</span><span class="s s-Atom">lupi_features:</span><span class="p">]</span>
 
-    return X, X_priv
+    <span class="s s-Atom">return</span> <span class="nv">X</span><span class="p">,</span> <span class="nv">X_priv</span>
 
-def is_lupi_feature(di, data, best_model_state):
+<span class="s s-Atom">def</span> <span class="nf">is_lupi_feature</span><span class="p">(</span><span class="s s-Atom">di</span><span class="p">,</span> <span class="s s-Atom">data</span><span class="p">,</span> <span class="s s-Atom">best_model_state</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    lupi_features = best_model_state["lupi_features"]
+    <span class="s s-Atom">lupi_features</span> <span class="o">=</span> <span class="s s-Atom">best_model_state</span><span class="p">[</span><span class="s2">&quot;lupi_features&quot;</span><span class="p">]</span>
 
-    X_combined, _ = data
+    <span class="nv">X_combined</span><span class="p">,</span> <span class="k">_</span> <span class="o">=</span> <span class="s s-Atom">data</span>
 
-    d = X_combined.shape[1] - lupi_features
+    <span class="s s-Atom">d</span> <span class="o">=</span> <span class="nv">X_combined</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="s s-Atom">lupi_features</span>
 
-    lupi_index = di - d
+    <span class="s s-Atom">lupi_index</span> <span class="o">=</span> <span class="s s-Atom">di</span> <span class="o">-</span> <span class="s s-Atom">d</span>
 
-    return lupi_index &gt;= 0
-</code></pre>
+    <span class="s s-Atom">return</span> <span class="s s-Atom">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+</pre></div>
+
+
 </details>
 <h2 id="functions">Functions</h2>
 <h3 id="is_lupi_feature">is_lupi_feature</h3>
-<pre><code class="python3">def is_lupi_feature(
-    di,
-    data,
-    best_model_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">is_lupi_feature</span><span class="p">(</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">best_model_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>def is_lupi_feature(di, data, best_model_state):
 
-    lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">is_lupi_feature</span><span class="ss">(</span><span class="nv">di</span>, <span class="nv">data</span>, <span class="nv">best_model_state</span><span class="ss">)</span>:
 
-    X_combined, _ = data
+    <span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">best_model_state</span>[<span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>]
 
-    d = X_combined.shape[1] - lupi_features
+    <span class="nv">X_combined</span>, <span class="nv">_</span> <span class="o">=</span> <span class="nv">data</span>
 
-    lupi_index = di - d
+    <span class="nv">d</span> <span class="o">=</span> <span class="nv">X_combined</span>.<span class="nv">shape</span>[<span class="mi">1</span>] <span class="o">-</span> <span class="nv">lupi_features</span>
 
-    return lupi_index &gt;= 0
-</code></pre>
+    <span class="nv">lupi_index</span> <span class="o">=</span> <span class="nv">di</span> <span class="o">-</span> <span class="nv">d</span>
+
+    <span class="k">return</span> <span class="nv">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+</pre></div>
+
+
 </details>
 <h3 id="split_dataset">split_dataset</h3>
-<pre><code class="python3">def split_dataset(
-    X_combined,
-    lupi_features
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">split_dataset</span><span class="p">(</span>
+    <span class="n">X_combined</span><span class="p">,</span>
+    <span class="n">lupi_features</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>def split_dataset(X_combined, lupi_features):
 
-    assert X_combined.shape[1] &gt; lupi_features
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s s-Atom">def</span> <span class="nf">split_dataset</span><span class="p">(</span><span class="nv">X_combined</span><span class="p">,</span> <span class="s s-Atom">lupi_features</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    X = X_combined[:, :-lupi_features]
+    <span class="s s-Atom">assert</span> <span class="nv">X_combined</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="s s-Atom">lupi_features</span>
 
-    X_priv = X_combined[:, -lupi_features:]
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_combined</span><span class="p">[</span><span class="s s-Atom">:</span><span class="p">,</span> <span class="p">:-</span><span class="s s-Atom">lupi_features</span><span class="p">]</span>
 
-    return X, X_priv
-</code></pre>
+    <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_combined</span><span class="p">[</span><span class="s s-Atom">:</span><span class="p">,</span> <span class="o">-</span><span class="s s-Atom">lupi_features:</span><span class="p">]</span>
+
+    <span class="s s-Atom">return</span> <span class="nv">X</span><span class="p">,</span> <span class="nv">X_priv</span>
+</pre></div>
+
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="lupi_relevance_cvxproblem">LUPI_Relevance_CVXProblem</h3>
-<pre><code class="python3">class LUPI_Relevance_CVXProblem(
-    current_feature:int,
-    data:tuple,
-    hyperparameters,
-    best_model_constraints,
-    preset_model=None,
-    best_model_state=None,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Relevance_CVXProblem</span><span class="p">(</span>
+    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">hyperparameters</span><span class="p">,</span>
+    <span class="n">best_model_constraints</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Relevance_CVXProblem(Relevance_CVXProblem):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Relevance_CVXProblem</span><span class="ss">(</span><span class="nv">Relevance_CVXProblem</span><span class="ss">)</span>:
 
-    def __init__(
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span>
 
-        self,
+        <span class="nv">self</span>,
 
-        current_feature: int,
+        <span class="nv">current_feature</span>: <span class="nv">int</span>,
 
-        data: tuple,
+        <span class="nv">data</span>: <span class="nv">tuple</span>,
 
-        hyperparameters,
+        <span class="nv">hyperparameters</span>,
 
-        best_model_constraints,
+        <span class="nv">best_model_constraints</span>,
 
-        preset_model=None,
+        <span class="nv">preset_model</span><span class="o">=</span><span class="nv">None</span>,
 
-        best_model_state=None,
+        <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">None</span>,
 
-        probeID=-1,
+        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
 
-    ) -&gt; None:
+    <span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">None</span>:
 
-        super().__init__(
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span>
 
-            current_feature,
+            <span class="nv">current_feature</span>,
 
-            data,
+            <span class="nv">data</span>,
 
-            hyperparameters,
+            <span class="nv">hyperparameters</span>,
 
-            best_model_constraints,
+            <span class="nv">best_model_constraints</span>,
 
-            preset_model,
+            <span class="nv">preset_model</span>,
 
-            best_model_state,
+            <span class="nv">best_model_state</span>,
 
-            probeID,
+            <span class="nv">probeID</span>,
 
-        )
+        <span class="ss">)</span>
 
-    def preprocessing_data(self, data, best_model_state):
+    <span class="nv">def</span> <span class="nv">preprocessing_data</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">best_model_state</span><span class="ss">)</span>:
 
-        lupi_features = best_model_state["lupi_features"]
+        <span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">best_model_state</span>[<span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>]
 
-        X_combined, y = data
+        <span class="nv">X_combined</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X_combined</span>, <span class="nv">lupi_features</span><span class="ss">)</span>
 
-        self.X_priv = X_priv
+        <span class="nv">self</span>.<span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_priv</span>
 
-        super().preprocessing_data((X, y), best_model_state)
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">preprocessing_data</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">best_model_state</span><span class="ss">)</span>
 
-        assert lupi_features == X_priv.shape[1]
+        <span class="nv">assert</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        self.d_priv = lupi_features
+        <span class="nv">self</span>.<span class="nv">d_priv</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        # LUPI model, we need to offset the index
+        # <span class="nv">LUPI</span> <span class="nv">model</span>, <span class="nv">we</span> <span class="nv">need</span> <span class="nv">to</span> <span class="nv">offset</span> <span class="nv">the</span> <span class="nv">index</span>
 
-        self.lupi_index = self.current_feature - self.d
+        <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">current_feature</span> <span class="o">-</span> <span class="nv">self</span>.<span class="nv">d</span>
 
-        if self.lupi_index &gt;= 0:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span>:
 
-            self.isPriv = True
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">True</span>
 
-        else:
+        <span class="k">else</span>:
 
-            self.isPriv = False
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">False</span>
 
-    def init_objective_UB(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # We have two models basically with different indexes
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-        if self.isPriv:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-            self._init_objective_UB_LUPI(**kwargs)
+            <span class="nv">self</span>.<span class="nv">_init_objective_UB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            # We call sibling class of our lupi class, which is the normal problem
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
 
-            super().init_objective_UB(**kwargs)
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">init_objective_LB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # We have two models basically with different indexes
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-        if self.isPriv:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-            self._init_objective_LB_LUPI(**kwargs)
+            <span class="nv">self</span>.<span class="nv">_init_objective_LB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            # We call sibling class of our lupi class, which is the normal problem
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
 
-            super().init_objective_LB(**kwargs)
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_LB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-    @abstractmethod
+    @<span class="nv">abstractmethod</span>
 
-    def _init_objective_LB_LUPI(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">_init_objective_LB_LUPI</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        pass
+        <span class="nv">pass</span>
 
-    @abstractmethod
+    @<span class="nv">abstractmethod</span>
 
-    def _init_objective_UB_LUPI(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">_init_objective_UB_LUPI</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        pass
-</code></pre>
+        <span class="nv">pass</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -1308,319 +1319,355 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods">Static methods</h4>
 <h5 id="aggregate_max_candidates">aggregate_max_candidates</h5>
-<pre><code class="python3">def aggregate_max_candidates(
-    max_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span>
+    <span class="n">max_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
 
-        max_value = max(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
 
-        return max_value
-</code></pre>
+        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">max_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
-<pre><code class="python3">def aggregate_min_candidates(
-    min_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span>
+    <span class="n">min_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
 
-        min_value = min(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
 
-        return min_value
-</code></pre>
+        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">min_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
-<pre><code class="python3">def generate_lower_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-        cls,
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_lower_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        best_hyperparameters,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        init_constraints,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        best_model_state,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        data,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        di,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        preset_model,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        probeID=-1,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-    ):
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-        problem = cls(
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            di,
+<span class="w">        </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-            data,
+<span class="w">            </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-            best_hyperparameters,
+<span class="w">            </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-            init_constraints,
+<span class="w">            </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-            preset_model=preset_model,
+<span class="w">            </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-            best_model_state=best_model_state,
+<span class="w">            </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-            probeID=probeID,
+<span class="w">            </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        )
+<span class="w">            </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-        problem.init_objective_LB()
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
 
-        problem.isLowerBound = True
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_LB</span><span class="p">()</span><span class="w"></span>
 
-        yield problem
-</code></pre>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_upper_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        cls,
+    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
 
-        best_hyperparameters,
+        <span class="nv">cls</span>,
 
-        init_constraints,
+        <span class="nv">best_hyperparameters</span>,
 
-        best_model_state,
+        <span class="nv">init_constraints</span>,
 
-        data,
+        <span class="nv">best_model_state</span>,
 
-        di,
+        <span class="nv">data</span>,
 
-        preset_model,
+        <span class="nv">di</span>,
 
-        probeID=-1,
+        <span class="nv">preset_model</span>,
 
-    ):
+        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
 
-        for sign in [-1, 1]:
+    <span class="ss">)</span>:
 
-            problem = cls(
+        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
 
-                di,
+            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
 
-                data,
+                <span class="nv">di</span>,
 
-                best_hyperparameters,
+                <span class="nv">data</span>,
 
-                init_constraints,
+                <span class="nv">best_hyperparameters</span>,
 
-                preset_model=preset_model,
+                <span class="nv">init_constraints</span>,
 
-                best_model_state=best_model_state,
+                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
 
-                probeID=probeID,
+                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
 
-            )
+                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
 
-            problem.init_objective_UB(sign=sign)
+            <span class="ss">)</span>
 
-            problem.isLowerBound = False
+            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
 
-            yield problem
-</code></pre>
+            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+
+            <span class="nv">yield</span> <span class="nv">problem</span>
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
-<pre><code class="python3">accepted_status
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">accepted_status</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">cvx_problem
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">isProbe
-</code></pre>
 
-<pre><code class="python3">is_solved
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">cvx_problem</span>
+</pre></div>
 
-<pre><code class="python3">objective
-</code></pre>
 
-<pre><code class="python3">probeID
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">isProbe</span>
+</pre></div>
 
-<pre><code class="python3">solved_relevance
-</code></pre>
 
-<pre><code class="python3">solver_kwargs
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">is_solved</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">objective</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">probeID</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solved_relevance</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_kwargs</span>
+</pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h5 id="add_constraint">add_constraint</h5>
-<pre><code class="python3">def add_constraint(
-    self,
-    new
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">new</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
 
-        self._constraints.append(new)
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">add_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">new</span><span class="p">):</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_constraints</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="k">new</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
-<pre><code class="python3">def init_objective_LB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-        # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">init_objective_LB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        if self.isPriv:
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-            self._init_objective_LB_LUPI(**kwargs)
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">_init_objective_LB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+        <span class="k">else</span>:
 
-            super().init_objective_LB(**kwargs)
-</code></pre>
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
+
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_LB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
-<pre><code class="python3">def init_objective_UB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, **kwargs):
 
-        # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        if self.isPriv:
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-            self._init_objective_UB_LUPI(**kwargs)
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">_init_objective_UB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+        <span class="k">else</span>:
 
-            super().init_objective_UB(**kwargs)
-</code></pre>
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
+
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
-<pre><code class="python3">def preprocessing_data(
-    self,
-    data,
-    best_model_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">best_model_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-        lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing_data</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">best_model_state</span><span class="ss">)</span>:
 
-        X_combined, y = data
+        <span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">best_model_state</span>[<span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>]
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X_combined</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        self.X_priv = X_priv
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X_combined</span>, <span class="nv">lupi_features</span><span class="ss">)</span>
 
-        super().preprocessing_data((X, y), best_model_state)
+        <span class="nv">self</span>.<span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_priv</span>
 
-        assert lupi_features == X_priv.shape[1]
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">preprocessing_data</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">best_model_state</span><span class="ss">)</span>
 
-        self.d_priv = lupi_features
+        <span class="nv">assert</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        # LUPI model, we need to offset the index
+        <span class="nv">self</span>.<span class="nv">d_priv</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        self.lupi_index = self.current_feature - self.d
+        # <span class="nv">LUPI</span> <span class="nv">model</span>, <span class="nv">we</span> <span class="nv">need</span> <span class="nv">to</span> <span class="nv">offset</span> <span class="nv">the</span> <span class="nv">index</span>
 
-        if self.lupi_index &gt;= 0:
+        <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">current_feature</span> <span class="o">-</span> <span class="nv">self</span>.<span class="nv">d</span>
 
-            self.isPriv = True
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">True</span>
 
-            self.isPriv = False
-</code></pre>
+        <span class="k">else</span>:
+
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">False</span>
+</pre></div>
+
+
 </details>
 <h5 id="solve">solve</h5>
-<pre><code class="python3">def solve(
-    self
-) -&gt; object
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
 
-        self._cvx_problem = cvx.Problem(
+        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
 
-            objective=self.objective, constraints=self.constraints
+        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
 
-        )
+            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
 
-        try:
+        <span class="ss">)</span>
 
-            # print("Solve", self)
+        <span class="nv">try</span>:
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
 
-        except SolverError:
+            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+        <span class="nv">except</span> <span class="nv">SolverError</span>:
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
 
-            pass
+            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-        self._solver_status = self._cvx_problem.status
+            <span class="nv">pass</span>
 
-        # self._cvx_problem = None
+        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
 
-        return self
-</code></pre>
+        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
                 
                   

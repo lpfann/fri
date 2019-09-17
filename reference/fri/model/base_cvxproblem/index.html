@@ -941,807 +941,812 @@
                 
                 
                 <h1 id="module-frimodelbase_cvxproblem">Module fri.model.base_cvxproblem</h1>
-<details class="example"><summary>View Source</summary><pre><code>from abc import ABC, abstractmethod
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
-import cvxpy as cvx
+<span class="kn">import</span> <span class="nn">cvxpy</span> <span class="kn">as</span> <span class="nn">cvx</span>
 
-import numpy as np
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-from cvxpy import SolverError
+<span class="kn">from</span> <span class="nn">cvxpy</span> <span class="kn">import</span> <span class="n">SolverError</span>
 
-class Relevance_CVXProblem(ABC):
+<span class="k">class</span> <span class="nc">Relevance_CVXProblem</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 
-    def __str__(self) -&gt; str:
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 
-        if self.isLowerBound:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLowerBound</span><span class="p">:</span>
 
-            lower = "Lower"
+            <span class="n">lower</span> <span class="o">=</span> <span class="s2">&quot;Lower&quot;</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            lower = "Upper"
+            <span class="n">lower</span> <span class="o">=</span> <span class="s2">&quot;Upper&quot;</span>
 
-        name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
+        <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;{lower}_{self.current_feature}_{self.__class__.__name__}&quot;</span>
 
-        state = ""
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        for s in self.init_hyperparameters.items():
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_hyperparameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            state += f"{s[0]}:{s[1]}, "
+            <span class="n">state</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
 
-        for s in self.init_model_constraints.items():
+        <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_model_constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            state += f"{s[0]}:{s[1]}, "
+            <span class="n">state</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
 
-        state = "(" + state[:-2] + ")"
+        <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
 
-        if self.isProbe:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isProbe</span><span class="p">:</span>
 
-            prefix = f"Probe_{self.probeID}"
+            <span class="n">prefix</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;Probe_{self.probeID}&quot;</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            prefix = ""
+            <span class="n">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        return prefix + name + state
+        <span class="k">return</span> <span class="n">prefix</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="n">state</span>
 
-    def __init__(
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 
-        self,
+        <span class="bp">self</span><span class="p">,</span>
 
-        current_feature: int,
+        <span class="n">current_feature</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
 
-        data: tuple,
+        <span class="n">data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
 
-        hyperparameters,
+        <span class="n">hyperparameters</span><span class="p">,</span>
 
-        best_model_constraints,
+        <span class="n">best_model_constraints</span><span class="p">,</span>
 
-        preset_model=None,
+        <span class="n">preset_model</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
 
-        best_model_state=None,
+        <span class="n">best_model_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
 
-        **kwargs,
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-    ) -&gt; None:
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
 
-        self._probeID = probeID
+        <span class="bp">self</span><span class="o">.</span><span class="n">_probeID</span> <span class="o">=</span> <span class="n">probeID</span>
 
-        self._feature_relevance = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_relevance</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.isLowerBound = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">None</span>
 
-        # General data
+        <span class="c1"># General data</span>
 
-        self.current_feature = current_feature
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_feature</span> <span class="o">=</span> <span class="n">current_feature</span>
 
-        self.preset_model = preset_model
+        <span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span> <span class="o">=</span> <span class="n">preset_model</span>
 
-        self.best_model_state = best_model_state
+        <span class="bp">self</span><span class="o">.</span><span class="n">best_model_state</span> <span class="o">=</span> <span class="n">best_model_state</span>
 
-        self.preprocessing_data(data, best_model_state)
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessing_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">best_model_state</span><span class="p">)</span>
 
-        # Initialize constraints
+        <span class="c1"># Initialize constraints</span>
 
-        self._constraints = []
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="p">[]</span>
 
-        self._objective = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.w = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self._init_constraints(hyperparameters, best_model_constraints)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraints</span><span class="p">(</span><span class="n">hyperparameters</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">)</span>
 
-        if self.preset_model is not None:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-            self._add_preset_constraints(self.preset_model, best_model_constraints)
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_preset_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">)</span>
 
-        self.init_hyperparameters = hyperparameters
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_hyperparameters</span> <span class="o">=</span> <span class="n">hyperparameters</span>
 
-        self.init_model_constraints = best_model_constraints
+        <span class="bp">self</span><span class="o">.</span><span class="n">init_model_constraints</span> <span class="o">=</span> <span class="n">best_model_constraints</span>
 
-    def preprocessing_data(self, data, best_model_state):
+    <span class="k">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">best_model_state</span><span class="p">):</span>
 
-        X, y = data
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
 
-        self.n = X.shape[0]
+        <span class="bp">self</span><span class="o">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        self.d = X.shape[1]
+        <span class="bp">self</span><span class="o">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        self.X = X
+        <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
 
-        self.y = np.array(y)
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def constraints(self):
+    <span class="k">def</span> <span class="nf">constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self._constraints
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span>
 
-    def add_constraint(self, new):
+    <span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new</span><span class="p">):</span>
 
-        self._constraints.append(new)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def objective(self):
+    <span class="k">def</span> <span class="nf">objective</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self._objective
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def solved_relevance(self):
+    <span class="k">def</span> <span class="nf">solved_relevance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        if self.is_solved:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_solved</span><span class="p">:</span>
 
-            return self.objective.value
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">value</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            raise Exception("Problem not solved. No feature relevance computed.")
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Problem not solved. No feature relevance computed.&quot;</span><span class="p">)</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def probeID(self):
+    <span class="k">def</span> <span class="nf">probeID</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self._probeID
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probeID</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def isProbe(self):
+    <span class="k">def</span> <span class="nf">isProbe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self.probeID &gt;= 0
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">probeID</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-    @abstractmethod
+    <span class="nd">@abstractmethod</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="k">def</span> <span class="nf">_init_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">init_model_constraints</span><span class="p">):</span>
 
-        pass
+        <span class="k">pass</span>
 
-    @abstractmethod
+    <span class="nd">@abstractmethod</span>
 
-    def init_objective_UB(self, **kwargs):
+    <span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        pass
+        <span class="k">pass</span>
 
-    @abstractmethod
+    <span class="nd">@abstractmethod</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        pass
+        <span class="k">pass</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def cvx_problem(self):
+    <span class="k">def</span> <span class="nf">cvx_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self._cvx_problem
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cvx_problem</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def is_solved(self):
+    <span class="k">def</span> <span class="nf">is_solved</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        if self._solver_status in self.accepted_status:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_solver_status</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">accepted_status</span><span class="p">:</span>
 
-            try:
+            <span class="k">try</span><span class="p">:</span>
 
-                val = self.objective.value
+                <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="o">.</span><span class="n">value</span>
 
-            except ValueError:
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
 
-                return False
+                <span class="k">return</span> <span class="bp">False</span>
 
-            return True
+            <span class="k">return</span> <span class="bp">True</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            return False
+            <span class="k">return</span> <span class="bp">False</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def accepted_status(self):
+    <span class="k">def</span> <span class="nf">accepted_status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return ["optimal", "optimal_inaccurate"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span> <span class="s2">&quot;optimal_inaccurate&quot;</span><span class="p">]</span>
 
-    def solve(self) -&gt; object:
+    <span class="k">def</span> <span class="nf">solve</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span><span class="p">:</span>
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+        <span class="c1"># We init cvx problem here because pickling LP solver objects is problematic</span>
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        <span class="c1"># by deferring it to here, worker threads do the problem building themselves and we spare the serialization</span>
 
-        self._cvx_problem = cvx.Problem(
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cvx_problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span>
 
-            objective=self.objective, constraints=self.constraints
+            <span class="n">objective</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">objective</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">constraints</span>
 
-        )
+        <span class="p">)</span>
 
-        try:
+        <span class="k">try</span><span class="p">:</span>
 
-            # print("Solve", self)
+            <span class="c1"># print(&quot;Solve&quot;, self)</span>
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            <span class="bp">self</span><span class="o">.</span><span class="n">_cvx_problem</span><span class="o">.</span><span class="kp">solve</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
-        except SolverError:
+        <span class="k">except</span> <span class="n">SolverError</span><span class="p">:</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+            <span class="c1"># We ignore Solver Errors, which are common with our framework:</span>
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            <span class="c1"># We solve multiple problems per bound and choose a feasible solution later (see &#39;_create_interval&#39;)</span>
 
-            pass
+            <span class="k">pass</span>
 
-        self._solver_status = self._cvx_problem.status
+        <span class="bp">self</span><span class="o">.</span><span class="n">_solver_status</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cvx_problem</span><span class="o">.</span><span class="n">status</span>
 
-        # self._cvx_problem = None
+        <span class="c1"># self._cvx_problem = None</span>
 
-        return self
+        <span class="k">return</span> <span class="bp">self</span>
 
-    def _retrieve_result(self):
+    <span class="k">def</span> <span class="nf">_retrieve_result</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self.current_feature, self.objective
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_feature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">objective</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def solver_kwargs(self):
+    <span class="k">def</span> <span class="nf">solver_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return {"verbose": False, "solver": "ECOS"}
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
 
-    def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
+    <span class="k">def</span> <span class="nf">_add_preset_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset_model</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">):</span>
 
-        for feature, current_preset in preset_model.items():
+        <span class="k">for</span> <span class="n">feature</span><span class="p">,</span> <span class="n">current_preset</span> <span class="ow">in</span> <span class="n">preset_model</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            # Skip current feature
+            <span class="c1"># Skip current feature</span>
 
-            if feature == self.current_feature:
+            <span class="k">if</span> <span class="n">feature</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_feature</span><span class="p">:</span>
 
-                continue
+                <span class="k">continue</span>
 
-            # Skip unset values
+            <span class="c1"># Skip unset values</span>
 
-            if all(np.isnan(current_preset)):
+            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">isnan</span><span class="p">(</span><span class="n">current_preset</span><span class="p">)):</span>
 
-                continue
+                <span class="k">continue</span>
 
-            # a weight bigger than the optimal model L1 makes no sense
+            <span class="c1"># a weight bigger than the optimal model L1 makes no sense</span>
 
-            assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
+            <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">best_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-            assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
+            <span class="k">assert</span> <span class="nb">abs</span><span class="p">(</span><span class="n">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">best_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-            # We add a pair of constraints depending on sign of known coefficient
+            <span class="c1"># We add a pair of constraints depending on sign of known coefficient</span>
 
-            # this makes it possible to solve this as a convex problem
+            <span class="c1"># this makes it possible to solve this as a convex problem</span>
 
-            if current_preset[0] &gt;= 0:
+            <span class="k">if</span> <span class="n">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
 
-                self.add_constraint(self.w[feature] &gt;= current_preset[0])
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-                self.add_constraint(self.w[feature] &lt;= current_preset[1])
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-            else:
+            <span class="k">else</span><span class="p">:</span>
 
-                self.add_constraint(self.w[feature] &lt;= current_preset[0])
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-                self.add_constraint(self.w[feature] &gt;= current_preset[1])
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def generate_lower_bound_problem(
+    <span class="k">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
 
-        cls,
+        <span class="bp">cls</span><span class="p">,</span>
 
-        best_hyperparameters,
+        <span class="n">best_hyperparameters</span><span class="p">,</span>
 
-        init_constraints,
+        <span class="n">init_constraints</span><span class="p">,</span>
 
-        best_model_state,
+        <span class="n">best_model_state</span><span class="p">,</span>
 
-        data,
+        <span class="n">data</span><span class="p">,</span>
 
-        di,
+        <span class="n">di</span><span class="p">,</span>
 
-        preset_model,
+        <span class="n">preset_model</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
 
-    ):
+    <span class="p">):</span>
 
-        problem = cls(
+        <span class="n">problem</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
 
-            di,
+            <span class="n">di</span><span class="p">,</span>
 
-            data,
+            <span class="n">data</span><span class="p">,</span>
 
-            best_hyperparameters,
+            <span class="n">best_hyperparameters</span><span class="p">,</span>
 
-            init_constraints,
+            <span class="n">init_constraints</span><span class="p">,</span>
 
-            preset_model=preset_model,
+            <span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span>
 
-            best_model_state=best_model_state,
+            <span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span>
 
-            probeID=probeID,
+            <span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span>
 
-        )
+        <span class="p">)</span>
 
-        problem.init_objective_LB()
+        <span class="n">problem</span><span class="o">.</span><span class="n">init_objective_LB</span><span class="p">()</span>
 
-        problem.isLowerBound = True
+        <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">True</span>
 
-        yield problem
+        <span class="k">yield</span> <span class="n">problem</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def generate_upper_bound_problem(
+    <span class="k">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
 
-        cls,
+        <span class="bp">cls</span><span class="p">,</span>
 
-        best_hyperparameters,
+        <span class="n">best_hyperparameters</span><span class="p">,</span>
 
-        init_constraints,
+        <span class="n">init_constraints</span><span class="p">,</span>
 
-        best_model_state,
+        <span class="n">best_model_state</span><span class="p">,</span>
 
-        data,
+        <span class="n">data</span><span class="p">,</span>
 
-        di,
+        <span class="n">di</span><span class="p">,</span>
 
-        preset_model,
+        <span class="n">preset_model</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
 
-    ):
+    <span class="p">):</span>
 
-        for sign in [-1, 1]:
+        <span class="k">for</span> <span class="kp">sign</span> <span class="ow">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]:</span>
 
-            problem = cls(
+            <span class="n">problem</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
 
-                di,
+                <span class="n">di</span><span class="p">,</span>
 
-                data,
+                <span class="n">data</span><span class="p">,</span>
 
-                best_hyperparameters,
+                <span class="n">best_hyperparameters</span><span class="p">,</span>
 
-                init_constraints,
+                <span class="n">init_constraints</span><span class="p">,</span>
 
-                preset_model=preset_model,
+                <span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span>
 
-                best_model_state=best_model_state,
+                <span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span>
 
-                probeID=probeID,
+                <span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span>
 
-            )
+            <span class="p">)</span>
 
-            problem.init_objective_UB(sign=sign)
+            <span class="n">problem</span><span class="o">.</span><span class="n">init_objective_UB</span><span class="p">(</span><span class="kp">sign</span><span class="o">=</span><span class="kp">sign</span><span class="p">)</span>
 
-            problem.isLowerBound = False
+            <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">False</span>
 
-            yield problem
+            <span class="k">yield</span> <span class="n">problem</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+    <span class="k">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">min_problems_candidates</span><span class="p">):</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">candidate</span><span class="o">.</span><span class="n">solved_relevance</span> <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">min_problems_candidates</span><span class="p">]</span>
 
-        min_value = min(vals)
+        <span class="n">min_value</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
 
-        return min_value
+        <span class="k">return</span> <span class="n">min_value</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+    <span class="k">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">max_problems_candidates</span><span class="p">):</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">[</span><span class="n">candidate</span><span class="o">.</span><span class="n">solved_relevance</span> <span class="k">for</span> <span class="n">candidate</span> <span class="ow">in</span> <span class="n">max_problems_candidates</span><span class="p">]</span>
 
-        max_value = max(vals)
+        <span class="n">max_value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
 
-        return max_value
-</code></pre>
+        <span class="k">return</span> <span class="n">max_value</span>
+</pre></div>
+
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="relevance_cvxproblem">Relevance_CVXProblem</h3>
-<pre><code class="python3">class Relevance_CVXProblem(
-    current_feature:int,
-    data:tuple,
-    hyperparameters,
-    best_model_constraints,
-    preset_model=None,
-    best_model_state=None,
-    probeID=-1,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Relevance_CVXProblem</span><span class="p">(</span>
+    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">hyperparameters</span><span class="p">,</span>
+    <span class="n">best_model_constraints</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class Relevance_CVXProblem(ABC):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s s-Atom">class</span> <span class="nv">Relevance_CVXProblem</span><span class="p">(</span><span class="nv">ABC</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    def __str__(self) -&gt; str:
+    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">str__</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
 
-        if self.isLowerBound:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isLowerBound:</span>
 
-            lower = "Lower"
+            <span class="s s-Atom">lower</span> <span class="o">=</span> <span class="s2">&quot;Lower&quot;</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            lower = "Upper"
+            <span class="s s-Atom">lower</span> <span class="o">=</span> <span class="s2">&quot;Upper&quot;</span>
 
-        name = f"{lower}_{self.current_feature}_{self.__class__.__name__}"
+        <span class="s s-Atom">name</span> <span class="o">=</span> <span class="s s-Atom">f</span><span class="s2">&quot;{lower}_{self.current_feature}_{self.__class__.__name__}&quot;</span>
 
-        state = ""
+        <span class="s s-Atom">state</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        for s in self.init_hyperparameters.items():
+        <span class="s s-Atom">for</span> <span class="s s-Atom">s</span> <span class="s s-Atom">in</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">init_hyperparameters</span><span class="p">.</span><span class="nf">items</span><span class="p">()</span><span class="s s-Atom">:</span>
 
-            state += f"{s[0]}:{s[1]}, "
+            <span class="s s-Atom">state</span> <span class="s s-Atom">+=</span> <span class="s s-Atom">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
 
-        for s in self.init_model_constraints.items():
+        <span class="s s-Atom">for</span> <span class="s s-Atom">s</span> <span class="s s-Atom">in</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">init_model_constraints</span><span class="p">.</span><span class="nf">items</span><span class="p">()</span><span class="s s-Atom">:</span>
 
-            state += f"{s[0]}:{s[1]}, "
+            <span class="s s-Atom">state</span> <span class="s s-Atom">+=</span> <span class="s s-Atom">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
 
-        state = "(" + state[:-2] + ")"
+        <span class="s s-Atom">state</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="s s-Atom">state</span><span class="p">[:-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
 
-        if self.isProbe:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isProbe:</span>
 
-            prefix = f"Probe_{self.probeID}"
+            <span class="s s-Atom">prefix</span> <span class="o">=</span> <span class="s s-Atom">f</span><span class="s2">&quot;Probe_{self.probeID}&quot;</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            prefix = ""
+            <span class="s s-Atom">prefix</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        return prefix + name + state
+        <span class="s s-Atom">return</span> <span class="s s-Atom">prefix</span> <span class="o">+</span> <span class="s s-Atom">name</span> <span class="o">+</span> <span class="s s-Atom">state</span>
 
-    def __init__(
+    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">init__</span><span class="p">(</span>
 
-        self,
+        <span class="s s-Atom">self</span><span class="p">,</span>
 
-        current_feature: int,
+        <span class="s s-Atom">current_feature:</span> <span class="s s-Atom">int</span><span class="p">,</span>
 
-        data: tuple,
+        <span class="nn">data</span><span class="p">:</span> <span class="s s-Atom">tuple</span><span class="p">,</span>
 
-        hyperparameters,
+        <span class="s s-Atom">hyperparameters</span><span class="p">,</span>
 
-        best_model_constraints,
+        <span class="s s-Atom">best_model_constraints</span><span class="p">,</span>
 
-        preset_model=None,
+        <span class="s s-Atom">preset_model</span><span class="o">=</span><span class="nv">None</span><span class="p">,</span>
 
-        best_model_state=None,
+        <span class="s s-Atom">best_model_state</span><span class="o">=</span><span class="nv">None</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="s s-Atom">probeID=-</span><span class="mi">1</span><span class="p">,</span>
 
-        **kwargs,
+        <span class="s s-Atom">**kwargs</span><span class="p">,</span>
 
-    ) -&gt; None:
+    <span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nv">None</span><span class="s s-Atom">:</span>
 
-        self._probeID = probeID
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">probeID</span> <span class="o">=</span> <span class="s s-Atom">probeID</span>
 
-        self._feature_relevance = None
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">feature_relevance</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.isLowerBound = None
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isLowerBound</span> <span class="o">=</span> <span class="nv">None</span>
 
-        # General data
+        <span class="s s-Atom">#</span> <span class="nv">General</span> <span class="s s-Atom">data</span>
 
-        self.current_feature = current_feature
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">current_feature</span> <span class="o">=</span> <span class="s s-Atom">current_feature</span>
 
-        self.preset_model = preset_model
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">preset_model</span> <span class="o">=</span> <span class="s s-Atom">preset_model</span>
 
-        self.best_model_state = best_model_state
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">best_model_state</span> <span class="o">=</span> <span class="s s-Atom">best_model_state</span>
 
-        self.preprocessing_data(data, best_model_state)
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">preprocessing_data</span><span class="p">(</span><span class="s s-Atom">data</span><span class="p">,</span> <span class="s s-Atom">best_model_state</span><span class="p">)</span>
 
-        # Initialize constraints
+        <span class="s s-Atom">#</span> <span class="nv">Initialize</span> <span class="s s-Atom">constraints</span>
 
-        self._constraints = []
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">constraints</span> <span class="o">=</span> <span class="p">[]</span>
 
-        self._objective = None
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">objective</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.w = None
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">w</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self._init_constraints(hyperparameters, best_model_constraints)
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">init_constraints</span><span class="p">(</span><span class="s s-Atom">hyperparameters</span><span class="p">,</span> <span class="s s-Atom">best_model_constraints</span><span class="p">)</span>
 
-        if self.preset_model is not None:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">preset_model</span> <span class="o">is</span> <span class="o">not</span> <span class="nv">None</span><span class="s s-Atom">:</span>
 
-            self._add_preset_constraints(self.preset_model, best_model_constraints)
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="nf">add_preset_constraints</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">preset_model</span><span class="p">,</span> <span class="s s-Atom">best_model_constraints</span><span class="p">)</span>
 
-        self.init_hyperparameters = hyperparameters
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">init_hyperparameters</span> <span class="o">=</span> <span class="s s-Atom">hyperparameters</span>
 
-        self.init_model_constraints = best_model_constraints
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">init_model_constraints</span> <span class="o">=</span> <span class="s s-Atom">best_model_constraints</span>
 
-    def preprocessing_data(self, data, best_model_state):
+    <span class="s s-Atom">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">data</span><span class="p">,</span> <span class="s s-Atom">best_model_state</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        X, y = data
+        <span class="nv">X</span><span class="p">,</span> <span class="s s-Atom">y</span> <span class="o">=</span> <span class="s s-Atom">data</span>
 
-        self.n = X.shape[0]
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">n</span> <span class="o">=</span> <span class="nv">X</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        self.d = X.shape[1]
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">d</span> <span class="o">=</span> <span class="nv">X</span><span class="p">.</span><span class="s s-Atom">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        self.X = X
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span>
 
-        self.y = np.array(y)
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">y</span> <span class="o">=</span> <span class="s s-Atom">np</span><span class="p">.</span><span class="nf">array</span><span class="p">(</span><span class="s s-Atom">y</span><span class="p">)</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def constraints(self):
+    <span class="s s-Atom">def</span> <span class="nf">constraints</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self._constraints
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">constraints</span>
 
-    def add_constraint(self, new):
+    <span class="s s-Atom">def</span> <span class="nf">add_constraint</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">new</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        self._constraints.append(new)
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">constraints</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="s s-Atom">new</span><span class="p">)</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def objective(self):
+    <span class="s s-Atom">def</span> <span class="nf">objective</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self._objective
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">objective</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def solved_relevance(self):
+    <span class="s s-Atom">def</span> <span class="nf">solved_relevance</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        if self.is_solved:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">is_solved:</span>
 
-            return self.objective.value
+            <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">objective</span><span class="p">.</span><span class="s s-Atom">value</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            raise Exception("Problem not solved. No feature relevance computed.")
+            <span class="s s-Atom">raise</span> <span class="nv">Exception</span><span class="p">(</span><span class="s2">&quot;Problem not solved. No feature relevance computed.&quot;</span><span class="p">)</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def probeID(self):
+    <span class="s s-Atom">def</span> <span class="nf">probeID</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self._probeID
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">probeID</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def isProbe(self):
+    <span class="s s-Atom">def</span> <span class="nf">isProbe</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self.probeID &gt;= 0
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">probeID</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-    @abstractmethod
+    <span class="s s-Atom">@abstractmethod</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">init_constraints</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">parameters</span><span class="p">,</span> <span class="s s-Atom">init_model_constraints</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        pass
+        <span class="s s-Atom">pass</span>
 
-    @abstractmethod
+    <span class="s s-Atom">@abstractmethod</span>
 
-    def init_objective_UB(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        pass
+        <span class="s s-Atom">pass</span>
 
-    @abstractmethod
+    <span class="s s-Atom">@abstractmethod</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="s s-Atom">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">**kwargs</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        pass
+        <span class="s s-Atom">pass</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def cvx_problem(self):
+    <span class="s s-Atom">def</span> <span class="nf">cvx_problem</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self._cvx_problem
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">cvx_problem</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def is_solved(self):
+    <span class="s s-Atom">def</span> <span class="nf">is_solved</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        if self._solver_status in self.accepted_status:
+        <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">solver_status</span> <span class="s s-Atom">in</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">accepted_status:</span>
 
-            try:
+            <span class="nn">try</span><span class="p">:</span>
 
-                val = self.objective.value
+                <span class="s s-Atom">val</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">objective</span><span class="p">.</span><span class="s s-Atom">value</span>
 
-            except ValueError:
+            <span class="s s-Atom">except</span> <span class="nv">ValueError</span><span class="s s-Atom">:</span>
 
-                return False
+                <span class="s s-Atom">return</span> <span class="nv">False</span>
 
-            return True
+            <span class="s s-Atom">return</span> <span class="nv">True</span>
 
-        else:
+        <span class="nn">else</span><span class="p">:</span>
 
-            return False
+            <span class="s s-Atom">return</span> <span class="nv">False</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def accepted_status(self):
+    <span class="s s-Atom">def</span> <span class="nf">accepted_status</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return ["optimal", "optimal_inaccurate"]
+        <span class="s s-Atom">return</span> <span class="p">[</span><span class="s2">&quot;optimal&quot;</span><span class="p">,</span> <span class="s2">&quot;optimal_inaccurate&quot;</span><span class="p">]</span>
 
-    def solve(self) -&gt; object:
+    <span class="s s-Atom">def</span> <span class="nf">solve</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">object</span><span class="p">:</span>
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+        <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">init</span> <span class="s s-Atom">cvx</span> <span class="s s-Atom">problem</span> <span class="s s-Atom">here</span> <span class="s s-Atom">because</span> <span class="s s-Atom">pickling</span> <span class="nv">LP</span> <span class="s s-Atom">solver</span> <span class="s s-Atom">objects</span> <span class="o">is</span> <span class="s s-Atom">problematic</span>
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        <span class="s s-Atom">#</span> <span class="s s-Atom">by</span> <span class="s s-Atom">deferring</span> <span class="s s-Atom">it</span> <span class="s s-Atom">to</span> <span class="s s-Atom">here</span><span class="p">,</span> <span class="s s-Atom">worker</span> <span class="s s-Atom">threads</span> <span class="s s-Atom">do</span> <span class="s s-Atom">the</span> <span class="s s-Atom">problem</span> <span class="s s-Atom">building</span> <span class="s s-Atom">themselves</span> <span class="s s-Atom">and</span> <span class="s s-Atom">we</span> <span class="s s-Atom">spare</span> <span class="s s-Atom">the</span> <span class="s s-Atom">serialization</span>
 
-        self._cvx_problem = cvx.Problem(
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">cvx_problem</span> <span class="o">=</span> <span class="s s-Atom">cvx</span><span class="p">.</span><span class="nv">Problem</span><span class="p">(</span>
 
-            objective=self.objective, constraints=self.constraints
+            <span class="s s-Atom">objective</span><span class="o">=</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">objective</span><span class="p">,</span> <span class="s s-Atom">constraints</span><span class="o">=</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">constraints</span>
 
-        )
+        <span class="p">)</span>
 
-        try:
+        <span class="nn">try</span><span class="p">:</span>
 
-            # print("Solve", self)
+            <span class="s s-Atom">#</span> <span class="nf">print</span><span class="p">(</span><span class="s2">&quot;Solve&quot;</span><span class="p">,</span> <span class="s s-Atom">self</span><span class="p">)</span>
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">cvx_problem</span><span class="p">.</span><span class="nf">solve</span><span class="p">(</span><span class="s s-Atom">**self</span><span class="p">.</span><span class="s s-Atom">solver_kwargs</span><span class="p">)</span>
 
-        except SolverError:
+        <span class="s s-Atom">except</span> <span class="nv">SolverError</span><span class="s s-Atom">:</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+            <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span><span class="p">,</span> <span class="s s-Atom">which</span> <span class="s s-Atom">are</span> <span class="s s-Atom">common</span> <span class="s s-Atom">with</span> <span class="s s-Atom">our</span> <span class="nn">framework</span><span class="p">:</span>
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">solve</span> <span class="s s-Atom">multiple</span> <span class="s s-Atom">problems</span> <span class="s s-Atom">per</span> <span class="s s-Atom">bound</span> <span class="s s-Atom">and</span> <span class="s s-Atom">choose</span> <span class="s s-Atom">a</span> <span class="s s-Atom">feasible</span> <span class="s s-Atom">solution</span> <span class="nf">later</span> <span class="p">(</span><span class="s s-Atom">see</span> <span class="s s-Atom">&#39;_create_interval&#39;</span><span class="p">)</span>
 
-            pass
+            <span class="s s-Atom">pass</span>
 
-        self._solver_status = self._cvx_problem.status
+        <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">solver_status</span> <span class="o">=</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">cvx_problem</span><span class="p">.</span><span class="s s-Atom">status</span>
 
-        # self._cvx_problem = None
+        <span class="s s-Atom">#</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="k">_</span><span class="s s-Atom">cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
 
-        return self
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span>
 
-    def _retrieve_result(self):
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">retrieve_result</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return self.current_feature, self.objective
+        <span class="s s-Atom">return</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">current_feature</span><span class="p">,</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">objective</span>
 
-    @property
+    <span class="s s-Atom">@property</span>
 
-    def solver_kwargs(self):
+    <span class="s s-Atom">def</span> <span class="nf">solver_kwargs</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        return {"verbose": False, "solver": "ECOS"}
+        <span class="s s-Atom">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="s s-Atom">:</span> <span class="nv">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="s s-Atom">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
 
-    def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
+    <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">add_preset_constraints</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">preset_model:</span> <span class="s s-Atom">dict</span><span class="p">,</span> <span class="s s-Atom">best_model_constraints</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        for feature, current_preset in preset_model.items():
+        <span class="s s-Atom">for</span> <span class="s s-Atom">feature</span><span class="p">,</span> <span class="s s-Atom">current_preset</span> <span class="s s-Atom">in</span> <span class="s s-Atom">preset_model</span><span class="p">.</span><span class="nf">items</span><span class="p">()</span><span class="s s-Atom">:</span>
 
-            # Skip current feature
+            <span class="s s-Atom">#</span> <span class="nv">Skip</span> <span class="s s-Atom">current</span> <span class="s s-Atom">feature</span>
 
-            if feature == self.current_feature:
+            <span class="s s-Atom">if</span> <span class="s s-Atom">feature</span> <span class="o">==</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">current_feature:</span>
 
-                continue
+                <span class="s s-Atom">continue</span>
 
-            # Skip unset values
+            <span class="s s-Atom">#</span> <span class="nv">Skip</span> <span class="s s-Atom">unset</span> <span class="s s-Atom">values</span>
 
-            if all(np.isnan(current_preset)):
+            <span class="s s-Atom">if</span> <span class="nf">all</span><span class="p">(</span><span class="s s-Atom">np</span><span class="p">.</span><span class="nf">isnan</span><span class="p">(</span><span class="s s-Atom">current_preset</span><span class="p">))</span><span class="s s-Atom">:</span>
 
-                continue
+                <span class="s s-Atom">continue</span>
 
-            # a weight bigger than the optimal model L1 makes no sense
+            <span class="s s-Atom">#</span> <span class="s s-Atom">a</span> <span class="s s-Atom">weight</span> <span class="s s-Atom">bigger</span> <span class="s s-Atom">than</span> <span class="s s-Atom">the</span> <span class="s s-Atom">optimal</span> <span class="s s-Atom">model</span> <span class="nv">L1</span> <span class="s s-Atom">makes</span> <span class="s s-Atom">no</span> <span class="s s-Atom">sense</span>
 
-            assert abs(current_preset[0]) &lt;= best_model_constraints["w_l1"]
+            <span class="s s-Atom">assert</span> <span class="nf">abs</span><span class="p">(</span><span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="s s-Atom">&lt;=</span> <span class="s s-Atom">best_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-            assert abs(current_preset[1]) &lt;= best_model_constraints["w_l1"]
+            <span class="s s-Atom">assert</span> <span class="nf">abs</span><span class="p">(</span><span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="s s-Atom">&lt;=</span> <span class="s s-Atom">best_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-            # We add a pair of constraints depending on sign of known coefficient
+            <span class="s s-Atom">#</span> <span class="nv">We</span> <span class="s s-Atom">add</span> <span class="s s-Atom">a</span> <span class="s s-Atom">pair</span> <span class="s s-Atom">of</span> <span class="s s-Atom">constraints</span> <span class="s s-Atom">depending</span> <span class="s s-Atom">on</span> <span class="s s-Atom">sign</span> <span class="s s-Atom">of</span> <span class="s s-Atom">known</span> <span class="s s-Atom">coefficient</span>
 
-            # this makes it possible to solve this as a convex problem
+            <span class="s s-Atom">#</span> <span class="s s-Atom">this</span> <span class="s s-Atom">makes</span> <span class="s s-Atom">it</span> <span class="s s-Atom">possible</span> <span class="s s-Atom">to</span> <span class="s s-Atom">solve</span> <span class="s s-Atom">this</span> <span class="s s-Atom">as</span> <span class="s s-Atom">a</span> <span class="s s-Atom">convex</span> <span class="s s-Atom">problem</span>
 
-            if current_preset[0] &gt;= 0:
+            <span class="s s-Atom">if</span> <span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="s s-Atom">:</span>
 
-                self.add_constraint(self.w[feature] &gt;= current_preset[0])
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">add_constraint</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">w</span><span class="p">[</span><span class="s s-Atom">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-                self.add_constraint(self.w[feature] &lt;= current_preset[1])
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">add_constraint</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">w</span><span class="p">[</span><span class="s s-Atom">feature</span><span class="p">]</span> <span class="s s-Atom">&lt;=</span> <span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-            else:
+            <span class="nn">else</span><span class="p">:</span>
 
-                self.add_constraint(self.w[feature] &lt;= current_preset[0])
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">add_constraint</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">w</span><span class="p">[</span><span class="s s-Atom">feature</span><span class="p">]</span> <span class="s s-Atom">&lt;=</span> <span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-                self.add_constraint(self.w[feature] &gt;= current_preset[1])
+                <span class="s s-Atom">self</span><span class="p">.</span><span class="nf">add_constraint</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">w</span><span class="p">[</span><span class="s s-Atom">feature</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s s-Atom">current_preset</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
-    @classmethod
+    <span class="s s-Atom">@classmethod</span>
 
-    def generate_lower_bound_problem(
+    <span class="s s-Atom">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
 
-        cls,
+        <span class="s s-Atom">cls</span><span class="p">,</span>
 
-        best_hyperparameters,
+        <span class="s s-Atom">best_hyperparameters</span><span class="p">,</span>
 
-        init_constraints,
+        <span class="s s-Atom">init_constraints</span><span class="p">,</span>
 
-        best_model_state,
+        <span class="s s-Atom">best_model_state</span><span class="p">,</span>
 
-        data,
+        <span class="s s-Atom">data</span><span class="p">,</span>
 
-        di,
+        <span class="s s-Atom">di</span><span class="p">,</span>
 
-        preset_model,
+        <span class="s s-Atom">preset_model</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="s s-Atom">probeID=-</span><span class="mi">1</span><span class="p">,</span>
 
-    ):
+    <span class="p">)</span><span class="s s-Atom">:</span>
 
-        problem = cls(
+        <span class="s s-Atom">problem</span> <span class="o">=</span> <span class="nf">cls</span><span class="p">(</span>
 
-            di,
+            <span class="s s-Atom">di</span><span class="p">,</span>
 
-            data,
+            <span class="s s-Atom">data</span><span class="p">,</span>
 
-            best_hyperparameters,
+            <span class="s s-Atom">best_hyperparameters</span><span class="p">,</span>
 
-            init_constraints,
+            <span class="s s-Atom">init_constraints</span><span class="p">,</span>
 
-            preset_model=preset_model,
+            <span class="s s-Atom">preset_model</span><span class="o">=</span><span class="s s-Atom">preset_model</span><span class="p">,</span>
 
-            best_model_state=best_model_state,
+            <span class="s s-Atom">best_model_state</span><span class="o">=</span><span class="s s-Atom">best_model_state</span><span class="p">,</span>
 
-            probeID=probeID,
+            <span class="s s-Atom">probeID</span><span class="o">=</span><span class="s s-Atom">probeID</span><span class="p">,</span>
 
-        )
+        <span class="p">)</span>
 
-        problem.init_objective_LB()
+        <span class="s s-Atom">problem</span><span class="p">.</span><span class="nf">init_objective_LB</span><span class="p">()</span>
 
-        problem.isLowerBound = True
+        <span class="s s-Atom">problem</span><span class="p">.</span><span class="s s-Atom">isLowerBound</span> <span class="o">=</span> <span class="nv">True</span>
 
-        yield problem
+        <span class="s s-Atom">yield</span> <span class="s s-Atom">problem</span>
 
-    @classmethod
+    <span class="s s-Atom">@classmethod</span>
 
-    def generate_upper_bound_problem(
+    <span class="s s-Atom">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
 
-        cls,
+        <span class="s s-Atom">cls</span><span class="p">,</span>
 
-        best_hyperparameters,
+        <span class="s s-Atom">best_hyperparameters</span><span class="p">,</span>
 
-        init_constraints,
+        <span class="s s-Atom">init_constraints</span><span class="p">,</span>
 
-        best_model_state,
+        <span class="s s-Atom">best_model_state</span><span class="p">,</span>
 
-        data,
+        <span class="s s-Atom">data</span><span class="p">,</span>
 
-        di,
+        <span class="s s-Atom">di</span><span class="p">,</span>
 
-        preset_model,
+        <span class="s s-Atom">preset_model</span><span class="p">,</span>
 
-        probeID=-1,
+        <span class="s s-Atom">probeID=-</span><span class="mi">1</span><span class="p">,</span>
 
-    ):
+    <span class="p">)</span><span class="s s-Atom">:</span>
 
-        for sign in [-1, 1]:
+        <span class="s s-Atom">for</span> <span class="s s-Atom">sign</span> <span class="s s-Atom">in</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span><span class="s s-Atom">:</span>
 
-            problem = cls(
+            <span class="s s-Atom">problem</span> <span class="o">=</span> <span class="nf">cls</span><span class="p">(</span>
 
-                di,
+                <span class="s s-Atom">di</span><span class="p">,</span>
 
-                data,
+                <span class="s s-Atom">data</span><span class="p">,</span>
 
-                best_hyperparameters,
+                <span class="s s-Atom">best_hyperparameters</span><span class="p">,</span>
 
-                init_constraints,
+                <span class="s s-Atom">init_constraints</span><span class="p">,</span>
 
-                preset_model=preset_model,
+                <span class="s s-Atom">preset_model</span><span class="o">=</span><span class="s s-Atom">preset_model</span><span class="p">,</span>
 
-                best_model_state=best_model_state,
+                <span class="s s-Atom">best_model_state</span><span class="o">=</span><span class="s s-Atom">best_model_state</span><span class="p">,</span>
 
-                probeID=probeID,
+                <span class="s s-Atom">probeID</span><span class="o">=</span><span class="s s-Atom">probeID</span><span class="p">,</span>
 
-            )
+            <span class="p">)</span>
 
-            problem.init_objective_UB(sign=sign)
+            <span class="s s-Atom">problem</span><span class="p">.</span><span class="nf">init_objective_UB</span><span class="p">(</span><span class="s s-Atom">sign</span><span class="o">=</span><span class="s s-Atom">sign</span><span class="p">)</span>
 
-            problem.isLowerBound = False
+            <span class="s s-Atom">problem</span><span class="p">.</span><span class="s s-Atom">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
 
-            yield problem
+            <span class="s s-Atom">yield</span> <span class="s s-Atom">problem</span>
 
-    @classmethod
+    <span class="s s-Atom">@classmethod</span>
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+    <span class="s s-Atom">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span><span class="s s-Atom">cls</span><span class="p">,</span> <span class="s s-Atom">min_problems_candidates</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+        <span class="s s-Atom">vals</span> <span class="o">=</span> <span class="p">[</span><span class="s s-Atom">candidate</span><span class="p">.</span><span class="s s-Atom">solved_relevance</span> <span class="s s-Atom">for</span> <span class="s s-Atom">candidate</span> <span class="s s-Atom">in</span> <span class="s s-Atom">min_problems_candidates</span><span class="p">]</span>
 
-        min_value = min(vals)
+        <span class="s s-Atom">min_value</span> <span class="o">=</span> <span class="nf">min</span><span class="p">(</span><span class="s s-Atom">vals</span><span class="p">)</span>
 
-        return min_value
+        <span class="s s-Atom">return</span> <span class="s s-Atom">min_value</span>
 
-    @classmethod
+    <span class="s s-Atom">@classmethod</span>
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+    <span class="s s-Atom">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span><span class="s s-Atom">cls</span><span class="p">,</span> <span class="s s-Atom">max_problems_candidates</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+        <span class="s s-Atom">vals</span> <span class="o">=</span> <span class="p">[</span><span class="s s-Atom">candidate</span><span class="p">.</span><span class="s s-Atom">solved_relevance</span> <span class="s s-Atom">for</span> <span class="s s-Atom">candidate</span> <span class="s s-Atom">in</span> <span class="s s-Atom">max_problems_candidates</span><span class="p">]</span>
 
-        max_value = max(vals)
+        <span class="s s-Atom">max_value</span> <span class="o">=</span> <span class="nf">max</span><span class="p">(</span><span class="s s-Atom">vals</span><span class="p">)</span>
 
-        return max_value
-</code></pre>
+        <span class="s s-Atom">return</span> <span class="s s-Atom">max_value</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -1757,287 +1762,323 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods">Static methods</h4>
 <h5 id="aggregate_max_candidates">aggregate_max_candidates</h5>
-<pre><code class="python3">def aggregate_max_candidates(
-    max_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span>
+    <span class="n">max_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
 
-        max_value = max(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
 
-        return max_value
-</code></pre>
+        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">max_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
-<pre><code class="python3">def aggregate_min_candidates(
-    min_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span>
+    <span class="n">min_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
 
-        min_value = min(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
 
-        return min_value
-</code></pre>
+        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">min_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
-<pre><code class="python3">def generate_lower_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-        cls,
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_lower_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        best_hyperparameters,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        init_constraints,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        best_model_state,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        data,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        di,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        preset_model,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        probeID=-1,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-    ):
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-        problem = cls(
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            di,
+<span class="w">        </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-            data,
+<span class="w">            </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-            best_hyperparameters,
+<span class="w">            </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-            init_constraints,
+<span class="w">            </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-            preset_model=preset_model,
+<span class="w">            </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-            best_model_state=best_model_state,
+<span class="w">            </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-            probeID=probeID,
+<span class="w">            </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        )
+<span class="w">            </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-        problem.init_objective_LB()
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
 
-        problem.isLowerBound = True
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_LB</span><span class="p">()</span><span class="w"></span>
 
-        yield problem
-</code></pre>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_upper_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        cls,
+    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
 
-        best_hyperparameters,
+        <span class="nv">cls</span>,
 
-        init_constraints,
+        <span class="nv">best_hyperparameters</span>,
 
-        best_model_state,
+        <span class="nv">init_constraints</span>,
 
-        data,
+        <span class="nv">best_model_state</span>,
 
-        di,
+        <span class="nv">data</span>,
 
-        preset_model,
+        <span class="nv">di</span>,
 
-        probeID=-1,
+        <span class="nv">preset_model</span>,
 
-    ):
+        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
 
-        for sign in [-1, 1]:
+    <span class="ss">)</span>:
 
-            problem = cls(
+        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
 
-                di,
+            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
 
-                data,
+                <span class="nv">di</span>,
 
-                best_hyperparameters,
+                <span class="nv">data</span>,
 
-                init_constraints,
+                <span class="nv">best_hyperparameters</span>,
 
-                preset_model=preset_model,
+                <span class="nv">init_constraints</span>,
 
-                best_model_state=best_model_state,
+                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
 
-                probeID=probeID,
+                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
 
-            )
+                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
 
-            problem.init_objective_UB(sign=sign)
+            <span class="ss">)</span>
 
-            problem.isLowerBound = False
+            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
 
-            yield problem
-</code></pre>
+            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+
+            <span class="nv">yield</span> <span class="nv">problem</span>
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
-<pre><code class="python3">accepted_status
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">accepted_status</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">cvx_problem
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">isProbe
-</code></pre>
 
-<pre><code class="python3">is_solved
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">cvx_problem</span>
+</pre></div>
 
-<pre><code class="python3">objective
-</code></pre>
 
-<pre><code class="python3">probeID
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">isProbe</span>
+</pre></div>
 
-<pre><code class="python3">solved_relevance
-</code></pre>
 
-<pre><code class="python3">solver_kwargs
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">is_solved</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">objective</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">probeID</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solved_relevance</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_kwargs</span>
+</pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h5 id="add_constraint">add_constraint</h5>
-<pre><code class="python3">def add_constraint(
-    self,
-    new
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">new</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
 
-        self._constraints.append(new)
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">add_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">new</span><span class="p">):</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_constraints</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="k">new</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
-<pre><code class="python3">def init_objective_LB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-    def init_objective_LB(self, **kwargs):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-        pass
-</code></pre>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">init_objective_LB</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">pass</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
-<pre><code class="python3">def init_objective_UB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @abstractmethod
 
-    def init_objective_UB(self, **kwargs):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-        pass
-</code></pre>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">init_objective_UB</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">pass</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
-<pre><code class="python3">def preprocessing_data(
-    self,
-    data,
-    best_model_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">best_model_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">preprocessing_data</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">data</span><span class="p">,</span> <span class="n">best_model_state</span><span class="p">):</span>
 
-        self.n = X.shape[0]
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="k">data</span>
 
-        self.d = X.shape[1]
+        <span class="k">self</span><span class="p">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        self.X = X
+        <span class="k">self</span><span class="p">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        self.y = np.array(y)
-</code></pre>
+        <span class="k">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="solve">solve</h5>
-<pre><code class="python3">def solve(
-    self
-) -&gt; object
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
 
-        self._cvx_problem = cvx.Problem(
+        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
 
-            objective=self.objective, constraints=self.constraints
+        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
 
-        )
+            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
 
-        try:
+        <span class="ss">)</span>
 
-            # print("Solve", self)
+        <span class="nv">try</span>:
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
 
-        except SolverError:
+            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+        <span class="nv">except</span> <span class="nv">SolverError</span>:
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
 
-            pass
+            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-        self._solver_status = self._cvx_problem.status
+            <span class="nv">pass</span>
 
-        # self._cvx_problem = None
+        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
 
-        return self
-</code></pre>
+        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
                 
                   

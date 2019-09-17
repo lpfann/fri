@@ -2185,34 +2185,36 @@
                 
                 
                 <h1 id="module-frimodel">Module fri.model</h1>
-<details class="example"><summary>View Source</summary><pre><code>from .classification import Classification
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">Classification</span>
 
-from .lupi_classification import LUPI_Classification
+<span class="kn">from</span> <span class="nn">.lupi_classification</span> <span class="kn">import</span> <span class="n">LUPI_Classification</span>
 
-from .lupi_ordinal_regression import LUPI_OrdinalRegression
+<span class="kn">from</span> <span class="nn">.lupi_ordinal_regression</span> <span class="kn">import</span> <span class="n">LUPI_OrdinalRegression</span>
 
-from .lupi_regression import LUPI_Regression
+<span class="kn">from</span> <span class="nn">.lupi_regression</span> <span class="kn">import</span> <span class="n">LUPI_Regression</span>
 
-from .ordinal_regression import OrdinalRegression
+<span class="kn">from</span> <span class="nn">.ordinal_regression</span> <span class="kn">import</span> <span class="n">OrdinalRegression</span>
 
-from .regression import Regression
+<span class="kn">from</span> <span class="nn">.regression</span> <span class="kn">import</span> <span class="n">Regression</span>
 
-__all__ = [
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
 
-    "Classification",
+    <span class="s2">&quot;Classification&quot;</span><span class="p">,</span>
 
-    "Regression",
+    <span class="s2">&quot;Regression&quot;</span><span class="p">,</span>
 
-    "OrdinalRegression",
+    <span class="s2">&quot;OrdinalRegression&quot;</span><span class="p">,</span>
 
-    "LUPI_Classification",
+    <span class="s2">&quot;LUPI_Classification&quot;</span><span class="p">,</span>
 
-    "LUPI_Regression",
+    <span class="s2">&quot;LUPI_Regression&quot;</span><span class="p">,</span>
 
-    "LUPI_OrdinalRegression",
+    <span class="s2">&quot;LUPI_OrdinalRegression&quot;</span><span class="p">,</span>
 
-]
-</code></pre>
+<span class="p">]</span>
+</pre></div>
+
+
 </details>
 <h2 id="sub-modules">Sub-modules</h2>
 <ul>
@@ -2229,61 +2231,64 @@ __all__ = [
 </ul>
 <h2 id="classes">Classes</h2>
 <h3 id="classification">Classification</h3>
-<pre><code class="python3">class Classification(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Classification</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class Classification(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Classification</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return Classification_SVM
+        <span class="k">return</span> <span class="nv">Classification_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return Classification_Relevance_Bound
+        <span class="k">return</span> <span class="nv">Classification_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, **kwargs):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        # Store the classes seen during fit
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        classes_ = unique_labels(y)
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        if len(classes_) &gt; 2:
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-            raise ValueError("Only binary class data supported")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # Negative class is set to -1 for decision surface
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -2293,297 +2298,332 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods">Static methods</h4>
 <h5 id="parameters">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h5 id="get_all_parameters">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Check that X and y have correct shape
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        # Store the classes seen during fit
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        classes_ = unique_labels(y)
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        if len(classes_) &gt; 2:
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-            raise ValueError("Only binary class data supported")
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-        # Negative class is set to -1 for decision surface
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="lupi_classification">LUPI_Classification</h3>
-<pre><code class="python3">class LUPI_Classification(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Classification</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Classification(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Classification</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    def __init__(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        super().__init__(**kwargs)
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        self._lupi_features = None
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">None</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def lupi_features(self):
+    <span class="nv">def</span> <span class="nv">lupi_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        return self._lupi_features
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_lupi_features</span>
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Classification_SVM
+        <span class="k">return</span> <span class="nv">LUPI_Classification_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Classification_Relevance_Bound
+        <span class="k">return</span> <span class="nv">LUPI_Classification_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, lupi_features=None):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        d = X.shape[1]
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not isinstance(lupi_features, int):
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not 0 &lt; lupi_features &lt; d:
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-            raise ValueError(
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        # Store the classes seen during fit
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        classes_ = unique_labels(y)
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        if len(classes_) &gt; 2:
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-            raise ValueError("Only binary class data supported")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # Negative class is set to -1 for decision surface
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
@@ -2593,312 +2633,348 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_1">Static methods</h4>
 <h5 id="parameters_1">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_1">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
 
-<pre><code class="python3">lupi_features
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lupi_features</span>
+</pre></div>
+
 
 <h4 id="methods_1">Methods</h4>
 <h5 id="get_all_parameters_1">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors_1">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter_1">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors_1">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints_1">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing_1">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_1">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    lupi_features=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        d = X.shape[1]
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        if lupi_features is None:
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        if not isinstance(lupi_features, int):
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-        if not 0 &lt; lupi_features &lt; d:
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError(
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-            )
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-        self._lupi_features = lupi_features
+            <span class="ss">)</span>
 
-        # Check that X and y have correct shape
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        # Store the classes seen during fit
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        classes_ = unique_labels(y)
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        if len(classes_) &gt; 2:
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-            raise ValueError("Only binary class data supported")
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-        # Negative class is set to -1 for decision surface
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint_1">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors_1">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="lupi_ordinalregression">LUPI_OrdinalRegression</h3>
-<pre><code class="python3">class LUPI_OrdinalRegression(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_OrdinalRegression</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_OrdinalRegression(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_OrdinalRegression</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    def __init__(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        super().__init__(**kwargs)
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        self._lupi_features = None
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">None</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def lupi_features(self):
+    <span class="nv">def</span> <span class="nv">lupi_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        return self._lupi_features
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_lupi_features</span>
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_OrdinalRegression_SVM
+        <span class="k">return</span> <span class="nv">LUPI_OrdinalRegression_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_OrdinalRegression_Relevance_Bound
+        <span class="k">return</span> <span class="nv">LUPI_OrdinalRegression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, lupi_features=None):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        d = X.shape[1]
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not isinstance(lupi_features, int):
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not 0 &lt; lupi_features &lt; d:
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-            raise ValueError(
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        if np.min(y) &gt; 0:
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            y = y - np.min(y)
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
@@ -2908,298 +2984,334 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_2">Static methods</h4>
 <h5 id="parameters_2">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_2">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
 
-<pre><code class="python3">lupi_features
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lupi_features</span>
+</pre></div>
+
 
 <h4 id="methods_2">Methods</h4>
 <h5 id="get_all_parameters_2">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors_2">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter_2">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors_2">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints_2">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing_2">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_2">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    lupi_features=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        d = X.shape[1]
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        if lupi_features is None:
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        if not isinstance(lupi_features, int):
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-        if not 0 &lt; lupi_features &lt; d:
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError(
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-            )
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-        self._lupi_features = lupi_features
+            <span class="ss">)</span>
 
-        # Check that X and y have correct shape
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        if np.min(y) &gt; 0:
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            y = y - np.min(y)
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint_2">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors_2">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="lupi_regression">LUPI_Regression</h3>
-<pre><code class="python3">class LUPI_Regression(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Regression</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Regression(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Regression</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    def __init__(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        super().__init__(**kwargs)
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        self._lupi_features = None
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">None</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def lupi_features(self):
+    <span class="nv">def</span> <span class="nv">lupi_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        return self._lupi_features
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_lupi_features</span>
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Regression_SVM
+        <span class="k">return</span> <span class="nv">LUPI_Regression_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Regression_Relevance_Bound
+        <span class="k">return</span> <span class="nv">LUPI_Regression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, lupi_features=None):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        d = X.shape[1]
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not isinstance(lupi_features, int):
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not 0 &lt; lupi_features &lt; d:
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-            raise ValueError(
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_3">Ancestors (in MRO)</h4>
@@ -3209,266 +3321,302 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_3">Static methods</h4>
 <h5 id="parameters_3">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_3">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
 
-<pre><code class="python3">lupi_features
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lupi_features</span>
+</pre></div>
+
 
 <h4 id="methods_3">Methods</h4>
 <h5 id="get_all_parameters_3">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors_3">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter_3">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors_3">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints_3">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing_3">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_3">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    lupi_features=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        d = X.shape[1]
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        if lupi_features is None:
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        if not isinstance(lupi_features, int):
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-        if not 0 &lt; lupi_features &lt; d:
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError(
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-            )
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-        self._lupi_features = lupi_features
+            <span class="ss">)</span>
 
-        # Check that X and y have correct shape
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        return X, y
-</code></pre>
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint_3">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors_3">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="ordinalregression">OrdinalRegression</h3>
-<pre><code class="python3">class OrdinalRegression(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">OrdinalRegression</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">OrdinalRegression</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return OrdinalRegression_SVM
+        <span class="k">return</span> <span class="nv">OrdinalRegression_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return OrdinalRegression_Relevance_Bound
+        <span class="k">return</span> <span class="nv">OrdinalRegression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, **kwargs):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        if np.min(y) &gt; 0:
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            y = y - np.min(y)
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_4">Ancestors (in MRO)</h4>
@@ -3478,243 +3626,278 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_4">Static methods</h4>
 <h5 id="parameters_4">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_4">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
 
 <h4 id="methods_4">Methods</h4>
 <h5 id="get_all_parameters_4">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors_4">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter_4">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors_4">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints_4">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing_4">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_4">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Check that X and y have correct shape
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        if np.min(y) &gt; 0:
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            y = y - np.min(y)
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint_4">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors_4">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="regression">Regression</h3>
-<pre><code class="python3">class Regression(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Regression</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class Regression(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Regression</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "epsilon"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return Regression_SVR
+        <span class="k">return</span> <span class="nv">Regression_SVR</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return Regression_Relevance_Bound
+        <span class="k">return</span> <span class="nv">Regression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, **kwargs):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_5">Ancestors (in MRO)</h4>
@@ -3724,194 +3907,226 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_5">Static methods</h4>
 <h5 id="parameters_5">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "epsilon"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_5">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
 
 <h4 id="methods_5">Methods</h4>
 <h5 id="get_all_parameters_5">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors_5">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter_5">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors_5">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints_5">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing_5">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_5">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Check that X and y have correct shape
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        return X, y
-</code></pre>
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint_5">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors_5">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
                 
                   

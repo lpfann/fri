@@ -843,498 +843,508 @@
                 
                 
                 <h1 id="module-friplot">Module fri.plot</h1>
-<details class="example"><summary>View Source</summary><pre><code>import matplotlib
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib</span>
 
-matplotlib.use("TkAgg")
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;TkAgg&quot;</span><span class="p">)</span>
 
-import matplotlib.patches as mpatches
+<span class="kn">import</span> <span class="nn">matplotlib.patches</span> <span class="kn">as</span> <span class="nn">mpatches</span>
 
-import matplotlib.pyplot as plt
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
 
-import numpy as np
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-from scipy.cluster.hierarchy import dendrogram
+<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">dendrogram</span>
 
-import matplotlib.cm as cm
+<span class="kn">import</span> <span class="nn">matplotlib.cm</span> <span class="kn">as</span> <span class="nn">cm</span>
 
-# Get a color for each relevance type
+<span class="c1"># Get a color for each relevance type</span>
 
-color_palette_3 = cm.Set1([0, 1, 2], alpha=0.8)
+<span class="n">color_palette_3</span> <span class="o">=</span> <span class="n">cm</span><span class="o">.</span><span class="n">Set1</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
 
-def plot_relevance_bars(
+<span class="k">def</span> <span class="nf">plot_relevance_bars</span><span class="p">(</span>
 
-    ax, ranges, ticklabels=None, classes=None, numbering=True, tick_rotation=30
+    <span class="n">ax</span><span class="p">,</span> <span class="n">ranges</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">numbering</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">tick_rotation</span><span class="o">=</span><span class="mi">30</span>
 
-):
+<span class="p">):</span>
 
-    """
+    <span class="sd">&quot;&quot;&quot;</span>
 
-    Parameters
+<span class="sd">    Parameters</span>
 
-    ----------
+<span class="sd">    ----------</span>
 
-    ax:
+<span class="sd">    ax:</span>
 
-        axis which the bars get drawn on
+<span class="sd">        axis which the bars get drawn on</span>
 
-    ranges:
+<span class="sd">    ranges:</span>
 
-        the 2d array of floating values determining the lower and upper bounds of the bars
+<span class="sd">        the 2d array of floating values determining the lower and upper bounds of the bars</span>
 
-    ticklabels: (optional)
+<span class="sd">    ticklabels: (optional)</span>
 
-        labels for each feature
+<span class="sd">        labels for each feature</span>
 
-    classes: (optional)
+<span class="sd">    classes: (optional)</span>
 
-        relevance class for each feature, determines color
+<span class="sd">        relevance class for each feature, determines color</span>
 
-    numbering: bool
+<span class="sd">    numbering: bool</span>
 
-        Add feature index when using ticklabels
+<span class="sd">        Add feature index when using ticklabels</span>
 
-    tick_rotation:  int
+<span class="sd">    tick_rotation:  int</span>
 
-        Amonut of rotation of ticklabels for easier readability.
+<span class="sd">        Amonut of rotation of ticklabels for easier readability.</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    N = len(ranges)
+    <span class="n">N</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ranges</span><span class="p">)</span>
 
-    # Ticklabels
+    <span class="c1"># Ticklabels</span>
 
-    if ticklabels is None:
+    <span class="k">if</span> <span class="n">ticklabels</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-        ticks = np.arange(N) + 1
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        ticks = list(ticklabels)
+        <span class="n">ticks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">)</span>
 
-        if numbering:
+        <span class="k">if</span> <span class="n">numbering</span><span class="p">:</span>
 
-            for i in range(N):
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
 
-                ticks[i] += " - {}".format(i + 1)
+                <span class="n">ticks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot; - {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-    # Interval sizes
+    <span class="c1"># Interval sizes</span>
 
-    ind = np.arange(N) + 1
+    <span class="n">ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">arange</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-    width = 0.6
+    <span class="n">width</span> <span class="o">=</span> <span class="mf">0.6</span>
 
-    upper_vals = ranges[:, 1]
+    <span class="n">upper_vals</span> <span class="o">=</span> <span class="n">ranges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
 
-    lower_vals = ranges[:, 0]
+    <span class="n">lower_vals</span> <span class="o">=</span> <span class="n">ranges</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
 
-    height = upper_vals - lower_vals
+    <span class="n">height</span> <span class="o">=</span> <span class="n">upper_vals</span> <span class="o">-</span> <span class="n">lower_vals</span>
 
-    # Minimal height to make very small intervals visible
+    <span class="c1"># Minimal height to make very small intervals visible</span>
 
-    height[height &lt; 0.001] = 0.001
+    <span class="n">height</span><span class="p">[</span><span class="n">height</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.001</span>
 
-    # Bar colors
+    <span class="c1"># Bar colors</span>
 
-    if classes is None:
+    <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-        new_classes = np.zeros(N).astype(int)
+        <span class="n">new_classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span><span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-        color = [color_palette_3[c.astype(int)] for c in new_classes]
+        <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">color_palette_3</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">new_classes</span><span class="p">]</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        color = [color_palette_3[c.astype(int)] for c in classes]
+        <span class="n">color</span> <span class="o">=</span> <span class="p">[</span><span class="n">color_palette_3</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">classes</span><span class="p">]</span>
 
-    # Plot the bars
+    <span class="c1"># Plot the bars</span>
 
-    bars = ax.bar(
+    <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
 
-        ind,
+        <span class="n">ind</span><span class="p">,</span>
 
-        height,
+        <span class="n">height</span><span class="p">,</span>
 
-        width,
+        <span class="n">width</span><span class="p">,</span>
 
-        bottom=lower_vals,
+        <span class="n">bottom</span><span class="o">=</span><span class="n">lower_vals</span><span class="p">,</span>
 
-        tick_label=ticks,
+        <span class="n">tick_label</span><span class="o">=</span><span class="n">ticks</span><span class="p">,</span>
 
-        align="center",
+        <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
 
-        edgecolor=["black"] * N,
+        <span class="n">edgecolor</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;black&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">N</span><span class="p">,</span>
 
-        linewidth=1.3,
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span>
 
-        color=color,
+        <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
 
-    )
+    <span class="p">)</span>
 
-    ax.set_xticklabels(ticks)
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ticks</span><span class="p">)</span>
 
-    if ticklabels is not None:
+    <span class="k">if</span> <span class="n">ticklabels</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=tick_rotation, ha="right")
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="n">tick_rotation</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
 
-    # ax.tick_params(rotation="auto")
+    <span class="c1"># ax.tick_params(rotation=&quot;auto&quot;)</span>
 
-    # Limit the y range to 0,1 or 0,L1
+    <span class="c1"># Limit the y range to 0,1 or 0,L1</span>
 
-    ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">ranges</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">])</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">])</span>
 
-    ax.set_ylabel("relevance")
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;relevance&quot;</span><span class="p">)</span>
 
-    ax.set_xlabel("feature")
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;feature&quot;</span><span class="p">)</span>
 
-    if classes is not None:
+    <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-        relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+        <span class="n">relevance_classes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Irrelevant&quot;</span><span class="p">,</span> <span class="s2">&quot;Weakly relevant&quot;</span><span class="p">,</span> <span class="s2">&quot;Strongly relevant&quot;</span><span class="p">]</span>
 
-        patches = []
+        <span class="n">patches</span> <span class="o">=</span> <span class="p">[]</span>
 
-        for i, rc in enumerate(relevance_classes):
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">relevance_classes</span><span class="p">):</span>
 
-            patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+            <span class="n">patch</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color_palette_3</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">rc</span><span class="p">)</span>
 
-            patches.append(patch)
+            <span class="n">patches</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">patch</span><span class="p">)</span>
 
-        ax.legend(handles=patches)
+        <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">patches</span><span class="p">)</span>
 
-    return bars
+    <span class="k">return</span> <span class="n">bars</span>
 
-def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
+<span class="k">def</span> <span class="nf">plotIntervals</span><span class="p">(</span><span class="n">ranges</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="kp">invert</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
-    # Figure Parameters
+    <span class="c1"># Figure Parameters</span>
 
-    fig = plt.figure()
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
 
-    ax = fig.add_subplot(111)
+    <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">111</span><span class="p">)</span>
 
-    out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
+    <span class="n">out</span> <span class="o">=</span> <span class="n">plot_relevance_bars</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ranges</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="n">ticklabels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">)</span>
 
-    fig.autofmt_xdate()
+    <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
 
-    # Invert the xaxis for cases in which the comparison with other tools
+    <span class="c1"># Invert the xaxis for cases in which the comparison with other tools</span>
 
-    if invert:
+    <span class="k">if</span> <span class="kp">invert</span><span class="p">:</span>
 
-        plt.gca().invert_xaxis()
+        <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">invert_xaxis</span><span class="p">()</span>
 
-    return fig
+    <span class="k">return</span> <span class="n">fig</span>
 
-def plot_dendrogram_and_intervals(
+<span class="k">def</span> <span class="nf">plot_dendrogram_and_intervals</span><span class="p">(</span>
 
-    intervals, linkage, figsize=(13, 7), ticklabels=None, classes=None, **kwargs
+    <span class="n">intervals</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 
-):
+<span class="p">):</span>
 
-    fig, (ax2, ax) = plt.subplots(2, 1, figsize=figsize)
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax2</span><span class="p">,</span> <span class="n">ax</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
 
-    # Top dendrogram plot
+    <span class="c1"># Top dendrogram plot</span>
 
-    d = dendrogram(
+    <span class="n">d</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="p">(</span>
 
-        linkage,
+        <span class="n">linkage</span><span class="p">,</span>
 
-        color_threshold=0,
+        <span class="n">color_threshold</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 
-        leaf_rotation=0.0,  # rotates the x axis labels
+        <span class="n">leaf_rotation</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># rotates the x axis labels</span>
 
-        leaf_font_size=12.0,  # font size for the x axis labels
+        <span class="n">leaf_font_size</span><span class="o">=</span><span class="mf">12.0</span><span class="p">,</span>  <span class="c1"># font size for the x axis labels</span>
 
-        ax=ax2,
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span>
 
-    )
+    <span class="p">)</span>
 
-    # Get index determined through linkage method and dendrogram
+    <span class="c1"># Get index determined through linkage method and dendrogram</span>
 
-    rearranged_index = d["leaves"]
+    <span class="n">rearranged_index</span> <span class="o">=</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;leaves&quot;</span><span class="p">]</span>
 
-    ranges = intervals[rearranged_index]
+    <span class="n">ranges</span> <span class="o">=</span> <span class="n">intervals</span><span class="p">[</span><span class="n">rearranged_index</span><span class="p">]</span>
 
-    if ticklabels is None:
+    <span class="k">if</span> <span class="n">ticklabels</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-        ticks = np.array(rearranged_index)
+        <span class="n">ticks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">array</span><span class="p">(</span><span class="n">rearranged_index</span><span class="p">)</span>
 
-        ticks += 1  # Index starting at 1
+        <span class="n">ticks</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Index starting at 1</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        ticks = list(ticklabels[rearranged_index])
+        <span class="n">ticks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ticklabels</span><span class="p">[</span><span class="n">rearranged_index</span><span class="p">])</span>
 
-        for i in range(len(intervals)):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">intervals</span><span class="p">)):</span>
 
-            ticks[i] += " - {}".format(rearranged_index[i] + 1)
+            <span class="n">ticks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot; - {}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">rearranged_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-    plot_relevance_bars(
+    <span class="n">plot_relevance_bars</span><span class="p">(</span>
 
-        ax,
+        <span class="n">ax</span><span class="p">,</span>
 
-        ranges,
+        <span class="n">ranges</span><span class="p">,</span>
 
-        ticklabels=ticks,
+        <span class="n">ticklabels</span><span class="o">=</span><span class="n">ticks</span><span class="p">,</span>
 
-        classes=classes[rearranged_index] if classes is not None else None,
+        <span class="n">classes</span><span class="o">=</span><span class="n">classes</span><span class="p">[</span><span class="n">rearranged_index</span><span class="p">]</span> <span class="k">if</span> <span class="n">classes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span> <span class="k">else</span> <span class="bp">None</span><span class="p">,</span>
 
-        numbering=False,
+        <span class="n">numbering</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span>
 
-        **kwargs,
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-    )
+    <span class="p">)</span>
 
-    fig.subplots_adjust(hspace=0)
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">hspace</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    ax.margins(x=0)
+    <span class="n">ax</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    ax2.set_xticks([])
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
 
-    ax2.margins(x=0)
+    <span class="n">ax2</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    plt.tight_layout()
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
 
-    return fig
+    <span class="k">return</span> <span class="n">fig</span>
 
-def plot_intervals(model, ticklabels=None):
+<span class="k">def</span> <span class="nf">plot_intervals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
-    """Plot the relevance intervals.
+    <span class="sd">&quot;&quot;&quot;Plot the relevance intervals.</span>
 
-    Parameters
+<span class="sd">    Parameters</span>
 
-    ----------
+<span class="sd">    ----------</span>
 
-    model : FRI model
+<span class="sd">    model : FRI model</span>
 
-        Needs to be fitted before.
+<span class="sd">        Needs to be fitted before.</span>
 
-    ticklabels : list of str, optional
+<span class="sd">    ticklabels : list of str, optional</span>
 
-        Strs for ticklabels on x-axis (features)
+<span class="sd">        Strs for ticklabels on x-axis (features)</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    if model.interval_ is not None:
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">interval_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-        plotIntervals(
+        <span class="n">plotIntervals</span><span class="p">(</span>
 
-            model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_
+            <span class="n">model</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="n">ticklabels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">relevance_classes_</span>
 
-        )
+        <span class="p">)</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        print("Intervals not computed. Try running fit() function first.")
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Intervals not computed. Try running fit() function first.&quot;</span><span class="p">)</span>
 
-def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
+<span class="k">def</span> <span class="nf">plot_lupi_intervals</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">lupi_ticklabels</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
-    """Plot the relevance intervals.
+    <span class="sd">&quot;&quot;&quot;Plot the relevance intervals.</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        model : FRI model
+<span class="sd">        model : FRI model</span>
 
-            Needs to be fitted before.
+<span class="sd">            Needs to be fitted before.</span>
 
-        ticklabels : list of str, optional
+<span class="sd">        ticklabels : list of str, optional</span>
 
-            Strs for ticklabels on x-axis (features)
+<span class="sd">            Strs for ticklabels on x-axis (features)</span>
 
-        lupi_ticklabels : list of str, optional
+<span class="sd">        lupi_ticklabels : list of str, optional</span>
 
-            Strs for lupi ticklabels on x-axis (lupi features)
+<span class="sd">            Strs for lupi ticklabels on x-axis (lupi features)</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-    n_features = model.interval_.shape[0] - model.lupi_features_
+    <span class="n">n_features</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">interval_</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">model</span><span class="o">.</span><span class="n">lupi_features_</span>
 
-    data_interval_ = model.interval_[0:n_features, :]
+    <span class="n">data_interval_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">interval_</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_features</span><span class="p">,</span> <span class="p">:]</span>
 
-    lupi_interval_ = model.interval_[n_features:, :]
+    <span class="n">lupi_interval_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">interval_</span><span class="p">[</span><span class="n">n_features</span><span class="p">:,</span> <span class="p">:]</span>
 
-    data_relevance_classes_ = model.relevance_classes_[0:n_features]
+    <span class="n">data_relevance_classes_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">n_features</span><span class="p">]</span>
 
-    lupi_relevance_classes_ = model.relevance_classes_[n_features:]
+    <span class="n">lupi_relevance_classes_</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[</span><span class="n">n_features</span><span class="p">:]</span>
 
-    if model.interval_ is not None:
+    <span class="k">if</span> <span class="n">model</span><span class="o">.</span><span class="n">interval_</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
 
-        plotIntervals(
+        <span class="n">plotIntervals</span><span class="p">(</span>
 
-            data_interval_, ticklabels=ticklabels, classes=data_relevance_classes_
+            <span class="n">data_interval_</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="n">ticklabels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">data_relevance_classes_</span>
 
-        )
+        <span class="p">)</span>
 
-        plotIntervals(
+        <span class="n">plotIntervals</span><span class="p">(</span>
 
-            lupi_interval_, ticklabels=lupi_ticklabels, classes=lupi_relevance_classes_
+            <span class="n">lupi_interval_</span><span class="p">,</span> <span class="n">ticklabels</span><span class="o">=</span><span class="n">lupi_ticklabels</span><span class="p">,</span> <span class="n">classes</span><span class="o">=</span><span class="n">lupi_relevance_classes_</span>
 
-        )
+        <span class="p">)</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        print("Intervals not computed. Try running fit() function first.")
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;Intervals not computed. Try running fit() function first.&quot;</span><span class="p">)</span>
 
-#
+<span class="c1">#</span>
 
-# def interactive_scatter_embed(embedding, mode="markers", txt=None):
+<span class="c1"># def interactive_scatter_embed(embedding, mode=&quot;markers&quot;, txt=None):</span>
 
-#     # TODO: extend method
+<span class="c1">#     # TODO: extend method</span>
 
-#     import plotly.graph_objs as go
+<span class="c1">#     import plotly.graph_objs as go</span>
 
-#     from plotly.offline import init_notebook_mode, iplot
+<span class="c1">#     from plotly.offline import init_notebook_mode, iplot</span>
 
-#     init_notebook_mode(connected=True)
+<span class="c1">#     init_notebook_mode(connected=True)</span>
 
-#     # Create a trace
+<span class="c1">#     # Create a trace</span>
 
-#     trace = go.Scatter(
+<span class="c1">#     trace = go.Scatter(</span>
 
-#         x=embedding[:, 0],
+<span class="c1">#         x=embedding[:, 0],</span>
 
-#         y=embedding[:, 1],
+<span class="c1">#         y=embedding[:, 1],</span>
 
-#         mode=mode,
+<span class="c1">#         mode=mode,</span>
 
-#         text=txt if mode is "text" else None
+<span class="c1">#         text=txt if mode is &quot;text&quot; else None</span>
 
-#     )
+<span class="c1">#     )</span>
 
-#
+<span class="c1">#</span>
 
-#     data = [trace]
+<span class="c1">#     data = [trace]</span>
 
-#
+<span class="c1">#</span>
 
-#     # Plot and embed in ipython notebook!
+<span class="c1">#     # Plot and embed in ipython notebook!</span>
 
-#     iplot(data)
-</code></pre>
+<span class="c1">#     iplot(data)</span>
+</pre></div>
+
+
 </details>
 <h2 id="variables">Variables</h2>
-<pre><code class="python3">color_palette_3
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">color_palette_3</span>
+</pre></div>
+
 
 <h2 id="functions">Functions</h2>
 <h3 id="plotintervals">plotIntervals</h3>
-<pre><code class="python3">def plotIntervals(
-    ranges,
-    ticklabels=None,
-    invert=False,
-    classes=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plotIntervals</span><span class="p">(</span>
+    <span class="n">ranges</span><span class="p">,</span>
+    <span class="n">ticklabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">invert</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">classes</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>def plotIntervals(ranges, ticklabels=None, invert=False, classes=None):
 
-    # Figure Parameters
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">plotIntervals</span><span class="ss">(</span><span class="nv">ranges</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">invert</span><span class="o">=</span><span class="nv">False</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-    fig = plt.figure()
+    # <span class="nv">Figure</span> <span class="nv">Parameters</span>
 
-    ax = fig.add_subplot(111)
+    <span class="nv">fig</span> <span class="o">=</span> <span class="nv">plt</span>.<span class="nv">figure</span><span class="ss">()</span>
 
-    out = plot_relevance_bars(ax, ranges, ticklabels=ticklabels, classes=classes)
+    <span class="nv">ax</span> <span class="o">=</span> <span class="nv">fig</span>.<span class="nv">add_subplot</span><span class="ss">(</span><span class="mi">111</span><span class="ss">)</span>
 
-    fig.autofmt_xdate()
+    <span class="nv">out</span> <span class="o">=</span> <span class="nv">plot_relevance_bars</span><span class="ss">(</span><span class="nv">ax</span>, <span class="nv">ranges</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">ticklabels</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">classes</span><span class="ss">)</span>
 
-    # Invert the xaxis for cases in which the comparison with other tools
+    <span class="nv">fig</span>.<span class="nv">autofmt_xdate</span><span class="ss">()</span>
 
-    if invert:
+    # <span class="nv">Invert</span> <span class="nv">the</span> <span class="nv">xaxis</span> <span class="k">for</span> <span class="nv">cases</span> <span class="nv">in</span> <span class="nv">which</span> <span class="nv">the</span> <span class="nv">comparison</span> <span class="nv">with</span> <span class="nv">other</span> <span class="nv">tools</span>
 
-        plt.gca().invert_xaxis()
+    <span class="k">if</span> <span class="nv">invert</span>:
 
-    return fig
-</code></pre>
+        <span class="nv">plt</span>.<span class="nv">gca</span><span class="ss">()</span>.<span class="nv">invert_xaxis</span><span class="ss">()</span>
+
+    <span class="k">return</span> <span class="nv">fig</span>
+</pre></div>
+
+
 </details>
 <h3 id="plot_dendrogram_and_intervals">plot_dendrogram_and_intervals</h3>
-<pre><code class="python3">def plot_dendrogram_and_intervals(
-    intervals,
-    linkage,
-    figsize=(13, 7),
-    ticklabels=None,
-    classes=None,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plot_dendrogram_and_intervals</span><span class="p">(</span>
+    <span class="n">intervals</span><span class="p">,</span>
+    <span class="n">linkage</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+    <span class="n">ticklabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>def plot_dendrogram_and_intervals(
 
-    intervals, linkage, figsize=(13, 7), ticklabels=None, classes=None, **kwargs
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">plot_dendrogram_and_intervals</span><span class="ss">(</span>
 
-):
+    <span class="nv">intervals</span>, <span class="nv">linkage</span>, <span class="nv">figsize</span><span class="o">=</span><span class="ss">(</span><span class="mi">13</span>, <span class="mi">7</span><span class="ss">)</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span>
 
-    fig, (ax2, ax) = plt.subplots(2, 1, figsize=figsize)
+<span class="ss">)</span>:
 
-    # Top dendrogram plot
+    <span class="nv">fig</span>, <span class="ss">(</span><span class="nv">ax2</span>, <span class="nv">ax</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">plt</span>.<span class="nv">subplots</span><span class="ss">(</span><span class="mi">2</span>, <span class="mi">1</span>, <span class="nv">figsize</span><span class="o">=</span><span class="nv">figsize</span><span class="ss">)</span>
 
-    d = dendrogram(
+    # <span class="nv">Top</span> <span class="nv">dendrogram</span> <span class="nv">plot</span>
 
-        linkage,
+    <span class="nv">d</span> <span class="o">=</span> <span class="nv">dendrogram</span><span class="ss">(</span>
 
-        color_threshold=0,
+        <span class="nv">linkage</span>,
 
-        leaf_rotation=0.0,  # rotates the x axis labels
+        <span class="nv">color_threshold</span><span class="o">=</span><span class="mi">0</span>,
 
-        leaf_font_size=12.0,  # font size for the x axis labels
+        <span class="nv">leaf_rotation</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">0</span>,  # <span class="nv">rotates</span> <span class="nv">the</span> <span class="nv">x</span> <span class="nv">axis</span> <span class="nv">labels</span>
 
-        ax=ax2,
+        <span class="nv">leaf_font_size</span><span class="o">=</span><span class="mi">12</span>.<span class="mi">0</span>,  # <span class="nv">font</span> <span class="nv">size</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">x</span> <span class="nv">axis</span> <span class="nv">labels</span>
 
-    )
+        <span class="nv">ax</span><span class="o">=</span><span class="nv">ax2</span>,
 
-    # Get index determined through linkage method and dendrogram
+    <span class="ss">)</span>
 
-    rearranged_index = d["leaves"]
+    # <span class="nv">Get</span> <span class="nv">index</span> <span class="nv">determined</span> <span class="nv">through</span> <span class="nv">linkage</span> <span class="nv">method</span> <span class="nv">and</span> <span class="nv">dendrogram</span>
 
-    ranges = intervals[rearranged_index]
+    <span class="nv">rearranged_index</span> <span class="o">=</span> <span class="nv">d</span>[<span class="s2">&quot;</span><span class="s">leaves</span><span class="s2">&quot;</span>]
 
-    if ticklabels is None:
+    <span class="nv">ranges</span> <span class="o">=</span> <span class="nv">intervals</span>[<span class="nv">rearranged_index</span>]
 
-        ticks = np.array(rearranged_index)
+    <span class="k">if</span> <span class="nv">ticklabels</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        ticks += 1  # Index starting at 1
+        <span class="nv">ticks</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">array</span><span class="ss">(</span><span class="nv">rearranged_index</span><span class="ss">)</span>
 
-    else:
+        <span class="nv">ticks</span> <span class="o">+=</span> <span class="mi">1</span>  # <span class="nv">Index</span> <span class="nv">starting</span> <span class="nv">at</span> <span class="mi">1</span>
 
-        ticks = list(ticklabels[rearranged_index])
+    <span class="k">else</span>:
 
-        for i in range(len(intervals)):
+        <span class="nv">ticks</span> <span class="o">=</span> <span class="nv">list</span><span class="ss">(</span><span class="nv">ticklabels</span>[<span class="nv">rearranged_index</span>]<span class="ss">)</span>
 
-            ticks[i] += " - {}".format(rearranged_index[i] + 1)
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">len</span><span class="ss">(</span><span class="nv">intervals</span><span class="ss">))</span>:
 
-    plot_relevance_bars(
+            <span class="nv">ticks</span>[<span class="nv">i</span>] <span class="o">+=</span> <span class="s2">&quot;</span><span class="s"> - {}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">rearranged_index</span>[<span class="nv">i</span>] <span class="o">+</span> <span class="mi">1</span><span class="ss">)</span>
 
-        ax,
+    <span class="nv">plot_relevance_bars</span><span class="ss">(</span>
 
-        ranges,
+        <span class="nv">ax</span>,
 
-        ticklabels=ticks,
+        <span class="nv">ranges</span>,
 
-        classes=classes[rearranged_index] if classes is not None else None,
+        <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">ticks</span>,
 
-        numbering=False,
+        <span class="nv">classes</span><span class="o">=</span><span class="nv">classes</span>[<span class="nv">rearranged_index</span>] <span class="k">if</span> <span class="nv">classes</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span> <span class="k">else</span> <span class="nv">None</span>,
 
-        **kwargs,
+        <span class="nv">numbering</span><span class="o">=</span><span class="nv">False</span>,
 
-    )
+        <span class="o">**</span><span class="nv">kwargs</span>,
 
-    fig.subplots_adjust(hspace=0)
+    <span class="ss">)</span>
 
-    ax.margins(x=0)
+    <span class="nv">fig</span>.<span class="nv">subplots_adjust</span><span class="ss">(</span><span class="nv">hspace</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>
 
-    ax2.set_xticks([])
+    <span class="nv">ax</span>.<span class="nv">margins</span><span class="ss">(</span><span class="nv">x</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>
 
-    ax2.margins(x=0)
+    <span class="nv">ax2</span>.<span class="nv">set_xticks</span><span class="ss">(</span>[]<span class="ss">)</span>
 
-    plt.tight_layout()
+    <span class="nv">ax2</span>.<span class="nv">margins</span><span class="ss">(</span><span class="nv">x</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>
 
-    return fig
-</code></pre>
+    <span class="nv">plt</span>.<span class="nv">tight_layout</span><span class="ss">()</span>
+
+    <span class="k">return</span> <span class="nv">fig</span>
+</pre></div>
+
+
 </details>
 <h3 id="plot_intervals">plot_intervals</h3>
-<pre><code class="python3">def plot_intervals(
-    model,
-    ticklabels=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plot_intervals</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">ticklabels</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Plot the relevance intervals.</p>
 <h2 id="parameters">Parameters</h2>
@@ -1342,44 +1352,47 @@ def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
     Needs to be fitted before.
 ticklabels : list of str, optional
     Strs for ticklabels on x-axis (features)</p>
-<details class="example"><summary>View Source</summary><pre><code>def plot_intervals(model, ticklabels=None):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">plot_intervals</span><span class="ss">(</span><span class="nv">model</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-    """Plot the relevance intervals.
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Plot the relevance intervals.</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    model : FRI model
+    <span class="nv">model</span> : <span class="nv">FRI</span> <span class="nv">model</span>
 
-        Needs to be fitted before.
+        <span class="nv">Needs</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">fitted</span> <span class="nv">before</span>.
 
-    ticklabels : list of str, optional
+    <span class="nv">ticklabels</span> : <span class="nv">list</span> <span class="nv">of</span> <span class="nv">str</span>, <span class="nv">optional</span>
 
-        Strs for ticklabels on x-axis (features)
+        <span class="nv">Strs</span> <span class="k">for</span> <span class="nv">ticklabels</span> <span class="nv">on</span> <span class="nv">x</span><span class="o">-</span><span class="nv">axis</span> <span class="ss">(</span><span class="nv">features</span><span class="ss">)</span>
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    if model.interval_ is not None:
+    <span class="k">if</span> <span class="nv">model</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        plotIntervals(
+        <span class="nv">plotIntervals</span><span class="ss">(</span>
 
-            model.interval_, ticklabels=ticklabels, classes=model.relevance_classes_
+            <span class="nv">model</span>.<span class="nv">interval_</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">ticklabels</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">model</span>.<span class="nv">relevance_classes_</span>
 
-        )
+        <span class="ss">)</span>
 
-    else:
+    <span class="k">else</span>:
 
-        print("Intervals not computed. Try running fit() function first.")
-</code></pre>
+        <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Intervals not computed. Try running fit() function first.</span><span class="s2">&quot;</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h3 id="plot_lupi_intervals">plot_lupi_intervals</h3>
-<pre><code class="python3">def plot_lupi_intervals(
-    model,
-    ticklabels=None,
-    lupi_ticklabels=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plot_lupi_intervals</span><span class="p">(</span>
+    <span class="n">model</span><span class="p">,</span>
+    <span class="n">ticklabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">lupi_ticklabels</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Plot the relevance intervals.</p>
 <h2 id="parameters_1">Parameters</h2>
@@ -1389,67 +1402,70 @@ ticklabels : list of str, optional
     Strs for ticklabels on x-axis (features)
 lupi_ticklabels : list of str, optional
     Strs for lupi ticklabels on x-axis (lupi features)</p>
-<details class="example"><summary>View Source</summary><pre><code>def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">plot_lupi_intervals</span><span class="ss">(</span><span class="nv">model</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">lupi_ticklabels</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-    """Plot the relevance intervals.
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Plot the relevance intervals.</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        model : FRI model
+        <span class="nv">model</span> : <span class="nv">FRI</span> <span class="nv">model</span>
 
-            Needs to be fitted before.
+            <span class="nv">Needs</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">fitted</span> <span class="nv">before</span>.
 
-        ticklabels : list of str, optional
+        <span class="nv">ticklabels</span> : <span class="nv">list</span> <span class="nv">of</span> <span class="nv">str</span>, <span class="nv">optional</span>
 
-            Strs for ticklabels on x-axis (features)
+            <span class="nv">Strs</span> <span class="k">for</span> <span class="nv">ticklabels</span> <span class="nv">on</span> <span class="nv">x</span><span class="o">-</span><span class="nv">axis</span> <span class="ss">(</span><span class="nv">features</span><span class="ss">)</span>
 
-        lupi_ticklabels : list of str, optional
+        <span class="nv">lupi_ticklabels</span> : <span class="nv">list</span> <span class="nv">of</span> <span class="nv">str</span>, <span class="nv">optional</span>
 
-            Strs for lupi ticklabels on x-axis (lupi features)
+            <span class="nv">Strs</span> <span class="k">for</span> <span class="nv">lupi</span> <span class="nv">ticklabels</span> <span class="nv">on</span> <span class="nv">x</span><span class="o">-</span><span class="nv">axis</span> <span class="ss">(</span><span class="nv">lupi</span> <span class="nv">features</span><span class="ss">)</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-    n_features = model.interval_.shape[0] - model.lupi_features_
+    <span class="nv">n_features</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">interval_</span>.<span class="nv">shape</span>[<span class="mi">0</span>] <span class="o">-</span> <span class="nv">model</span>.<span class="nv">lupi_features_</span>
 
-    data_interval_ = model.interval_[0:n_features, :]
+    <span class="nv">data_interval_</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">interval_</span>[<span class="mi">0</span>:<span class="nv">n_features</span>, :]
 
-    lupi_interval_ = model.interval_[n_features:, :]
+    <span class="nv">lupi_interval_</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">interval_</span>[<span class="nv">n_features</span>:, :]
 
-    data_relevance_classes_ = model.relevance_classes_[0:n_features]
+    <span class="nv">data_relevance_classes_</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">relevance_classes_</span>[<span class="mi">0</span>:<span class="nv">n_features</span>]
 
-    lupi_relevance_classes_ = model.relevance_classes_[n_features:]
+    <span class="nv">lupi_relevance_classes_</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">relevance_classes_</span>[<span class="nv">n_features</span>:]
 
-    if model.interval_ is not None:
+    <span class="k">if</span> <span class="nv">model</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        plotIntervals(
+        <span class="nv">plotIntervals</span><span class="ss">(</span>
 
-            data_interval_, ticklabels=ticklabels, classes=data_relevance_classes_
+            <span class="nv">data_interval_</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">ticklabels</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">data_relevance_classes_</span>
 
-        )
+        <span class="ss">)</span>
 
-        plotIntervals(
+        <span class="nv">plotIntervals</span><span class="ss">(</span>
 
-            lupi_interval_, ticklabels=lupi_ticklabels, classes=lupi_relevance_classes_
+            <span class="nv">lupi_interval_</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">lupi_ticklabels</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">lupi_relevance_classes_</span>
 
-        )
+        <span class="ss">)</span>
 
-    else:
+    <span class="k">else</span>:
 
-        print("Intervals not computed. Try running fit() function first.")
-</code></pre>
+        <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Intervals not computed. Try running fit() function first.</span><span class="s2">&quot;</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h3 id="plot_relevance_bars">plot_relevance_bars</h3>
-<pre><code class="python3">def plot_relevance_bars(
-    ax,
-    ranges,
-    ticklabels=None,
-    classes=None,
-    numbering=True,
-    tick_rotation=30
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">plot_relevance_bars</span><span class="p">(</span>
+    <span class="n">ax</span><span class="p">,</span>
+    <span class="n">ranges</span><span class="p">,</span>
+    <span class="n">ticklabels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">classes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">numbering</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">tick_rotation</span><span class="o">=</span><span class="mi">30</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <h2 id="parameters_2">Parameters</h2>
 <p>ax:
@@ -1464,146 +1480,148 @@ numbering: bool
     Add feature index when using ticklabels
 tick_rotation:  int
     Amonut of rotation of ticklabels for easier readability.</p>
-<details class="example"><summary>View Source</summary><pre><code>def plot_relevance_bars(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">plot_relevance_bars</span><span class="ss">(</span>
 
-    ax, ranges, ticklabels=None, classes=None, numbering=True, tick_rotation=30
+    <span class="nv">ax</span>, <span class="nv">ranges</span>, <span class="nv">ticklabels</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">classes</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">numbering</span><span class="o">=</span><span class="nv">True</span>, <span class="nv">tick_rotation</span><span class="o">=</span><span class="mi">30</span>
 
-):
+<span class="ss">)</span>:
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    ax:
+    <span class="nv">ax</span>:
 
-        axis which the bars get drawn on
+        <span class="nv">axis</span> <span class="nv">which</span> <span class="nv">the</span> <span class="nv">bars</span> <span class="nv">get</span> <span class="nv">drawn</span> <span class="nv">on</span>
 
-    ranges:
+    <span class="nv">ranges</span>:
 
-        the 2d array of floating values determining the lower and upper bounds of the bars
+        <span class="nv">the</span> <span class="mi">2</span><span class="nv">d</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">floating</span> <span class="nv">values</span> <span class="nv">determining</span> <span class="nv">the</span> <span class="nv">lower</span> <span class="nv">and</span> <span class="nv">upper</span> <span class="nv">bounds</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">bars</span>
 
-    ticklabels: (optional)
+    <span class="nv">ticklabels</span>: <span class="ss">(</span><span class="nv">optional</span><span class="ss">)</span>
 
-        labels for each feature
+        <span class="nv">labels</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">feature</span>
 
-    classes: (optional)
+    <span class="nv">classes</span>: <span class="ss">(</span><span class="nv">optional</span><span class="ss">)</span>
 
-        relevance class for each feature, determines color
+        <span class="nv">relevance</span> <span class="nv">class</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">feature</span>, <span class="nv">determines</span> <span class="nv">color</span>
 
-    numbering: bool
+    <span class="nv">numbering</span>: <span class="nv">bool</span>
 
-        Add feature index when using ticklabels
+        <span class="nv">Add</span> <span class="nv">feature</span> <span class="nv">index</span> <span class="nv">when</span> <span class="nv">using</span> <span class="nv">ticklabels</span>
 
-    tick_rotation:  int
+    <span class="nv">tick_rotation</span>:  <span class="nv">int</span>
 
-        Amonut of rotation of ticklabels for easier readability.
+        <span class="nv">Amonut</span> <span class="nv">of</span> <span class="nv">rotation</span> <span class="nv">of</span> <span class="nv">ticklabels</span> <span class="k">for</span> <span class="nv">easier</span> <span class="nv">readability</span>.
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    N = len(ranges)
+    <span class="nv">N</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">ranges</span><span class="ss">)</span>
 
-    # Ticklabels
+    # <span class="nv">Ticklabels</span>
 
-    if ticklabels is None:
+    <span class="k">if</span> <span class="nv">ticklabels</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        ticks = np.arange(N) + 1
+        <span class="nv">ticks</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">arange</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-    else:
+    <span class="k">else</span>:
 
-        ticks = list(ticklabels)
+        <span class="nv">ticks</span> <span class="o">=</span> <span class="nv">list</span><span class="ss">(</span><span class="nv">ticklabels</span><span class="ss">)</span>
 
-        if numbering:
+        <span class="k">if</span> <span class="nv">numbering</span>:
 
-            for i in range(N):
+            <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span>:
 
-                ticks[i] += " - {}".format(i + 1)
+                <span class="nv">ticks</span>[<span class="nv">i</span>] <span class="o">+=</span> <span class="s2">&quot;</span><span class="s"> - {}</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">i</span> <span class="o">+</span> <span class="mi">1</span><span class="ss">)</span>
 
-    # Interval sizes
+    # <span class="nv">Interval</span> <span class="nv">sizes</span>
 
-    ind = np.arange(N) + 1
+    <span class="nv">ind</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">arange</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span> <span class="o">+</span> <span class="mi">1</span>
 
-    width = 0.6
+    <span class="nv">width</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">6</span>
 
-    upper_vals = ranges[:, 1]
+    <span class="nv">upper_vals</span> <span class="o">=</span> <span class="nv">ranges</span>[:, <span class="mi">1</span>]
 
-    lower_vals = ranges[:, 0]
+    <span class="nv">lower_vals</span> <span class="o">=</span> <span class="nv">ranges</span>[:, <span class="mi">0</span>]
 
-    height = upper_vals - lower_vals
+    <span class="nv">height</span> <span class="o">=</span> <span class="nv">upper_vals</span> <span class="o">-</span> <span class="nv">lower_vals</span>
 
-    # Minimal height to make very small intervals visible
+    # <span class="nv">Minimal</span> <span class="nv">height</span> <span class="nv">to</span> <span class="nv">make</span> <span class="nv">very</span> <span class="nv">small</span> <span class="nv">intervals</span> <span class="nv">visible</span>
 
-    height[height &lt; 0.001] = 0.001
+    <span class="nv">height</span>[<span class="nv">height</span> <span class="o">&lt;</span> <span class="mi">0</span>.<span class="mi">001</span>] <span class="o">=</span> <span class="mi">0</span>.<span class="mi">001</span>
 
-    # Bar colors
+    # <span class="nv">Bar</span> <span class="nv">colors</span>
 
-    if classes is None:
+    <span class="k">if</span> <span class="nv">classes</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        new_classes = np.zeros(N).astype(int)
+        <span class="nv">new_classes</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">(</span><span class="nv">N</span><span class="ss">)</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
 
-        color = [color_palette_3[c.astype(int)] for c in new_classes]
+        <span class="nv">color</span> <span class="o">=</span> [<span class="nv">color_palette_3</span>[<span class="nv">c</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>] <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">new_classes</span>]
 
-    else:
+    <span class="k">else</span>:
 
-        color = [color_palette_3[c.astype(int)] for c in classes]
+        <span class="nv">color</span> <span class="o">=</span> [<span class="nv">color_palette_3</span>[<span class="nv">c</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>] <span class="k">for</span> <span class="nv">c</span> <span class="nv">in</span> <span class="nv">classes</span>]
 
-    # Plot the bars
+    # <span class="nv">Plot</span> <span class="nv">the</span> <span class="nv">bars</span>
 
-    bars = ax.bar(
+    <span class="nv">bars</span> <span class="o">=</span> <span class="nv">ax</span>.<span class="nv">bar</span><span class="ss">(</span>
 
-        ind,
+        <span class="nv">ind</span>,
 
-        height,
+        <span class="nv">height</span>,
 
-        width,
+        <span class="nv">width</span>,
 
-        bottom=lower_vals,
+        <span class="nv">bottom</span><span class="o">=</span><span class="nv">lower_vals</span>,
 
-        tick_label=ticks,
+        <span class="nv">tick_label</span><span class="o">=</span><span class="nv">ticks</span>,
 
-        align="center",
+        <span class="nv">align</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">center</span><span class="s2">&quot;</span>,
 
-        edgecolor=["black"] * N,
+        <span class="nv">edgecolor</span><span class="o">=</span>[<span class="s2">&quot;</span><span class="s">black</span><span class="s2">&quot;</span>] <span class="o">*</span> <span class="nv">N</span>,
 
-        linewidth=1.3,
+        <span class="nv">linewidth</span><span class="o">=</span><span class="mi">1</span>.<span class="mi">3</span>,
 
-        color=color,
+        <span class="nv">color</span><span class="o">=</span><span class="nv">color</span>,
 
-    )
+    <span class="ss">)</span>
 
-    ax.set_xticklabels(ticks)
+    <span class="nv">ax</span>.<span class="nv">set_xticklabels</span><span class="ss">(</span><span class="nv">ticks</span><span class="ss">)</span>
 
-    if ticklabels is not None:
+    <span class="k">if</span> <span class="nv">ticklabels</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=tick_rotation, ha="right")
+        <span class="nv">ax</span>.<span class="nv">set_xticklabels</span><span class="ss">(</span><span class="nv">ax</span>.<span class="nv">get_xticklabels</span><span class="ss">()</span>, <span class="nv">rotation</span><span class="o">=</span><span class="nv">tick_rotation</span>, <span class="nv">ha</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">right</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    # ax.tick_params(rotation="auto")
+    # <span class="nv">ax</span>.<span class="nv">tick_params</span><span class="ss">(</span><span class="nv">rotation</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">auto</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    # Limit the y range to 0,1 or 0,L1
+    # <span class="nv">Limit</span> <span class="nv">the</span> <span class="nv">y</span> <span class="nv">range</span> <span class="nv">to</span> <span class="mi">0</span>,<span class="mi">1</span> <span class="nv">or</span> <span class="mi">0</span>,<span class="nv">L1</span>
 
-    ax.set_ylim([0, max(ranges[:, 1]) * 1.1])
+    <span class="nv">ax</span>.<span class="nv">set_ylim</span><span class="ss">(</span>[<span class="mi">0</span>, <span class="nv">max</span><span class="ss">(</span><span class="nv">ranges</span>[:, <span class="mi">1</span>]<span class="ss">)</span> <span class="o">*</span> <span class="mi">1</span>.<span class="mi">1</span>]<span class="ss">)</span>
 
-    ax.set_ylabel("relevance")
+    <span class="nv">ax</span>.<span class="nv">set_ylabel</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">relevance</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    ax.set_xlabel("feature")
+    <span class="nv">ax</span>.<span class="nv">set_xlabel</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">feature</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    if classes is not None:
+    <span class="k">if</span> <span class="nv">classes</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        relevance_classes = ["Irrelevant", "Weakly relevant", "Strongly relevant"]
+        <span class="nv">relevance_classes</span> <span class="o">=</span> [<span class="s2">&quot;</span><span class="s">Irrelevant</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">Weakly relevant</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">Strongly relevant</span><span class="s2">&quot;</span>]
 
-        patches = []
+        <span class="nv">patches</span> <span class="o">=</span> []
 
-        for i, rc in enumerate(relevance_classes):
+        <span class="k">for</span> <span class="nv">i</span>, <span class="nv">rc</span> <span class="nv">in</span> <span class="nv">enumerate</span><span class="ss">(</span><span class="nv">relevance_classes</span><span class="ss">)</span>:
 
-            patch = mpatches.Patch(color=color_palette_3[i], label=rc)
+            <span class="nv">patch</span> <span class="o">=</span> <span class="nv">mpatches</span>.<span class="nv">Patch</span><span class="ss">(</span><span class="nv">color</span><span class="o">=</span><span class="nv">color_palette_3</span>[<span class="nv">i</span>], <span class="nv">label</span><span class="o">=</span><span class="nv">rc</span><span class="ss">)</span>
 
-            patches.append(patch)
+            <span class="nv">patches</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">patch</span><span class="ss">)</span>
 
-        ax.legend(handles=patches)
+        <span class="nv">ax</span>.<span class="nv">legend</span><span class="ss">(</span><span class="nv">handles</span><span class="o">=</span><span class="nv">patches</span><span class="ss">)</span>
 
-    return bars
-</code></pre>
+    <span class="k">return</span> <span class="nv">bars</span>
+</pre></div>
+
+
 </details>
                 
                   

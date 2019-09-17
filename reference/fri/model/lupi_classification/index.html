@@ -1457,446 +1457,451 @@
                 
                 
                 <h1 id="module-frimodellupi_classification">Module fri.model.lupi_classification</h1>
-<details class="example"><summary>View Source</summary><pre><code>import cvxpy as cvx
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">cvxpy</span> <span class="kn">as</span> <span class="nn">cvx</span>
 
-import numpy as np
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-from sklearn import preprocessing
+<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
 
-from sklearn.metrics import fbeta_score, classification_report
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">fbeta_score</span><span class="p">,</span> <span class="n">classification_report</span>
 
-from sklearn.preprocessing import LabelEncoder
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">LabelEncoder</span>
 
-from sklearn.utils import check_X_y
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_X_y</span>
 
-from sklearn.utils.multiclass import unique_labels
+<span class="kn">from</span> <span class="nn">sklearn.utils.multiclass</span> <span class="kn">import</span> <span class="n">unique_labels</span>
 
-from .base_initmodel import InitModel
+<span class="kn">from</span> <span class="nn">.base_initmodel</span> <span class="kn">import</span> <span class="n">InitModel</span>
 
-from .base_lupi import LUPI_Relevance_CVXProblem, split_dataset
+<span class="kn">from</span> <span class="nn">.base_lupi</span> <span class="kn">import</span> <span class="n">LUPI_Relevance_CVXProblem</span><span class="p">,</span> <span class="n">split_dataset</span>
 
-from .base_type import ProblemType
+<span class="kn">from</span> <span class="nn">.base_type</span> <span class="kn">import</span> <span class="n">ProblemType</span>
 
-from .classification import Classification_Relevance_Bound
+<span class="kn">from</span> <span class="nn">.classification</span> <span class="kn">import</span> <span class="n">Classification_Relevance_Bound</span>
 
-class LUPI_Classification(ProblemType):
+<span class="k">class</span> <span class="nc">LUPI_Classification</span><span class="p">(</span><span class="n">ProblemType</span><span class="p">):</span>
 
-    def __init__(self, **kwargs):
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        super().__init__(**kwargs)
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        self._lupi_features = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lupi_features</span> <span class="o">=</span> <span class="bp">None</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def lupi_features(self):
+    <span class="k">def</span> <span class="nf">lupi_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        return self._lupi_features
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lupi_features</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def parameters(cls):
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def get_initmodel_template(cls):
+    <span class="k">def</span> <span class="nf">get_initmodel_template</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return LUPI_Classification_SVM
+        <span class="k">return</span> <span class="n">LUPI_Classification_SVM</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="k">def</span> <span class="nf">get_cvxproblem_template</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return LUPI_Classification_Relevance_Bound
+        <span class="k">return</span> <span class="n">LUPI_Classification_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;loss_slack&quot;</span><span class="p">,</span> <span class="s2">&quot;w_l1_slack&quot;</span><span class="p">]</span>
 
-    def preprocessing(self, data, lupi_features=None):
+    <span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
-        X, y = data
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
 
-        d = X.shape[1]
+        <span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument &#39;lupi_features&#39; missing in fit() call.&quot;</span><span class="p">)</span>
 
-        if not isinstance(lupi_features, int):
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lupi_features</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Argument &#39;lupi_features&#39; is not type int.&quot;</span><span class="p">)</span>
 
-        if not 0 &lt; lupi_features &lt; d:
+        <span class="k">if</span> <span class="ow">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">lupi_features</span> <span class="o">&lt;</span> <span class="n">d</span><span class="p">:</span>
 
-            raise ValueError(
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+                <span class="s2">&quot;Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.&quot;</span>
 
-            )
+            <span class="p">)</span>
 
-        self._lupi_features = lupi_features
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lupi_features</span> <span class="o">=</span> <span class="n">lupi_features</span>
 
-        # Check that X and y have correct shape
+        <span class="c1"># Check that X and y have correct shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        # Store the classes seen during fit
+        <span class="c1"># Store the classes seen during fit</span>
 
-        classes_ = unique_labels(y)
+        <span class="n">classes_</span> <span class="o">=</span> <span class="n">unique_labels</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        if len(classes_) &gt; 2:
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
 
-            raise ValueError("Only binary class data supported")
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only binary class data supported&quot;</span><span class="p">)</span>
 
-        # Negative class is set to -1 for decision surface
+        <span class="c1"># Negative class is set to -1 for decision surface</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        <span class="n">y</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="o">.</span><span class="n">LabelEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        y[y == 0] = -1
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return X, y
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
 
-class LUPI_Classification_SVM(InitModel):
+<span class="k">class</span> <span class="nc">LUPI_Classification_SVM</span><span class="p">(</span><span class="n">InitModel</span><span class="p">):</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def hyperparameter(cls):
+    <span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
 
-    def fit(self, X_combined, y, lupi_features=None):
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_combined</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        lupi_features : int
+<span class="sd">        lupi_features : int</span>
 
-            Number of features in dataset which are considered privileged information (PI).
+<span class="sd">            Number of features in dataset which are considered privileged information (PI).</span>
 
-            PI features are expected to be the last features in the dataset.
+<span class="sd">            PI features are expected to be the last features in the dataset.</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-            raise ValueError("No lupi_features argument given.")
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No lupi_features argument given.&quot;</span><span class="p">)</span>
 
-        self.lupi_features = lupi_features
+        <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features</span> <span class="o">=</span> <span class="n">lupi_features</span>
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="n">X</span><span class="p">,</span> <span class="n">X_priv</span> <span class="o">=</span> <span class="n">split_dataset</span><span class="p">(</span><span class="n">X_combined</span><span class="p">,</span> <span class="n">lupi_features</span><span class="p">)</span>
 
-        (n, d) = X.shape
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span>
 
-        # Get parameters from CV model without any feature contstraints
+        <span class="c1"># Get parameters from CV model without any feature contstraints</span>
 
-        C = self.hyperparam["C"]
+        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        <span class="n">scaling_lupi_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">]</span>
 
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        <span class="n">scaling_lupi_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
 
-        # Initalize Variables in cvxpy
+        <span class="c1"># Initalize Variables in cvxpy</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-        w_priv = cvx.Variable(lupi_features, name="w_priv")
+        <span class="n">w_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">lupi_features</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w_priv&quot;</span><span class="p">)</span>
 
-        b = cvx.Variable(name="bias")
+        <span class="n">b</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias&quot;</span><span class="p">)</span>
 
-        b_priv = cvx.Variable(name="bias_priv")
+        <span class="n">b_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias_priv&quot;</span><span class="p">)</span>
 
-        # Define functions for better readability
+        <span class="c1"># Define functions for better readability</span>
 
-        function = X * w + b
+        <span class="n">function</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
 
-        priv_function = X_priv * w_priv + b_priv
+        <span class="n">priv_function</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
 
-        slack = cvx.Variable(shape=(n))
+        <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 
-        # Combined loss of lupi function and normal slacks, scaled by two constants
+        <span class="c1"># Combined loss of lupi function and normal slacks, scaled by two constants</span>
 
-        loss = scaling_lupi_loss * cvx.sum(priv_function) + cvx.sum(slack)
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">scaling_lupi_loss</span> <span class="o">*</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">priv_function</span><span class="p">)</span> <span class="o">+</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span>
 
-        # L1 norm regularization of both functions with 1 scaling constant
+        <span class="c1"># L1 norm regularization of both functions with 1 scaling constant</span>
 
-        w_l1 = cvx.norm(w, 1)
+        <span class="n">w_l1</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        w_priv_l1 = cvx.norm(w_priv, 1)
+        <span class="n">w_priv_l1</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w_priv</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
+        <span class="n">weight_regularization</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">w_l1</span> <span class="o">+</span> <span class="n">scaling_lupi_w</span> <span class="o">*</span> <span class="n">w_priv_l1</span><span class="p">)</span>
 
-        constraints = [
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
 
-            cvx.multiply(y.T, function) &gt;= 1 - cvx.multiply(y.T, priv_function) - slack,
+            <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">function</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">priv_function</span><span class="p">)</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span>
 
-            priv_function &gt;= 0,
+            <span class="n">priv_function</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
 
-            slack &gt;= 0,
+            <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
 
-        ]
+        <span class="p">]</span>
 
-        objective = cvx.Minimize(C * loss + weight_regularization)
+        <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">weight_regularization</span><span class="p">)</span>
 
-        # Solve problem.
+        <span class="c1"># Solve problem.</span>
 
-        solver_params = self.solver_params
+        <span class="n">solver_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span>
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">constraints</span><span class="p">)</span>
 
-        problem.solve(**solver_params)
+        <span class="n">problem</span><span class="o">.</span><span class="kp">solve</span><span class="p">(</span><span class="o">**</span><span class="n">solver_params</span><span class="p">)</span>
 
-        w = w.value
+        <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">value</span>
 
-        w_priv = w_priv.value
+        <span class="n">w_priv</span> <span class="o">=</span> <span class="n">w_priv</span><span class="o">.</span><span class="n">value</span>
 
-        b = b.value
+        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="o">.</span><span class="n">value</span>
 
-        b_priv = b_priv.value
+        <span class="n">b_priv</span> <span class="o">=</span> <span class="n">b_priv</span><span class="o">.</span><span class="n">value</span>
 
-        self.model_state = {
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span> <span class="o">=</span> <span class="p">{</span>
 
-            "w": w,
+            <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span>
 
-            "w_priv": w_priv,
+            <span class="s2">&quot;w_priv&quot;</span><span class="p">:</span> <span class="n">w_priv</span><span class="p">,</span>
 
-            "b": b,
+            <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span>
 
-            "b_priv": b_priv,
+            <span class="s2">&quot;b_priv&quot;</span><span class="p">:</span> <span class="n">b_priv</span><span class="p">,</span>
 
-            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
+            <span class="s2">&quot;lupi_features&quot;</span><span class="p">:</span> <span class="n">lupi_features</span><span class="p">,</span>  <span class="c1"># Number of lupi features in the dataset TODO: Move this somewhere else</span>
 
-        }
+        <span class="p">}</span>
 
-        loss = loss.value
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span><span class="o">.</span><span class="n">value</span>
 
-        w_l1 = w_l1.value
+        <span class="n">w_l1</span> <span class="o">=</span> <span class="n">w_l1</span><span class="o">.</span><span class="n">value</span>
 
-        w_priv_l1 = w_priv_l1.value
+        <span class="n">w_priv_l1</span> <span class="o">=</span> <span class="n">w_priv_l1</span><span class="o">.</span><span class="n">value</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1, "w_priv_l1": w_priv_l1}
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s2">&quot;w_l1&quot;</span><span class="p">:</span> <span class="n">w_l1</span><span class="p">,</span> <span class="s2">&quot;w_priv_l1&quot;</span><span class="p">:</span> <span class="n">w_priv_l1</span><span class="p">}</span>
 
-        return self
+        <span class="k">return</span> <span class="bp">self</span>
 
-    def predict(self, X):
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
-        X, X_priv = split_dataset(X, self.lupi_features)
+        <span class="n">X</span><span class="p">,</span> <span class="n">X_priv</span> <span class="o">=</span> <span class="n">split_dataset</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features</span><span class="p">)</span>
 
-        w = self.model_state["w"]
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span>
 
-        b = self.model_state["b"]
+        <span class="n">b</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span><span class="p">[</span><span class="s2">&quot;b&quot;</span><span class="p">]</span>
 
-        # Simple hyperplane classification rule
+        <span class="c1"># Simple hyperplane classification rule</span>
 
-        f = np.dot(X, w) + b
+        <span class="n">f</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span>
 
-        y = f &gt;= 0
+        <span class="n">y</span> <span class="o">=</span> <span class="n">f</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-        y = y.astype(int)
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="o">.</span><span class="kp">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-        # Format binary as signed unit vector
+        <span class="c1"># Format binary as signed unit vector</span>
 
-        y[y == 0] = -1
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return y
+        <span class="k">return</span> <span class="n">y</span>
 
-    def score(self, X, y, **kwargs):
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        prediction = self.predict(X)
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-        # Negative class is set to -1 for decision surface
+        <span class="c1"># Negative class is set to -1 for decision surface</span>
 
-        y = LabelEncoder().fit_transform(y)
+        <span class="n">y</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        y[y == 0] = -1
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        # Using weighted f1 score to have a stable score for imbalanced datasets
+        <span class="c1"># Using weighted f1 score to have a stable score for imbalanced datasets</span>
 
-        score = fbeta_score(y, prediction, beta=1, average="weighted")
+        <span class="n">score</span> <span class="o">=</span> <span class="n">fbeta_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="kp">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="kp">average</span><span class="o">=</span><span class="s2">&quot;weighted&quot;</span><span class="p">)</span>
 
-        if "verbose" in kwargs:
+        <span class="k">if</span> <span class="s2">&quot;verbose&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
 
-            return classification_report(y, prediction)
+            <span class="k">return</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
 
-        return score
+        <span class="k">return</span> <span class="n">score</span>
 
-class LUPI_Classification_Relevance_Bound(
+<span class="k">class</span> <span class="nc">LUPI_Classification_Relevance_Bound</span><span class="p">(</span>
 
-    LUPI_Relevance_CVXProblem, Classification_Relevance_Bound
+    <span class="n">LUPI_Relevance_CVXProblem</span><span class="p">,</span> <span class="n">Classification_Relevance_Bound</span>
 
-):
+<span class="p">):</span>
 
-    def _init_objective_UB_LUPI(self, sign=None, **kwargs):
+    <span class="k">def</span> <span class="nf">_init_objective_UB_LUPI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kp">sign</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        self.add_constraint(
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            self.feature_relevance &lt;= sign * self.w_priv[self.lupi_index]
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">&lt;=</span> <span class="kp">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w_priv</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lupi_index</span><span class="p">]</span>
 
-        )
+        <span class="p">)</span>
 
-        self._objective = cvx.Maximize(self.feature_relevance)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Maximize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span><span class="p">)</span>
 
-    def _init_objective_LB_LUPI(self, **kwargs):
+    <span class="k">def</span> <span class="nf">_init_objective_LB_LUPI</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        self.add_constraint(
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            cvx.abs(self.w_priv[self.lupi_index]) &lt;= self.feature_relevance
+            <span class="n">cvx</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w_priv</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lupi_index</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span>
 
-        )
+        <span class="p">)</span>
 
-        self._objective = cvx.Minimize(self.feature_relevance)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span><span class="p">)</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="k">def</span> <span class="nf">_init_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">init_model_constraints</span><span class="p">):</span>
 
-        # Upper constraints from best initial model
+        <span class="c1"># Upper constraints from best initial model</span>
 
-        l1_w = init_model_constraints["w_l1"]
+        <span class="n">l1_w</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-        l1_priv_w = init_model_constraints["w_priv_l1"]
+        <span class="n">l1_priv_w</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_priv_l1&quot;</span><span class="p">]</span>
 
-        init_loss = init_model_constraints["loss"]
+        <span class="n">init_loss</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
 
-        # New Variables
+        <span class="c1"># New Variables</span>
 
-        w = cvx.Variable(shape=(self.d), name="w")
+        <span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-        w_priv = cvx.Variable(shape=(self.d_priv), name="w_priv")
+        <span class="n">w_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d_priv</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w_priv&quot;</span><span class="p">)</span>
 
-        b = cvx.Variable(name="b")
+        <span class="n">b</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
 
-        b_priv = cvx.Variable(name="b_priv")
+        <span class="n">b_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;b_priv&quot;</span><span class="p">)</span>
 
-        slack = cvx.Variable(shape=(self.n))
+        <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
 
-        # New Constraints
+        <span class="c1"># New Constraints</span>
 
-        function = cvx.multiply(self.y.T, self.X * w + b)
+        <span class="n">function</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
 
-        priv_function = self.X_priv * w_priv + b_priv
+        <span class="n">priv_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
 
-        loss = cvx.sum(priv_function) + cvx.sum(slack)
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">priv_function</span><span class="p">)</span> <span class="o">+</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span>
 
-        weight_norm = cvx.norm(w, 1)
+        <span class="n">weight_norm</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        weight_norm_priv = cvx.norm(w_priv, 1)
+        <span class="n">weight_norm_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w_priv</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        self.add_constraint(
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            function &gt;= 1 - cvx.multiply(self.y.T, priv_function) - slack
+            <span class="n">function</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">priv_function</span><span class="p">)</span> <span class="o">-</span> <span class="n">slack</span>
 
-        )
+        <span class="p">)</span>
 
-        self.add_constraint(priv_function &gt;= 0)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">priv_function</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
 
-        self.add_constraint(loss &lt;= init_loss)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">loss</span> <span class="o">&lt;=</span> <span class="n">init_loss</span><span class="p">)</span>
 
-        self.add_constraint(weight_norm + weight_norm_priv &lt;= l1_w + l1_priv_w)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">weight_norm</span> <span class="o">+</span> <span class="n">weight_norm_priv</span> <span class="o">&lt;=</span> <span class="n">l1_w</span> <span class="o">+</span> <span class="n">l1_priv_w</span><span class="p">)</span>
 
-        self.add_constraint(slack &gt;= 0)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
 
-        # Save values for object use later
+        <span class="c1"># Save values for object use later</span>
 
-        self.w = w
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
 
-        self.w_priv = w_priv
+        <span class="bp">self</span><span class="o">.</span><span class="n">w_priv</span> <span class="o">=</span> <span class="n">w_priv</span>
 
-        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
-</code></pre>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Feature Relevance&quot;</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="lupi_classification">LUPI_Classification</h3>
-<pre><code class="python3">class LUPI_Classification(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Classification</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Classification(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Classification</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    def __init__(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        super().__init__(**kwargs)
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">__init__</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        self._lupi_features = None
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">None</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def lupi_features(self):
+    <span class="nv">def</span> <span class="nv">lupi_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        return self._lupi_features
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_lupi_features</span>
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Classification_SVM
+        <span class="k">return</span> <span class="nv">LUPI_Classification_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return LUPI_Classification_Relevance_Bound
+        <span class="k">return</span> <span class="nv">LUPI_Classification_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, lupi_features=None):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        d = X.shape[1]
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not isinstance(lupi_features, int):
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if not 0 &lt; lupi_features &lt; d:
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-            raise ValueError(
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        # Store the classes seen during fit
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        classes_ = unique_labels(y)
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        if len(classes_) &gt; 2:
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-            raise ValueError("Only binary class data supported")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # Negative class is set to -1 for decision surface
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -1906,328 +1911,364 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods">Static methods</h4>
 <h5 id="parameters">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
 
-<pre><code class="python3">lupi_features
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">lupi_features</span>
+</pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h5 id="get_all_parameters">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    lupi_features=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, lupi_features=None):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        d = X.shape[1]
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        if lupi_features is None:
+        <span class="nv">d</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-            raise ValueError("Argument 'lupi_features' missing in fit() call.")
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-        if not isinstance(lupi_features, int):
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; missing in fit() call.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError("Argument 'lupi_features' is not type int.")
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">isinstance</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">int</span><span class="ss">)</span>:
 
-        if not 0 &lt; lupi_features &lt; d:
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; is not type int.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            raise ValueError(
+        <span class="k">if</span> <span class="nv">not</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="nv">lupi_features</span> <span class="o">&lt;</span> <span class="nv">d</span>:
 
-                "Argument 'lupi_features' looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature."
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span>
 
-            )
+                <span class="s2">&quot;</span><span class="s">Argument &#39;lupi_features&#39; looks wrong. We need at least 1 priviliged feature (&gt;0) or at least one normal feature.</span><span class="s2">&quot;</span>
 
-        self._lupi_features = lupi_features
+            <span class="ss">)</span>
 
-        # Check that X and y have correct shape
+        <span class="nv">self</span>.<span class="nv">_lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        # Store the classes seen during fit
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        classes_ = unique_labels(y)
+        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
 
-        if len(classes_) &gt; 2:
+        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-            raise ValueError("Only binary class data supported")
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
 
-        # Negative class is set to -1 for decision surface
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        y = preprocessing.LabelEncoder().fit_transform(y)
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="lupi_classification_relevance_bound">LUPI_Classification_Relevance_Bound</h3>
-<pre><code class="python3">class LUPI_Classification_Relevance_Bound(
-    current_feature:int,
-    data:tuple,
-    hyperparameters,
-    best_model_constraints,
-    preset_model=None,
-    best_model_state=None,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Classification_Relevance_Bound</span><span class="p">(</span>
+    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">hyperparameters</span><span class="p">,</span>
+    <span class="n">best_model_constraints</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Classification_Relevance_Bound(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Classification_Relevance_Bound</span><span class="ss">(</span>
 
-    LUPI_Relevance_CVXProblem, Classification_Relevance_Bound
+    <span class="nv">LUPI_Relevance_CVXProblem</span>, <span class="nv">Classification_Relevance_Bound</span>
 
-):
+<span class="ss">)</span>:
 
-    def _init_objective_UB_LUPI(self, sign=None, **kwargs):
+    <span class="nv">def</span> <span class="nv">_init_objective_UB_LUPI</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">sign</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        self.add_constraint(
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            self.feature_relevance &lt;= sign * self.w_priv[self.lupi_index]
+            <span class="nv">self</span>.<span class="nv">feature_relevance</span> <span class="o">&lt;=</span> <span class="nv">sign</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">w_priv</span>[<span class="nv">self</span>.<span class="nv">lupi_index</span>]
 
-        )
+        <span class="ss">)</span>
 
-        self._objective = cvx.Maximize(self.feature_relevance)
+        <span class="nv">self</span>.<span class="nv">_objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Maximize</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">feature_relevance</span><span class="ss">)</span>
 
-    def _init_objective_LB_LUPI(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">_init_objective_LB_LUPI</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        self.add_constraint(
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            cvx.abs(self.w_priv[self.lupi_index]) &lt;= self.feature_relevance
+            <span class="nv">cvx</span>.<span class="nv">abs</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">w_priv</span>[<span class="nv">self</span>.<span class="nv">lupi_index</span>]<span class="ss">)</span> <span class="o">&lt;=</span> <span class="nv">self</span>.<span class="nv">feature_relevance</span>
 
-        )
+        <span class="ss">)</span>
 
-        self._objective = cvx.Minimize(self.feature_relevance)
+        <span class="nv">self</span>.<span class="nv">_objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">feature_relevance</span><span class="ss">)</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="nv">def</span> <span class="nv">_init_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">parameters</span>, <span class="nv">init_model_constraints</span><span class="ss">)</span>:
 
-        # Upper constraints from best initial model
+        # <span class="nv">Upper</span> <span class="nv">constraints</span> <span class="nv">from</span> <span class="nv">best</span> <span class="nv">initial</span> <span class="nv">model</span>
 
-        l1_w = init_model_constraints["w_l1"]
+        <span class="nv">l1_w</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>]
 
-        l1_priv_w = init_model_constraints["w_priv_l1"]
+        <span class="nv">l1_priv_w</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>]
 
-        init_loss = init_model_constraints["loss"]
+        <span class="nv">init_loss</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>]
 
-        # New Variables
+        # <span class="nv">New</span> <span class="nv">Variables</span>
 
-        w = cvx.Variable(shape=(self.d), name="w")
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        w_priv = cvx.Variable(shape=(self.d_priv), name="w_priv")
+        <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">d_priv</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b = cvx.Variable(name="b")
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b_priv = cvx.Variable(name="b_priv")
+        <span class="nv">b_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">b_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        slack = cvx.Variable(shape=(self.n))
+        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n</span><span class="ss">))</span>
 
-        # New Constraints
+        # <span class="nv">New</span> <span class="nv">Constraints</span>
 
-        function = cvx.multiply(self.y.T, self.X * w + b)
+        <span class="nv">function</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">self</span>.<span class="nv">X</span> <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">b</span><span class="ss">)</span>
 
-        priv_function = self.X_priv * w_priv + b_priv
+        <span class="nv">priv_function</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">X_priv</span> <span class="o">*</span> <span class="nv">w_priv</span> <span class="o">+</span> <span class="nv">b_priv</span>
 
-        loss = cvx.sum(priv_function) + cvx.sum(slack)
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">priv_function</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">)</span>
 
-        weight_norm = cvx.norm(w, 1)
+        <span class="nv">weight_norm</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        weight_norm_priv = cvx.norm(w_priv, 1)
+        <span class="nv">weight_norm_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w_priv</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        self.add_constraint(
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            function &gt;= 1 - cvx.multiply(self.y.T, priv_function) - slack
+            <span class="nv">function</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">priv_function</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">slack</span>
 
-        )
+        <span class="ss">)</span>
 
-        self.add_constraint(priv_function &gt;= 0)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">priv_function</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
 
-        self.add_constraint(loss &lt;= init_loss)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">loss</span> <span class="o">&lt;=</span> <span class="nv">init_loss</span><span class="ss">)</span>
 
-        self.add_constraint(weight_norm + weight_norm_priv &lt;= l1_w + l1_priv_w)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">weight_norm</span> <span class="o">+</span> <span class="nv">weight_norm_priv</span> <span class="o">&lt;=</span> <span class="nv">l1_w</span> <span class="o">+</span> <span class="nv">l1_priv_w</span><span class="ss">)</span>
 
-        self.add_constraint(slack &gt;= 0)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
 
-        # Save values for object use later
+        # <span class="nv">Save</span> <span class="nv">values</span> <span class="k">for</span> <span class="nv">object</span> <span class="nv">use</span> <span class="nv">later</span>
 
-        self.w = w
+        <span class="nv">self</span>.<span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>
 
-        self.w_priv = w_priv
+        <span class="nv">self</span>.<span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">w_priv</span>
 
-        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
-</code></pre>
+        <span class="nv">self</span>.<span class="nv">feature_relevance</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">nonneg</span><span class="o">=</span><span class="nv">True</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Feature Relevance</span><span class="s2">&quot;</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
@@ -2239,494 +2280,533 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_1">Static methods</h4>
 <h5 id="aggregate_max_candidates">aggregate_max_candidates</h5>
-<pre><code class="python3">def aggregate_max_candidates(
-    max_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span>
+    <span class="n">max_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
 
-        max_value = max(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
 
-        return max_value
-</code></pre>
+        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">max_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
-<pre><code class="python3">def aggregate_min_candidates(
-    min_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span>
+    <span class="n">min_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
 
-        min_value = min(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
 
-        return min_value
-</code></pre>
+        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">min_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
-<pre><code class="python3">def generate_lower_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-        cls,
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_lower_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        best_hyperparameters,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        init_constraints,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        best_model_state,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        data,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        di,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        preset_model,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        probeID=-1,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-    ):
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-        problem = cls(
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            di,
+<span class="w">        </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-            data,
+<span class="w">            </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-            best_hyperparameters,
+<span class="w">            </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-            init_constraints,
+<span class="w">            </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-            preset_model=preset_model,
+<span class="w">            </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-            best_model_state=best_model_state,
+<span class="w">            </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-            probeID=probeID,
+<span class="w">            </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        )
+<span class="w">            </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-        problem.init_objective_LB()
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
 
-        problem.isLowerBound = True
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_LB</span><span class="p">()</span><span class="w"></span>
 
-        yield problem
-</code></pre>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_upper_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        cls,
+    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
 
-        best_hyperparameters,
+        <span class="nv">cls</span>,
 
-        init_constraints,
+        <span class="nv">best_hyperparameters</span>,
 
-        best_model_state,
+        <span class="nv">init_constraints</span>,
 
-        data,
+        <span class="nv">best_model_state</span>,
 
-        di,
+        <span class="nv">data</span>,
 
-        preset_model,
+        <span class="nv">di</span>,
 
-        probeID=-1,
+        <span class="nv">preset_model</span>,
 
-    ):
+        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
 
-        for sign in [-1, 1]:
+    <span class="ss">)</span>:
 
-            problem = cls(
+        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
 
-                di,
+            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
 
-                data,
+                <span class="nv">di</span>,
 
-                best_hyperparameters,
+                <span class="nv">data</span>,
 
-                init_constraints,
+                <span class="nv">best_hyperparameters</span>,
 
-                preset_model=preset_model,
+                <span class="nv">init_constraints</span>,
 
-                best_model_state=best_model_state,
+                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
 
-                probeID=probeID,
+                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
 
-            )
+                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
 
-            problem.init_objective_UB(sign=sign)
+            <span class="ss">)</span>
 
-            problem.isLowerBound = False
+            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
 
-            yield problem
-</code></pre>
+            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+
+            <span class="nv">yield</span> <span class="nv">problem</span>
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_1">Instance variables</h4>
-<pre><code class="python3">accepted_status
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">accepted_status</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">cvx_problem
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">isProbe
-</code></pre>
 
-<pre><code class="python3">is_solved
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">cvx_problem</span>
+</pre></div>
 
-<pre><code class="python3">objective
-</code></pre>
 
-<pre><code class="python3">probeID
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">isProbe</span>
+</pre></div>
 
-<pre><code class="python3">solved_relevance
-</code></pre>
 
-<pre><code class="python3">solver_kwargs
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">is_solved</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">objective</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">probeID</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solved_relevance</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_kwargs</span>
+</pre></div>
+
 
 <h4 id="methods_1">Methods</h4>
 <h5 id="add_constraint">add_constraint</h5>
-<pre><code class="python3">def add_constraint(
-    self,
-    new
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">new</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
 
-        self._constraints.append(new)
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">add_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">new</span><span class="p">):</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_constraints</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="k">new</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
-<pre><code class="python3">def init_objective_LB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-        # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">init_objective_LB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        if self.isPriv:
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-            self._init_objective_LB_LUPI(**kwargs)
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">_init_objective_LB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+        <span class="k">else</span>:
 
-            super().init_objective_LB(**kwargs)
-</code></pre>
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
+
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_LB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
-<pre><code class="python3">def init_objective_UB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, **kwargs):
 
-        # We have two models basically with different indexes
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        if self.isPriv:
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">two</span> <span class="nv">models</span> <span class="nv">basically</span> <span class="nv">with</span> <span class="nv">different</span> <span class="nv">indexes</span>
 
-            self._init_objective_UB_LUPI(**kwargs)
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">isPriv</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">_init_objective_UB_LUPI</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-            # We call sibling class of our lupi class, which is the normal problem
+        <span class="k">else</span>:
 
-            super().init_objective_UB(**kwargs)
-</code></pre>
+            # <span class="nv">We</span> <span class="k">call</span> <span class="nl">sibling</span> <span class="nv">class</span> <span class="nv">of</span> <span class="nv">our</span> <span class="nv">lupi</span> <span class="nv">class</span>, <span class="nv">which</span> <span class="nv">is</span> <span class="nv">the</span> <span class="nv">normal</span> <span class="nv">problem</span>
+
+            <span class="nv">super</span><span class="ss">()</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
-<pre><code class="python3">def preprocessing_data(
-    self,
-    data,
-    best_model_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">best_model_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-        lupi_features = best_model_state["lupi_features"]
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing_data</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">best_model_state</span><span class="ss">)</span>:
 
-        X_combined, y = data
+        <span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">best_model_state</span>[<span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>]
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X_combined</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        self.X_priv = X_priv
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X_combined</span>, <span class="nv">lupi_features</span><span class="ss">)</span>
 
-        super().preprocessing_data((X, y), best_model_state)
+        <span class="nv">self</span>.<span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">X_priv</span>
 
-        assert lupi_features == X_priv.shape[1]
+        <span class="nv">super</span><span class="ss">()</span>.<span class="nv">preprocessing_data</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">best_model_state</span><span class="ss">)</span>
 
-        self.d_priv = lupi_features
+        <span class="nv">assert</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]
 
-        # LUPI model, we need to offset the index
+        <span class="nv">self</span>.<span class="nv">d_priv</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        self.lupi_index = self.current_feature - self.d
+        # <span class="nv">LUPI</span> <span class="nv">model</span>, <span class="nv">we</span> <span class="nv">need</span> <span class="nv">to</span> <span class="nv">offset</span> <span class="nv">the</span> <span class="nv">index</span>
 
-        if self.lupi_index &gt;= 0:
+        <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">current_feature</span> <span class="o">-</span> <span class="nv">self</span>.<span class="nv">d</span>
 
-            self.isPriv = True
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">lupi_index</span> <span class="o">&gt;=</span> <span class="mi">0</span>:
 
-        else:
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">True</span>
 
-            self.isPriv = False
-</code></pre>
+        <span class="k">else</span>:
+
+            <span class="nv">self</span>.<span class="nv">isPriv</span> <span class="o">=</span> <span class="nv">False</span>
+</pre></div>
+
+
 </details>
 <h5 id="solve">solve</h5>
-<pre><code class="python3">def solve(
-    self
-) -&gt; object
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
 
-        self._cvx_problem = cvx.Problem(
+        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
 
-            objective=self.objective, constraints=self.constraints
+        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
 
-        )
+            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
 
-        try:
+        <span class="ss">)</span>
 
-            # print("Solve", self)
+        <span class="nv">try</span>:
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
 
-        except SolverError:
+            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+        <span class="nv">except</span> <span class="nv">SolverError</span>:
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
 
-            pass
+            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-        self._solver_status = self._cvx_problem.status
+            <span class="nv">pass</span>
 
-        # self._cvx_problem = None
+        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
 
-        return self
-</code></pre>
+        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h3 id="lupi_classification_svm">LUPI_Classification_SVM</h3>
-<pre><code class="python3">class LUPI_Classification_SVM(
-    **parameters
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_Classification_SVM</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">parameters</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class LUPI_Classification_SVM(InitModel):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">LUPI_Classification_SVM</span><span class="ss">(</span><span class="nv">InitModel</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def hyperparameter(cls):
+    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-    def fit(self, X_combined, y, lupi_features=None):
+    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X_combined</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        lupi_features : int
+        <span class="nv">lupi_features</span> : <span class="nv">int</span>
 
-            Number of features in dataset which are considered privileged information (PI).
+            <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">dataset</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="ss">(</span><span class="nv">PI</span><span class="ss">)</span>.
 
-            PI features are expected to be the last features in the dataset.
+            <span class="nv">PI</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">dataset</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("No lupi_features argument given.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">No lupi_features argument given.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        self.lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X_combined</span>, <span class="nv">lupi_features</span><span class="ss">)</span>
 
-        (n, d) = X.shape
+        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
 
-        # Get parameters from CV model without any feature contstraints
+        # <span class="nv">Get</span> <span class="nv">parameters</span> <span class="nv">from</span> <span class="nv">CV</span> <span class="nv">model</span> <span class="nv">without</span> <span class="nv">any</span> <span class="nv">feature</span> <span class="nv">contstraints</span>
 
-        C = self.hyperparam["C"]
+        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        <span class="nv">scaling_lupi_w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        <span class="nv">scaling_lupi_loss</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-        # Initalize Variables in cvxpy
+        # <span class="nv">Initalize</span> <span class="nv">Variables</span> <span class="nv">in</span> <span class="nv">cvxpy</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        w_priv = cvx.Variable(lupi_features, name="w_priv")
+        <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b = cvx.Variable(name="bias")
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b_priv = cvx.Variable(name="bias_priv")
+        <span class="nv">b_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # Define functions for better readability
+        # <span class="nv">Define</span> <span class="nv">functions</span> <span class="k">for</span> <span class="nv">better</span> <span class="nv">readability</span>
 
-        function = X * w + b
+        <span class="nv">function</span> <span class="o">=</span> <span class="nv">X</span> <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">b</span>
 
-        priv_function = X_priv * w_priv + b_priv
+        <span class="nv">priv_function</span> <span class="o">=</span> <span class="nv">X_priv</span> <span class="o">*</span> <span class="nv">w_priv</span> <span class="o">+</span> <span class="nv">b_priv</span>
 
-        slack = cvx.Variable(shape=(n))
+        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">))</span>
 
-        # Combined loss of lupi function and normal slacks, scaled by two constants
+        # <span class="nv">Combined</span> <span class="nv">loss</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span> <span class="nv">and</span> <span class="nv">normal</span> <span class="nv">slacks</span>, <span class="nv">scaled</span> <span class="nv">by</span> <span class="nv">two</span> <span class="nv">constants</span>
 
-        loss = scaling_lupi_loss * cvx.sum(priv_function) + cvx.sum(slack)
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">scaling_lupi_loss</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">priv_function</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">)</span>
 
-        # L1 norm regularization of both functions with 1 scaling constant
+        # <span class="nv">L1</span> <span class="nv">norm</span> <span class="nv">regularization</span> <span class="nv">of</span> <span class="nv">both</span> <span class="nv">functions</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">scaling</span> <span class="nv">constant</span>
 
-        w_l1 = cvx.norm(w, 1)
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        w_priv_l1 = cvx.norm(w_priv, 1)
+        <span class="nv">w_priv_l1</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w_priv</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
+        <span class="nv">weight_regularization</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">5</span> <span class="o">*</span> <span class="ss">(</span><span class="nv">w_l1</span> <span class="o">+</span> <span class="nv">scaling_lupi_w</span> <span class="o">*</span> <span class="nv">w_priv_l1</span><span class="ss">)</span>
 
-        constraints = [
+        <span class="nv">constraints</span> <span class="o">=</span> [
 
-            cvx.multiply(y.T, function) &gt;= 1 - cvx.multiply(y.T, priv_function) - slack,
+            <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">function</span><span class="ss">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">priv_function</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">slack</span>,
 
-            priv_function &gt;= 0,
+            <span class="nv">priv_function</span> <span class="o">&gt;=</span> <span class="mi">0</span>,
 
-            slack &gt;= 0,
+            <span class="nv">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span>,
 
         ]
 
-        objective = cvx.Minimize(C * loss + weight_regularization)
+        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">C</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">weight_regularization</span><span class="ss">)</span>
 
-        # Solve problem.
+        # <span class="nv">Solve</span> <span class="nv">problem</span>.
 
-        solver_params = self.solver_params
+        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
 
-        problem.solve(**solver_params)
+        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
 
-        w = w.value
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
 
-        w_priv = w_priv.value
+        <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">w_priv</span>.<span class="nv">value</span>
 
-        b = b.value
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">b</span>.<span class="nv">value</span>
 
-        b_priv = b_priv.value
+        <span class="nv">b_priv</span> <span class="o">=</span> <span class="nv">b_priv</span>.<span class="nv">value</span>
 
-        self.model_state = {
+        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {
 
-            "w": w,
+            <span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>,
 
-            "w_priv": w_priv,
+            <span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span>: <span class="nv">w_priv</span>,
 
-            "b": b,
+            <span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>: <span class="nv">b</span>,
 
-            "b_priv": b_priv,
+            <span class="s2">&quot;</span><span class="s">b_priv</span><span class="s2">&quot;</span>: <span class="nv">b_priv</span>,
 
-            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
+            <span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>: <span class="nv">lupi_features</span>,  # <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">dataset</span> <span class="nv">TODO</span>: <span class="nv">Move</span> <span class="nv">this</span> <span class="nv">somewhere</span> <span class="k">else</span>
 
         }
 
-        loss = loss.value
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">loss</span>.<span class="nv">value</span>
 
-        w_l1 = w_l1.value
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">w_l1</span>.<span class="nv">value</span>
 
-        w_priv_l1 = w_priv_l1.value
+        <span class="nv">w_priv_l1</span> <span class="o">=</span> <span class="nv">w_priv_l1</span>.<span class="nv">value</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1, "w_priv_l1": w_priv_l1}
+        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>, <span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>: <span class="nv">w_priv_l1</span>}
 
-        return self
+        <span class="k">return</span> <span class="nv">self</span>
 
-    def predict(self, X):
+    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        X, X_priv = split_dataset(X, self.lupi_features)
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">self</span>.<span class="nv">lupi_features</span><span class="ss">)</span>
 
-        w = self.model_state["w"]
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
 
-        b = self.model_state["b"]
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>]
 
-        # Simple hyperplane classification rule
+        # <span class="nv">Simple</span> <span class="nv">hyperplane</span> <span class="nv">classification</span> <span class="nv">rule</span>
 
-        f = np.dot(X, w) + b
+        <span class="nv">f</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">b</span>
 
-        y = f &gt;= 0
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">f</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-        y = y.astype(int)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
 
-        # Format binary as signed unit vector
+        # <span class="nv">Format</span> <span class="nv">binary</span> <span class="nv">as</span> <span class="nv">signed</span> <span class="nv">unit</span> <span class="nv">vector</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        return y
+        <span class="k">return</span> <span class="nv">y</span>
 
-    def score(self, X, y, **kwargs):
+    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        prediction = self.predict(X)
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-        # Negative class is set to -1 for decision surface
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y = LabelEncoder().fit_transform(y)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        # Using weighted f1 score to have a stable score for imbalanced datasets
+        # <span class="nv">Using</span> <span class="nv">weighted</span> <span class="nv">f1</span> <span class="nv">score</span> <span class="nv">to</span> <span class="nv">have</span> <span class="nv">a</span> <span class="nv">stable</span> <span class="nv">score</span> <span class="k">for</span> <span class="nv">imbalanced</span> <span class="nv">datasets</span>
 
-        score = fbeta_score(y, prediction, beta=1, average="weighted")
+        <span class="nv">score</span> <span class="o">=</span> <span class="nv">fbeta_score</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">beta</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">average</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">weighted</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if "verbose" in kwargs:
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">verbose</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
 
-            return classification_report(y, prediction)
+            <span class="k">return</span> <span class="nv">classification_report</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span><span class="ss">)</span>
 
-        return score
-</code></pre>
+        <span class="k">return</span> <span class="nv">score</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
@@ -2737,181 +2817,195 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_2">Static methods</h4>
 <h5 id="hyperparameter">hyperparameter</h5>
-<pre><code class="python3">def hyperparameter(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def hyperparameter(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h5 id="make_scorer">make_scorer</h5>
-<pre><code class="python3">def make_scorer(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_scorer</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def make_scorer(self):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return None, None
-</code></pre>
+    <span class="nv">def</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">None</span>, <span class="nv">None</span>
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_2">Instance variables</h4>
-<pre><code class="python3">L1_factor
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">L1_factor</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">model_state
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">solver_params
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">model_state</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_params</span>
+</pre></div>
+
 
 <h4 id="methods_2">Methods</h4>
 <h5 id="fit">fit</h5>
-<pre><code class="python3">def fit(
-    self,
-    X_combined,
-    y,
-    lupi_features=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X_combined</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <h2 id="parameters_1">Parameters</h2>
 <p>lupi_features : int
     Number of features in dataset which are considered privileged information (PI).
     PI features are expected to be the last features in the dataset.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X_combined, y, lupi_features=None):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X_combined</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        lupi_features : int
+        <span class="nv">lupi_features</span> : <span class="nv">int</span>
 
-            Number of features in dataset which are considered privileged information (PI).
+            <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">dataset</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="ss">(</span><span class="nv">PI</span><span class="ss">)</span>.
 
-            PI features are expected to be the last features in the dataset.
+            <span class="nv">PI</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">dataset</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if lupi_features is None:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            raise ValueError("No lupi_features argument given.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">No lupi_features argument given.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        self.lupi_features = lupi_features
+        <span class="nv">self</span>.<span class="nv">lupi_features</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        X, X_priv = split_dataset(X_combined, lupi_features)
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X_combined</span>, <span class="nv">lupi_features</span><span class="ss">)</span>
 
-        (n, d) = X.shape
+        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
 
-        # Get parameters from CV model without any feature contstraints
+        # <span class="nv">Get</span> <span class="nv">parameters</span> <span class="nv">from</span> <span class="nv">CV</span> <span class="nv">model</span> <span class="nv">without</span> <span class="nv">any</span> <span class="nv">feature</span> <span class="nv">contstraints</span>
 
-        C = self.hyperparam["C"]
+        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        <span class="nv">scaling_lupi_w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        <span class="nv">scaling_lupi_loss</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
 
-        # Initalize Variables in cvxpy
+        # <span class="nv">Initalize</span> <span class="nv">Variables</span> <span class="nv">in</span> <span class="nv">cvxpy</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        w_priv = cvx.Variable(lupi_features, name="w_priv")
+        <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">lupi_features</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b = cvx.Variable(name="bias")
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b_priv = cvx.Variable(name="bias_priv")
+        <span class="nv">b_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # Define functions for better readability
+        # <span class="nv">Define</span> <span class="nv">functions</span> <span class="k">for</span> <span class="nv">better</span> <span class="nv">readability</span>
 
-        function = X * w + b
+        <span class="nv">function</span> <span class="o">=</span> <span class="nv">X</span> <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">b</span>
 
-        priv_function = X_priv * w_priv + b_priv
+        <span class="nv">priv_function</span> <span class="o">=</span> <span class="nv">X_priv</span> <span class="o">*</span> <span class="nv">w_priv</span> <span class="o">+</span> <span class="nv">b_priv</span>
 
-        slack = cvx.Variable(shape=(n))
+        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">))</span>
 
-        # Combined loss of lupi function and normal slacks, scaled by two constants
+        # <span class="nv">Combined</span> <span class="nv">loss</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span> <span class="nv">and</span> <span class="nv">normal</span> <span class="nv">slacks</span>, <span class="nv">scaled</span> <span class="nv">by</span> <span class="nv">two</span> <span class="nv">constants</span>
 
-        loss = scaling_lupi_loss * cvx.sum(priv_function) + cvx.sum(slack)
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">scaling_lupi_loss</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">priv_function</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">)</span>
 
-        # L1 norm regularization of both functions with 1 scaling constant
+        # <span class="nv">L1</span> <span class="nv">norm</span> <span class="nv">regularization</span> <span class="nv">of</span> <span class="nv">both</span> <span class="nv">functions</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">scaling</span> <span class="nv">constant</span>
 
-        w_l1 = cvx.norm(w, 1)
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        w_priv_l1 = cvx.norm(w_priv, 1)
+        <span class="nv">w_priv_l1</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w_priv</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        weight_regularization = 0.5 * (w_l1 + scaling_lupi_w * w_priv_l1)
+        <span class="nv">weight_regularization</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">5</span> <span class="o">*</span> <span class="ss">(</span><span class="nv">w_l1</span> <span class="o">+</span> <span class="nv">scaling_lupi_w</span> <span class="o">*</span> <span class="nv">w_priv_l1</span><span class="ss">)</span>
 
-        constraints = [
+        <span class="nv">constraints</span> <span class="o">=</span> [
 
-            cvx.multiply(y.T, function) &gt;= 1 - cvx.multiply(y.T, priv_function) - slack,
+            <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">function</span><span class="ss">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">priv_function</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">slack</span>,
 
-            priv_function &gt;= 0,
+            <span class="nv">priv_function</span> <span class="o">&gt;=</span> <span class="mi">0</span>,
 
-            slack &gt;= 0,
+            <span class="nv">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span>,
 
         ]
 
-        objective = cvx.Minimize(C * loss + weight_regularization)
+        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">C</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">weight_regularization</span><span class="ss">)</span>
 
-        # Solve problem.
+        # <span class="nv">Solve</span> <span class="nv">problem</span>.
 
-        solver_params = self.solver_params
+        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
 
-        problem.solve(**solver_params)
+        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
 
-        w = w.value
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
 
-        w_priv = w_priv.value
+        <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">w_priv</span>.<span class="nv">value</span>
 
-        b = b.value
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">b</span>.<span class="nv">value</span>
 
-        b_priv = b_priv.value
+        <span class="nv">b_priv</span> <span class="o">=</span> <span class="nv">b_priv</span>.<span class="nv">value</span>
 
-        self.model_state = {
+        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {
 
-            "w": w,
+            <span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>,
 
-            "w_priv": w_priv,
+            <span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span>: <span class="nv">w_priv</span>,
 
-            "b": b,
+            <span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>: <span class="nv">b</span>,
 
-            "b_priv": b_priv,
+            <span class="s2">&quot;</span><span class="s">b_priv</span><span class="s2">&quot;</span>: <span class="nv">b_priv</span>,
 
-            "lupi_features": lupi_features,  # Number of lupi features in the dataset TODO: Move this somewhere else
+            <span class="s2">&quot;</span><span class="s">lupi_features</span><span class="s2">&quot;</span>: <span class="nv">lupi_features</span>,  # <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">in</span> <span class="nv">the</span> <span class="nv">dataset</span> <span class="nv">TODO</span>: <span class="nv">Move</span> <span class="nv">this</span> <span class="nv">somewhere</span> <span class="k">else</span>
 
         }
 
-        loss = loss.value
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">loss</span>.<span class="nv">value</span>
 
-        w_l1 = w_l1.value
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">w_l1</span>.<span class="nv">value</span>
 
-        w_priv_l1 = w_priv_l1.value
+        <span class="nv">w_priv_l1</span> <span class="o">=</span> <span class="nv">w_priv_l1</span>.<span class="nv">value</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1, "w_priv_l1": w_priv_l1}
+        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>, <span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>: <span class="nv">w_priv_l1</span>}
 
-        return self
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_params">get_params</h5>
-<pre><code class="python3">def get_params(
-    self,
-    deep=True
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">deep</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Get parameters for this estimator.</p>
 <h2 id="parameters_2">Parameters</h2>
@@ -2921,77 +3015,86 @@ inheritance.</p>
 <h2 id="returns">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>:
 
-        return self.hyperparam
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>
+</pre></div>
+
+
 </details>
 <h5 id="predict">predict</h5>
-<pre><code class="python3">def predict(
-    self,
-    X
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def predict(self, X):
 
-        X, X_priv = split_dataset(X, self.lupi_features)
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        w = self.model_state["w"]
+        <span class="nv">X</span>, <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">split_dataset</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">self</span>.<span class="nv">lupi_features</span><span class="ss">)</span>
 
-        b = self.model_state["b"]
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
 
-        # Simple hyperplane classification rule
+        <span class="nv">b</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>]
 
-        f = np.dot(X, w) + b
+        # <span class="nv">Simple</span> <span class="nv">hyperplane</span> <span class="nv">classification</span> <span class="nv">rule</span>
 
-        y = f &gt;= 0
+        <span class="nv">f</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">b</span>
 
-        y = y.astype(int)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">f</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-        # Format binary as signed unit vector
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
 
-        y[y == 0] = -1
+        # <span class="nv">Format</span> <span class="nv">binary</span> <span class="nv">as</span> <span class="nv">signed</span> <span class="nv">unit</span> <span class="nv">vector</span>
 
-        return y
-</code></pre>
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+
+        <span class="k">return</span> <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="score">score</h5>
-<pre><code class="python3">def score(
-    self,
-    X,
-    y,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">score</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y, **kwargs):
 
-        prediction = self.predict(X)
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Negative class is set to -1 for decision surface
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-        y = LabelEncoder().fit_transform(y)
+        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
 
-        y[y == 0] = -1
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        # Using weighted f1 score to have a stable score for imbalanced datasets
+        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        score = fbeta_score(y, prediction, beta=1, average="weighted")
+        # <span class="nv">Using</span> <span class="nv">weighted</span> <span class="nv">f1</span> <span class="nv">score</span> <span class="nv">to</span> <span class="nv">have</span> <span class="nv">a</span> <span class="nv">stable</span> <span class="nv">score</span> <span class="k">for</span> <span class="nv">imbalanced</span> <span class="nv">datasets</span>
 
-        if "verbose" in kwargs:
+        <span class="nv">score</span> <span class="o">=</span> <span class="nv">fbeta_score</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">beta</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">average</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">weighted</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            return classification_report(y, prediction)
+        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">verbose</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
 
-        return score
-</code></pre>
+            <span class="k">return</span> <span class="nv">classification_report</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">score</span>
+</pre></div>
+
+
 </details>
 <h5 id="set_params">set_params</h5>
-<pre><code class="python3">def set_params(
-    self,
-    **params
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
@@ -3000,14 +3103,16 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_1">Returns</h2>
 <p>self</p>
-<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nb">params</span><span class="ss">)</span>:
 
-        for p, value in params.items():
+        <span class="k">for</span> <span class="nv">p</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nb">params</span>.<span class="nv">items</span><span class="ss">()</span>:
 
-            self.hyperparam[p] = value
+            <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="nv">p</span>] <span class="o">=</span> <span class="nv">value</span>
 
-        return self
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
                 
                   

@@ -969,96 +969,98 @@
                 
                 
                 <h1 id="module-fritoydata">Module fri.toydata</h1>
-<details class="example"><summary>View Source</summary><pre><code>import numpy as np
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-from fri import ProblemName
+<span class="kn">from</span> <span class="nn">fri</span> <span class="kn">import</span> <span class="n">ProblemName</span>
 
-from .gen_data import genRegressionData, genClassificationData, genOrdinalRegressionData
+<span class="kn">from</span> <span class="nn">.gen_data</span> <span class="kn">import</span> <span class="n">genRegressionData</span><span class="p">,</span> <span class="n">genClassificationData</span><span class="p">,</span> <span class="n">genOrdinalRegressionData</span>
 
-from .gen_lupi import genLupiData
+<span class="kn">from</span> <span class="nn">.gen_lupi</span> <span class="kn">import</span> <span class="n">genLupiData</span>
 
-__all__ = [
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
 
-    "genRegressionData",
+    <span class="s2">&quot;genRegressionData&quot;</span><span class="p">,</span>
 
-    "genClassificationData",
+    <span class="s2">&quot;genClassificationData&quot;</span><span class="p">,</span>
 
-    "genOrdinalRegressionData",
+    <span class="s2">&quot;genOrdinalRegressionData&quot;</span><span class="p">,</span>
 
-    "genLupiData",
+    <span class="s2">&quot;genLupiData&quot;</span><span class="p">,</span>
 
-]
+<span class="p">]</span>
 
-def quick_generate(problem: object, **kwargs) -&gt; [np.ndarray, np.ndarray]:
+<span class="k">def</span> <span class="nf">quick_generate</span><span class="p">(</span><span class="n">problem</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 
-    """
+    <span class="sd">&quot;&quot;&quot;</span>
 
-    Method to wrap individual data generation functions.
+<span class="sd">    Method to wrap individual data generation functions.</span>
 
-    Allows passing `problem` as a string such as "classification" or `ProblemName` object of the corresponding type.
+<span class="sd">    Allows passing `problem` as a string such as &quot;classification&quot; or `ProblemName` object of the corresponding type.</span>
 
-    For possible kwargs see `genClassificationData' or `genLupiData`.
+<span class="sd">    For possible kwargs see `genClassificationData&#39; or `genLupiData`.</span>
 
-    Parameters
+<span class="sd">    Parameters</span>
 
-    ----------
+<span class="sd">    ----------</span>
 
-    problem : str or `ProblemName`
+<span class="sd">    problem : str or `ProblemName`</span>
 
-        Type of data to generate (e.g. "classification" or `ProblemName.CLASSIFICATION`
+<span class="sd">        Type of data to generate (e.g. &quot;classification&quot; or `ProblemName.CLASSIFICATION`</span>
 
-    kwargs : **dict
+<span class="sd">    kwargs : **dict</span>
 
-        arguments to pass to the generation functions
+<span class="sd">        arguments to pass to the generation functions</span>
 
-    Returns
+<span class="sd">    Returns</span>
 
-    -------
+<span class="sd">    -------</span>
 
-    Tuple[numpy.ndarray, numpy.ndarray]
+<span class="sd">    Tuple[numpy.ndarray, numpy.ndarray]</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    if problem is "regression" or problem is ProblemName.REGRESSION:
+    <span class="k">if</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;regression&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">REGRESSION</span><span class="p">:</span>
 
-        gen = genRegressionData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genRegressionData</span>
 
-    elif problem is "classification" or problem is ProblemName.CLASSIFICATION:
+    <span class="k">elif</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;classification&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">CLASSIFICATION</span><span class="p">:</span>
 
-        gen = genClassificationData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genClassificationData</span>
 
-    elif problem is "ordreg" or problem is ProblemName.ORDINALREGRESSION:
+    <span class="k">elif</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;ordreg&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">ORDINALREGRESSION</span><span class="p">:</span>
 
-        gen = genOrdinalRegressionData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genOrdinalRegressionData</span>
 
-    elif problem is "lupi_regression" or problem is ProblemName.LUPI_REGRESSION:
+    <span class="k">elif</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;lupi_regression&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_REGRESSION</span><span class="p">:</span>
 
-        gen = genLupiData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genLupiData</span>
 
-        kwargs["problemName"] = ProblemName.LUPI_REGRESSION
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;problemName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_REGRESSION</span>
 
-    elif problem is "lupi_classification" or problem is ProblemName.LUPI_CLASSIFICATION:
+    <span class="k">elif</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;lupi_classification&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_CLASSIFICATION</span><span class="p">:</span>
 
-        gen = genLupiData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genLupiData</span>
 
-        kwargs["problemName"] = ProblemName.LUPI_CLASSIFICATION
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;problemName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_CLASSIFICATION</span>
 
-    elif problem is "lupi_ordreg" or problem is ProblemName.LUPI_ORDREGRESSION:
+    <span class="k">elif</span> <span class="n">problem</span> <span class="ow">is</span> <span class="s2">&quot;lupi_ordreg&quot;</span> <span class="ow">or</span> <span class="n">problem</span> <span class="ow">is</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_ORDREGRESSION</span><span class="p">:</span>
 
-        gen = genLupiData
+        <span class="n">gen</span> <span class="o">=</span> <span class="n">genLupiData</span>
 
-        kwargs["problemName"] = ProblemName.LUPI_ORDREGRESSION
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;problemName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ProblemName</span><span class="o">.</span><span class="n">LUPI_ORDREGRESSION</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        raise ValueError(
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
 
-            "Unknown problem type. Try 'regression', 'classification' or 'ordreg' and/or add 'lupi_' prefix"
+            <span class="s2">&quot;Unknown problem type. Try &#39;regression&#39;, &#39;classification&#39; or &#39;ordreg&#39; and/or add &#39;lupi_&#39; prefix&quot;</span>
 
-        )
+        <span class="p">)</span>
 
-    return gen(**kwargs)
-</code></pre>
+    <span class="k">return</span> <span class="n">gen</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h2 id="sub-modules">Sub-modules</h2>
 <ul>
@@ -1067,18 +1069,19 @@ def quick_generate(problem: object, **kwargs) -&gt; [np.ndarray, np.ndarray]:
 </ul>
 <h2 id="functions">Functions</h2>
 <h3 id="genclassificationdata">genClassificationData</h3>
-<pre><code class="python3">def genClassificationData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.1,
-    flip_y:float=0,
-    random_state:object=None,
-    partition=None
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">genClassificationData</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">n_redundant</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_strel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_repeated</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">noise</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="n">flip_y</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span><span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">partition</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Generate synthetic classification data</p>
 <h2 id="parameters">Parameters</h2>
@@ -1121,182 +1124,185 @@ y.shape
 </blockquote>
 </blockquote>
 </blockquote>
-<details class="example"><summary>View Source</summary><pre><code>def genClassificationData(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">genClassificationData</span><span class="ss">(</span>
 
-    n_samples: int = 100,
+    <span class="nv">n_samples</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">100</span>,
 
-    n_features: int = 2,
+    <span class="nv">n_features</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">2</span>,
 
-    n_redundant: int = 0,
+    <span class="nv">n_redundant</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    n_strel: int = 1,
+    <span class="nv">n_strel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">1</span>,
 
-    n_repeated: int = 0,
+    <span class="nv">n_repeated</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    noise: float = 0.1,
+    <span class="nv">noise</span>: <span class="nv">float</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>,
 
-    flip_y: float = 0,
+    <span class="nv">flip_y</span>: <span class="nv">float</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    random_state: object = None,
+    <span class="nv">random_state</span>: <span class="nv">object</span> <span class="o">=</span> <span class="nv">None</span>,
 
-    partition=None,
+    <span class="nv">partition</span><span class="o">=</span><span class="nv">None</span>,
 
-):
+<span class="ss">)</span>:
 
-    """Generate synthetic classification data
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Generate synthetic classification data</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    n_samples : int, optional
+    <span class="nv">n_samples</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of samples
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">samples</span>
 
-    n_features : int, optional
+    <span class="nv">n_features</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span>
 
-    n_redundant : int, optional
+    <span class="nv">n_redundant</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are part of redundant subsets (weakly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">part</span> <span class="nv">of</span> <span class="nv">redundant</span> <span class="nv">subsets</span> <span class="ss">(</span><span class="nv">weakly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_strel : int, optional
+    <span class="nv">n_strel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are mandatory for the underlying model (strongly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">mandatory</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">underlying</span> <span class="nv">model</span> <span class="ss">(</span><span class="nv">strongly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_repeated : int, optional
+    <span class="nv">n_repeated</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are clones of existing ones.
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">clones</span> <span class="nv">of</span> <span class="nv">existing</span> <span class="nv">ones</span>.
 
-    noise : float
+    <span class="nv">noise</span> : <span class="nv">float</span>
 
-        Added gaussian noise to data. Parameter scales Std of normal distribution.
+        <span class="nv">Added</span> <span class="nv">gaussian</span> <span class="nv">noise</span> <span class="nv">to</span> <span class="nv">data</span>. <span class="nv">Parameter</span> <span class="nv">scales</span> <span class="nv">Std</span> <span class="nv">of</span> <span class="nv">normal</span> <span class="nv">distribution</span>.
 
-    flip_y : float, optional
+    <span class="nv">flip_y</span> : <span class="nv">float</span>, <span class="nv">optional</span>
 
-        Ratio of samples randomly switched to wrong class.
+        <span class="nv">Ratio</span> <span class="nv">of</span> <span class="nv">samples</span> <span class="nv">randomly</span> <span class="nv">switched</span> <span class="nv">to</span> <span class="nv">wrong</span> <span class="nv">class</span>.
 
-    random_state : object, optional
+    <span class="nv">random_state</span> : <span class="nv">object</span>, <span class="nv">optional</span>
 
-        Randomstate object used for generation.
+        <span class="nv">Randomstate</span> <span class="nv">object</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">generation</span>.
 
-    Returns
+    <span class="nv">Returns</span>
 
-    -------
+    <span class="o">-------</span>
 
-    X : array of shape [n_samples, n_features]
+    <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
 
-        The generated samples.
+        <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">samples</span>.
 
-    y : array of shape [n_samples]
+    <span class="nv">y</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
 
-        The output classes.
+        <span class="nv">The</span> <span class="nv">output</span> <span class="nv">classes</span>.
 
-    Raises
+    <span class="nv">Raises</span>
 
-    ------
+    <span class="o">------</span>
 
-    ValueError
+    <span class="nv">ValueError</span>
 
-        Description
+        <span class="nv">Description</span>
 
-    ValueError
+    <span class="nv">ValueError</span>
 
-    Wrong parameters for specified amonut of features/samples.
+    <span class="nv">Wrong</span> <span class="nv">parameters</span> <span class="k">for</span> <span class="nv">specified</span> <span class="nv">amonut</span> <span class="nv">of</span> <span class="nv">features</span><span class="o">/</span><span class="nv">samples</span>.
 
-    Examples
+    <span class="nv">Examples</span>
 
-    ---------
+    <span class="o">---------</span>
 
-    &gt;&gt;&gt; X,y = genClassificationData(n_samples=200)
+    <span class="o">&gt;&gt;&gt;</span> <span class="nv">X</span>,<span class="nv">y</span> <span class="o">=</span> <span class="nv">genClassificationData</span><span class="ss">(</span><span class="nv">n_samples</span><span class="o">=</span><span class="mi">200</span><span class="ss">)</span>
 
-    Generating dataset with d=2,n=200,strongly=1,weakly=0, partition of weakly=None
+    <span class="nv">Generating</span> <span class="nv">dataset</span> <span class="nv">with</span> <span class="nv">d</span><span class="o">=</span><span class="mi">2</span>,<span class="nv">n</span><span class="o">=</span><span class="mi">200</span>,<span class="nv">strongly</span><span class="o">=</span><span class="mi">1</span>,<span class="nv">weakly</span><span class="o">=</span><span class="mi">0</span>, <span class="nv">partition</span> <span class="nv">of</span> <span class="nv">weakly</span><span class="o">=</span><span class="nv">None</span>
 
-    &gt;&gt;&gt; X.shape
+    <span class="o">&gt;&gt;&gt;</span> <span class="nv">X</span>.<span class="nv">shape</span>
 
-    (200, 2)
+    <span class="ss">(</span><span class="mi">200</span>, <span class="mi">2</span><span class="ss">)</span>
 
-    &gt;&gt;&gt; y.shape
+    <span class="o">&gt;&gt;&gt;</span> <span class="nv">y</span>.<span class="nv">shape</span>
 
-    (200,)
+    <span class="ss">(</span><span class="mi">200</span>,<span class="ss">)</span>
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    _checkParam(**locals())
+    <span class="nv">_checkParam</span><span class="ss">(</span><span class="o">**</span><span class="nv">locals</span><span class="ss">())</span>
 
-    random_state = check_random_state(random_state)
+    <span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
 
-    X = np.zeros((n_samples, n_features))
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">((</span><span class="nv">n_samples</span>, <span class="nv">n_features</span><span class="ss">))</span>
 
-    # Find partitions which defíne the weakly relevant subsets
+    # <span class="nv">Find</span> <span class="nv">partitions</span> <span class="nv">which</span> <span class="nv">def</span>í<span class="nv">ne</span> <span class="nv">the</span> <span class="nv">weakly</span> <span class="nv">relevant</span> <span class="nv">subsets</span>
 
-    if partition is None and n_redundant &gt; 0:
+    <span class="k">if</span> <span class="nv">partition</span> <span class="nv">is</span> <span class="nv">None</span> <span class="nv">and</span> <span class="nv">n_redundant</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        partition = [n_redundant]
+        <span class="nv">partition</span> <span class="o">=</span> [<span class="nv">n_redundant</span>]
 
-        part_size = 1
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="mi">1</span>
 
-    elif partition is not None:
+    <span class="nv">elif</span> <span class="nv">partition</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        part_size = len(partition)
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">partition</span><span class="ss">)</span>
 
-    else:
+    <span class="k">else</span>:
 
-        part_size = 0
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="mi">0</span>
 
-    X_informative, Y = generate_binary_classification_problem(
+    <span class="nv">X_informative</span>, <span class="nv">Y</span> <span class="o">=</span> <span class="nv">generate_binary_classification_problem</span><span class="ss">(</span>
 
-        n_samples, n_strel + part_size, random_state
+        <span class="nv">n_samples</span>, <span class="nv">n_strel</span> <span class="o">+</span> <span class="nv">part_size</span>, <span class="nv">random_state</span>
 
-    )
+    <span class="ss">)</span>
 
-    X = _fillVariableSpace(
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">_fillVariableSpace</span><span class="ss">(</span>
 
-        X_informative,
+        <span class="nv">X_informative</span>,
 
-        random_state,
+        <span class="nv">random_state</span>,
 
-        n_features=n_features,
+        <span class="nv">n_features</span><span class="o">=</span><span class="nv">n_features</span>,
 
-        n_redundant=n_redundant,
+        <span class="nv">n_redundant</span><span class="o">=</span><span class="nv">n_redundant</span>,
 
-        n_strel=n_strel,
+        <span class="nv">n_strel</span><span class="o">=</span><span class="nv">n_strel</span>,
 
-        n_repeated=n_repeated,
+        <span class="nv">n_repeated</span><span class="o">=</span><span class="nv">n_repeated</span>,
 
-        partition=partition,
+        <span class="nv">partition</span><span class="o">=</span><span class="nv">partition</span>,
 
-    )
+    <span class="ss">)</span>
 
-    # Add target noise
+    # <span class="nv">Add</span> <span class="nv">target</span> <span class="nv">noise</span>
 
-    if flip_y &gt; 0:
+    <span class="k">if</span> <span class="nv">flip_y</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        n_flip = int(flip_y * n_samples)
+        <span class="nv">n_flip</span> <span class="o">=</span> <span class="nv">int</span><span class="ss">(</span><span class="nv">flip_y</span> <span class="o">*</span> <span class="nv">n_samples</span><span class="ss">)</span>
 
-        Y[random_state.choice(n_samples, n_flip)] *= -1
+        <span class="nv">Y</span>[<span class="nv">random_state</span>.<span class="nv">choice</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_flip</span><span class="ss">)</span>] <span class="o">*=</span> <span class="o">-</span><span class="mi">1</span>
 
-    # Add gaussian noise to data
+    # <span class="nv">Add</span> <span class="nv">gaussian</span> <span class="nv">noise</span> <span class="nv">to</span> <span class="nv">data</span>
 
-    X = X + random_state.normal(size=(n_samples, n_features), scale=noise / X.std())
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span> <span class="o">+</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_features</span><span class="ss">)</span>, <span class="nv">scale</span><span class="o">=</span><span class="nv">noise</span> <span class="o">/</span> <span class="nv">X</span>.<span class="nv">std</span><span class="ss">())</span>
 
-    return X, Y
-</code></pre>
+    <span class="k">return</span> <span class="nv">X</span>, <span class="nv">Y</span>
+</pre></div>
+
+
 </details>
 <h3 id="genlupidata">genLupiData</h3>
-<pre><code class="python3">def genLupiData(
-    problemName:fri.ProblemName,
-    n_samples:int=100,
-    random_state:object=None,
-    n_ordinal_bins:int=3,
-    n_strel:int=1,
-    n_weakrel:int=0,
-    n_repeated:int=0,
-    n_irrel:int=0,
-    label_noise=0.0
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">genLupiData</span><span class="p">(</span>
+    <span class="n">problemName</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">ProblemName</span><span class="p">,</span>
+    <span class="n">n_samples</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span><span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_ordinal_bins</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="n">n_strel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_weakrel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_repeated</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_irrel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">label_noise</span><span class="o">=</span><span class="mf">0.0</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Generate Lupi Data for Classification, Regression and Ordinal Regression Problems</p>
 <h2 id="parameters_1">Parameters</h2>
@@ -1329,222 +1335,225 @@ y : array of shape [n_samples]
     In case of problemType == 'classification' : values are in [0,1]
     In case of problemType == 'regression' : values are continious
     In case of problemType == 'ordinalRegression' : values are in [0, n_ordinal_bins]</p>
-<details class="example"><summary>View Source</summary><pre><code>def genLupiData(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">genLupiData</span><span class="ss">(</span>
 
-    problemName: ProblemName,
+    <span class="nv">problemName</span>: <span class="nv">ProblemName</span>,
 
-    n_samples: int = 100,
+    <span class="nv">n_samples</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">100</span>,
 
-    random_state: object = None,
+    <span class="nv">random_state</span>: <span class="nv">object</span> <span class="o">=</span> <span class="nv">None</span>,
 
-    n_ordinal_bins: int = 3,
+    <span class="nv">n_ordinal_bins</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">3</span>,
 
-    n_strel: int = 1,
+    <span class="nv">n_strel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">1</span>,
 
-    n_weakrel: int = 0,
+    <span class="nv">n_weakrel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    n_repeated: int = 0,
+    <span class="nv">n_repeated</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    n_irrel: int = 0,
+    <span class="nv">n_irrel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    label_noise=0.0,
+    <span class="nv">label_noise</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">0</span>,
 
-):
+<span class="ss">)</span>:
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-            Generate Lupi Data for Classification, Regression and Ordinal Regression Problems
+            <span class="nv">Generate</span> <span class="nv">Lupi</span> <span class="nv">Data</span> <span class="k">for</span> <span class="nv">Classification</span>, <span class="nv">Regression</span> <span class="nv">and</span> <span class="nv">Ordinal</span> <span class="nv">Regression</span> <span class="nv">Problems</span>
 
-            Parameters
+            <span class="nv">Parameters</span>
 
-            ----------
+            <span class="o">----------</span>
 
-            problemName : ProblemName
+            <span class="nv">problemName</span> : <span class="nv">ProblemName</span>
 
-                Defines the type of y-values of the problem. Example `ProblemName.CLASSIFICATION`.
+                <span class="nv">Defines</span> <span class="nv">the</span> <span class="nv">type</span> <span class="nv">of</span> <span class="nv">y</span><span class="o">-</span><span class="nv">values</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">problem</span>. <span class="nv">Example</span> `<span class="nv">ProblemName</span>.<span class="nv">CLASSIFICATION</span>`.
 
-            n_samples : int, optional
+            <span class="nv">n_samples</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of samples
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">samples</span>
 
-            random_state : object, optional
+            <span class="nv">random_state</span> : <span class="nv">object</span>, <span class="nv">optional</span>
 
-                Randomstate object used for generation.
+                <span class="nv">Randomstate</span> <span class="nv">object</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">generation</span>.
 
-            n_ordinal_bins : int, optional
+            <span class="nv">n_ordinal_bins</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of bins in which the regressional target variable is split to form the ordinal classes,
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">bins</span> <span class="nv">in</span> <span class="nv">which</span> <span class="nv">the</span> <span class="nv">regressional</span> <span class="nv">target</span> <span class="nv">variable</span> <span class="nv">is</span> <span class="nv">split</span> <span class="nv">to</span> <span class="nv">form</span> <span class="nv">the</span> <span class="nv">ordinal</span> <span class="nv">classes</span>,
 
-                Only has an effect if problemType == 'ordinalRegression'
+                <span class="nv">Only</span> <span class="nv">has</span> <span class="nv">an</span> <span class="nv">effect</span> <span class="k">if</span> <span class="nv">problemType</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">ordinalRegression</span><span class="s1">&#39;</span>
 
-            n_strel : int, optional
+            <span class="nv">n_strel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of features which are mandatory for the underlying model (strongly relevant)
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">mandatory</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">underlying</span> <span class="nv">model</span> <span class="ss">(</span><span class="nv">strongly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-            n_weakrel : int, optional
+            <span class="nv">n_weakrel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of weakly relevant features
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">weakly</span> <span class="nv">relevant</span> <span class="nv">features</span>
 
-            n_repeated : int, optional
+            <span class="nv">n_repeated</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of features which are clones of existing ones.
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">clones</span> <span class="nv">of</span> <span class="nv">existing</span> <span class="nv">ones</span>.
 
-            n_irrel : int, optional
+            <span class="nv">n_irrel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-                Number of features which are irrelevant to the underlying model
+                <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">irrelevant</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">underlying</span> <span class="nv">model</span>
 
-            label_noise: float, optional
+            <span class="nv">label_noise</span>: <span class="nv">float</span>, <span class="nv">optional</span>
 
-                Percentage of labels which get permutated.
+                <span class="nv">Percentage</span> <span class="nv">of</span> <span class="nv">labels</span> <span class="nv">which</span> <span class="nv">get</span> <span class="nv">permutated</span>.
 
-            Returns
+            <span class="nv">Returns</span>
 
-            -------
+            <span class="o">-------</span>
 
-            X : array of shape [n_samples, (n_strel + n_weakrel + n_repeated + n_irrel)]
+            <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="ss">(</span><span class="nv">n_strel</span> <span class="o">+</span> <span class="nv">n_weakrel</span> <span class="o">+</span> <span class="nv">n_repeated</span> <span class="o">+</span> <span class="nv">n_irrel</span><span class="ss">)</span>]
 
-                The generated samples
+                <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">samples</span>
 
-            X_priv : array with same shape as X
+            <span class="nv">X_priv</span> : <span class="nv">array</span> <span class="nv">with</span> <span class="nv">same</span> <span class="nv">shape</span> <span class="nv">as</span> <span class="nv">X</span>
 
-                The generated privileged samples
+                <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">privileged</span> <span class="nv">samples</span>
 
-            y : array of shape [n_samples]
+            <span class="nv">y</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
 
-                The generated target values
+                <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">target</span> <span class="nv">values</span>
 
-                In case of problemType == 'classification' : values are in [0,1]
+                <span class="nv">In</span> <span class="nv">case</span> <span class="nv">of</span> <span class="nv">problemType</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">classification</span><span class="s1">&#39;</span> : <span class="nv">values</span> <span class="nv">are</span> <span class="nv">in</span> [<span class="mi">0</span>,<span class="mi">1</span>]
 
-                In case of problemType == 'regression' : values are continious
+                <span class="nv">In</span> <span class="nv">case</span> <span class="nv">of</span> <span class="nv">problemType</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">regression</span><span class="s1">&#39;</span> : <span class="nv">values</span> <span class="nv">are</span> <span class="nv">continious</span>
 
-                In case of problemType == 'ordinalRegression' : values are in [0, n_ordinal_bins]
+                <span class="nv">In</span> <span class="nv">case</span> <span class="nv">of</span> <span class="nv">problemType</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">ordinalRegression</span><span class="s1">&#39;</span> : <span class="nv">values</span> <span class="nv">are</span> <span class="nv">in</span> [<span class="mi">0</span>, <span class="nv">n_ordinal_bins</span>]
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-    random_state = check_random_state(random_state)
+    <span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
 
-    n_informative = n_strel + (n_weakrel &gt; 0)
+    <span class="nv">n_informative</span> <span class="o">=</span> <span class="nv">n_strel</span> <span class="o">+</span> <span class="ss">(</span><span class="nv">n_weakrel</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="ss">)</span>
 
-    # Create truth (prototype) vector which contains true feature contributions
+    # <span class="nv">Create</span> <span class="nv">truth</span> <span class="ss">(</span><span class="nv">prototype</span><span class="ss">)</span> <span class="nv">vector</span> <span class="nv">which</span> <span class="nv">contains</span> <span class="nv">true</span> <span class="nv">feature</span> <span class="nv">contributions</span>
 
-    # We enforce minimum of 0.1 to circumvent problems when testing for relevance
+    # <span class="nv">We</span> <span class="nv">enforce</span> <span class="nv">minimum</span> <span class="nv">of</span> <span class="mi">0</span>.<span class="mi">1</span> <span class="nv">to</span> <span class="nv">circumvent</span> <span class="nv">problems</span> <span class="nv">when</span> <span class="nv">testing</span> <span class="k">for</span> <span class="nv">relevance</span>
 
-    w = random_state.uniform(low=0.5, high=1, size=n_informative)
+    <span class="nv">w</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">uniform</span><span class="ss">(</span><span class="nv">low</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">5</span>, <span class="nv">high</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">size</span><span class="o">=</span><span class="nv">n_informative</span><span class="ss">)</span>
 
-    X_informative = random_state.normal(size=(n_samples, n_informative))
+    <span class="nv">X_informative</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_informative</span><span class="ss">))</span>
 
-    scores = np.dot(X_informative, w)
+    <span class="nv">scores</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X_informative</span>, <span class="nv">w</span><span class="ss">)</span>
 
-    n_features = n_strel + n_weakrel + n_repeated + n_irrel
+    <span class="nv">n_features</span> <span class="o">=</span> <span class="nv">n_strel</span> <span class="o">+</span> <span class="nv">n_weakrel</span> <span class="o">+</span> <span class="nv">n_repeated</span> <span class="o">+</span> <span class="nv">n_irrel</span>
 
-    X_priv = _fillVariableSpace(
+    <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">_fillVariableSpace</span><span class="ss">(</span>
 
-        X_informative,
+        <span class="nv">X_informative</span>,
 
-        random_state,
+        <span class="nv">random_state</span>,
 
-        n_features=n_features,
+        <span class="nv">n_features</span><span class="o">=</span><span class="nv">n_features</span>,
 
-        n_redundant=n_weakrel,
+        <span class="nv">n_redundant</span><span class="o">=</span><span class="nv">n_weakrel</span>,
 
-        n_strel=n_strel,
+        <span class="nv">n_strel</span><span class="o">=</span><span class="nv">n_strel</span>,
 
-        n_repeated=n_repeated,
+        <span class="nv">n_repeated</span><span class="o">=</span><span class="nv">n_repeated</span>,
 
-        partition=[n_weakrel],
+        <span class="nv">partition</span><span class="o">=</span>[<span class="nv">n_weakrel</span>],
 
-    )
+    <span class="ss">)</span>
 
-    if (
+    <span class="k">if</span> <span class="ss">(</span>
 
-        problemName == "classification"
+        <span class="nv">problemName</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">classification</span><span class="s2">&quot;</span>
 
-        or problemName == ProblemName.LUPI_CLASSIFICATION
+        <span class="nv">or</span> <span class="nv">problemName</span> <span class="o">==</span> <span class="nv">ProblemName</span>.<span class="nv">LUPI_CLASSIFICATION</span>
 
-    ):
+    <span class="ss">)</span>:
 
-        e = random_state.normal(
+        <span class="nv">e</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span>
 
-            size=(n_samples, X_priv.shape[1]), scale=0.65 / X_priv.std()
+            <span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]<span class="ss">)</span>, <span class="nv">scale</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">65</span> <span class="o">/</span> <span class="nv">X_priv</span>.<span class="nv">std</span><span class="ss">()</span>
 
-        )
+        <span class="ss">)</span>
 
-        X = X_priv + e
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_priv</span> <span class="o">+</span> <span class="nv">e</span>
 
-        y = np.zeros_like(scores)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros_like</span><span class="ss">(</span><span class="nv">scores</span><span class="ss">)</span>
 
-        y[scores &gt; 0] = 1
+        <span class="nv">y</span>[<span class="nv">scores</span> <span class="o">&gt;</span> <span class="mi">0</span>] <span class="o">=</span> <span class="mi">1</span>
 
-        y[scores &lt;= 0] = -1
+        <span class="nv">y</span>[<span class="nv">scores</span> <span class="o">&lt;=</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-    elif problemName == "regression" or problemName == ProblemName.LUPI_REGRESSION:
+    <span class="nv">elif</span> <span class="nv">problemName</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">regression</span><span class="s2">&quot;</span> <span class="nv">or</span> <span class="nv">problemName</span> <span class="o">==</span> <span class="nv">ProblemName</span>.<span class="nv">LUPI_REGRESSION</span>:
 
-        e = random_state.normal(
+        <span class="nv">e</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span>
 
-            size=(n_samples, X_priv.shape[1]), scale=0.5 / X_priv.std()
+            <span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]<span class="ss">)</span>, <span class="nv">scale</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">5</span> <span class="o">/</span> <span class="nv">X_priv</span>.<span class="nv">std</span><span class="ss">()</span>
 
-        )
+        <span class="ss">)</span>
 
-        X = X_priv + e
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_priv</span> <span class="o">+</span> <span class="nv">e</span>
 
-        y = scores
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">scores</span>
 
-    elif (
+    <span class="nv">elif</span> <span class="ss">(</span>
 
-        problemName == "ordinalRegression"
+        <span class="nv">problemName</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">ordinalRegression</span><span class="s2">&quot;</span>
 
-        or problemName == ProblemName.LUPI_ORDREGRESSION
+        <span class="nv">or</span> <span class="nv">problemName</span> <span class="o">==</span> <span class="nv">ProblemName</span>.<span class="nv">LUPI_ORDREGRESSION</span>
 
-    ):
+    <span class="ss">)</span>:
 
-        e = random_state.normal(
+        <span class="nv">e</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span>
 
-            size=(n_samples, X_priv.shape[1]), scale=0.2 / X_priv.std()
+            <span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">X_priv</span>.<span class="nv">shape</span>[<span class="mi">1</span>]<span class="ss">)</span>, <span class="nv">scale</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">2</span> <span class="o">/</span> <span class="nv">X_priv</span>.<span class="nv">std</span><span class="ss">()</span>
 
-        )
+        <span class="ss">)</span>
 
-        X = X_priv + e
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_priv</span> <span class="o">+</span> <span class="nv">e</span>
 
-        step = 1 / (n_ordinal_bins)
+        <span class="nv">step</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="ss">(</span><span class="nv">n_ordinal_bins</span><span class="ss">)</span>
 
-        quantiles = [i * step for i in range(1, n_ordinal_bins)]
+        <span class="nv">quantiles</span> <span class="o">=</span> [<span class="nv">i</span> <span class="o">*</span> <span class="nv">step</span> <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">1</span>, <span class="nv">n_ordinal_bins</span><span class="ss">)</span>]
 
-        bs = np.quantile(scores, quantiles)
+        <span class="nv">bs</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">quantile</span><span class="ss">(</span><span class="nv">scores</span>, <span class="nv">quantiles</span><span class="ss">)</span>
 
-        bs = np.append(bs, np.inf)
+        <span class="nv">bs</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">bs</span>, <span class="nv">np</span>.<span class="nv">inf</span><span class="ss">)</span>
 
-        scores = scores[:, np.newaxis]
+        <span class="nv">scores</span> <span class="o">=</span> <span class="nv">scores</span>[:, <span class="nv">np</span>.<span class="nv">newaxis</span>]
 
-        y = np.sum(scores - bs &gt;= 0, -1)
+        <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">scores</span> <span class="o">-</span> <span class="nv">bs</span> <span class="o">&gt;=</span> <span class="mi">0</span>, <span class="o">-</span><span class="mi">1</span><span class="ss">)</span>
 
-    if n_irrel &gt; 0:
+    <span class="k">if</span> <span class="nv">n_irrel</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        X = np.hstack([X, random_state.normal(size=(n_samples, n_irrel))])
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">hstack</span><span class="ss">(</span>[<span class="nv">X</span>, <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_irrel</span><span class="ss">))</span>]<span class="ss">)</span>
 
-        X_priv = np.hstack([X_priv, random_state.normal(size=(n_samples, n_irrel))])
+        <span class="nv">X_priv</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">hstack</span><span class="ss">(</span>[<span class="nv">X_priv</span>, <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_irrel</span><span class="ss">))</span>]<span class="ss">)</span>
 
-    if label_noise &gt; 0:
+    <span class="k">if</span> <span class="nv">label_noise</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        sample = random_state.choice(len(y), int(len(y) * label_noise))
+        <span class="nv">sample</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">choice</span><span class="ss">(</span><span class="nv">len</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>, <span class="nv">int</span><span class="ss">(</span><span class="nv">len</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">label_noise</span><span class="ss">))</span>
 
-        y[sample] = random_state.permutation(y[sample])
+        <span class="nv">y</span>[<span class="nv">sample</span>] <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">permutation</span><span class="ss">(</span><span class="nv">y</span>[<span class="nv">sample</span>]<span class="ss">)</span>
 
-    return (X, X_priv, y.squeeze())
-</code></pre>
+    <span class="k">return</span> <span class="ss">(</span><span class="nv">X</span>, <span class="nv">X_priv</span>, <span class="nv">y</span>.<span class="nv">squeeze</span><span class="ss">())</span>
+</pre></div>
+
+
 </details>
 <h3 id="genordinalregressiondata">genOrdinalRegressionData</h3>
-<pre><code class="python3">def genOrdinalRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
-    partition=None,
-    n_target_bins:int=3
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">genOrdinalRegressionData</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">n_redundant</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_strel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_repeated</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">noise</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span><span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">partition</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_target_bins</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">3</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Generate ordinal regression data</p>
 <h2 id="parameters_2">Parameters</h2>
@@ -1572,165 +1581,168 @@ y : array of shape [n_samples]
 <h2 id="raises_1">Raises</h2>
 <p>ValueError
 Wrong parameters for specified amonut of features/samples.</p>
-<details class="example"><summary>View Source</summary><pre><code>def genOrdinalRegressionData(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">genOrdinalRegressionData</span><span class="ss">(</span>
 
-    n_samples: int = 100,
+    <span class="nv">n_samples</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">100</span>,
 
-    n_features: int = 2,
+    <span class="nv">n_features</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">2</span>,
 
-    n_redundant: int = 0,
+    <span class="nv">n_redundant</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    n_strel: int = 1,
+    <span class="nv">n_strel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">1</span>,
 
-    n_repeated: int = 0,
+    <span class="nv">n_repeated</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    noise: float = 0.0,
+    <span class="nv">noise</span>: <span class="nv">float</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">0</span>,
 
-    random_state: object = None,
+    <span class="nv">random_state</span>: <span class="nv">object</span> <span class="o">=</span> <span class="nv">None</span>,
 
-    partition=None,
+    <span class="nv">partition</span><span class="o">=</span><span class="nv">None</span>,
 
-    n_target_bins: int = 3,
+    <span class="nv">n_target_bins</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">3</span>,
 
-):
+<span class="ss">)</span>:
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    Generate ordinal regression data
+    <span class="nv">Generate</span> <span class="nv">ordinal</span> <span class="nv">regression</span> <span class="nv">data</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    n_samples : int, optional
+    <span class="nv">n_samples</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of samples
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">samples</span>
 
-    n_features : int, optional
+    <span class="nv">n_features</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span>
 
-    n_redundant : int, optional
+    <span class="nv">n_redundant</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are part of redundant subsets (weakly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">part</span> <span class="nv">of</span> <span class="nv">redundant</span> <span class="nv">subsets</span> <span class="ss">(</span><span class="nv">weakly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_strel : int, optional
+    <span class="nv">n_strel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are mandatory for the underlying model (strongly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">mandatory</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">underlying</span> <span class="nv">model</span> <span class="ss">(</span><span class="nv">strongly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_repeated : int, optional
+    <span class="nv">n_repeated</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are clones of existing ones.
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">clones</span> <span class="nv">of</span> <span class="nv">existing</span> <span class="nv">ones</span>.
 
-    noise : float, optional
+    <span class="nv">noise</span> : <span class="nv">float</span>, <span class="nv">optional</span>
 
-        Noise of the created samples around ground truth.
+        <span class="nv">Noise</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">created</span> <span class="nv">samples</span> <span class="nv">around</span> <span class="nv">ground</span> <span class="nv">truth</span>.
 
-    random_state : object, optional
+    <span class="nv">random_state</span> : <span class="nv">object</span>, <span class="nv">optional</span>
 
-        Randomstate object used for generation.
+        <span class="nv">Randomstate</span> <span class="nv">object</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">generation</span>.
 
-    n_target_bins : int, optional
+    <span class="nv">n_target_bins</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of bins in which the regressional target variable is split to form the ordinal classes
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">bins</span> <span class="nv">in</span> <span class="nv">which</span> <span class="nv">the</span> <span class="nv">regressional</span> <span class="nv">target</span> <span class="nv">variable</span> <span class="nv">is</span> <span class="nv">split</span> <span class="nv">to</span> <span class="nv">form</span> <span class="nv">the</span> <span class="nv">ordinal</span> <span class="nv">classes</span>
 
-    Returns
+    <span class="nv">Returns</span>
 
-    -------
+    <span class="o">-------</span>
 
-    X : array of shape [n_samples, n_features]
+    <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
 
-        The generated samples.
+        <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">samples</span>.
 
-    y : array of shape [n_samples]
+    <span class="nv">y</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
 
-        The output values (target).
+        <span class="nv">The</span> <span class="nv">output</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">target</span><span class="ss">)</span>.
 
-    Raises
+    <span class="nv">Raises</span>
 
-    ------
+    <span class="o">------</span>
 
-    ValueError
+    <span class="nv">ValueError</span>
 
-    Wrong parameters for specified amonut of features/samples.
+    <span class="nv">Wrong</span> <span class="nv">parameters</span> <span class="k">for</span> <span class="nv">specified</span> <span class="nv">amonut</span> <span class="nv">of</span> <span class="nv">features</span><span class="o">/</span><span class="nv">samples</span>.
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    _checkParam(**locals())
+    <span class="nv">_checkParam</span><span class="ss">(</span><span class="o">**</span><span class="nv">locals</span><span class="ss">())</span>
 
-    random_state = check_random_state(random_state)
+    <span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
 
-    if not n_target_bins &gt; 1:
+    <span class="k">if</span> <span class="nv">not</span> <span class="nv">n_target_bins</span> <span class="o">&gt;</span> <span class="mi">1</span>:
 
-        raise ValueError("At least 2 target bins needed")
+        <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">At least 2 target bins needed</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    # Use normal regression data as starting point
+    # <span class="nv">Use</span> <span class="nv">normal</span> <span class="nv">regression</span> <span class="nv">data</span> <span class="nv">as</span> <span class="nv">starting</span> <span class="nv">point</span>
 
-    X_regression, Y_regression = genRegressionData(
+    <span class="nv">X_regression</span>, <span class="nv">Y_regression</span> <span class="o">=</span> <span class="nv">genRegressionData</span><span class="ss">(</span>
 
-        n_samples=int(n_samples),
+        <span class="nv">n_samples</span><span class="o">=</span><span class="nv">int</span><span class="ss">(</span><span class="nv">n_samples</span><span class="ss">)</span>,
 
-        n_features=int(n_features),
+        <span class="nv">n_features</span><span class="o">=</span><span class="nv">int</span><span class="ss">(</span><span class="nv">n_features</span><span class="ss">)</span>,
 
-        n_redundant=int(n_redundant),
+        <span class="nv">n_redundant</span><span class="o">=</span><span class="nv">int</span><span class="ss">(</span><span class="nv">n_redundant</span><span class="ss">)</span>,
 
-        n_strel=int(n_strel),
+        <span class="nv">n_strel</span><span class="o">=</span><span class="nv">int</span><span class="ss">(</span><span class="nv">n_strel</span><span class="ss">)</span>,
 
-        n_repeated=int(n_repeated),
+        <span class="nv">n_repeated</span><span class="o">=</span><span class="nv">int</span><span class="ss">(</span><span class="nv">n_repeated</span><span class="ss">)</span>,
 
-        noise=0,
+        <span class="nv">noise</span><span class="o">=</span><span class="mi">0</span>,
 
-        random_state=random_state,
+        <span class="nv">random_state</span><span class="o">=</span><span class="nv">random_state</span>,
 
-        partition=partition,
+        <span class="nv">partition</span><span class="o">=</span><span class="nv">partition</span>,
 
-    )
+    <span class="ss">)</span>
 
-    bin_size = int(np.floor(n_samples / n_target_bins))
+    <span class="nv">bin_size</span> <span class="o">=</span> <span class="nv">int</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">floor</span><span class="ss">(</span><span class="nv">n_samples</span> <span class="o">/</span> <span class="nv">n_target_bins</span><span class="ss">))</span>
 
-    rest = int(n_samples - (bin_size * n_target_bins))
+    <span class="nv">rest</span> <span class="o">=</span> <span class="nv">int</span><span class="ss">(</span><span class="nv">n_samples</span> <span class="o">-</span> <span class="ss">(</span><span class="nv">bin_size</span> <span class="o">*</span> <span class="nv">n_target_bins</span><span class="ss">))</span>
 
-    # Sort the target values and rearange the data accordingly
+    # <span class="nv">Sort</span> <span class="nv">the</span> <span class="nv">target</span> <span class="nv">values</span> <span class="nv">and</span> <span class="nv">rearange</span> <span class="nv">the</span> <span class="nv">data</span> <span class="nv">accordingly</span>
 
-    sort_indices = np.argsort(Y_regression)
+    <span class="nv">sort_indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">argsort</span><span class="ss">(</span><span class="nv">Y_regression</span><span class="ss">)</span>
 
-    X = X_regression[sort_indices]
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">X_regression</span>[<span class="nv">sort_indices</span>]
 
-    Y = Y_regression[sort_indices]
+    <span class="nv">Y</span> <span class="o">=</span> <span class="nv">Y_regression</span>[<span class="nv">sort_indices</span>]
 
-    # Assign ordinal classes as target values
+    # <span class="nv">Assign</span> <span class="nv">ordinal</span> <span class="nv">classes</span> <span class="nv">as</span> <span class="nv">target</span> <span class="nv">values</span>
 
-    for i in range(n_target_bins):
+    <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_target_bins</span><span class="ss">)</span>:
 
-        Y[bin_size * i : bin_size * (i + 1)] = i
+        <span class="nv">Y</span>[<span class="nv">bin_size</span> <span class="o">*</span> <span class="nv">i</span> : <span class="nv">bin_size</span> <span class="o">*</span> <span class="ss">(</span><span class="nv">i</span> <span class="o">+</span> <span class="mi">1</span><span class="ss">)</span>] <span class="o">=</span> <span class="nv">i</span>
 
-    # Put non divisable rest into last bin
+    # <span class="nv">Put</span> <span class="nv">non</span> <span class="nv">divisable</span> <span class="nv">rest</span> <span class="nv">into</span> <span class="nv">last</span> <span class="nv">bin</span>
 
-    if rest &gt; 0:
+    <span class="k">if</span> <span class="nv">rest</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        Y[-rest:] = n_target_bins - 1
+        <span class="nv">Y</span>[<span class="o">-</span><span class="nv">rest</span>:] <span class="o">=</span> <span class="nv">n_target_bins</span> <span class="o">-</span> <span class="mi">1</span>
 
-    X, Y = shuffle(X, Y, random_state=random_state)
+    <span class="nv">X</span>, <span class="nv">Y</span> <span class="o">=</span> <span class="nv">shuffle</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">Y</span>, <span class="nv">random_state</span><span class="o">=</span><span class="nv">random_state</span><span class="ss">)</span>
 
-    # Add gaussian noise to data
+    # <span class="nv">Add</span> <span class="nv">gaussian</span> <span class="nv">noise</span> <span class="nv">to</span> <span class="nv">data</span>
 
-    X = X + random_state.normal(size=(n_samples, n_features), scale=noise)
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span> <span class="o">+</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">size</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_features</span><span class="ss">)</span>, <span class="nv">scale</span><span class="o">=</span><span class="nv">noise</span><span class="ss">)</span>
 
-    return X, Y
-</code></pre>
+    <span class="k">return</span> <span class="nv">X</span>, <span class="nv">Y</span>
+</pre></div>
+
+
 </details>
 <h3 id="genregressiondata">genRegressionData</h3>
-<pre><code class="python3">def genRegressionData(
-    n_samples:int=100,
-    n_features:int=2,
-    n_redundant:int=0,
-    n_strel:int=1,
-    n_repeated:int=0,
-    noise:float=0.0,
-    random_state:object=None,
-    partition=None
-) -&gt; object
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">genRegressionData</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">n_features</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">n_redundant</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_strel</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">n_repeated</span><span class="p">:</span><span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">noise</span><span class="p">:</span><span class="nb">float</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="p">:</span><span class="nb">object</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">partition</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span>
+</pre></div>
+
 
 <p>Generate synthetic regression data</p>
 <h2 id="parameters_3">Parameters</h2>
@@ -1756,142 +1768,144 @@ y : array of shape [n_samples]
 <h2 id="raises_2">Raises</h2>
 <p>ValueError
 Wrong parameters for specified amonut of features/samples.</p>
-<details class="example"><summary>View Source</summary><pre><code>def genRegressionData(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">genRegressionData</span><span class="ss">(</span>
 
-    n_samples: int = 100,
+    <span class="nv">n_samples</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">100</span>,
 
-    n_features: int = 2,
+    <span class="nv">n_features</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">2</span>,
 
-    n_redundant: int = 0,
+    <span class="nv">n_redundant</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    n_strel: int = 1,
+    <span class="nv">n_strel</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">1</span>,
 
-    n_repeated: int = 0,
+    <span class="nv">n_repeated</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
 
-    noise: float = 0.0,
+    <span class="nv">noise</span>: <span class="nv">float</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">0</span>,
 
-    random_state: object = None,
+    <span class="nv">random_state</span>: <span class="nv">object</span> <span class="o">=</span> <span class="nv">None</span>,
 
-    partition=None,
+    <span class="nv">partition</span><span class="o">=</span><span class="nv">None</span>,
 
-) -&gt; object:
+<span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
 
-    """Generate synthetic regression data
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Generate synthetic regression data</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    n_samples : int, optional
+    <span class="nv">n_samples</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of samples
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">samples</span>
 
-    n_features : int, optional
+    <span class="nv">n_features</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span>
 
-    n_redundant : int, optional
+    <span class="nv">n_redundant</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are part of redundant subsets (weakly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">part</span> <span class="nv">of</span> <span class="nv">redundant</span> <span class="nv">subsets</span> <span class="ss">(</span><span class="nv">weakly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_strel : int, optional
+    <span class="nv">n_strel</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are mandatory for the underlying model (strongly relevant)
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">mandatory</span> <span class="k">for</span> <span class="nv">the</span> <span class="nv">underlying</span> <span class="nv">model</span> <span class="ss">(</span><span class="nv">strongly</span> <span class="nv">relevant</span><span class="ss">)</span>
 
-    n_repeated : int, optional
+    <span class="nv">n_repeated</span> : <span class="nv">int</span>, <span class="nv">optional</span>
 
-        Number of features which are clones of existing ones.
+        <span class="nv">Number</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">clones</span> <span class="nv">of</span> <span class="nv">existing</span> <span class="nv">ones</span>.
 
-    noise : float, optional
+    <span class="nv">noise</span> : <span class="nv">float</span>, <span class="nv">optional</span>
 
-        Noise of the created samples around ground truth.
+        <span class="nv">Noise</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">created</span> <span class="nv">samples</span> <span class="nv">around</span> <span class="nv">ground</span> <span class="nv">truth</span>.
 
-    random_state : object, optional
+    <span class="nv">random_state</span> : <span class="nv">object</span>, <span class="nv">optional</span>
 
-        Randomstate object used for generation.
+        <span class="nv">Randomstate</span> <span class="nv">object</span> <span class="nv">used</span> <span class="k">for</span> <span class="nv">generation</span>.
 
-    Returns
+    <span class="nv">Returns</span>
 
-    -------
+    <span class="o">-------</span>
 
-    X : array of shape [n_samples, n_features]
+    <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
 
-        The generated samples.
+        <span class="nv">The</span> <span class="nv">generated</span> <span class="nv">samples</span>.
 
-    y : array of shape [n_samples]
+    <span class="nv">y</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
 
-        The output values (target).
+        <span class="nv">The</span> <span class="nv">output</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">target</span><span class="ss">)</span>.
 
-    Raises
+    <span class="nv">Raises</span>
 
-    ------
+    <span class="o">------</span>
 
-    ValueError
+    <span class="nv">ValueError</span>
 
-    Wrong parameters for specified amonut of features/samples.
+    <span class="nv">Wrong</span> <span class="nv">parameters</span> <span class="k">for</span> <span class="nv">specified</span> <span class="nv">amonut</span> <span class="nv">of</span> <span class="nv">features</span><span class="o">/</span><span class="nv">samples</span>.
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    _checkParam(**locals())
+    <span class="nv">_checkParam</span><span class="ss">(</span><span class="o">**</span><span class="nv">locals</span><span class="ss">())</span>
 
-    random_state = check_random_state(random_state)
+    <span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
 
-    # Find partitions which defíne the weakly relevant subsets
+    # <span class="nv">Find</span> <span class="nv">partitions</span> <span class="nv">which</span> <span class="nv">def</span>í<span class="nv">ne</span> <span class="nv">the</span> <span class="nv">weakly</span> <span class="nv">relevant</span> <span class="nv">subsets</span>
 
-    if partition is None and n_redundant &gt; 0:
+    <span class="k">if</span> <span class="nv">partition</span> <span class="nv">is</span> <span class="nv">None</span> <span class="nv">and</span> <span class="nv">n_redundant</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-        partition = [n_redundant]
+        <span class="nv">partition</span> <span class="o">=</span> [<span class="nv">n_redundant</span>]
 
-        part_size = 1
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="mi">1</span>
 
-    elif partition is not None:
+    <span class="nv">elif</span> <span class="nv">partition</span> <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
 
-        part_size = len(partition)
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">partition</span><span class="ss">)</span>
 
-    else:
+    <span class="k">else</span>:
 
-        part_size = 0
+        <span class="nv">part_size</span> <span class="o">=</span> <span class="mi">0</span>
 
-    n_informative = n_strel + part_size
+    <span class="nv">n_informative</span> <span class="o">=</span> <span class="nv">n_strel</span> <span class="o">+</span> <span class="nv">part_size</span>
 
-    X = random_state.randn(n_samples, n_informative)
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">randn</span><span class="ss">(</span><span class="nv">n_samples</span>, <span class="nv">n_informative</span><span class="ss">)</span>
 
-    ground_truth = np.zeros((n_informative, 1))
+    <span class="nv">ground_truth</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">((</span><span class="nv">n_informative</span>, <span class="mi">1</span><span class="ss">))</span>
 
-    ground_truth[:n_informative, :] = 0.3
+    <span class="nv">ground_truth</span>[:<span class="nv">n_informative</span>, :] <span class="o">=</span> <span class="mi">0</span>.<span class="mi">3</span>
 
-    bias = 0
+    <span class="nv">bias</span> <span class="o">=</span> <span class="mi">0</span>
 
-    y = np.dot(X, ground_truth) + bias
+    <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">ground_truth</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">bias</span>
 
-    # Add noise
+    # <span class="nv">Add</span> <span class="nv">noise</span>
 
-    if noise &gt; 0.0:
+    <span class="k">if</span> <span class="nv">noise</span> <span class="o">&gt;</span> <span class="mi">0</span>.<span class="mi">0</span>:
 
-        y += random_state.normal(scale=noise, size=y.shape)
+        <span class="nv">y</span> <span class="o">+=</span> <span class="nv">random_state</span>.<span class="nv">normal</span><span class="ss">(</span><span class="nv">scale</span><span class="o">=</span><span class="nv">noise</span>, <span class="nv">size</span><span class="o">=</span><span class="nv">y</span>.<span class="nv">shape</span><span class="ss">)</span>
 
-    X = _fillVariableSpace(
+    <span class="nv">X</span> <span class="o">=</span> <span class="nv">_fillVariableSpace</span><span class="ss">(</span>
 
-        X,
+        <span class="nv">X</span>,
 
-        random_state,
+        <span class="nv">random_state</span>,
 
-        n_features=n_features,
+        <span class="nv">n_features</span><span class="o">=</span><span class="nv">n_features</span>,
 
-        n_redundant=n_redundant,
+        <span class="nv">n_redundant</span><span class="o">=</span><span class="nv">n_redundant</span>,
 
-        n_strel=n_strel,
+        <span class="nv">n_strel</span><span class="o">=</span><span class="nv">n_strel</span>,
 
-        n_repeated=n_repeated,
+        <span class="nv">n_repeated</span><span class="o">=</span><span class="nv">n_repeated</span>,
 
-        partition=partition,
+        <span class="nv">partition</span><span class="o">=</span><span class="nv">partition</span>,
 
-    )
+    <span class="ss">)</span>
 
-    y = np.squeeze(y)
+    <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">squeeze</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-    return X, y
-</code></pre>
+    <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
                 
                   

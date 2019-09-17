@@ -46,7 +46,12 @@ line-length = 88
 target-version = ['py36', 'py37']
 
 [tool.portray.mkdocs]
-markdown_extensions =["admonition", "pymdownx.details"]
+markdown_extensions =[
+        "admonition",
+        "codehilite",
+        "extra",
+        "pymdownx.details",
+        "pymdownx.highlight"]
 repo_name = "lpfann/fri"
 repo_url = "https://github.com/lpfann/fri"
 

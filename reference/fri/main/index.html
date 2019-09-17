@@ -1381,862 +1381,868 @@
                 
                 
                 <h1 id="module-frimain">Module fri.main</h1>
-<details class="example"><summary>View Source</summary><pre><code>from sklearn.base import BaseEstimator
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span>
 
-from sklearn.exceptions import NotFittedError
+<span class="kn">from</span> <span class="nn">sklearn.exceptions</span> <span class="kn">import</span> <span class="n">NotFittedError</span>
 
-from sklearn.feature_selection.base import SelectorMixin
+<span class="kn">from</span> <span class="nn">sklearn.feature_selection.base</span> <span class="kn">import</span> <span class="n">SelectorMixin</span>
 
-from sklearn.utils import check_random_state
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_random_state</span>
 
-from sklearn.utils.validation import check_is_fitted
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">check_is_fitted</span>
 
-from fri.compute import RelevanceBoundsIntervals
+<span class="kn">from</span> <span class="nn">fri.compute</span> <span class="kn">import</span> <span class="n">RelevanceBoundsIntervals</span>
 
-from fri.model.base_type import ProblemType
+<span class="kn">from</span> <span class="nn">fri.model.base_type</span> <span class="kn">import</span> <span class="n">ProblemType</span>
 
-from fri.parameter_searcher import find_best_model
+<span class="kn">from</span> <span class="nn">fri.parameter_searcher</span> <span class="kn">import</span> <span class="n">find_best_model</span>
 
-RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
+<span class="n">RELEVANCE_MAPPING</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s2">&quot;Irrelevant&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Weak relevant&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Strong relevant&quot;</span><span class="p">}</span>
 
-class NotFeasibleForParameters(Exception):
+<span class="k">class</span> <span class="nc">NotFeasibleForParameters</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 
-    """ Problem was infeasible with the current parameter set.
+    <span class="sd">&quot;&quot;&quot; Problem was infeasible with the current parameter set.</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-class FRIBase(BaseEstimator, SelectorMixin):
+<span class="k">class</span> <span class="nc">FRIBase</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">SelectorMixin</span><span class="p">):</span>
 
-    def __init__(
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
 
-        self,
+        <span class="bp">self</span><span class="p">,</span>
 
-        problem_type: ProblemType,
+        <span class="n">problem_type</span><span class="p">:</span> <span class="n">ProblemType</span><span class="p">,</span>
 
-        random_state=None,
+        <span class="n">random_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
 
-        n_jobs=1,
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 
-        verbose=0,
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 
-        n_param_search=30,
+        <span class="n">n_param_search</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
 
-        n_probe_features=40,
+        <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
 
-        normalize=True,
+        <span class="n">normalize</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
 
-        **kwargs,
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-    ):
+    <span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        problem_type : abc.ABCMeta
+<span class="sd">        problem_type : abc.ABCMeta</span>
 
-        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+<span class="sd">        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]</span>
 
-        n_jobs : int
+<span class="sd">        n_jobs : int</span>
 
-        verbose : int
+<span class="sd">        verbose : int</span>
 
-        n_param_search : int
+<span class="sd">        n_param_search : int</span>
 
-        n_probe_features : int
+<span class="sd">        n_probe_features : int</span>
 
-        normalize : bool
+<span class="sd">        normalize : bool</span>
 
-        kwargs :
+<span class="sd">        kwargs :</span>
 
-        Attributes
+<span class="sd">        Attributes</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        interval_ : array-like
+<span class="sd">        interval_ : array-like</span>
 
-         Feature relevance Intervals
+<span class="sd">         Feature relevance Intervals</span>
 
-        optim_model_ : `InitModel`
+<span class="sd">        optim_model_ : `InitModel`</span>
 
-        Baseline model fitted on data
+<span class="sd">        Baseline model fitted on data</span>
 
-        relevance_classes_ : list(int)
+<span class="sd">        relevance_classes_ : list(int)</span>
 
-        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+<span class="sd">        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant</span>
 
-        relevance_classes_string_ : list(str)
+<span class="sd">        relevance_classes_string_ : list(str)</span>
 
-        Classes of relevance encoded as string
+<span class="sd">        Classes of relevance encoded as string</span>
 
-        allrel_prediction_ : list(int)
+<span class="sd">        allrel_prediction_ : list(int)</span>
 
-        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+<span class="sd">        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        self.n_probe_features = n_probe_features
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_probe_features</span> <span class="o">=</span> <span class="n">n_probe_features</span>
 
-        self.n_param_search = n_param_search
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_param_search</span> <span class="o">=</span> <span class="n">n_param_search</span>
 
-        # assert issubclass(problem_type, ProblemType)
+        <span class="c1"># assert issubclass(problem_type, ProblemType)</span>
 
-        self.problem_type_ = problem_type(**kwargs)
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span> <span class="o">=</span> <span class="n">problem_type</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        self.random_state = check_random_state(random_state)
+        <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">check_random_state</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
 
-        self.n_jobs = n_jobs
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
 
-        self.verbose = verbose
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
 
-        self.normalize = normalize
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span> <span class="o">=</span> <span class="n">normalize</span>
 
-        self.interval_ = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.optim_model_ = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.relevance_classes_ = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.relevance_classes_string_ = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="bp">None</span>
 
-        self.allrel_prediction_ = None
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="bp">None</span>
 
-    def fit(self, X, y, lupi_features=0, **kwargs):
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Method to fit model on data.
+<span class="sd">        Method to fit model on data.</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        X : numpy.ndarray
+<span class="sd">        X : numpy.ndarray</span>
 
-        y : numpy.ndarray
+<span class="sd">        y : numpy.ndarray</span>
 
-        lupi_features : int
+<span class="sd">        lupi_features : int</span>
 
-            Amount of features which are considered privileged information in `X`.
+<span class="sd">            Amount of features which are considered privileged information in `X`.</span>
 
-            The data is expected to be structured in a way that all lupi features are at the end of the set.
+<span class="sd">            The data is expected to be structured in a way that all lupi features are at the end of the set.</span>
 
-            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+<span class="sd">            For example `lupi_features=1` would denote the last column of `X` to be privileged.</span>
 
-        kwargs : dict
+<span class="sd">        kwargs : dict</span>
 
-            Dictionary of additional keyword arguments depending on the `model`.
+<span class="sd">            Dictionary of additional keyword arguments depending on the `model`.</span>
 
-        Returns
+<span class="sd">        Returns</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        `FRIBase`
+<span class="sd">        `FRIBase`</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        self.lupi_features_ = lupi_features
+        <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span> <span class="o">=</span> <span class="n">lupi_features</span>
 
-        self.n_samples_ = X.shape[0]
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_samples_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        self.n_features_ = X.shape[1] - lupi_features
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lupi_features</span>
 
-        self.optim_model_, best_score = self._fit_baseline(
+        <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_baseline</span><span class="p">(</span>
 
-            X, y, lupi_features, **kwargs
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 
-        )
+        <span class="p">)</span>
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
 
-        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+        <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span> <span class="o">=</span> <span class="n">RelevanceBoundsIntervals</span><span class="p">(</span>
 
-            data,
+            <span class="n">data</span><span class="p">,</span>
 
-            self.problem_type_,
+            <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="p">,</span>
 
-            self.optim_model_,
+            <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">,</span>
 
-            self.random_state,
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
 
-            self.n_probe_features,
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_probe_features</span><span class="p">,</span>
 
-            self.n_jobs,
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
 
-            self.verbose,
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
 
-            normalize=self.normalize,
+            <span class="n">normalize</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">,</span>
 
-        )
+        <span class="p">)</span>
 
-        if lupi_features == 0:
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-            self.interval_, feature_classes = (
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="p">(</span>
 
-                self._relevance_bounds_computer.get_normalized_intervals()
+                <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_intervals</span><span class="p">()</span>
 
-            )
+            <span class="p">)</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_lupi_intervals</span><span class="p">(</span>
 
-                lupi_features=lupi_features
+                <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span>
 
-            )
+            <span class="p">)</span>
 
-        self._get_relevance_mask(feature_classes)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_relevance_mask</span><span class="p">(</span><span class="n">feature_classes</span><span class="p">)</span>
 
-        # Return the classifier
+        <span class="c1"># Return the classifier</span>
 
-        return self
+        <span class="k">return</span> <span class="bp">self</span>
 
-    def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
+    <span class="k">def</span> <span class="nf">_fit_baseline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        # Preprocessing
+        <span class="c1"># Preprocessing</span>
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
 
-        # Get predefined template for our init. model
+        <span class="c1"># Get predefined template for our init. model</span>
 
-        init_model_template = self.problem_type_.get_initmodel_template
+        <span class="n">init_model_template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">get_initmodel_template</span>
 
-        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+        <span class="c1"># Get hyperparameters which are predefined to our model template and can be seleted by user choice</span>
 
-        hyperparameters = self.problem_type_.get_all_parameters()
+        <span class="n">hyperparameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_type_</span><span class="o">.</span><span class="n">get_all_parameters</span><span class="p">()</span>
 
-        # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
+        <span class="c1"># search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this</span>
 
-        search_samples = self.n_param_search
+        <span class="n">search_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_param_search</span>
 
-        # Find an optimal, fitted model using hyperparemeter search
+        <span class="c1"># Find an optimal, fitted model using hyperparemeter search</span>
 
-        optimal_model, best_score = find_best_model(
+        <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="n">find_best_model</span><span class="p">(</span>
 
-            init_model_template,
+            <span class="n">init_model_template</span><span class="p">,</span>
 
-            hyperparameters,
+            <span class="n">hyperparameters</span><span class="p">,</span>
 
-            data,
+            <span class="n">data</span><span class="p">,</span>
 
-            self.random_state,
+            <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
 
-            search_samples,
+            <span class="n">search_samples</span><span class="p">,</span>
 
-            self.n_jobs,
+            <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">,</span>
 
-            self.verbose,
+            <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
 
-            lupi_features=lupi_features,
+            <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">,</span>
 
-            **kwargs,
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-        )
+        <span class="p">)</span>
 
-        return optimal_model, best_score
+        <span class="k">return</span> <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span>
 
-    def _get_relevance_mask(self, prediction):
+    <span class="k">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
 
-        """Determines relevancy using feature relevance interval values
+        <span class="sd">&quot;&quot;&quot;Determines relevancy using feature relevance interval values</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        fpr : float, optional
+<span class="sd">        fpr : float, optional</span>
 
-            false positive rate allowed under H_0
+<span class="sd">            false positive rate allowed under H_0</span>
 
-        Returns
+<span class="sd">        Returns</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        boolean array
+<span class="sd">        boolean array</span>
 
-            Relevancy prediction for each feature
+<span class="sd">            Relevancy prediction for each feature</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        self.relevance_classes_ = prediction
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="n">prediction</span>
 
-        self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="p">[</span><span class="n">RELEVANCE_MAPPING</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">prediction</span><span class="p">]</span>
 
-        self.allrel_prediction_ = prediction &gt; 0
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="n">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_nonpriv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">]</span>
 
-        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
+        <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_priv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="p">:]</span>
 
-        self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_nonpriv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">]</span>
 
-        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_priv_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="p">:]</span>
 
-        return self.allrel_prediction_
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
 
-    def _n_selected_features(self):
+    <span class="k">def</span> <span class="nf">_n_selected_features</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Returns the number of selected features.
+<span class="sd">        Returns the number of selected features.</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        check_is_fitted(self, "allrel_prediction_")
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
 
-        return sum(self.allrel_prediction_)
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span><span class="p">)</span>
 
-    def _get_support_mask(self):
+    <span class="k">def</span> <span class="nf">_get_support_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        """Method for SelectorMixin
+        <span class="sd">&quot;&quot;&quot;Method for SelectorMixin</span>
 
-        Returns
+<span class="sd">        Returns</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        boolean array
+<span class="sd">        boolean array</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        return self.allrel_prediction_
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">allrel_prediction_</span>
 
-    def score(self, X, y):
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Using fitted model predict points for `X` and compare to truth `y`.
+<span class="sd">        Using fitted model predict points for `X` and compare to truth `y`.</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        X : numpy.ndarray
+<span class="sd">        X : numpy.ndarray</span>
 
-        y : numpy.ndarray
+<span class="sd">        y : numpy.ndarray</span>
 
-        Returns
+<span class="sd">        Returns</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        Model specific score (0 is worst, 1 is best)
+<span class="sd">        Model specific score (0 is worst, 1 is best)</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        if self.optim_model_:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="p">:</span>
 
-            return self.optim_model_.score(X, y)
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">optim_model_</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        else:
+        <span class="k">else</span><span class="p">:</span>
 
-            raise NotFittedError()
+            <span class="k">raise</span> <span class="n">NotFittedError</span><span class="p">()</span>
 
-    def constrained_intervals(self, preset: dict):
+    <span class="k">def</span> <span class="nf">constrained_intervals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Method to return relevance intervals which are constrained using preset ranges or values.
+<span class="sd">        Method to return relevance intervals which are constrained using preset ranges or values.</span>
 
-        Parameters
+<span class="sd">        Parameters</span>
 
-        ----------
+<span class="sd">        ----------</span>
 
-        preset : dict like, {i:float} or {i:[float,float]}
+<span class="sd">        preset : dict like, {i:float} or {i:[float,float]}</span>
 
-            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
+<span class="sd">            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).</span>
 
-            Example: To set  feature 0 to a fixed value use
+<span class="sd">            Example: To set  feature 0 to a fixed value use</span>
 
-            &gt;&gt;&gt; preset = {0: 0.1}
+<span class="sd">            &gt;&gt;&gt; preset = {0: 0.1}</span>
 
-            or to use the minimum relevance bound
+<span class="sd">            or to use the minimum relevance bound</span>
 
-            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
+<span class="sd">            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]</span>
 
-        Returns
+<span class="sd">        Returns</span>
 
-        -------
+<span class="sd">        -------</span>
 
-        array like
+<span class="sd">        array like</span>
 
-            Relevance bounds with user constraints
+<span class="sd">            Relevance bounds with user constraints</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        # Do we have intervals?
+        <span class="c1"># Do we have intervals?</span>
 
-        check_is_fitted(self, "interval_")
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;interval_&quot;</span><span class="p">)</span>
 
-        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">compute_multi_preset_relevance_bounds</span><span class="p">(</span>
 
-            preset=preset, lupi_features=self.lupi_features_
+            <span class="n">preset</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span>
 
-        )
+        <span class="p">)</span>
 
-    def print_interval_with_class(self):
+    <span class="k">def</span> <span class="nf">print_interval_with_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        """
+        <span class="sd">&quot;&quot;&quot;</span>
 
-        Pretty print the relevance intervals and determined feature relevance class
+<span class="sd">        Pretty print the relevance intervals and determined feature relevance class</span>
 
-        """
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        output = ""
+        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        if self.interval_ is None:
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
 
-            output += "Model is not fitted."
+            <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;Model is not fitted.&quot;</span>
 
-        output += "############## Relevance bounds ##############\n"
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        output += "feature: [LB -- UB], relevance class\n"
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        for i in range(self.n_features_ + self.lupi_features_):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">lupi_features_</span><span class="p">):</span>
 
-            if i == self.n_features_:
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_</span><span class="p">:</span>
 
-                output += "########## LUPI Relevance bounds\n"
+                <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-            output += (
+            <span class="n">output</span> <span class="o">+=</span> <span class="p">(</span>
 
-                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+                <span class="n">f</span><span class="s2">&quot;{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],&quot;</span>
 
-            )
+            <span class="p">)</span>
 
-            output += f" {self.relevance_classes_string_[i]}\n"
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot; {self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        return output
-</code></pre>
+        <span class="k">return</span> <span class="n">output</span>
+</pre></div>
+
+
 </details>
 <h2 id="variables">Variables</h2>
-<pre><code class="python3">RELEVANCE_MAPPING
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">RELEVANCE_MAPPING</span>
+</pre></div>
+
 
 <h2 id="classes">Classes</h2>
 <h3 id="fribase">FRIBase</h3>
-<pre><code class="python3">class FRIBase(
-    problem_type:fri.model.base_type.ProblemType,
-    random_state=None,
-    n_jobs=1,
-    verbose=0,
-    n_param_search=30,
-    n_probe_features=40,
-    normalize=True,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FRIBase</span><span class="p">(</span>
+    <span class="n">problem_type</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_type</span><span class="o">.</span><span class="n">ProblemType</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">n_param_search</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="n">normalize</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Base class for all estimators in scikit-learn</p>
 <h2 id="notes">Notes</h2>
 <p>All estimators should specify all the parameters that can be set
 at the class level in their <code>__init__</code> as explicit keyword
 arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
-<details class="example"><summary>View Source</summary><pre><code>class FRIBase(BaseEstimator, SelectorMixin):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">FRIBase</span><span class="ss">(</span><span class="nv">BaseEstimator</span>, <span class="nv">SelectorMixin</span><span class="ss">)</span>:
 
-    def __init__(
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span>
 
-        self,
+        <span class="nv">self</span>,
 
-        problem_type: ProblemType,
+        <span class="nv">problem_type</span>: <span class="nv">ProblemType</span>,
 
-        random_state=None,
+        <span class="nv">random_state</span><span class="o">=</span><span class="nv">None</span>,
 
-        n_jobs=1,
+        <span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span>,
 
-        verbose=0,
+        <span class="nv">verbose</span><span class="o">=</span><span class="mi">0</span>,
 
-        n_param_search=30,
+        <span class="nv">n_param_search</span><span class="o">=</span><span class="mi">30</span>,
 
-        n_probe_features=40,
+        <span class="nv">n_probe_features</span><span class="o">=</span><span class="mi">40</span>,
 
-        normalize=True,
+        <span class="nv">normalize</span><span class="o">=</span><span class="nv">True</span>,
 
-        **kwargs,
+        <span class="o">**</span><span class="nv">kwargs</span>,
 
-    ):
+    <span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        problem_type : abc.ABCMeta
+        <span class="nv">problem_type</span> : <span class="nv">abc</span>.<span class="nv">ABCMeta</span>
 
-        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]
+        <span class="nv">random_state</span> : <span class="nv">Union</span>[<span class="nv">mtrand</span>.<span class="nv">RandomState</span>, <span class="nv">int</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>]
 
-        n_jobs : int
+        <span class="nv">n_jobs</span> : <span class="nv">int</span>
 
-        verbose : int
+        <span class="nv">verbose</span> : <span class="nv">int</span>
 
-        n_param_search : int
+        <span class="nv">n_param_search</span> : <span class="nv">int</span>
 
-        n_probe_features : int
+        <span class="nv">n_probe_features</span> : <span class="nv">int</span>
 
-        normalize : bool
+        <span class="nv">normalize</span> : <span class="nv">bool</span>
 
-        kwargs :
+        <span class="nv">kwargs</span> :
 
-        Attributes
+        <span class="nv">Attributes</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        interval_ : array-like
+        <span class="nv">interval_</span> : <span class="nv">array</span><span class="o">-</span><span class="nv">like</span>
 
-         Feature relevance Intervals
+         <span class="nv">Feature</span> <span class="nv">relevance</span> <span class="nv">Intervals</span>
 
-        optim_model_ : `InitModel`
+        <span class="nv">optim_model_</span> : `<span class="nv">InitModel</span>`
 
-        Baseline model fitted on data
+        <span class="nv">Baseline</span> <span class="nv">model</span> <span class="nv">fitted</span> <span class="nv">on</span> <span class="nv">data</span>
 
-        relevance_classes_ : list(int)
+        <span class="nv">relevance_classes_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
 
-        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant
+        <span class="nv">Classes</span> <span class="nv">of</span> <span class="nv">relevance</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">int</span>: <span class="mi">0</span> <span class="nv">irrelevant</span>, <span class="mi">1</span> <span class="nv">weakly</span> <span class="nv">relevant</span>, <span class="mi">2</span> <span class="nv">strongly</span> <span class="nv">relevant</span>
 
-        relevance_classes_string_ : list(str)
+        <span class="nv">relevance_classes_string_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">str</span><span class="ss">)</span>
 
-        Classes of relevance encoded as string
+        <span class="nv">Classes</span> <span class="nv">of</span> <span class="nv">relevance</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">string</span>
 
-        allrel_prediction_ : list(int)
+        <span class="nv">allrel_prediction_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
 
-        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
+        <span class="nv">Relevance</span> <span class="nv">prediction</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">boolean</span>: <span class="mi">0</span> <span class="nv">irrelevant</span>, <span class="mi">1</span> <span class="nv">relevant</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        self.n_probe_features = n_probe_features
+        <span class="nv">self</span>.<span class="nv">n_probe_features</span> <span class="o">=</span> <span class="nv">n_probe_features</span>
 
-        self.n_param_search = n_param_search
+        <span class="nv">self</span>.<span class="nv">n_param_search</span> <span class="o">=</span> <span class="nv">n_param_search</span>
 
-        # assert issubclass(problem_type, ProblemType)
+        # <span class="nv">assert</span> <span class="nv">issubclass</span><span class="ss">(</span><span class="nv">problem_type</span>, <span class="nv">ProblemType</span><span class="ss">)</span>
 
-        self.problem_type_ = problem_type(**kwargs)
+        <span class="nv">self</span>.<span class="nv">problem_type_</span> <span class="o">=</span> <span class="nv">problem_type</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
 
-        self.random_state = check_random_state(random_state)
+        <span class="nv">self</span>.<span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
 
-        self.n_jobs = n_jobs
+        <span class="nv">self</span>.<span class="nv">n_jobs</span> <span class="o">=</span> <span class="nv">n_jobs</span>
 
-        self.verbose = verbose
+        <span class="nv">self</span>.<span class="nv">verbose</span> <span class="o">=</span> <span class="nv">verbose</span>
 
-        self.normalize = normalize
+        <span class="nv">self</span>.<span class="nv">normalize</span> <span class="o">=</span> <span class="nv">normalize</span>
 
-        self.interval_ = None
+        <span class="nv">self</span>.<span class="nv">interval_</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.optim_model_ = None
+        <span class="nv">self</span>.<span class="nv">optim_model_</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.relevance_classes_ = None
+        <span class="nv">self</span>.<span class="nv">relevance_classes_</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.relevance_classes_string_ = None
+        <span class="nv">self</span>.<span class="nv">relevance_classes_string_</span> <span class="o">=</span> <span class="nv">None</span>
 
-        self.allrel_prediction_ = None
+        <span class="nv">self</span>.<span class="nv">allrel_prediction_</span> <span class="o">=</span> <span class="nv">None</span>
 
-    def fit(self, X, y, lupi_features=0, **kwargs):
+    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Method to fit model on data.
+        <span class="nv">Method</span> <span class="nv">to</span> <span class="nv">fit</span> <span class="nv">model</span> <span class="nv">on</span> <span class="nv">data</span>.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : numpy.ndarray
+        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        y : numpy.ndarray
+        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        lupi_features : int
+        <span class="nv">lupi_features</span> : <span class="nv">int</span>
 
-            Amount of features which are considered privileged information in `X`.
+            <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="nv">in</span> `<span class="nv">X</span>`.
 
-            The data is expected to be structured in a way that all lupi features are at the end of the set.
+            <span class="nv">The</span> <span class="nv">data</span> <span class="nv">is</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">structured</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">way</span> <span class="nv">that</span> <span class="nv">all</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">at</span> <span class="nv">the</span> <span class="k">end</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">set</span>.
 
-            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+            <span class="k">For</span> <span class="nv">example</span> `<span class="nv">lupi_features</span><span class="o">=</span><span class="mi">1</span>` <span class="nv">would</span> <span class="nv">denote</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">column</span> <span class="nv">of</span> `<span class="nv">X</span>` <span class="nv">to</span> <span class="nv">be</span> <span class="nv">privileged</span>.
 
-        kwargs : dict
+        <span class="nv">kwargs</span> : <span class="nv">dict</span>
 
-            Dictionary of additional keyword arguments depending on the `model`.
+            <span class="nv">Dictionary</span> <span class="nv">of</span> <span class="nv">additional</span> <span class="nv">keyword</span> <span class="nv">arguments</span> <span class="nv">depending</span> <span class="nv">on</span> <span class="nv">the</span> `<span class="nv">model</span>`.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        `FRIBase`
+        `<span class="nv">FRIBase</span>`
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        self.lupi_features_ = lupi_features
+        <span class="nv">self</span>.<span class="nv">lupi_features_</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        self.n_samples_ = X.shape[0]
+        <span class="nv">self</span>.<span class="nv">n_samples_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>]
 
-        self.n_features_ = X.shape[1] - lupi_features
+        <span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>] <span class="o">-</span> <span class="nv">lupi_features</span>
 
-        self.optim_model_, best_score = self._fit_baseline(
+        <span class="nv">self</span>.<span class="nv">optim_model_</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_fit_baseline</span><span class="ss">(</span>
 
-            X, y, lupi_features, **kwargs
+            <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span>, <span class="o">**</span><span class="nv">kwargs</span>
 
-        )
+        <span class="ss">)</span>
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
 
-        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+        <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nv">RelevanceBoundsIntervals</span><span class="ss">(</span>
 
-            data,
+            <span class="nv">data</span>,
 
-            self.problem_type_,
+            <span class="nv">self</span>.<span class="nv">problem_type_</span>,
 
-            self.optim_model_,
+            <span class="nv">self</span>.<span class="nv">optim_model_</span>,
 
-            self.random_state,
+            <span class="nv">self</span>.<span class="nv">random_state</span>,
 
-            self.n_probe_features,
+            <span class="nv">self</span>.<span class="nv">n_probe_features</span>,
 
-            self.n_jobs,
+            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
 
-            self.verbose,
+            <span class="nv">self</span>.<span class="nv">verbose</span>,
 
-            normalize=self.normalize,
+            <span class="nv">normalize</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">normalize</span>,
 
-        )
+        <span class="ss">)</span>
 
-        if lupi_features == 0:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="mi">0</span>:
 
-            self.interval_, feature_classes = (
+            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="ss">(</span>
 
-                self._relevance_bounds_computer.get_normalized_intervals()
+                <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_intervals</span><span class="ss">()</span>
 
-            )
+            <span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_lupi_intervals</span><span class="ss">(</span>
 
-                lupi_features=lupi_features
+                <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._get_relevance_mask(feature_classes)
+        <span class="nv">self</span>.<span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">feature_classes</span><span class="ss">)</span>
 
-        # Return the classifier
+        # <span class="k">Return</span> <span class="nv">the</span> <span class="nv">classifier</span>
 
-        return self
+        <span class="k">return</span> <span class="nv">self</span>
 
-    def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
+    <span class="nv">def</span> <span class="nv">_fit_baseline</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Preprocessing
+        # <span class="nv">Preprocessing</span>
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
 
-        # Get predefined template for our init. model
+        # <span class="nv">Get</span> <span class="nv">predefined</span> <span class="nv">template</span> <span class="k">for</span> <span class="nv">our</span> <span class="nv">init</span>. <span class="nv">model</span>
 
-        init_model_template = self.problem_type_.get_initmodel_template
+        <span class="nv">init_model_template</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">get_initmodel_template</span>
 
-        # Get hyperparameters which are predefined to our model template and can be seleted by user choice
+        # <span class="nv">Get</span> <span class="nv">hyperparameters</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">predefined</span> <span class="nv">to</span> <span class="nv">our</span> <span class="nv">model</span> <span class="nv">template</span> <span class="nv">and</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">seleted</span> <span class="nv">by</span> <span class="nv">user</span> <span class="nv">choice</span>
 
-        hyperparameters = self.problem_type_.get_all_parameters()
+        <span class="nv">hyperparameters</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">get_all_parameters</span><span class="ss">()</span>
 
-        # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
+        # <span class="nv">search_samples</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">hyperparameters</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">n_param_search</span> # <span class="nv">TODO</span>: <span class="nv">remove</span> <span class="nv">this</span>
 
-        search_samples = self.n_param_search
+        <span class="nv">search_samples</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">n_param_search</span>
 
-        # Find an optimal, fitted model using hyperparemeter search
+        # <span class="nv">Find</span> <span class="nv">an</span> <span class="nv">optimal</span>, <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">using</span> <span class="nv">hyperparemeter</span> <span class="nv">search</span>
 
-        optimal_model, best_score = find_best_model(
+        <span class="nv">optimal_model</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">find_best_model</span><span class="ss">(</span>
 
-            init_model_template,
+            <span class="nv">init_model_template</span>,
 
-            hyperparameters,
+            <span class="nv">hyperparameters</span>,
 
-            data,
+            <span class="nv">data</span>,
 
-            self.random_state,
+            <span class="nv">self</span>.<span class="nv">random_state</span>,
 
-            search_samples,
+            <span class="nv">search_samples</span>,
 
-            self.n_jobs,
+            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
 
-            self.verbose,
+            <span class="nv">self</span>.<span class="nv">verbose</span>,
 
-            lupi_features=lupi_features,
+            <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>,
 
-            **kwargs,
+            <span class="o">**</span><span class="nv">kwargs</span>,
 
-        )
+        <span class="ss">)</span>
 
-        return optimal_model, best_score
+        <span class="k">return</span> <span class="nv">optimal_model</span>, <span class="nv">best_score</span>
 
-    def _get_relevance_mask(self, prediction):
+    <span class="nv">def</span> <span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">prediction</span><span class="ss">)</span>:
 
-        """Determines relevancy using feature relevance interval values
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Determines relevancy using feature relevance interval values</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        fpr : float, optional
+        <span class="nv">fpr</span> : <span class="nv">float</span>, <span class="nv">optional</span>
 
-            false positive rate allowed under H_0
+            <span class="nv">false</span> <span class="nv">positive</span> <span class="nv">rate</span> <span class="nv">allowed</span> <span class="nv">under</span> <span class="nv">H_0</span>
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        boolean array
+        <span class="nv">boolean</span> <span class="nv">array</span>
 
-            Relevancy prediction for each feature
+            <span class="nv">Relevancy</span> <span class="nv">prediction</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">feature</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        self.relevance_classes_ = prediction
+        <span class="nv">self</span>.<span class="nv">relevance_classes_</span> <span class="o">=</span> <span class="nv">prediction</span>
 
-        self.relevance_classes_string_ = [RELEVANCE_MAPPING[p] for p in prediction]
+        <span class="nv">self</span>.<span class="nv">relevance_classes_string_</span> <span class="o">=</span> [<span class="nv">RELEVANCE_MAPPING</span>[<span class="nv">p</span>] <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">prediction</span>]
 
-        self.allrel_prediction_ = prediction &gt; 0
+        <span class="nv">self</span>.<span class="nv">allrel_prediction_</span> <span class="o">=</span> <span class="nv">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
 
-        self.allrel_prediction_nonpriv_ = self.allrel_prediction_[: self.n_features_]
+        <span class="nv">self</span>.<span class="nv">allrel_prediction_nonpriv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>[: <span class="nv">self</span>.<span class="nv">n_features_</span>]
 
-        self.allrel_prediction_priv_ = self.allrel_prediction_[self.n_features_ :]
+        <span class="nv">self</span>.<span class="nv">allrel_prediction_priv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>[<span class="nv">self</span>.<span class="nv">n_features_</span> :]
 
-        self.relevance_classes_nonpriv_ = self.relevance_classes_[: self.n_features_]
+        <span class="nv">self</span>.<span class="nv">relevance_classes_nonpriv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relevance_classes_</span>[: <span class="nv">self</span>.<span class="nv">n_features_</span>]
 
-        self.relevance_classes_priv_ = self.relevance_classes_[self.n_features_ :]
+        <span class="nv">self</span>.<span class="nv">relevance_classes_priv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relevance_classes_</span>[<span class="nv">self</span>.<span class="nv">n_features_</span> :]
 
-        return self.allrel_prediction_
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>
 
-    def _n_selected_features(self):
+    <span class="nv">def</span> <span class="nv">_n_selected_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Returns the number of selected features.
+        <span class="nv">Returns</span> <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">selected</span> <span class="nv">features</span>.
 
-        -------
+        <span class="o">-------</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        check_is_fitted(self, "allrel_prediction_")
+        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">allrel_prediction_</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return sum(self.allrel_prediction_)
+        <span class="k">return</span> <span class="nv">sum</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">allrel_prediction_</span><span class="ss">)</span>
 
-    def _get_support_mask(self):
+    <span class="nv">def</span> <span class="nv">_get_support_mask</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        """Method for SelectorMixin
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Method for SelectorMixin</span>
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        boolean array
+        <span class="nv">boolean</span> <span class="nv">array</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        return self.allrel_prediction_
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>
 
-    def score(self, X, y):
+    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Using fitted model predict points for `X` and compare to truth `y`.
+        <span class="nv">Using</span> <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">predict</span> <span class="nv">points</span> <span class="k">for</span> `<span class="nv">X</span>` <span class="nv">and</span> <span class="nv">compare</span> <span class="nv">to</span> <span class="nv">truth</span> `<span class="nv">y</span>`.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : numpy.ndarray
+        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        y : numpy.ndarray
+        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        Model specific score (0 is worst, 1 is best)
+        <span class="nv">Model</span> <span class="nv">specific</span> <span class="nv">score</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">is</span> <span class="nv">worst</span>, <span class="mi">1</span> <span class="nv">is</span> <span class="nv">best</span><span class="ss">)</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if self.optim_model_:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>:
 
-            return self.optim_model_.score(X, y)
+            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>.<span class="nv">score</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            raise NotFittedError()
+            <span class="nv">raise</span> <span class="nv">NotFittedError</span><span class="ss">()</span>
 
-    def constrained_intervals(self, preset: dict):
+    <span class="nv">def</span> <span class="nv">constrained_intervals</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">preset</span>: <span class="nv">dict</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Method to return relevance intervals which are constrained using preset ranges or values.
+        <span class="nv">Method</span> <span class="nv">to</span> <span class="k">return</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">constrained</span> <span class="nv">using</span> <span class="nv">preset</span> <span class="nv">ranges</span> <span class="nv">or</span> <span class="nv">values</span>.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        preset : dict like, {i:float} or {i:[float,float]}
+        <span class="nv">preset</span> : <span class="nv">dict</span> <span class="nv">like</span>, {<span class="nv">i</span>:<span class="nv">float</span>} <span class="nv">or</span> {<span class="nv">i</span>:[<span class="nv">float</span>,<span class="nv">float</span>]}
 
-            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
+            <span class="nv">Keys</span> <span class="nv">denote</span> <span class="nv">feature</span> <span class="nv">index</span>, <span class="nv">values</span> <span class="nv">represent</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">single</span> <span class="nv">value</span> <span class="ss">(</span><span class="nv">float</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">a</span> <span class="nv">range</span> <span class="nv">of</span> <span class="nv">allowed</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">lower</span> <span class="nv">and</span> <span class="nv">upper</span> <span class="nv">bound</span><span class="ss">)</span>.
 
-            Example: To set  feature 0 to a fixed value use
+            <span class="nv">Example</span>: <span class="nv">To</span> <span class="nv">set</span>  <span class="nv">feature</span> <span class="mi">0</span> <span class="nv">to</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">value</span> <span class="nv">use</span>
 
-            &gt;&gt;&gt; preset = {0: 0.1}
+            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span> <span class="o">=</span> {<span class="mi">0</span>: <span class="mi">0</span>.<span class="mi">1</span>}
 
-            or to use the minimum relevance bound
+            <span class="nv">or</span> <span class="nv">to</span> <span class="nv">use</span> <span class="nv">the</span> <span class="nv">minimum</span> <span class="nv">relevance</span> <span class="nv">bound</span>
 
-            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
+            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span>[<span class="mi">1</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">interval_</span>[<span class="mi">1</span>, <span class="mi">0</span>]
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        array like
+        <span class="nv">array</span> <span class="nv">like</span>
 
-            Relevance bounds with user constraints
+            <span class="nv">Relevance</span> <span class="nv">bounds</span> <span class="nv">with</span> <span class="nv">user</span> <span class="nv">constraints</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        # Do we have intervals?
+        # <span class="k">Do</span> <span class="nv">we</span> <span class="nv">have</span> <span class="nv">intervals</span>?
 
-        check_is_fitted(self, "interval_")
+        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">interval_</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">compute_multi_preset_relevance_bounds</span><span class="ss">(</span>
 
-            preset=preset, lupi_features=self.lupi_features_
+            <span class="nv">preset</span><span class="o">=</span><span class="nv">preset</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">lupi_features_</span>
 
-        )
+        <span class="ss">)</span>
 
-    def print_interval_with_class(self):
+    <span class="nv">def</span> <span class="nv">print_interval_with_class</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Pretty print the relevance intervals and determined feature relevance class
+        <span class="nv">Pretty</span> <span class="nv">print</span> <span class="nv">the</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">and</span> <span class="nv">determined</span> <span class="nv">feature</span> <span class="nv">relevance</span> <span class="nv">class</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        output = ""
+        <span class="nv">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        if self.interval_ is None:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            output += "Model is not fitted."
+            <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">Model is not fitted.</span><span class="s2">&quot;</span>
 
-        output += "############## Relevance bounds ##############\n"
+        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        output += "feature: [LB -- UB], relevance class\n"
+        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        for i in range(self.n_features_ + self.lupi_features_):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">lupi_features_</span><span class="ss">)</span>:
 
-            if i == self.n_features_:
+            <span class="k">if</span> <span class="nv">i</span> <span class="o">==</span> <span class="nv">self</span>.<span class="nv">n_features_</span>:
 
-                output += "########## LUPI Relevance bounds\n"
+                <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-            output += (
+            <span class="nv">output</span> <span class="o">+=</span> <span class="ss">(</span>
 
-                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+                <span class="nv">f</span><span class="s2">&quot;</span><span class="s">{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-            output += f" {self.relevance_classes_string_[i]}\n"
+            <span class="nv">output</span> <span class="o">+=</span> <span class="nv">f</span><span class="s2">&quot;</span><span class="s"> {self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        return output
-</code></pre>
+        <span class="k">return</span> <span class="nv">output</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -2251,79 +2257,85 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
 </ul>
 <h4 id="methods">Methods</h4>
 <h5 id="constrained_intervals">constrained_intervals</h5>
-<pre><code class="python3">def constrained_intervals(
-    self,
-    preset:dict
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">constrained_intervals</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">preset</span><span class="p">:</span><span class="nb">dict</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Method to return relevance intervals which are constrained using preset ranges or values.</p>
 <h2 id="parameters">Parameters</h2>
 <p>preset : dict like, {i:float} or {i:[float,float]}
     Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).</p>
-<pre><code>Example: To set  feature 0 to a fixed value use
+<div class="codehilite"><pre><span></span><span class="n">Example</span><span class="o">:</span> <span class="n">To</span> <span class="kd">set</span>  <span class="n">feature</span> <span class="mi">0</span> <span class="n">to</span> <span class="n">a</span> <span class="n">fixed</span> <span class="n">value</span> <span class="n">use</span>
 
-&gt;&gt;&gt; preset = {0: 0.1}
+<span class="o">&gt;&gt;&gt;</span> <span class="n">preset</span> <span class="o">=</span> <span class="o">{</span><span class="mi">0</span><span class="o">:</span> <span class="mf">0.1</span><span class="o">}</span>
 
-or to use the minimum relevance bound
+<span class="n">or</span> <span class="n">to</span> <span class="n">use</span> <span class="n">the</span> <span class="n">minimum</span> <span class="n">relevance</span> <span class="n">bound</span>
 
-&gt;&gt;&gt; preset[1] = self.interval_[1, 0]
-</code></pre>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">preset</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">=</span> <span class="n">self</span><span class="o">.</span><span class="na">interval_</span><span class="o">[</span><span class="mi">1</span><span class="o">,</span> <span class="mi">0</span><span class="o">]</span>
+</pre></div>
+
+
 <h2 id="returns">Returns</h2>
 <p>array like
     Relevance bounds with user constraints</p>
-<details class="example"><summary>View Source</summary><pre><code>    def constrained_intervals(self, preset: dict):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">constrained_intervals</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">preset</span>: <span class="nv">dict</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Method to return relevance intervals which are constrained using preset ranges or values.
+        <span class="nv">Method</span> <span class="nv">to</span> <span class="k">return</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">constrained</span> <span class="nv">using</span> <span class="nv">preset</span> <span class="nv">ranges</span> <span class="nv">or</span> <span class="nv">values</span>.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        preset : dict like, {i:float} or {i:[float,float]}
+        <span class="nv">preset</span> : <span class="nv">dict</span> <span class="nv">like</span>, {<span class="nv">i</span>:<span class="nv">float</span>} <span class="nv">or</span> {<span class="nv">i</span>:[<span class="nv">float</span>,<span class="nv">float</span>]}
 
-            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).
+            <span class="nv">Keys</span> <span class="nv">denote</span> <span class="nv">feature</span> <span class="nv">index</span>, <span class="nv">values</span> <span class="nv">represent</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">single</span> <span class="nv">value</span> <span class="ss">(</span><span class="nv">float</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">a</span> <span class="nv">range</span> <span class="nv">of</span> <span class="nv">allowed</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">lower</span> <span class="nv">and</span> <span class="nv">upper</span> <span class="nv">bound</span><span class="ss">)</span>.
 
-            Example: To set  feature 0 to a fixed value use
+            <span class="nv">Example</span>: <span class="nv">To</span> <span class="nv">set</span>  <span class="nv">feature</span> <span class="mi">0</span> <span class="nv">to</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">value</span> <span class="nv">use</span>
 
-            &gt;&gt;&gt; preset = {0: 0.1}
+            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span> <span class="o">=</span> {<span class="mi">0</span>: <span class="mi">0</span>.<span class="mi">1</span>}
 
-            or to use the minimum relevance bound
+            <span class="nv">or</span> <span class="nv">to</span> <span class="nv">use</span> <span class="nv">the</span> <span class="nv">minimum</span> <span class="nv">relevance</span> <span class="nv">bound</span>
 
-            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]
+            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span>[<span class="mi">1</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">interval_</span>[<span class="mi">1</span>, <span class="mi">0</span>]
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        array like
+        <span class="nv">array</span> <span class="nv">like</span>
 
-            Relevance bounds with user constraints
+            <span class="nv">Relevance</span> <span class="nv">bounds</span> <span class="nv">with</span> <span class="nv">user</span> <span class="nv">constraints</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        # Do we have intervals?
+        # <span class="k">Do</span> <span class="nv">we</span> <span class="nv">have</span> <span class="nv">intervals</span>?
 
-        check_is_fitted(self, "interval_")
+        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">interval_</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return self._relevance_bounds_computer.compute_multi_preset_relevance_bounds(
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">compute_multi_preset_relevance_bounds</span><span class="ss">(</span>
 
-            preset=preset, lupi_features=self.lupi_features_
+            <span class="nv">preset</span><span class="o">=</span><span class="nv">preset</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">lupi_features_</span>
 
-        )
-</code></pre>
+        <span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="fit">fit</h5>
-<pre><code class="python3">def fit(
-    self,
-    X,
-    y,
-    lupi_features=0,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Method to fit model on data.</p>
 <h2 id="parameters_1">Parameters</h2>
@@ -2337,105 +2349,108 @@ kwargs : dict
     Dictionary of additional keyword arguments depending on the <code>model</code>.</p>
 <h2 id="returns_1">Returns</h2>
 <p><code>FRIBase</code></p>
-<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X, y, lupi_features=0, **kwargs):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Method to fit model on data.
+        <span class="nv">Method</span> <span class="nv">to</span> <span class="nv">fit</span> <span class="nv">model</span> <span class="nv">on</span> <span class="nv">data</span>.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : numpy.ndarray
+        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        y : numpy.ndarray
+        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        lupi_features : int
+        <span class="nv">lupi_features</span> : <span class="nv">int</span>
 
-            Amount of features which are considered privileged information in `X`.
+            <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="nv">in</span> `<span class="nv">X</span>`.
 
-            The data is expected to be structured in a way that all lupi features are at the end of the set.
+            <span class="nv">The</span> <span class="nv">data</span> <span class="nv">is</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">structured</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">way</span> <span class="nv">that</span> <span class="nv">all</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">at</span> <span class="nv">the</span> <span class="k">end</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">set</span>.
 
-            For example `lupi_features=1` would denote the last column of `X` to be privileged.
+            <span class="k">For</span> <span class="nv">example</span> `<span class="nv">lupi_features</span><span class="o">=</span><span class="mi">1</span>` <span class="nv">would</span> <span class="nv">denote</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">column</span> <span class="nv">of</span> `<span class="nv">X</span>` <span class="nv">to</span> <span class="nv">be</span> <span class="nv">privileged</span>.
 
-        kwargs : dict
+        <span class="nv">kwargs</span> : <span class="nv">dict</span>
 
-            Dictionary of additional keyword arguments depending on the `model`.
+            <span class="nv">Dictionary</span> <span class="nv">of</span> <span class="nv">additional</span> <span class="nv">keyword</span> <span class="nv">arguments</span> <span class="nv">depending</span> <span class="nv">on</span> <span class="nv">the</span> `<span class="nv">model</span>`.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        `FRIBase`
+        `<span class="nv">FRIBase</span>`
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        self.lupi_features_ = lupi_features
+        <span class="nv">self</span>.<span class="nv">lupi_features_</span> <span class="o">=</span> <span class="nv">lupi_features</span>
 
-        self.n_samples_ = X.shape[0]
+        <span class="nv">self</span>.<span class="nv">n_samples_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>]
 
-        self.n_features_ = X.shape[1] - lupi_features
+        <span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>] <span class="o">-</span> <span class="nv">lupi_features</span>
 
-        self.optim_model_, best_score = self._fit_baseline(
+        <span class="nv">self</span>.<span class="nv">optim_model_</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_fit_baseline</span><span class="ss">(</span>
 
-            X, y, lupi_features, **kwargs
+            <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span>, <span class="o">**</span><span class="nv">kwargs</span>
 
-        )
+        <span class="ss">)</span>
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
 
-        self._relevance_bounds_computer = RelevanceBoundsIntervals(
+        <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nv">RelevanceBoundsIntervals</span><span class="ss">(</span>
 
-            data,
+            <span class="nv">data</span>,
 
-            self.problem_type_,
+            <span class="nv">self</span>.<span class="nv">problem_type_</span>,
 
-            self.optim_model_,
+            <span class="nv">self</span>.<span class="nv">optim_model_</span>,
 
-            self.random_state,
+            <span class="nv">self</span>.<span class="nv">random_state</span>,
 
-            self.n_probe_features,
+            <span class="nv">self</span>.<span class="nv">n_probe_features</span>,
 
-            self.n_jobs,
+            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
 
-            self.verbose,
+            <span class="nv">self</span>.<span class="nv">verbose</span>,
 
-            normalize=self.normalize,
+            <span class="nv">normalize</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">normalize</span>,
 
-        )
+        <span class="ss">)</span>
 
-        if lupi_features == 0:
+        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="mi">0</span>:
 
-            self.interval_, feature_classes = (
+            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="ss">(</span>
 
-                self._relevance_bounds_computer.get_normalized_intervals()
+                <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_intervals</span><span class="ss">()</span>
 
-            )
+            <span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_lupi_intervals</span><span class="ss">(</span>
 
-                lupi_features=lupi_features
+                <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>
 
-            )
+            <span class="ss">)</span>
 
-        self._get_relevance_mask(feature_classes)
+        <span class="nv">self</span>.<span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">feature_classes</span><span class="ss">)</span>
 
-        # Return the classifier
+        # <span class="k">Return</span> <span class="nv">the</span> <span class="nv">classifier</span>
 
-        return self
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h5 id="fit_transform">fit_transform</h5>
-<pre><code class="python3">def fit_transform(
-    self,
-    X,
-    y=None,
-    **fit_params
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">fit_params</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Fit to data, then transform it.</p>
 <p>Fits transformer to X and y with optional parameters fit_params
@@ -2448,59 +2463,62 @@ and returns a transformed version of X.</p>
 <h2 id="returns_2">Returns</h2>
 <p>X_new : numpy array of shape [n_samples, n_features_new]
     Transformed array.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def fit_transform(self, X, y=None, **fit_params):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>:
 
-        """Fit to data, then transform it.
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Fit to data, then transform it.</span>
 
-        Fits transformer to X and y with optional parameters fit_params
+        <span class="nv">Fits</span> <span class="nv">transformer</span> <span class="nv">to</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">with</span> <span class="nv">optional</span> <span class="nv">parameters</span> <span class="nv">fit_params</span>
 
-        and returns a transformed version of X.
+        <span class="nv">and</span> <span class="nv">returns</span> <span class="nv">a</span> <span class="nv">transformed</span> <span class="nv">version</span> <span class="nv">of</span> <span class="nv">X</span>.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : numpy array of shape [n_samples, n_features]
+        <span class="nv">X</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
 
-            Training set.
+            <span class="nv">Training</span> <span class="nv">set</span>.
 
-        y : numpy array of shape [n_samples]
+        <span class="nv">y</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
 
-            Target values.
+            <span class="nv">Target</span> <span class="nv">values</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        X_new : numpy array of shape [n_samples, n_features_new]
+        <span class="nv">X_new</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features_new</span>]
 
-            Transformed array.
+            <span class="nv">Transformed</span> <span class="nv">array</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        # non-optimized default implementation; override when a better
+        # <span class="nv">non</span><span class="o">-</span><span class="nv">optimized</span> <span class="nv">default</span> <span class="nv">implementation</span><span class="c1">; override when a better</span>
 
-        # method is possible for a given clustering algorithm
+        # <span class="nv">method</span> <span class="nv">is</span> <span class="nv">possible</span> <span class="k">for</span> <span class="nv">a</span> <span class="nv">given</span> <span class="nv">clustering</span> <span class="nv">algorithm</span>
 
-        if y is None:
+        <span class="k">if</span> <span class="nv">y</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            # fit method of arity 1 (unsupervised transformation)
+            # <span class="nv">fit</span> <span class="nv">method</span> <span class="nv">of</span> <span class="nv">arity</span> <span class="mi">1</span> <span class="ss">(</span><span class="nv">unsupervised</span> <span class="nv">transformation</span><span class="ss">)</span>
 
-            return self.fit(X, **fit_params).transform(X)
+            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">fit</span><span class="ss">(</span><span class="nv">X</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>.<span class="nv">transform</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            # fit method of arity 2 (supervised transformation)
+            # <span class="nv">fit</span> <span class="nv">method</span> <span class="nv">of</span> <span class="nv">arity</span> <span class="mi">2</span> <span class="ss">(</span><span class="nv">supervised</span> <span class="nv">transformation</span><span class="ss">)</span>
 
-            return self.fit(X, y, **fit_params).transform(X)
-</code></pre>
+            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">fit</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>.<span class="nv">transform</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_params">get_params</h5>
-<pre><code class="python3">def get_params(
-    self,
-    deep=True
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">deep</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Get parameters for this estimator.</p>
 <h2 id="parameters_3">Parameters</h2>
@@ -2510,53 +2528,56 @@ and returns a transformed version of X.</p>
 <h2 id="returns_3">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>:
 
-        """Get parameters for this estimator.
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Get parameters for this estimator.</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        deep : boolean, optional
+        <span class="nv">deep</span> : <span class="nv">boolean</span>, <span class="nv">optional</span>
 
-            If True, will return the parameters for this estimator and
+            <span class="k">If</span> <span class="nv">True</span>, <span class="nv">will</span> <span class="k">return</span> <span class="nv">the</span> <span class="nv">parameters</span> <span class="k">for</span> <span class="nv">this</span> <span class="nv">estimator</span> <span class="nv">and</span>
 
-            contained subobjects that are estimators.
+            <span class="nv">contained</span> <span class="nv">subobjects</span> <span class="nv">that</span> <span class="nv">are</span> <span class="nv">estimators</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        params : mapping of string to any
+        <span class="nb">params</span> : <span class="nv">mapping</span> <span class="nv">of</span> <span class="nv">string</span> <span class="nv">to</span> <span class="nv">any</span>
 
-            Parameter names mapped to their values.
+            <span class="nv">Parameter</span> <span class="nv">names</span> <span class="nv">mapped</span> <span class="nv">to</span> <span class="nv">their</span> <span class="nv">values</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        out = dict()
+        <span class="nv">out</span> <span class="o">=</span> <span class="nv">dict</span><span class="ss">()</span>
 
-        for key in self._get_param_names():
+        <span class="k">for</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_get_param_names</span><span class="ss">()</span>:
 
-            value = getattr(self, key, None)
+            <span class="nv">value</span> <span class="o">=</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">None</span><span class="ss">)</span>
 
-            if deep and hasattr(value, 'get_params'):
+            <span class="k">if</span> <span class="nv">deep</span> <span class="nv">and</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">value</span>, <span class="s1">&#39;</span><span class="s">get_params</span><span class="s1">&#39;</span><span class="ss">)</span>:
 
-                deep_items = value.get_params().items()
+                <span class="nv">deep_items</span> <span class="o">=</span> <span class="nv">value</span>.<span class="nv">get_params</span><span class="ss">()</span>.<span class="nv">items</span><span class="ss">()</span>
 
-                out.update((key + '__' + k, val) for k, val in deep_items)
+                <span class="nv">out</span>.<span class="nv">update</span><span class="ss">((</span><span class="nv">key</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s">__</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nv">k</span>, <span class="nv">val</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">k</span>, <span class="nv">val</span> <span class="nv">in</span> <span class="nv">deep_items</span><span class="ss">)</span>
 
-            out[key] = value
+            <span class="nv">out</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">value</span>
 
-        return out
-</code></pre>
+        <span class="k">return</span> <span class="nv">out</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_support">get_support</h5>
-<pre><code class="python3">def get_support(
-    self,
-    indices=False
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_support</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">indices</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Get a mask, or integer index, of the features selected</p>
 <h2 id="parameters_4">Parameters</h2>
@@ -2571,53 +2592,56 @@ and returns a transformed version of X.</p>
     corresponding feature is selected for retention. If <code>indices</code> is
     True, this is an integer array of shape [# output features] whose
     values are indices into the input feature vector.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def get_support(self, indices=False):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_support</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">indices</span><span class="o">=</span><span class="nv">False</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Get a mask, or integer index, of the features selected
+        <span class="nv">Get</span> <span class="nv">a</span> <span class="nv">mask</span>, <span class="nv">or</span> <span class="nv">integer</span> <span class="nv">index</span>, <span class="nv">of</span> <span class="nv">the</span> <span class="nv">features</span> <span class="nv">selected</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        indices : boolean (default False)
+        <span class="nv">indices</span> : <span class="nv">boolean</span> <span class="ss">(</span><span class="nv">default</span> <span class="nv">False</span><span class="ss">)</span>
 
-            If True, the return value will be an array of integers, rather
+            <span class="k">If</span> <span class="nv">True</span>, <span class="nv">the</span> <span class="k">return</span> <span class="nv">value</span> <span class="nv">will</span> <span class="nv">be</span> <span class="nv">an</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">integers</span>, <span class="nv">rather</span>
 
-            than a boolean mask.
+            <span class="nv">than</span> <span class="nv">a</span> <span class="nv">boolean</span> <span class="nv">mask</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        support : array
+        <span class="nv">support</span> : <span class="nv">array</span>
 
-            An index that selects the retained features from a feature vector.
+            <span class="nv">An</span> <span class="nv">index</span> <span class="nv">that</span> <span class="nv">selects</span> <span class="nv">the</span> <span class="nv">retained</span> <span class="nv">features</span> <span class="nv">from</span> <span class="nv">a</span> <span class="nv">feature</span> <span class="nv">vector</span>.
 
-            If `indices` is False, this is a boolean array of shape
+            <span class="k">If</span> `<span class="nv">indices</span>` <span class="nv">is</span> <span class="nv">False</span>, <span class="nv">this</span> <span class="nv">is</span> <span class="nv">a</span> <span class="nv">boolean</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span>
 
-            [# input features], in which an element is True iff its
+            [# <span class="nv">input</span> <span class="nv">features</span>], <span class="nv">in</span> <span class="nv">which</span> <span class="nv">an</span> <span class="nv">element</span> <span class="nv">is</span> <span class="nv">True</span> <span class="nv">iff</span> <span class="nv">its</span>
 
-            corresponding feature is selected for retention. If `indices` is
+            <span class="nv">corresponding</span> <span class="nv">feature</span> <span class="nv">is</span> <span class="nv">selected</span> <span class="k">for</span> <span class="nv">retention</span>. <span class="k">If</span> `<span class="nv">indices</span>` <span class="nv">is</span>
 
-            True, this is an integer array of shape [# output features] whose
+            <span class="nv">True</span>, <span class="nv">this</span> <span class="nv">is</span> <span class="nv">an</span> <span class="nv">integer</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [# <span class="nv">output</span> <span class="nv">features</span>] <span class="nv">whose</span>
 
-            values are indices into the input feature vector.
+            <span class="nv">values</span> <span class="nv">are</span> <span class="nv">indices</span> <span class="nv">into</span> <span class="nv">the</span> <span class="nv">input</span> <span class="nv">feature</span> <span class="nv">vector</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        mask = self._get_support_mask()
+        <span class="nv">mask</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_support_mask</span><span class="ss">()</span>
 
-        return mask if not indices else np.where(mask)[0]
-</code></pre>
+        <span class="k">return</span> <span class="nv">mask</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">indices</span> <span class="k">else</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">mask</span><span class="ss">)</span>[<span class="mi">0</span>]
+</pre></div>
+
+
 </details>
 <h5 id="inverse_transform">inverse_transform</h5>
-<pre><code class="python3">def inverse_transform(
-    self,
-    X
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">inverse_transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Reverse the transformation operation</p>
 <h2 id="parameters_5">Parameters</h2>
@@ -2627,122 +2651,128 @@ and returns a transformed version of X.</p>
 <p>X_r : array of shape [n_samples, n_original_features]
     <code>X</code> with columns of zeros inserted where features would have
     been removed by <code>transform</code>.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def inverse_transform(self, X):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">inverse_transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Reverse the transformation operation
+        <span class="nv">Reverse</span> <span class="nv">the</span> <span class="nv">transformation</span> <span class="nv">operation</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : array of shape [n_samples, n_selected_features]
+        <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_selected_features</span>]
 
-            The input samples.
+            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        X_r : array of shape [n_samples, n_original_features]
+        <span class="nv">X_r</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_original_features</span>]
 
-            `X` with columns of zeros inserted where features would have
+            `<span class="nv">X</span>` <span class="nv">with</span> <span class="nv">columns</span> <span class="nv">of</span> <span class="nv">zeros</span> <span class="nv">inserted</span> <span class="nv">where</span> <span class="nv">features</span> <span class="nv">would</span> <span class="nv">have</span>
 
-            been removed by `transform`.
+            <span class="nv">been</span> <span class="nv">removed</span> <span class="nv">by</span> `<span class="nv">transform</span>`.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if issparse(X):
+        <span class="k">if</span> <span class="nv">issparse</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>:
 
-            X = X.tocsc()
+            <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">tocsc</span><span class="ss">()</span>
 
-            # insert additional entries in indptr:
+            # <span class="nv">insert</span> <span class="nv">additional</span> <span class="nv">entries</span> <span class="nv">in</span> <span class="nv">indptr</span>:
 
-            # e.g. if transform changed indptr from [0 2 6 7] to [0 2 3]
+            # <span class="nv">e</span>.<span class="nv">g</span>. <span class="k">if</span> <span class="nv">transform</span> <span class="nv">changed</span> <span class="nv">indptr</span> <span class="nv">from</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">7</span>] <span class="nv">to</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span>]
 
-            # col_nonzeros here will be [2 0 1] so indptr becomes [0 2 2 3]
+            # <span class="nv">col_nonzeros</span> <span class="nv">here</span> <span class="nv">will</span> <span class="nv">be</span> [<span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span>] <span class="nv">so</span> <span class="nv">indptr</span> <span class="nv">becomes</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span> <span class="mi">3</span>]
 
-            it = self.inverse_transform(np.diff(X.indptr).reshape(1, -1))
+            <span class="nv">it</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">inverse_transform</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">diff</span><span class="ss">(</span><span class="nv">X</span>.<span class="nv">indptr</span><span class="ss">)</span>.<span class="nv">reshape</span><span class="ss">(</span><span class="mi">1</span>, <span class="o">-</span><span class="mi">1</span><span class="ss">))</span>
 
-            col_nonzeros = it.ravel()
+            <span class="nv">col_nonzeros</span> <span class="o">=</span> <span class="nv">it</span>.<span class="nv">ravel</span><span class="ss">()</span>
 
-            indptr = np.concatenate([[0], np.cumsum(col_nonzeros)])
+            <span class="nv">indptr</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[[<span class="mi">0</span>], <span class="nv">np</span>.<span class="nv">cumsum</span><span class="ss">(</span><span class="nv">col_nonzeros</span><span class="ss">)</span>]<span class="ss">)</span>
 
-            Xt = csc_matrix((X.data, X.indices, indptr),
+            <span class="nv">Xt</span> <span class="o">=</span> <span class="nv">csc_matrix</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">data</span>, <span class="nv">X</span>.<span class="nv">indices</span>, <span class="nv">indptr</span><span class="ss">)</span>,
 
-                            shape=(X.shape[0], len(indptr) - 1), dtype=X.dtype)
+                            <span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">len</span><span class="ss">(</span><span class="nv">indptr</span><span class="ss">)</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">X</span>.<span class="nv">dtype</span><span class="ss">)</span>
 
-            return Xt
+            <span class="k">return</span> <span class="nv">Xt</span>
 
-        support = self.get_support()
+        <span class="nv">support</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_support</span><span class="ss">()</span>
 
-        X = check_array(X, dtype=None)
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">check_array</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>
 
-        if support.sum() != X.shape[1]:
+        <span class="k">if</span> <span class="nv">support</span>.<span class="nv">sum</span><span class="ss">()</span> <span class="o">!=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]:
 
-            raise ValueError("X has a different shape than during fitting.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X has a different shape than during fitting.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        if X.ndim == 1:
+        <span class="k">if</span> <span class="nv">X</span>.<span class="nv">ndim</span> <span class="o">==</span> <span class="mi">1</span>:
 
-            X = X[None, :]
+            <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span>[<span class="nv">None</span>, :]
 
-        Xt = np.zeros((X.shape[0], support.size), dtype=X.dtype)
+        <span class="nv">Xt</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">support</span>.<span class="nv">size</span><span class="ss">)</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">X</span>.<span class="nv">dtype</span><span class="ss">)</span>
 
-        Xt[:, support] = X
+        <span class="nv">Xt</span>[:, <span class="nv">support</span>] <span class="o">=</span> <span class="nv">X</span>
 
-        return Xt
-</code></pre>
+        <span class="k">return</span> <span class="nv">Xt</span>
+</pre></div>
+
+
 </details>
 <h5 id="print_interval_with_class">print_interval_with_class</h5>
-<pre><code class="python3">def print_interval_with_class(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">print_interval_with_class</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Pretty print the relevance intervals and determined feature relevance class</p>
-<details class="example"><summary>View Source</summary><pre><code>    def print_interval_with_class(self):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">print_interval_with_class</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Pretty print the relevance intervals and determined feature relevance class
+        <span class="nv">Pretty</span> <span class="nv">print</span> <span class="nv">the</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">and</span> <span class="nv">determined</span> <span class="nv">feature</span> <span class="nv">relevance</span> <span class="nv">class</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        output = ""
+        <span class="nv">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-        if self.interval_ is None:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">None</span>:
 
-            output += "Model is not fitted."
+            <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">Model is not fitted.</span><span class="s2">&quot;</span>
 
-        output += "############## Relevance bounds ##############\n"
+        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        output += "feature: [LB -- UB], relevance class\n"
+        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        for i in range(self.n_features_ + self.lupi_features_):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">lupi_features_</span><span class="ss">)</span>:
 
-            if i == self.n_features_:
+            <span class="k">if</span> <span class="nv">i</span> <span class="o">==</span> <span class="nv">self</span>.<span class="nv">n_features_</span>:
 
-                output += "########## LUPI Relevance bounds\n"
+                <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-            output += (
+            <span class="nv">output</span> <span class="o">+=</span> <span class="ss">(</span>
 
-                f"{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],"
+                <span class="nv">f</span><span class="s2">&quot;</span><span class="s">{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],</span><span class="s2">&quot;</span>
 
-            )
+            <span class="ss">)</span>
 
-            output += f" {self.relevance_classes_string_[i]}\n"
+            <span class="nv">output</span> <span class="o">+=</span> <span class="nv">f</span><span class="s2">&quot;</span><span class="s"> {self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
 
-        return output
-</code></pre>
+        <span class="k">return</span> <span class="nv">output</span>
+</pre></div>
+
+
 </details>
 <h5 id="score">score</h5>
-<pre><code class="python3">def score(
-    self,
-    X,
-    y
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">score</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Using fitted model predict points for <code>X</code> and compare to truth <code>y</code>.</p>
 <h2 id="parameters_6">Parameters</h2>
@@ -2750,43 +2780,46 @@ and returns a transformed version of X.</p>
 y : numpy.ndarray</p>
 <h2 id="returns_6">Returns</h2>
 <p>Model specific score (0 is worst, 1 is best)</p>
-<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>:
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        Using fitted model predict points for `X` and compare to truth `y`.
+        <span class="nv">Using</span> <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">predict</span> <span class="nv">points</span> <span class="k">for</span> `<span class="nv">X</span>` <span class="nv">and</span> <span class="nv">compare</span> <span class="nv">to</span> <span class="nv">truth</span> `<span class="nv">y</span>`.
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : numpy.ndarray
+        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        y : numpy.ndarray
+        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        Model specific score (0 is worst, 1 is best)
+        <span class="nv">Model</span> <span class="nv">specific</span> <span class="nv">score</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">is</span> <span class="nv">worst</span>, <span class="mi">1</span> <span class="nv">is</span> <span class="nv">best</span><span class="ss">)</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if self.optim_model_:
+        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>:
 
-            return self.optim_model_.score(X, y)
+            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>.<span class="nv">score</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        else:
+        <span class="k">else</span>:
 
-            raise NotFittedError()
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">NotFittedError</span><span class="ss">()</span>
+</pre></div>
+
+
 </details>
 <h5 id="set_params">set_params</h5>
-<pre><code class="python3">def set_params(
-    self,
-    **params
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
@@ -2795,73 +2828,76 @@ y : numpy.ndarray</p>
 component of a nested object.</p>
 <h2 id="returns_7">Returns</h2>
 <p>self</p>
-<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nb">params</span><span class="ss">)</span>:
 
-        """Set the parameters of this estimator.
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Set the parameters of this estimator.</span>
 
-        The method works on simple estimators as well as on nested objects
+        <span class="nv">The</span> <span class="nv">method</span> <span class="nv">works</span> <span class="nv">on</span> <span class="nv">simple</span> <span class="nv">estimators</span> <span class="nv">as</span> <span class="nv">well</span> <span class="nv">as</span> <span class="nv">on</span> <span class="nv">nested</span> <span class="nv">objects</span>
 
-        (such as pipelines). The latter have parameters of the form
+        <span class="ss">(</span><span class="nv">such</span> <span class="nv">as</span> <span class="nv">pipelines</span><span class="ss">)</span>. <span class="nv">The</span> <span class="nv">latter</span> <span class="nv">have</span> <span class="nv">parameters</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">form</span>
 
-        ``&lt;component&gt;__&lt;parameter&gt;`` so that it's possible to update each
+        ``<span class="o">&lt;</span><span class="nv">component</span><span class="o">&gt;</span><span class="nv">__</span><span class="o">&lt;</span><span class="nv">parameter</span><span class="o">&gt;</span>`` <span class="nv">so</span> <span class="nv">that</span> <span class="nv">it</span><span class="s1">&#39;</span><span class="s">s possible to update each</span>
 
-        component of a nested object.
+        <span class="nv">component</span> <span class="nv">of</span> <span class="nv">a</span> <span class="nv">nested</span> <span class="nv">object</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        self
+        <span class="nv">self</span>
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        if not params:
+        <span class="k">if</span> <span class="nv">not</span> <span class="nb">params</span>:
 
-            # Simple optimization to gain speed (inspect is slow)
+            # <span class="nv">Simple</span> <span class="nv">optimization</span> <span class="nv">to</span> <span class="nv">gain</span> <span class="nv">speed</span> <span class="ss">(</span><span class="nv">inspect</span> <span class="nv">is</span> <span class="nv">slow</span><span class="ss">)</span>
 
-            return self
+            <span class="k">return</span> <span class="nv">self</span>
 
-        valid_params = self.get_params(deep=True)
+        <span class="nv">valid_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_params</span><span class="ss">(</span><span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>
 
-        nested_params = defaultdict(dict)  # grouped by prefix
+        <span class="nv">nested_params</span> <span class="o">=</span> <span class="nv">defaultdict</span><span class="ss">(</span><span class="nv">dict</span><span class="ss">)</span>  # <span class="nv">grouped</span> <span class="nv">by</span> <span class="nv">prefix</span>
 
-        for key, value in params.items():
+        <span class="k">for</span> <span class="nv">key</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nb">params</span>.<span class="nv">items</span><span class="ss">()</span>:
 
-            key, delim, sub_key = key.partition('__')
+            <span class="nv">key</span>, <span class="nv">delim</span>, <span class="nv">sub_key</span> <span class="o">=</span> <span class="nv">key</span>.<span class="nv">partition</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">__</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-            if key not in valid_params:
+            <span class="k">if</span> <span class="nv">key</span> <span class="nv">not</span> <span class="nv">in</span> <span class="nv">valid_params</span>:
 
-                raise ValueError('Invalid parameter %s for estimator %s. '
+                <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">Invalid parameter %s for estimator %s. </span><span class="s1">&#39;</span>
 
-                                 'Check the list of available parameters '
+                                 <span class="s1">&#39;</span><span class="s">Check the list of available parameters </span><span class="s1">&#39;</span>
 
-                                 'with `estimator.get_params().keys()`.' %
+                                 <span class="s1">&#39;</span><span class="s">with `estimator.get_params().keys()`.</span><span class="s1">&#39;</span> <span class="o">%</span>
 
-                                 (key, self))
+                                 <span class="ss">(</span><span class="nv">key</span>, <span class="nv">self</span><span class="ss">))</span>
 
-            if delim:
+            <span class="k">if</span> <span class="nv">delim</span>:
 
-                nested_params[key][sub_key] = value
+                <span class="nv">nested_params</span>[<span class="nv">key</span>][<span class="nv">sub_key</span>] <span class="o">=</span> <span class="nv">value</span>
 
-            else:
+            <span class="k">else</span>:
 
-                setattr(self, key, value)
+                <span class="nv">setattr</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>
 
-                valid_params[key] = value
+                <span class="nv">valid_params</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">value</span>
 
-        for key, sub_params in nested_params.items():
+        <span class="k">for</span> <span class="nv">key</span>, <span class="nv">sub_params</span> <span class="nv">in</span> <span class="nv">nested_params</span>.<span class="nv">items</span><span class="ss">()</span>:
 
-            valid_params[key].set_params(**sub_params)
+            <span class="nv">valid_params</span>[<span class="nv">key</span>].<span class="nv">set_params</span><span class="ss">(</span><span class="o">**</span><span class="nv">sub_params</span><span class="ss">)</span>
 
-        return self
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h5 id="transform">transform</h5>
-<pre><code class="python3">def transform(
-    self,
-    X
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">transform</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Reduce X to the selected features.</p>
 <h2 id="parameters_7">Parameters</h2>
@@ -2870,64 +2906,69 @@ component of a nested object.</p>
 <h2 id="returns_8">Returns</h2>
 <p>X_r : array of shape [n_samples, n_selected_features]
     The input samples with only the selected features.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def transform(self, X):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        """Reduce X to the selected features.
+        <span class="s2">&quot;&quot;&quot;</span><span class="s">Reduce X to the selected features.</span>
 
-        Parameters
+        <span class="nv">Parameters</span>
 
-        ----------
+        <span class="o">----------</span>
 
-        X : array of shape [n_samples, n_features]
+        <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
 
-            The input samples.
+            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span>.
 
-        Returns
+        <span class="nv">Returns</span>
 
-        -------
+        <span class="o">-------</span>
 
-        X_r : array of shape [n_samples, n_selected_features]
+        <span class="nv">X_r</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_selected_features</span>]
 
-            The input samples with only the selected features.
+            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span> <span class="nv">with</span> <span class="nv">only</span> <span class="nv">the</span> <span class="nv">selected</span> <span class="nv">features</span>.
 
-        """
+        <span class="s2">&quot;&quot;&quot;</span>
 
-        X = check_array(X, dtype=None, accept_sparse='csr')
+        <span class="nv">X</span> <span class="o">=</span> <span class="nv">check_array</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">accept_sparse</span><span class="o">=</span><span class="s1">&#39;</span><span class="s">csr</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-        mask = self.get_support()
+        <span class="nv">mask</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_support</span><span class="ss">()</span>
 
-        if not mask.any():
+        <span class="k">if</span> <span class="nv">not</span> <span class="nv">mask</span>.<span class="nv">any</span><span class="ss">()</span>:
 
-            warn("No features were selected: either the data is"
+            <span class="nv">warn</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">No features were selected: either the data is</span><span class="s2">&quot;</span>
 
-                 " too noisy or the selection test too strict.",
+                 <span class="s2">&quot;</span><span class="s"> too noisy or the selection test too strict.</span><span class="s2">&quot;</span>,
 
-                 UserWarning)
+                 <span class="nv">UserWarning</span><span class="ss">)</span>
 
-            return np.empty(0).reshape((X.shape[0], 0))
+            <span class="k">return</span> <span class="nv">np</span>.<span class="nv">empty</span><span class="ss">(</span><span class="mi">0</span><span class="ss">)</span>.<span class="nv">reshape</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="mi">0</span><span class="ss">))</span>
 
-        if len(mask) != X.shape[1]:
+        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">mask</span><span class="ss">)</span> <span class="o">!=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]:
 
-            raise ValueError("X has a different shape than during fitting.")
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X has a different shape than during fitting.</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return X[:, safe_mask(X, mask)]
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>[:, <span class="nv">safe_mask</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">mask</span><span class="ss">)</span>]
+</pre></div>
+
+
 </details>
 <h3 id="notfeasibleforparameters">NotFeasibleForParameters</h3>
-<pre><code class="python3">class NotFeasibleForParameters(
-    /,
-    *args,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">NotFeasibleForParameters</span><span class="p">(</span>
+    <span class="o">/</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">args</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Problem was infeasible with the current parameter set.</p>
-<details class="example"><summary>View Source</summary><pre><code>class NotFeasibleForParameters(Exception):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">NotFeasibleForParameters</span>(<span class="nb">Exception</span>):
 
-    """ Problem was infeasible with the current parameter set.
+    <span class="s">&quot;&quot;&quot; Problem was infeasible with the current parameter set.</span>
 
-    """
-</code></pre>
+<span class="s">    &quot;&quot;&quot;</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
@@ -2936,15 +2977,17 @@ component of a nested object.</p>
 <li>builtins.BaseException</li>
 </ul>
 <h4 id="class-variables">Class variables</h4>
-<pre><code class="python3">args
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">args</span>
+</pre></div>
+
 
 <h4 id="methods_1">Methods</h4>
 <h5 id="with_traceback">with_traceback</h5>
-<pre><code class="python3">def with_traceback(
-    ...
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">with_traceback</span><span class="p">(</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Exception.with_traceback(tb) --
 set self.<strong>traceback</strong> to tb and return self.</p>

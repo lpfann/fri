@@ -909,25 +909,33 @@
 <h3 id="stable">Stable</h3>
 <p>Fri can be installed via the Python Package Index (PyPI).</p>
 <p>If you have <code>pip</code> installed just execute the command</p>
-<pre><code>pip install fri
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="n">fri</span>
+</pre></div>
+
+
 <p>to get the newest stable version.</p>
 <p>The dependencies should be installed and checked automatically.
 If you have problems installing please open issue at our <a href="https://github.com/lpfann/fri/issues/new">tracker</a>.</p>
 <h3 id="development">Development</h3>
 <p>To install a bleeding edge dev version of <code>FRI</code> you can clone the GitHub repository using</p>
-<pre><code>git clone git@github.com:lpfann/fri.git
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">git</span><span class="w"> </span><span class="n">clone</span><span class="w"> </span><span class="n">git</span><span class="nv">@github</span><span class="p">.</span><span class="nl">com</span><span class="p">:</span><span class="n">lpfann</span><span class="o">/</span><span class="n">fri</span><span class="p">.</span><span class="n">git</span><span class="w"></span>
+</pre></div>
+
+
 <p>and then check out the <code>dev</code> branch: <code>git checkout dev</code>.</p>
 <p>We use <a href="https://poetry.eustace.io/">poetry</a> for dependency management.</p>
 <p>Run</p>
-<pre><code>poetry install
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">poetry</span> <span class="n">install</span>
+</pre></div>
+
+
 <p>in the cloned repository to install <code>fri</code> in a virtualenv.</p>
 <p>To check if everything works as intented you can use <code>pytest</code> to run the unit tests.
 Just run the command</p>
-<pre><code>poetry run pytest
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">poetry</span> <span class="n">run</span> <span class="n">pytest</span>
+</pre></div>
+
+
 <p>in the main project folder</p>
 <h2 id="using-fri">Using FRI</h2>
 <p>Now we showcase the workflow of using FRI on a simple classification problem.</p>
@@ -935,269 +943,315 @@ Just run the command</p>
 <p>To have something to work with, we need some data first.
 <code>fri</code> includes a generation method for binary classification and regression data.</p>
 <p>In our case we need some classification data.</p>
-<pre><code class="python">from fri import genClassificationData
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">fri</span> <span class="kn">import</span> <span class="n">genClassificationData</span>
+</pre></div>
+
 
 <p>We want to create a small set with a few features.</p>
 <p>Because we want to showcase the all-relevant feature selection, we generate multiple strongly and weakly relevant features.</p>
-<pre><code class="python">n = 100
-features = 6
-strongly_relevant = 2
-weakly_relevant = 2
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">n</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">features</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">strongly_relevant</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">weakly_relevant</span> <span class="o">=</span> <span class="mi">2</span>
+</pre></div>
 
-<pre><code class="python">X,y = genClassificationData(n_samples=n,
-                            n_features=features,
-                            n_strel=strongly_relevant,
-                            n_redundant=weakly_relevant,
-                            random_state=123)
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">X</span><span class="p">,</span><span class="n">y</span> <span class="o">=</span> <span class="n">genClassificationData</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
+                            <span class="n">n_features</span><span class="o">=</span><span class="n">features</span><span class="p">,</span>
+                            <span class="n">n_strel</span><span class="o">=</span><span class="n">strongly_relevant</span><span class="p">,</span>
+                            <span class="n">n_redundant</span><span class="o">=</span><span class="n">weakly_relevant</span><span class="p">,</span>
+                            <span class="n">random_state</span><span class="o">=</span><span class="mi">123</span><span class="p">)</span>
+</pre></div>
+
 
 <p>The method also prints out the parameters again.</p>
-<pre><code class="python">X.shape
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
 
-<pre><code>(100, 6)
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+</pre></div>
+
+
 <p>We created a binary classification set with 6 features of which 2 are strongly relevant and 2 weakly relevant.</p>
 <h4 id="preprocess">Preprocess</h4>
 <p>Because our method expects mean centered data we need to standardize it first.
 This centers the values around 0 and deviation to the standard deviation</p>
-<pre><code class="python">from sklearn.preprocessing import StandardScaler
-X_scaled = StandardScaler().fit_transform(X)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="n">X_scaled</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+
 
 <h3 id="model">Model</h3>
 <p>Now we need to creata a Model. </p>
 <p>We use the <code>FRI</code> module.</p>
-<pre><code class="python">import fri
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">fri</span>
+</pre></div>
+
 
 <p><code>fri</code> provides a convenience class <code>fri.FRI</code> to create a model.</p>
 <p><code>fri.FRI</code> needs the type of problem as a first argument of type <code>ProblemName</code>.</p>
 <p>Depending on the Problem you want to analyze pick from one of the available models in <code>ProblemName</code>.</p>
-<pre><code class="python">list(fri.ProblemName)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="nb">list</span><span class="p">(</span><span class="n">fri</span><span class="o">.</span><span class="n">ProblemName</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>[&lt;ProblemName.CLASSIFICATION: &lt;class 'fri.model.classification.Classification'&gt;&gt;,
- &lt;ProblemName.REGRESSION: &lt;class 'fri.model.regression.Regression'&gt;&gt;,
- &lt;ProblemName.ORDINALREGRESSION: &lt;class 'fri.model.ordinal_regression.OrdinalRegression'&gt;&gt;,
- &lt;ProblemName.LUPI_CLASSIFICATION: &lt;class 'fri.model.lupi_classification.LUPI_Classification'&gt;&gt;,
- &lt;ProblemName.LUPI_REGRESSION: &lt;class 'fri.model.lupi_regression.LUPI_Regression'&gt;&gt;,
- &lt;ProblemName.LUPI_ORDREGRESSION: &lt;class 'fri.model.lupi_ordinal_regression.LUPI_OrdinalRegression'&gt;&gt;]
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">CLASSIFICATION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.classification.Classification&#39;</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">REGRESSION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.regression.Regression&#39;</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">ORDINALREGRESSION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.ordinal_regression.OrdinalRegression&#39;</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">LUPI_CLASSIFICATION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.lupi_classification.LUPI_Classification&#39;</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">LUPI_REGRESSION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.lupi_regression.LUPI_Regression&#39;</span><span class="o">&gt;&gt;</span><span class="p">,</span>
+ <span class="o">&lt;</span><span class="n">ProblemName</span><span class="p">.</span><span class="n">LUPI_ORDREGRESSION</span><span class="p">:</span> <span class="o">&lt;</span><span class="k">class</span> <span class="s1">&#39;fri.model.lupi_ordinal_regression.LUPI_OrdinalRegression&#39;</span><span class="o">&gt;&gt;</span><span class="p">]</span>
+</pre></div>
+
+
 <p>Because we have Classification data we use the <code>ProblemName.CLASSIFICATION</code> to instantiate our model.</p>
-<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION,slack_loss=0.2,slack_regularization=0.2)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">FRI</span><span class="p">(</span><span class="n">fri</span><span class="o">.</span><span class="n">ProblemName</span><span class="o">.</span><span class="n">CLASSIFICATION</span><span class="p">,</span><span class="n">slack_loss</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span><span class="n">slack_regularization</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
 
-<pre><code class="python">fri_model
-</code></pre>
 
-<pre><code>FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-    slack_loss=None, slack_regularization=None, verbose=0)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">FRI</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_param_search</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+    <span class="n">problemName</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RandomState</span><span class="p">(</span><span class="n">MT19937</span><span class="p">)</span> <span class="k">at</span> <span class="mi">0</span><span class="n">x7F30AE749C00</span><span class="p">,</span>
+    <span class="n">slack_loss</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">slack_regularization</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="k">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+
 <p>We used no parameters for creation so the defaults are active.</p>
 <h4 id="fitting-to-data">Fitting to data</h4>
 <p>Now we can just fit the model to the data using <code>scikit-learn</code> like commands.</p>
-<pre><code class="python">fri_model.fit(X_scaled,y)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
 
-<pre><code>FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-    slack_loss=None, slack_regularization=None, verbose=0)
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">FRI</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_param_search</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">normalize</span><span class="o">=</span><span class="k">True</span><span class="p">,</span>
+    <span class="n">problemName</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RandomState</span><span class="p">(</span><span class="n">MT19937</span><span class="p">)</span> <span class="k">at</span> <span class="mi">0</span><span class="n">x7F30AE749C00</span><span class="p">,</span>
+    <span class="n">slack_loss</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">slack_regularization</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="k">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+
 <p>The resulting feature relevance bounds are saved in the <code>interval_</code> variable.</p>
-<pre><code class="python">fri_model.interval_
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">interval_</span>
+</pre></div>
 
-<pre><code>array([[0.28158379, 0.42206863],
-       [0.26824834, 0.41605723],
-       [0.        , 0.48783056],
-       [0.        , 0.44949121],
-       [0.        , 0.04668038],
-       [0.        , 0.0604022 ]])
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="nb">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">.</span><span class="mi">28158379</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">42206863</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">26824834</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">41605723</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span>        <span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">48783056</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span>        <span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">44949121</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span>        <span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">04668038</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span>        <span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0604022</span> <span class="p">]])</span>
+</pre></div>
+
+
 <p>If you want to print out the relevance class use the <code>print_interval_with_class()</code> function.</p>
-<pre><code class="python">print(fri_model.print_interval_with_class())
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="n">fri_model</span><span class="o">.</span><span class="n">print_interval_with_class</span><span class="p">())</span>
+</pre></div>
 
-<pre><code>############## Relevance bounds ##############
-feature: [LB -- UB], relevance class
-      0: [0.3 -- 0.4], Strong relevant
-      1: [0.3 -- 0.4], Strong relevant
-      2: [0.0 -- 0.5], Weak relevant
-      3: [0.0 -- 0.4], Weak relevant
-      4: [0.0 -- 0.0], Irrelevant
-      5: [0.0 -- 0.1], Irrelevant
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="o">##############</span> <span class="n">Relevance</span> <span class="n">bounds</span> <span class="o">##############</span>
+<span class="n">feature</span><span class="p">:</span> <span class="p">[</span><span class="n">LB</span> <span class="c1">-- UB], relevance class</span>
+      <span class="mi">0</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">3</span> <span class="c1">-- 0.4], Strong relevant</span>
+      <span class="mi">1</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">3</span> <span class="c1">-- 0.4], Strong relevant</span>
+      <span class="mi">2</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="c1">-- 0.5], Weak relevant</span>
+      <span class="mi">3</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="c1">-- 0.4], Weak relevant</span>
+      <span class="mi">4</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="c1">-- 0.0], Irrelevant</span>
+      <span class="mi">5</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">0</span> <span class="c1">-- 0.1], Irrelevant</span>
+</pre></div>
+
+
 <p>The bounds are grouped in 2d sublists for each feature.</p>
 <p>To acess the relevance bounds for feature 2 we would use</p>
-<pre><code class="python">fri_model.interval_[2]
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">interval_</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</pre></div>
 
-<pre><code>array([0.        , 0.48783056])
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="nb">array</span><span class="p">([</span><span class="mi">0</span><span class="p">.</span>        <span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">48783056</span><span class="p">])</span>
+</pre></div>
+
+
 <p>The relevance classes are saved in the corresponding variable <code>relevance_classes_</code>:</p>
-<pre><code class="python">fri_model.relevance_classes_
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">relevance_classes_</span>
+</pre></div>
 
-<pre><code>array([2, 2, 1, 1, 0, 0])
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="nb">array</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+</pre></div>
+
+
 <p><code>2</code> denotes strongly relevant features, <code>1</code> weakly relevant and <code>0</code> irrelevant.</p>
 <h4 id="plot-results">Plot results</h4>
 <p>The bounds in numerical form are useful for postprocesing.
 If we want a human to look at it, we recommend the plot function <code>plot_relevance_bars</code>.</p>
 <p>We can also color the bars according to <code>relevance_classes_</code></p>
-<pre><code class="python"># Import plot function
-from fri.plot import plot_relevance_bars
-import matplotlib.pyplot as plt
-%matplotlib inline
-# Create new figure, where we can put an axis on
-fig, ax = plt.subplots(1, 1,figsize=(6,3))
-# plot the bars on the axis, colored according to fri
-out = plot_relevance_bars(ax,fri_model.interval_,classes=fri_model.relevance_classes_)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="c1"># Import plot function</span>
+<span class="kn">from</span> <span class="nn">fri.plot</span> <span class="kn">import</span> <span class="n">plot_relevance_bars</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="c1"># Create new figure, where we can put an axis on</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="c1"># plot the bars on the axis, colored according to fri</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">plot_relevance_bars</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span><span class="n">fri_model</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span><span class="n">classes</span><span class="o">=</span><span class="n">fri_model</span><span class="o">.</span><span class="n">relevance_classes_</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img alt="png" src="../output_32_0.png" /></p>
 <h3 id="setting-constraints-manually">Setting constraints manually</h3>
 <p>Our model also allows to compute relevance bounds when the user sets a given range for the features.</p>
 <p>We use a dictionary to encode our constraints.</p>
-<pre><code class="python">preset = {}
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">preset</span> <span class="o">=</span> <span class="p">{}</span>
+</pre></div>
+
 
 <h4 id="example">Example</h4>
 <p>As an example, let us constrain the third from our example to the minimum relevance bound.</p>
-<pre><code class="python">preset[2] = fri_model.interval_[2, 0]
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">preset</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">fri_model</span><span class="o">.</span><span class="n">interval_</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
 
 <p>We use the function <code>constrained_intervals</code>.</p>
 <p>Note: we need to fit the model before we can use this function.
 We already did that, so we are fine.</p>
-<pre><code class="python">const_ints = fri_model.constrained_intervals(preset=preset)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">const_ints</span> <span class="o">=</span> <span class="n">fri_model</span><span class="o">.</span><span class="n">constrained_intervals</span><span class="p">(</span><span class="n">preset</span><span class="o">=</span><span class="n">preset</span><span class="p">)</span>
+</pre></div>
 
-<pre><code class="python">const_ints
-</code></pre>
 
-<pre><code>array([[3.33537278e-01, 3.98346587e-01],
-       [3.16282293e-01, 3.99927655e-01],
-       [0.00000000e+00, 0.00000000e+00],
-       [3.77824890e-01, 4.49491208e-01],
-       [0.00000000e+00, 2.56795434e-02],
-       [6.28844147e-11, 4.97955367e-02]])
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">const_ints</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="nb">array</span><span class="p">([[</span><span class="mi">3</span><span class="p">.</span><span class="mi">33537278</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">,</span> <span class="mi">3</span><span class="p">.</span><span class="mi">98346587</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">3</span><span class="p">.</span><span class="mi">16282293</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">,</span> <span class="mi">3</span><span class="p">.</span><span class="mi">99927655</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">00000000</span><span class="n">e</span><span class="o">+</span><span class="mi">00</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00000000</span><span class="n">e</span><span class="o">+</span><span class="mi">00</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">3</span><span class="p">.</span><span class="mi">77824890</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">,</span> <span class="mi">4</span><span class="p">.</span><span class="mi">49491208</span><span class="n">e</span><span class="o">-</span><span class="mi">01</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">0</span><span class="p">.</span><span class="mi">00000000</span><span class="n">e</span><span class="o">+</span><span class="mi">00</span><span class="p">,</span> <span class="mi">2</span><span class="p">.</span><span class="mi">56795434</span><span class="n">e</span><span class="o">-</span><span class="mi">02</span><span class="p">],</span>
+       <span class="p">[</span><span class="mi">6</span><span class="p">.</span><span class="mi">28844147</span><span class="n">e</span><span class="o">-</span><span class="mi">11</span><span class="p">,</span> <span class="mi">4</span><span class="p">.</span><span class="mi">97955367</span><span class="n">e</span><span class="o">-</span><span class="mi">02</span><span class="p">]])</span>
+</pre></div>
+
+
 <p>Feature 3 is set to its minimum (at 0).</p>
 <p>How does it look visually?</p>
-<pre><code class="python">fig, ax = plt.subplots(1, 1,figsize=(6,3))
-out = plot_relevance_bars(ax, const_ints)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">plot_relevance_bars</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">const_ints</span><span class="p">)</span>
+</pre></div>
+
 
 <p><img alt="png" src="../output_41_0.png" /></p>
 <p>Feature 3 is reduced to its minimum (no contribution).</p>
 <p>In turn, its correlated partner feature 4 had to take its maximum contribution.</p>
 <h3 id="print-internal-parameters">Print internal Parameters</h3>
 <p>If we want to take at internal parameters, we can use the <code>verbose</code> flag in the model creation.</p>
-<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, verbose=True)
-</code></pre>
-
-<pre><code class="python">fri_model.fit(X_scaled,y)
-</code></pre>
-
-<pre><code>Fitting 3 folds for each of 10 candidates, totalling 30 fits
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">FRI</span><span class="p">(</span><span class="n">fri</span><span class="o">.</span><span class="n">ProblemName</span><span class="o">.</span><span class="n">CLASSIFICATION</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
 
 
-[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
-[Parallel(n_jobs=1)]: Done  30 out of  30 | elapsed:    0.3s finished
-[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
 
 
-******************** Best found baseline model ********************
-Classification_SVM(C=6523.18940508926)
-score:  1.0
-'loss: -3.2162506599275367e-12'
-'w_l1: 28.743902865913274'
-'w: shape (6,)'
-'b: shape ()'
-'slack: shape (100,)'
-******************************
+<div class="codehilite"><pre><span></span><span class="nv">Fitting</span> <span class="mi">3</span> <span class="nv">folds</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">of</span> <span class="mi">10</span> <span class="nv">candidates</span>, <span class="nv">totalling</span> <span class="mi">30</span> <span class="nv">fits</span>
 
 
-[Parallel(n_jobs=1)]: Done  18 out of  18 | elapsed:    0.2s finished
-[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
-[Parallel(n_jobs=1)]: Done  40 out of  40 | elapsed:    0.4s finished
-[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">SequentialBackend</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">30</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">30</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">3</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">SequentialBackend</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
 
 
-FS threshold: -0.3485850797626653-0.37121449904943193, Mean:0.011314709643383315, Std:0.014497743389929868, n_probes 4
-FS threshold: -0.09430000942634031-0.1585322164066591, Mean:0.0321161034901594, Std:0.014735763155338663, n_probes 7
+<span class="o">********************</span> <span class="nv">Best</span> <span class="nv">found</span> <span class="nv">baseline</span> <span class="nv">model</span> <span class="o">********************</span>
+<span class="nv">Classification_SVM</span><span class="ss">(</span><span class="nv">C</span><span class="o">=</span><span class="mi">6523</span>.<span class="mi">18940508926</span><span class="ss">)</span>
+<span class="nv">score</span>:  <span class="mi">1</span>.<span class="mi">0</span>
+<span class="s1">&#39;</span><span class="s">loss: -3.2162506599275367e-12</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">w_l1: 28.743902865913274</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">w: shape (6,)</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">b: shape ()</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">slack: shape (100,)</span><span class="s1">&#39;</span>
+<span class="o">******************************</span>
 
 
-[Parallel(n_jobs=1)]: Done  20 out of  20 | elapsed:    0.3s finished
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">18</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">18</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">2</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">SequentialBackend</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">40</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">40</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">4</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">SequentialBackend</span> <span class="nv">with</span> <span class="mi">1</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+
+
+<span class="nv">FS</span> <span class="nv">threshold</span>: <span class="o">-</span><span class="mi">0</span>.<span class="mi">3485850797626653</span><span class="o">-</span><span class="mi">0</span>.<span class="mi">37121449904943193</span>, <span class="nv">Mean</span>:<span class="mi">0</span>.<span class="mi">011314709643383315</span>, <span class="nv">Std</span>:<span class="mi">0</span>.<span class="mi">014497743389929868</span>, <span class="nv">n_probes</span> <span class="mi">4</span>
+<span class="nv">FS</span> <span class="nv">threshold</span>: <span class="o">-</span><span class="mi">0</span>.<span class="mi">09430000942634031</span><span class="o">-</span><span class="mi">0</span>.<span class="mi">1585322164066591</span>, <span class="nv">Mean</span>:<span class="mi">0</span>.<span class="mi">0321161034901594</span>, <span class="nv">Std</span>:<span class="mi">0</span>.<span class="mi">014735763155338663</span>, <span class="nv">n_probes</span> <span class="mi">7</span>
+
+
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">20</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">20</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">3</span><span class="nv">s</span> <span class="nv">finished</span>
 
 
 
 
 
-FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-    slack_loss=None, slack_regularization=None, verbose=True)
-</code></pre>
+<span class="nv">FRI</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">n_param_search</span><span class="o">=</span><span class="mi">10</span>, <span class="nv">n_probe_features</span><span class="o">=</span><span class="mi">20</span>, <span class="nv">normalize</span><span class="o">=</span><span class="nv">True</span>,
+    <span class="nv">problemName</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">random_state</span><span class="o">=</span><span class="nv">RandomState</span><span class="ss">(</span><span class="nv">MT19937</span><span class="ss">)</span> <span class="nv">at</span> <span class="mi">0</span><span class="nv">x7F30AE749C00</span>,
+    <span class="nv">slack_loss</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">slack_regularization</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>
+</pre></div>
+
+
 <p>This prints out the parameters of the baseline model</p>
 <p>One can also see the best selected hyperparameter according to gridsearch and the training score of the model in <code>score</code>.</p>
 <h3 id="multiprocessing">Multiprocessing</h3>
 <p>To enable multiprocessing simply use the <code>n_jobs</code> parameter when init. the model.</p>
 <p>It expects an integer parameter which defines the amount of processes used.
 <code>n_jobs=-1</code> uses all available on the CPU.</p>
-<pre><code class="python">fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, n_jobs=-1, verbose=1)
-</code></pre>
-
-<pre><code class="python">fri_model.fit(X_scaled,y)
-</code></pre>
-
-<pre><code>Fitting 3 folds for each of 10 candidates, totalling 30 fits
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span> <span class="o">=</span> <span class="n">fri</span><span class="o">.</span><span class="n">FRI</span><span class="p">(</span><span class="n">fri</span><span class="o">.</span><span class="n">ProblemName</span><span class="o">.</span><span class="n">CLASSIFICATION</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
 
 
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-[Parallel(n_jobs=-1)]: Done  15 out of  30 | elapsed:    0.1s remaining:    0.1s
-[Parallel(n_jobs=-1)]: Done  30 out of  30 | elapsed:    0.2s finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-[Parallel(n_jobs=-1)]: Done   3 out of  18 | elapsed:    0.1s remaining:    0.4s
-[Parallel(n_jobs=-1)]: Done  18 out of  18 | elapsed:    0.1s finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+<div class="codehilite"><pre><span></span><span class="n">fri_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_scaled</span><span class="p">,</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
 
 
-******************** Best found baseline model ********************
-Classification_SVM(C=0.3735574324157715)
-score:  0.9499248120300752
-'loss: 11.49412313137918'
-'w_l1: 4.827039706578124'
-'w: shape (6,)'
-'b: shape ()'
-'slack: shape (100,)'
-******************************
+<div class="codehilite"><pre><span></span><span class="nv">Fitting</span> <span class="mi">3</span> <span class="nv">folds</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">of</span> <span class="mi">10</span> <span class="nv">candidates</span>, <span class="nv">totalling</span> <span class="mi">30</span> <span class="nv">fits</span>
 
 
-[Parallel(n_jobs=-1)]: Done  40 out of  40 | elapsed:    0.6s finished
-[Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">LokyBackend</span> <span class="nv">with</span> <span class="mi">8</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">15</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">30</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">1</span><span class="nv">s</span> <span class="nv">remaining</span>:    <span class="mi">0</span>.<span class="mi">1</span><span class="nv">s</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">30</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">30</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">2</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">LokyBackend</span> <span class="nv">with</span> <span class="mi">8</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>   <span class="mi">3</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">18</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">1</span><span class="nv">s</span> <span class="nv">remaining</span>:    <span class="mi">0</span>.<span class="mi">4</span><span class="nv">s</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">18</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">18</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">1</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">LokyBackend</span> <span class="nv">with</span> <span class="mi">8</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
 
 
-FS threshold: -0.003062137274245256-0.0037609499356378584, Mean:0.00034940633069630115, Std:0.00057365780239467, n_probes 11
-FS threshold: -0.2619964838392958-0.31312919443178205, Mean:0.025566355296243105, Std:0.03838315602969965, n_probes 8
+<span class="o">********************</span> <span class="nv">Best</span> <span class="nv">found</span> <span class="nv">baseline</span> <span class="nv">model</span> <span class="o">********************</span>
+<span class="nv">Classification_SVM</span><span class="ss">(</span><span class="nv">C</span><span class="o">=</span><span class="mi">0</span>.<span class="mi">3735574324157715</span><span class="ss">)</span>
+<span class="nv">score</span>:  <span class="mi">0</span>.<span class="mi">9499248120300752</span>
+<span class="s1">&#39;</span><span class="s">loss: 11.49412313137918</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">w_l1: 4.827039706578124</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">w: shape (6,)</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">b: shape ()</span><span class="s1">&#39;</span>
+<span class="s1">&#39;</span><span class="s">slack: shape (100,)</span><span class="s1">&#39;</span>
+<span class="o">******************************</span>
 
 
-[Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed:    0.5s finished
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">40</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">40</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">6</span><span class="nv">s</span> <span class="nv">finished</span>
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Using</span> <span class="nv">backend</span> <span class="nv">LokyBackend</span> <span class="nv">with</span> <span class="mi">8</span> <span class="nv">concurrent</span> <span class="nv">workers</span>.
+
+
+<span class="nv">FS</span> <span class="nv">threshold</span>: <span class="o">-</span><span class="mi">0</span>.<span class="mi">003062137274245256</span><span class="o">-</span><span class="mi">0</span>.<span class="mi">0037609499356378584</span>, <span class="nv">Mean</span>:<span class="mi">0</span>.<span class="mi">00034940633069630115</span>, <span class="nv">Std</span>:<span class="mi">0</span>.<span class="mi">00057365780239467</span>, <span class="nv">n_probes</span> <span class="mi">11</span>
+<span class="nv">FS</span> <span class="nv">threshold</span>: <span class="o">-</span><span class="mi">0</span>.<span class="mi">2619964838392958</span><span class="o">-</span><span class="mi">0</span>.<span class="mi">31312919443178205</span>, <span class="nv">Mean</span>:<span class="mi">0</span>.<span class="mi">025566355296243105</span>, <span class="nv">Std</span>:<span class="mi">0</span>.<span class="mi">03838315602969965</span>, <span class="nv">n_probes</span> <span class="mi">8</span>
+
+
+[<span class="nv">Parallel</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="ss">)</span>]: <span class="nv">Done</span>  <span class="mi">20</span> <span class="nv">out</span> <span class="nv">of</span>  <span class="mi">20</span> <span class="o">|</span> <span class="nv">elapsed</span>:    <span class="mi">0</span>.<span class="mi">5</span><span class="nv">s</span> <span class="nv">finished</span>
 
 
 
 
 
-FRI(n_jobs=-1, n_param_search=10, n_probe_features=20, normalize=True,
-    problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-    slack_loss=None, slack_regularization=None, verbose=1)
-</code></pre>
-<pre><code class="python">
-</code></pre>
+<span class="nv">FRI</span><span class="ss">(</span><span class="nv">n_jobs</span><span class="o">=-</span><span class="mi">1</span>, <span class="nv">n_param_search</span><span class="o">=</span><span class="mi">10</span>, <span class="nv">n_probe_features</span><span class="o">=</span><span class="mi">20</span>, <span class="nv">normalize</span><span class="o">=</span><span class="nv">True</span>,
+    <span class="nv">problemName</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">random_state</span><span class="o">=</span><span class="nv">RandomState</span><span class="ss">(</span><span class="nv">MT19937</span><span class="ss">)</span> <span class="nv">at</span> <span class="mi">0</span><span class="nv">x7F30AE749C00</span>,
+    <span class="nv">slack_loss</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">slack_regularization</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">verbose</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span>
+</pre></div>
                 
                   
                 

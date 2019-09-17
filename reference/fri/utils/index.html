@@ -761,135 +761,143 @@
                 
                 
                 <h1 id="module-friutils">Module fri.utils</h1>
-<details class="example"><summary>View Source</summary><pre><code>import numpy as np
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-def distance(u, v):
+<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 
-    """
+    <span class="sd">&quot;&quot;&quot;</span>
 
-    Distance measure custom made for feature comparison.
+<span class="sd">    Distance measure custom made for feature comparison.</span>
 
-    Parameters
+<span class="sd">    Parameters</span>
 
-    ----------
+<span class="sd">    ----------</span>
 
-    u: first feature
+<span class="sd">    u: first feature</span>
 
-    v: second feature
+<span class="sd">    v: second feature</span>
 
-    Returns
+<span class="sd">    Returns</span>
 
-    -------
+<span class="sd">    -------</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    u = np.asarray(u)
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asarray</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
-    v = np.asarray(v)
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
-    # Euclidean differences
+    <span class="c1"># Euclidean differences</span>
 
-    diff = (u - v) ** 2
+    <span class="kp">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 
-    # Nullify pairwise contribution
+    <span class="c1"># Nullify pairwise contribution</span>
 
-    diff[u == 0] = 0
+    <span class="kp">diff</span><span class="p">[</span><span class="n">u</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-    diff[v == 0] = 0
+    <span class="kp">diff</span><span class="p">[</span><span class="n">v</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-    return np.sqrt(np.sum(diff))
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="kp">diff</span><span class="p">))</span>
 
-def permutate_feature_in_data(data, feature_i, random_state):
+<span class="k">def</span> <span class="nf">permutate_feature_in_data</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">feature_i</span><span class="p">,</span> <span class="n">random_state</span><span class="p">):</span>
 
-    X, y = data
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
 
-    X_copy = np.copy(X)
+    <span class="n">X_copy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">copy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-    # Permute selected feature
+    <span class="c1"># Permute selected feature</span>
 
-    permutated_feature = random_state.permutation(X_copy[:, feature_i])
+    <span class="n">permutated_feature</span> <span class="o">=</span> <span class="n">random_state</span><span class="o">.</span><span class="kp">permutation</span><span class="p">(</span><span class="n">X_copy</span><span class="p">[:,</span> <span class="n">feature_i</span><span class="p">])</span>
 
-    # Add permutation back to dataset
+    <span class="c1"># Add permutation back to dataset</span>
 
-    X_copy[:, feature_i] = permutated_feature
+    <span class="n">X_copy</span><span class="p">[:,</span> <span class="n">feature_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">permutated_feature</span>
 
-    return X_copy, y
-</code></pre>
+    <span class="k">return</span> <span class="n">X_copy</span><span class="p">,</span> <span class="n">y</span>
+</pre></div>
+
+
 </details>
 <h2 id="functions">Functions</h2>
 <h3 id="distance">distance</h3>
-<pre><code class="python3">def distance(
-    u,
-    v
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">distance</span><span class="p">(</span>
+    <span class="n">u</span><span class="p">,</span>
+    <span class="n">v</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Distance measure custom made for feature comparison.</p>
 <h2 id="parameters">Parameters</h2>
 <p>u: first feature
 v: second feature</p>
 <h2 id="returns">Returns</h2>
-<details class="example"><summary>View Source</summary><pre><code>def distance(u, v):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">distance</span><span class="ss">(</span><span class="nv">u</span>, <span class="nv">v</span><span class="ss">)</span>:
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    Distance measure custom made for feature comparison.
+    <span class="nv">Distance</span> <span class="nv">measure</span> <span class="nv">custom</span> <span class="nv">made</span> <span class="k">for</span> <span class="nv">feature</span> <span class="nv">comparison</span>.
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    u: first feature
+    <span class="nv">u</span>: <span class="nv">first</span> <span class="nv">feature</span>
 
-    v: second feature
+    <span class="nv">v</span>: <span class="nv">second</span> <span class="nv">feature</span>
 
-    Returns
+    <span class="nv">Returns</span>
 
-    -------
+    <span class="o">-------</span>
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    u = np.asarray(u)
+    <span class="nv">u</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">u</span><span class="ss">)</span>
 
-    v = np.asarray(v)
+    <span class="nv">v</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">v</span><span class="ss">)</span>
 
-    # Euclidean differences
+    # <span class="nv">Euclidean</span> <span class="nv">differences</span>
 
-    diff = (u - v) ** 2
+    <span class="nv">diff</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">u</span> <span class="o">-</span> <span class="nv">v</span><span class="ss">)</span> <span class="o">**</span> <span class="mi">2</span>
 
-    # Nullify pairwise contribution
+    # <span class="nv">Nullify</span> <span class="nv">pairwise</span> <span class="nv">contribution</span>
 
-    diff[u == 0] = 0
+    <span class="nv">diff</span>[<span class="nv">u</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="mi">0</span>
 
-    diff[v == 0] = 0
+    <span class="nv">diff</span>[<span class="nv">v</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="mi">0</span>
 
-    return np.sqrt(np.sum(diff))
-</code></pre>
+    <span class="k">return</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">diff</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h3 id="permutate_feature_in_data">permutate_feature_in_data</h3>
-<pre><code class="python3">def permutate_feature_in_data(
-    data,
-    feature_i,
-    random_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">permutate_feature_in_data</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">feature_i</span><span class="p">,</span>
+    <span class="n">random_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>def permutate_feature_in_data(data, feature_i, random_state):
 
-    X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">permutate_feature_in_data</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">feature_i</span>, <span class="nv">random_state</span><span class="ss">)</span>:
 
-    X_copy = np.copy(X)
+    <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-    # Permute selected feature
+    <span class="nv">X_copy</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">copy</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-    permutated_feature = random_state.permutation(X_copy[:, feature_i])
+    # <span class="nv">Permute</span> <span class="nv">selected</span> <span class="nv">feature</span>
 
-    # Add permutation back to dataset
+    <span class="nv">permutated_feature</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">permutation</span><span class="ss">(</span><span class="nv">X_copy</span>[:, <span class="nv">feature_i</span>]<span class="ss">)</span>
 
-    X_copy[:, feature_i] = permutated_feature
+    # <span class="nv">Add</span> <span class="nv">permutation</span> <span class="nv">back</span> <span class="nv">to</span> <span class="nv">dataset</span>
 
-    return X_copy, y
-</code></pre>
+    <span class="nv">X_copy</span>[:, <span class="nv">feature_i</span>] <span class="o">=</span> <span class="nv">permutated_feature</span>
+
+    <span class="k">return</span> <span class="nv">X_copy</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
                 
                   

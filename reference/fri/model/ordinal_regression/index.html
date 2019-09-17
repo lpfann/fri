@@ -1527,400 +1527,403 @@
                 
                 
                 <h1 id="module-frimodelordinal_regression">Module fri.model.ordinal_regression</h1>
-<details class="example"><summary>View Source</summary><pre><code>import cvxpy as cvx
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">cvxpy</span> <span class="kn">as</span> <span class="nn">cvx</span>
 
-import numpy as np
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
-from sklearn.metrics import make_scorer
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">make_scorer</span>
 
-from sklearn.utils import check_X_y
+<span class="kn">from</span> <span class="nn">sklearn.utils</span> <span class="kn">import</span> <span class="n">check_X_y</span>
 
-from .base_cvxproblem import Relevance_CVXProblem
+<span class="kn">from</span> <span class="nn">.base_cvxproblem</span> <span class="kn">import</span> <span class="n">Relevance_CVXProblem</span>
 
-from .base_initmodel import InitModel
+<span class="kn">from</span> <span class="nn">.base_initmodel</span> <span class="kn">import</span> <span class="n">InitModel</span>
 
-from .base_type import ProblemType
+<span class="kn">from</span> <span class="nn">.base_type</span> <span class="kn">import</span> <span class="n">ProblemType</span>
 
-class OrdinalRegression(ProblemType):
+<span class="k">class</span> <span class="nc">OrdinalRegression</span><span class="p">(</span><span class="n">ProblemType</span><span class="p">):</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def parameters(cls):
+    <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["C"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def get_initmodel_template(cls):
+    <span class="k">def</span> <span class="nf">get_initmodel_template</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return OrdinalRegression_SVM
+        <span class="k">return</span> <span class="n">OrdinalRegression_SVM</span>
 
-    @property
+    <span class="nd">@property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="k">def</span> <span class="nf">get_cvxproblem_template</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return OrdinalRegression_Relevance_Bound
+        <span class="k">return</span> <span class="n">OrdinalRegression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;loss_slack&quot;</span><span class="p">,</span> <span class="s2">&quot;w_l1_slack&quot;</span><span class="p">]</span>
 
-    def preprocessing(self, data, **kwargs):
+    <span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        X, y = data
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
 
-        # Check that X and y have correct shape
+        <span class="c1"># Check that X and y have correct shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        if np.min(y) &gt; 0:
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="kp">min</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+            <span class="k">print</span><span class="p">(</span><span class="s2">&quot;First ordinal class has index &gt; 0. Shifting index...&quot;</span><span class="p">)</span>
 
-            y = y - np.min(y)
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="kp">min</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        return X, y
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
 
-class OrdinalRegression_SVM(InitModel):
+<span class="k">class</span> <span class="nc">OrdinalRegression_SVM</span><span class="p">(</span><span class="n">InitModel</span><span class="p">):</span>
 
-    @classmethod
+    <span class="nd">@classmethod</span>
 
-    def hyperparameter(cls):
+    <span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        return ["C"]
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
-    def fit(self, X, y, **kwargs):
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        (n, d) = X.shape
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span>
 
-        C = self.hyperparam["C"]
+        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
-        self.classes_ = np.unique(y)
+        <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        original_bins = sorted(self.classes_)
+        <span class="n">original_bins</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">)</span>
 
-        n_bins = len(original_bins)
+        <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">original_bins</span><span class="p">)</span>
 
-        bins = np.arange(n_bins)
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">arange</span><span class="p">(</span><span class="n">n_bins</span><span class="p">)</span>
 
-        get_old_bin = dict(zip(bins, original_bins))
+        <span class="n">get_old_bin</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">original_bins</span><span class="p">))</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-        # For ordinal regression we use two slack variables, we observe the slack in both directions
+        <span class="c1"># For ordinal regression we use two slack variables, we observe the slack in both directions</span>
 
-        slack_left = cvx.Variable(shape=(n), name="slack_left")
+        <span class="n">slack_left</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_left&quot;</span><span class="p">)</span>
 
-        slack_right = cvx.Variable(shape=(n), name="slack_right")
+        <span class="n">slack_right</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_right&quot;</span><span class="p">)</span>
 
-        # We have an offset for every bin boundary
+        <span class="c1"># We have an offset for every bin boundary</span>
 
-        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        <span class="n">b_s</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias&quot;</span><span class="p">)</span>
 
-        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+        <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">C</span> <span class="o">*</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">+</span> <span class="n">slack_right</span><span class="p">))</span>
 
-        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
 
-        # Add constraints for slack into left neighboring bins
+        <span class="c1"># Add constraints for slack into left neighboring bins</span>
 
-        for i in range(n_bins - 1):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
 
-            indices = np.where(y == get_old_bin[i])
+            <span class="kp">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">where</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">get_old_bin</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+            <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">slack_left</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">b_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
-        # Add constraints for slack into right neighboring bins
+        <span class="c1"># Add constraints for slack into right neighboring bins</span>
 
-        for i in range(1, n_bins):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
 
-            indices = np.where(y == get_old_bin[i])
+            <span class="kp">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">where</span><span class="p">(</span><span class="n">y</span> <span class="o">==</span> <span class="n">get_old_bin</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
 
-            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+            <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">slack_right</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">b_s</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-        # Add explicit constraint, that all bins are ascending
+        <span class="c1"># Add explicit constraint, that all bins are ascending</span>
 
-        for i in range(n_bins - 2):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
 
-            constraints.append(b_s[i] &lt;= b_s[i + 1])
+            <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">b_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">b_s</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
 
-        # Solve problem.
+        <span class="c1"># Solve problem.</span>
 
-        solver_params = self.solver_params
+        <span class="n">solver_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span>
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">constraints</span><span class="p">)</span>
 
-        problem.solve(**solver_params)
+        <span class="n">problem</span><span class="o">.</span><span class="kp">solve</span><span class="p">(</span><span class="o">**</span><span class="n">solver_params</span><span class="p">)</span>
 
-        w = w.value
+        <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">value</span>
 
-        b_s = b_s.value
+        <span class="n">b_s</span> <span class="o">=</span> <span class="n">b_s</span><span class="o">.</span><span class="n">value</span>
 
-        slack_left = np.asarray(slack_left.value).flatten()
+        <span class="n">slack_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asarray</span><span class="p">(</span><span class="n">slack_left</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="kp">flatten</span><span class="p">()</span>
 
-        slack_right = np.asarray(slack_right.value).flatten()
+        <span class="n">slack_right</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">asarray</span><span class="p">(</span><span class="n">slack_right</span><span class="o">.</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="kp">flatten</span><span class="p">()</span>
 
-        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span> <span class="s2">&quot;b_s&quot;</span><span class="p">:</span> <span class="n">b_s</span><span class="p">,</span> <span class="s2">&quot;slack&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">slack_left</span><span class="p">,</span> <span class="n">slack_right</span><span class="p">)}</span>
 
-        loss = np.sum(slack_left + slack_right)
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">+</span> <span class="n">slack_right</span><span class="p">)</span>
 
-        w_l1 = np.linalg.norm(w, ord=1)
+        <span class="n">w_l1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="nb">ord</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1}
+        <span class="bp">self</span><span class="o">.</span><span class="n">constraints</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="s2">&quot;w_l1&quot;</span><span class="p">:</span> <span class="n">w_l1</span><span class="p">}</span>
 
-        return self
+        <span class="k">return</span> <span class="bp">self</span>
 
-    def predict(self, X):
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
-        w = self.model_state["w"]
+        <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span>
 
-        b_s = self.model_state["b_s"]
+        <span class="n">b_s</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_state</span><span class="p">[</span><span class="s2">&quot;b_s&quot;</span><span class="p">]</span>
 
-        scores = np.dot(X, w.T)[np.newaxis]
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">T</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="kp">newaxis</span><span class="p">]</span>
 
-        bin_thresholds = np.append(b_s, np.inf)
+        <span class="n">bin_thresholds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">b_s</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="kp">inf</span><span class="p">)</span>
 
-        # If thresholds are smaller than score the value belongs to the bigger bin
+        <span class="c1"># If thresholds are smaller than score the value belongs to the bigger bin</span>
 
-        # after subtracting we check for positive elements
+        <span class="c1"># after subtracting we check for positive elements</span>
 
-        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
+        <span class="kp">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">scores</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">bin_thresholds</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        return self.classes_[indices]
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">classes_</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
 
-    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mmae&quot;</span><span class="p">,</span> <span class="n">return_error</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        X, y = check_X_y(X, y)
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        prediction = self.predict(X)
+        <span class="n">prediction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
+        <span class="n">score</span> <span class="o">=</span> <span class="n">ordinal_scores</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">return_error</span><span class="o">=</span><span class="n">return_error</span><span class="p">)</span>
 
-        return score
+        <span class="k">return</span> <span class="n">score</span>
 
-    def make_scorer(self):
+    <span class="k">def</span> <span class="nf">make_scorer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        # Use multiple scores for ordinal regression
+        <span class="c1"># Use multiple scores for ordinal regression</span>
 
-        mze = make_scorer(ordinal_scores, error_type="mze")
+        <span class="n">mze</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">ordinal_scores</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mze&quot;</span><span class="p">)</span>
 
-        mae = make_scorer(ordinal_scores, error_type="mae")
+        <span class="n">mae</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">ordinal_scores</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mae&quot;</span><span class="p">)</span>
 
-        mmae = make_scorer(ordinal_scores, error_type="mmae")
+        <span class="n">mmae</span> <span class="o">=</span> <span class="n">make_scorer</span><span class="p">(</span><span class="n">ordinal_scores</span><span class="p">,</span> <span class="n">error_type</span><span class="o">=</span><span class="s2">&quot;mmae&quot;</span><span class="p">)</span>
 
-        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+        <span class="n">scorer</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;mze&quot;</span><span class="p">:</span> <span class="n">mze</span><span class="p">,</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span> <span class="n">mae</span><span class="p">,</span> <span class="s2">&quot;mmae&quot;</span><span class="p">:</span> <span class="n">mmae</span><span class="p">}</span>
 
-        return scorer, "mmae"
+        <span class="k">return</span> <span class="n">scorer</span><span class="p">,</span> <span class="s2">&quot;mmae&quot;</span>
 
-def ordinal_scores(y, prediction, error_type, return_error=False):
+<span class="k">def</span> <span class="nf">ordinal_scores</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">error_type</span><span class="p">,</span> <span class="n">return_error</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
 
-    """Score function for ordinal problems.
+    <span class="sd">&quot;&quot;&quot;Score function for ordinal problems.</span>
 
-    Parameters
+<span class="sd">    Parameters</span>
 
-    ----------
+<span class="sd">    ----------</span>
 
-    y : target class vector
+<span class="sd">    y : target class vector</span>
 
-        Truth vector
+<span class="sd">        Truth vector</span>
 
-    prediction : prediction class vector
+<span class="sd">    prediction : prediction class vector</span>
 
-        Predicted classes
+<span class="sd">        Predicted classes</span>
 
-    error_type : str
+<span class="sd">    error_type : str</span>
 
-        Error type "mze","mae","mmae"
+<span class="sd">        Error type &quot;mze&quot;,&quot;mae&quot;,&quot;mmae&quot;</span>
 
-    return_error : bool, optional
+<span class="sd">    return_error : bool, optional</span>
 
-        Return error (lower is better) or score (inverted, higher is better)
+<span class="sd">        Return error (lower is better) or score (inverted, higher is better)</span>
 
-    Returns
+<span class="sd">    Returns</span>
 
-    -------
+<span class="sd">    -------</span>
 
-    float
+<span class="sd">    float</span>
 
-        Error or score depending on 'return_error'
+<span class="sd">        Error or score depending on &#39;return_error&#39;</span>
 
-    Raises
+<span class="sd">    Raises</span>
 
-    ------
+<span class="sd">    ------</span>
 
-    ValueError
+<span class="sd">    ValueError</span>
 
-        When using wrong error_type
+<span class="sd">        When using wrong error_type</span>
 
-    """
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    n = len(y)
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-    classes = np.unique(y)
+    <span class="n">classes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">unique</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-    n_bins = len(classes)
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
 
-    max_dist = n_bins - 1
+    <span class="n">max_dist</span> <span class="o">=</span> <span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span>
 
-    # If only one class available, we dont need to average
+    <span class="c1"># If only one class available, we dont need to average</span>
 
-    if max_dist == 0:
+    <span class="k">if</span> <span class="n">max_dist</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-        error_type = "mze"
+        <span class="n">error_type</span> <span class="o">=</span> <span class="s2">&quot;mze&quot;</span>
 
-    def mze(prediction, y):
+    <span class="k">def</span> <span class="nf">mze</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 
-        return np.sum(prediction != y)
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">prediction</span> <span class="o">!=</span> <span class="n">y</span><span class="p">)</span>
 
-    def mae(prediction, y):
+    <span class="k">def</span> <span class="nf">mae</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 
-        return np.sum(np.abs(prediction - y))
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="n">prediction</span> <span class="o">-</span> <span class="n">y</span><span class="p">))</span>
 
-    # Score based on mean zero-one error
+    <span class="c1"># Score based on mean zero-one error</span>
 
-    if error_type == "mze":
+    <span class="k">if</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;mze&quot;</span><span class="p">:</span>
 
-        error = mze(prediction, y) / n
+        <span class="n">error</span> <span class="o">=</span> <span class="n">mze</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
 
-        score = 1 - error
+        <span class="n">score</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">error</span>
 
-    # Score based on mean absolute error
+    <span class="c1"># Score based on mean absolute error</span>
 
-    elif error_type == "mae":
+    <span class="k">elif</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;mae&quot;</span><span class="p">:</span>
 
-        error = mae(prediction, y) / n
+        <span class="n">error</span> <span class="o">=</span> <span class="n">mae</span><span class="p">(</span><span class="n">prediction</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
 
-        score = (max_dist - error) / max_dist
+        <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_dist</span> <span class="o">-</span> <span class="n">error</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_dist</span>
 
-    # Score based on macro-averaged mean absolute error
+    <span class="c1"># Score based on macro-averaged mean absolute error</span>
 
-    elif error_type == "mmae":
+    <span class="k">elif</span> <span class="n">error_type</span> <span class="o">==</span> <span class="s2">&quot;mmae&quot;</span><span class="p">:</span>
 
-        sum = 0
+        <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
 
-        for i in range(n_bins):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span><span class="p">):</span>
 
-            samples = y == i
+            <span class="n">samples</span> <span class="o">=</span> <span class="n">y</span> <span class="o">==</span> <span class="n">i</span>
 
-            n_samples = np.sum(samples)
+            <span class="n">n_samples</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
 
-            if n_samples &gt; 0:
+            <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-                bin_error = mae(prediction[samples], y[samples]) / n_samples
+                <span class="n">bin_error</span> <span class="o">=</span> <span class="n">mae</span><span class="p">(</span><span class="n">prediction</span><span class="p">[</span><span class="n">samples</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">samples</span><span class="p">])</span> <span class="o">/</span> <span class="n">n_samples</span>
 
-                sum += bin_error
+                <span class="nb">sum</span> <span class="o">+=</span> <span class="n">bin_error</span>
 
-        error = sum / n_bins
+        <span class="n">error</span> <span class="o">=</span> <span class="nb">sum</span> <span class="o">/</span> <span class="n">n_bins</span>
 
-        score = (max_dist - error) / max_dist
+        <span class="n">score</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_dist</span> <span class="o">-</span> <span class="n">error</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_dist</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        raise ValueError("error_type {} not available!'".format(error_type))
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;error_type {} not available!&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">error_type</span><span class="p">))</span>
 
-    if return_error:
+    <span class="k">if</span> <span class="n">return_error</span><span class="p">:</span>
 
-        return error
+        <span class="k">return</span> <span class="n">error</span>
 
-    else:
+    <span class="k">else</span><span class="p">:</span>
 
-        return score
+        <span class="k">return</span> <span class="n">score</span>
 
-class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
+<span class="k">class</span> <span class="nc">OrdinalRegression_Relevance_Bound</span><span class="p">(</span><span class="n">Relevance_CVXProblem</span><span class="p">):</span>
 
-    def init_objective_UB(self, sign=None, **kwargs):
+    <span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kp">sign</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        self.add_constraint(
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            self.feature_relevance &lt;= sign * self.w[self.current_feature]
+            <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">&lt;=</span> <span class="kp">sign</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_feature</span><span class="p">]</span>
 
-        )
+        <span class="p">)</span>
 
-        self._objective = cvx.Maximize(self.feature_relevance)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Maximize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span><span class="p">)</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        self.add_constraint(
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+            <span class="n">cvx</span><span class="o">.</span><span class="kp">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">current_feature</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span>
 
-        )
+        <span class="p">)</span>
 
-        self._objective = cvx.Minimize(self.feature_relevance)
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span><span class="p">)</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="k">def</span> <span class="nf">_init_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parameters</span><span class="p">,</span> <span class="n">init_model_constraints</span><span class="p">):</span>
 
-        n_bins = len(np.unique(self.y))
+        <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="kp">unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">))</span>
 
-        # Upper constraints from initial model
+        <span class="c1"># Upper constraints from initial model</span>
 
-        l1_w = init_model_constraints["w_l1"]
+        <span class="n">l1_w</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-        init_loss = init_model_constraints["loss"]
+        <span class="n">init_loss</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
 
-        C = parameters["C"]
+        <span class="n">C</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
-        # New Variables
+        <span class="c1"># New Variables</span>
 
-        self.w = cvx.Variable(shape=(self.d), name="w")
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
-        # For ordinal regression we use two slack variables, we observe the slack in both directions
+        <span class="c1"># For ordinal regression we use two slack variables, we observe the slack in both directions</span>
 
-        self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_left</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_left&quot;</span><span class="p">,</span> <span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack_right</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_right&quot;</span><span class="p">,</span> <span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 
-        # We have an offset for every bin boundary
+        <span class="c1"># We have an offset for every bin boundary</span>
 
-        self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_s</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias&quot;</span><span class="p">)</span>
 
-        # New Constraints
+        <span class="c1"># New Constraints</span>
 
-        self.loss = cvx.sum(self.slack_left + self.slack_right)
+        <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slack_left</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack_right</span><span class="p">)</span>
 
-        self.weight_norm = cvx.norm(self.w, 1)
+        <span class="bp">self</span><span class="o">.</span><span class="n">weight_norm</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        for i in range(n_bins - 1):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
 
-            indices = np.where(self.y == i)
+            <span class="kp">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
 
-            self.add_constraint(
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-                self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
+                <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack_left</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
-            )
+            <span class="p">)</span>
 
-        for i in range(1, n_bins):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_bins</span><span class="p">):</span>
 
-            indices = np.where(self.y == i)
+            <span class="kp">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">where</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">==</span> <span class="n">i</span><span class="p">)</span>
 
-            self.add_constraint(
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-                self.X[indices] * self.w + self.slack_right[indices]
+                <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">slack_right</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
 
-                &gt;= self.b_s[i - 1] + 1
+                <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_s</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="mi">1</span>
 
-            )
+            <span class="p">)</span>
 
-        for i in range(n_bins - 2):
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bins</span> <span class="o">-</span> <span class="mi">2</span><span class="p">):</span>
 
-            self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_s</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_s</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
 
-        self.add_constraint(self.weight_norm &lt;= l1_w)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weight_norm</span> <span class="o">&lt;=</span> <span class="n">l1_w</span><span class="p">)</span>
 
-        self.add_constraint(C * self.loss &lt;= C * init_loss)
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">&lt;=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">init_loss</span><span class="p">)</span>
 
-        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
-</code></pre>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Feature Relevance&quot;</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h2 id="functions">Functions</h2>
 <h3 id="ordinal_scores">ordinal_scores</h3>
-<pre><code class="python3">def ordinal_scores(
-    y,
-    prediction,
-    error_type,
-    return_error=False
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">ordinal_scores</span><span class="p">(</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">prediction</span><span class="p">,</span>
+    <span class="n">error_type</span><span class="p">,</span>
+    <span class="n">return_error</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Score function for ordinal problems.</p>
 <h2 id="parameters">Parameters</h2>
@@ -1938,170 +1941,175 @@ return_error : bool, optional
 <h2 id="raises">Raises</h2>
 <p>ValueError
     When using wrong error_type</p>
-<details class="example"><summary>View Source</summary><pre><code>def ordinal_scores(y, prediction, error_type, return_error=False):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">ordinal_scores</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">error_type</span>, <span class="nv">return_error</span><span class="o">=</span><span class="nv">False</span><span class="ss">)</span>:
 
-    """Score function for ordinal problems.
+    <span class="s2">&quot;&quot;&quot;</span><span class="s">Score function for ordinal problems.</span>
 
-    Parameters
+    <span class="nv">Parameters</span>
 
-    ----------
+    <span class="o">----------</span>
 
-    y : target class vector
+    <span class="nv">y</span> : <span class="nv">target</span> <span class="nv">class</span> <span class="nv">vector</span>
 
-        Truth vector
+        <span class="nv">Truth</span> <span class="nv">vector</span>
 
-    prediction : prediction class vector
+    <span class="nv">prediction</span> : <span class="nv">prediction</span> <span class="nv">class</span> <span class="nv">vector</span>
 
-        Predicted classes
+        <span class="nv">Predicted</span> <span class="nv">classes</span>
 
-    error_type : str
+    <span class="nv">error_type</span> : <span class="nv">str</span>
 
-        Error type "mze","mae","mmae"
+        <span class="nv">Error</span> <span class="nv">type</span> <span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span>,<span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span>,<span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>
 
-    return_error : bool, optional
+    <span class="nv">return_error</span> : <span class="nv">bool</span>, <span class="nv">optional</span>
 
-        Return error (lower is better) or score (inverted, higher is better)
+        <span class="k">Return</span> <span class="nv">error</span> <span class="ss">(</span><span class="nv">lower</span> <span class="nv">is</span> <span class="nv">better</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">score</span> <span class="ss">(</span><span class="nv">inverted</span>, <span class="nv">higher</span> <span class="nv">is</span> <span class="nv">better</span><span class="ss">)</span>
 
-    Returns
+    <span class="nv">Returns</span>
 
-    -------
+    <span class="o">-------</span>
 
-    float
+    <span class="nv">float</span>
 
-        Error or score depending on 'return_error'
+        <span class="nv">Error</span> <span class="nv">or</span> <span class="nv">score</span> <span class="nv">depending</span> <span class="nv">on</span> <span class="s1">&#39;</span><span class="s">return_error</span><span class="s1">&#39;</span>
 
-    Raises
+    <span class="nv">Raises</span>
 
-    ------
+    <span class="o">------</span>
 
-    ValueError
+    <span class="nv">ValueError</span>
 
-        When using wrong error_type
+        <span class="nv">When</span> <span class="nv">using</span> <span class="nv">wrong</span> <span class="nv">error_type</span>
 
-    """
+    <span class="s2">&quot;&quot;&quot;</span>
 
-    n = len(y)
+    <span class="nv">n</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-    classes = np.unique(y)
+    <span class="nv">classes</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">unique</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-    n_bins = len(classes)
+    <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes</span><span class="ss">)</span>
 
-    max_dist = n_bins - 1
+    <span class="nv">max_dist</span> <span class="o">=</span> <span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span>
 
-    # If only one class available, we dont need to average
+    # <span class="k">If</span> <span class="nv">only</span> <span class="nv">one</span> <span class="nv">class</span> <span class="nv">available</span>, <span class="nv">we</span> <span class="nv">dont</span> <span class="nv">need</span> <span class="nv">to</span> <span class="nv">average</span>
 
-    if max_dist == 0:
+    <span class="k">if</span> <span class="nv">max_dist</span> <span class="o">==</span> <span class="mi">0</span>:
 
-        error_type = "mze"
+        <span class="nv">error_type</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span>
 
-    def mze(prediction, y):
+    <span class="nv">def</span> <span class="nv">mze</span><span class="ss">(</span><span class="nv">prediction</span>, <span class="nv">y</span><span class="ss">)</span>:
 
-        return np.sum(prediction != y)
+        <span class="k">return</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">prediction</span> <span class="o">!=</span> <span class="nv">y</span><span class="ss">)</span>
 
-    def mae(prediction, y):
+    <span class="nv">def</span> <span class="nv">mae</span><span class="ss">(</span><span class="nv">prediction</span>, <span class="nv">y</span><span class="ss">)</span>:
 
-        return np.sum(np.abs(prediction - y))
+        <span class="k">return</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">abs</span><span class="ss">(</span><span class="nv">prediction</span> <span class="o">-</span> <span class="nv">y</span><span class="ss">))</span>
 
-    # Score based on mean zero-one error
+    # <span class="nv">Score</span> <span class="nv">based</span> <span class="nv">on</span> <span class="nv">mean</span> <span class="nv">zero</span><span class="o">-</span><span class="nv">one</span> <span class="nv">error</span>
 
-    if error_type == "mze":
+    <span class="k">if</span> <span class="nv">error_type</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span>:
 
-        error = mze(prediction, y) / n
+        <span class="nv">error</span> <span class="o">=</span> <span class="nv">mze</span><span class="ss">(</span><span class="nv">prediction</span>, <span class="nv">y</span><span class="ss">)</span> <span class="o">/</span> <span class="nv">n</span>
 
-        score = 1 - error
+        <span class="nv">score</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">error</span>
 
-    # Score based on mean absolute error
+    # <span class="nv">Score</span> <span class="nv">based</span> <span class="nv">on</span> <span class="nv">mean</span> <span class="nv">absolute</span> <span class="nv">error</span>
 
-    elif error_type == "mae":
+    <span class="nv">elif</span> <span class="nv">error_type</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span>:
 
-        error = mae(prediction, y) / n
+        <span class="nv">error</span> <span class="o">=</span> <span class="nv">mae</span><span class="ss">(</span><span class="nv">prediction</span>, <span class="nv">y</span><span class="ss">)</span> <span class="o">/</span> <span class="nv">n</span>
 
-        score = (max_dist - error) / max_dist
+        <span class="nv">score</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">max_dist</span> <span class="o">-</span> <span class="nv">error</span><span class="ss">)</span> <span class="o">/</span> <span class="nv">max_dist</span>
 
-    # Score based on macro-averaged mean absolute error
+    # <span class="nv">Score</span> <span class="nv">based</span> <span class="nv">on</span> <span class="nv">macro</span><span class="o">-</span><span class="nv">averaged</span> <span class="nv">mean</span> <span class="nv">absolute</span> <span class="nv">error</span>
 
-    elif error_type == "mmae":
+    <span class="nv">elif</span> <span class="nv">error_type</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>:
 
-        sum = 0
+        <span class="nv">sum</span> <span class="o">=</span> <span class="mi">0</span>
 
-        for i in range(n_bins):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span><span class="ss">)</span>:
 
-            samples = y == i
+            <span class="nv">samples</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">==</span> <span class="nv">i</span>
 
-            n_samples = np.sum(samples)
+            <span class="nv">n_samples</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">samples</span><span class="ss">)</span>
 
-            if n_samples &gt; 0:
+            <span class="k">if</span> <span class="nv">n_samples</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-                bin_error = mae(prediction[samples], y[samples]) / n_samples
+                <span class="nv">bin_error</span> <span class="o">=</span> <span class="nv">mae</span><span class="ss">(</span><span class="nv">prediction</span>[<span class="nv">samples</span>], <span class="nv">y</span>[<span class="nv">samples</span>]<span class="ss">)</span> <span class="o">/</span> <span class="nv">n_samples</span>
 
-                sum += bin_error
+                <span class="nv">sum</span> <span class="o">+=</span> <span class="nv">bin_error</span>
 
-        error = sum / n_bins
+        <span class="nv">error</span> <span class="o">=</span> <span class="nv">sum</span> <span class="o">/</span> <span class="nv">n_bins</span>
 
-        score = (max_dist - error) / max_dist
+        <span class="nv">score</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">max_dist</span> <span class="o">-</span> <span class="nv">error</span><span class="ss">)</span> <span class="o">/</span> <span class="nv">max_dist</span>
 
-    else:
+    <span class="k">else</span>:
 
-        raise ValueError("error_type {} not available!'".format(error_type))
+        <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">error_type {} not available!&#39;</span><span class="s2">&quot;</span>.<span class="nv">format</span><span class="ss">(</span><span class="nv">error_type</span><span class="ss">))</span>
 
-    if return_error:
+    <span class="k">if</span> <span class="nv">return_error</span>:
 
-        return error
+        <span class="k">return</span> <span class="nv">error</span>
 
-    else:
+    <span class="k">else</span>:
 
-        return score
-</code></pre>
+        <span class="k">return</span> <span class="nv">score</span>
+</pre></div>
+
+
 </details>
 <h2 id="classes">Classes</h2>
 <h3 id="ordinalregression">OrdinalRegression</h3>
-<pre><code class="python3">class OrdinalRegression(
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">OrdinalRegression</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression(ProblemType):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">OrdinalRegression</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def parameters(cls):
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_initmodel_template(cls):
+    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return OrdinalRegression_SVM
+        <span class="k">return</span> <span class="nv">OrdinalRegression_SVM</span>
 
-    @property
+    @<span class="nv">property</span>
 
-    def get_cvxproblem_template(cls):
+    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return OrdinalRegression_Relevance_Bound
+        <span class="k">return</span> <span class="nv">OrdinalRegression_Relevance_Bound</span>
 
-    def relax_factors(cls):
+    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["loss_slack", "w_l1_slack"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
 
-    def preprocessing(self, data, **kwargs):
+    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        X, y = data
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        # Check that X and y have correct shape
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        if np.min(y) &gt; 0:
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-            y = y - np.min(y)
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
@@ -2111,302 +2119,337 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods">Static methods</h4>
 <h5 id="parameters_1">parameters</h5>
-<pre><code class="python3">def parameters(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def parameters(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables">Instance variables</h4>
-<pre><code class="python3">get_cvxproblem_template
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">get_cvxproblem_template</span>
+</pre></div>
 
-<pre><code class="python3">get_initmodel_template
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">get_initmodel_template</span>
+</pre></div>
+
 
 <h4 id="methods">Methods</h4>
 <h5 id="get_all_parameters">get_all_parameters</h5>
-<pre><code class="python3">def get_all_parameters(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_parameters</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_parameters(self):
 
-        return {p: self.get_chosen_parameter(p) for p in self.parameters()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_all_relax_factors">get_all_relax_factors</h5>
-<pre><code class="python3">def get_all_relax_factors(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_all_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_all_relax_factors(self):
 
-        return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_parameter">get_chosen_parameter</h5>
-<pre><code class="python3">def get_chosen_parameter(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_parameter</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_parameter(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            return [
+        <span class="nv">try</span>:
 
-                self.chosen_parameters_[p]
+            <span class="k">return</span> [
 
-            ]  # We return list for param search function
+                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
 
-        except:
+            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
 
-            # # TODO: rewrite the parameter logic
+        <span class="nv">except</span>:
 
-            # # TODO: move this to subclass
+            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
 
-            if p == "scaling_lupi_w":
+            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
 
-                # return [0.1, 1, 10, 100, 1000]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
 
-                return scipy.stats.reciprocal(a=1e-15, b=1e10)
+                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
 
-            # if p == "scaling_lupi_loss":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
 
-            #    # value 0&gt;p&lt;1 causes standard svm solution
+            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
 
-            #    # p&gt;1 encourages usage of lupi function
+            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
 
-            #    return scipy.stats.reciprocal(a=1e-15, b=1e15)
+            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
 
-            if p == "C":
+            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
 
-                return scipy.stats.reciprocal(a=1e-5, b=1e5)
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
 
-            if p == "epsilon":
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
 
-                return [0, 0.001, 0.01, 0.1, 1, 10, 100]
+            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
 
-            else:
+                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
 
-                return scipy.stats.reciprocal(a=1e-10, b=1e10)
-</code></pre>
+            <span class="k">else</span>:
+
+                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_chosen_relax_factors">get_chosen_relax_factors</h5>
-<pre><code class="python3">def get_chosen_relax_factors(
-    self,
-    p
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_chosen_relax_factors</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">p</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_chosen_relax_factors(self, p):
 
-        try:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
 
-            factor = self.relax_factors_[p]
+        <span class="nv">try</span>:
 
-        except KeyError:
+            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
 
-            try:
+        <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-                factor = self.relax_factors_[p + "_slack"]
+            <span class="nv">try</span>:
 
-            except KeyError:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
 
-                factor = 0.1
+            <span class="nv">except</span> <span class="nv">KeyError</span>:
 
-        if factor &lt; 0:
+                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
 
-            raise ValueError("Slack Factor multiplier is positive!")
+        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
 
-        return factor
-</code></pre>
+            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">factor</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_relaxed_constraints">get_relaxed_constraints</h5>
-<pre><code class="python3">def get_relaxed_constraints(
-    self,
-    constraints
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_relaxed_constraints</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">constraints</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def get_relaxed_constraints(self, constraints):
 
-        return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+
+        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+</pre></div>
+
+
 </details>
 <h5 id="postprocessing">postprocessing</h5>
-<pre><code class="python3">def postprocessing(
-    self,
-    bounds
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">postprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">bounds</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def postprocessing(self, bounds):
 
-        return bounds
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">bounds</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing">preprocessing</h5>
-<pre><code class="python3">def preprocessing(
-    self,
-    data,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing(self, data, **kwargs):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        # Check that X and y have correct shape
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
 
-        X, y = check_X_y(X, y)
+        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
 
-        if np.min(y) &gt; 0:
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-            print("First ordinal class has index &gt; 0. Shifting index...")
+        <span class="k">if</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">0</span>:
 
-            y = y - np.min(y)
+            <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">First ordinal class has index &gt; 0. Shifting index...</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return X, y
-</code></pre>
+            <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span> <span class="o">-</span> <span class="nv">np</span>.<span class="nv">min</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_constraint">relax_constraint</h5>
-<pre><code class="python3">def relax_constraint(
-    self,
-    key,
-    value
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">,</span>
+    <span class="n">value</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_constraint(self, key, value):
 
-        return value * (1 + self.get_chosen_relax_factors(key))
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+
+        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+</pre></div>
+
+
 </details>
 <h5 id="relax_factors">relax_factors</h5>
-<pre><code class="python3">def relax_factors(
-    cls
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">relax_factors</span><span class="p">(</span>
+    <span class="bp">cls</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def relax_factors(cls):
 
-        return ["loss_slack", "w_l1_slack"]
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h3 id="ordinalregression_relevance_bound">OrdinalRegression_Relevance_Bound</h3>
-<pre><code class="python3">class OrdinalRegression_Relevance_Bound(
-    current_feature:int,
-    data:tuple,
-    hyperparameters,
-    best_model_constraints,
-    preset_model=None,
-    best_model_state=None,
-    probeID=-1,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">OrdinalRegression_Relevance_Bound</span><span class="p">(</span>
+    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">hyperparameters</span><span class="p">,</span>
+    <span class="n">best_model_constraints</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">OrdinalRegression_Relevance_Bound</span><span class="ss">(</span><span class="nv">Relevance_CVXProblem</span><span class="ss">)</span>:
 
-    def init_objective_UB(self, sign=None, **kwargs):
+    <span class="nv">def</span> <span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">sign</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        self.add_constraint(
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            self.feature_relevance &lt;= sign * self.w[self.current_feature]
+            <span class="nv">self</span>.<span class="nv">feature_relevance</span> <span class="o">&lt;=</span> <span class="nv">sign</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">w</span>[<span class="nv">self</span>.<span class="nv">current_feature</span>]
 
-        )
+        <span class="ss">)</span>
 
-        self._objective = cvx.Maximize(self.feature_relevance)
+        <span class="nv">self</span>.<span class="nv">_objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Maximize</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">feature_relevance</span><span class="ss">)</span>
 
-    def init_objective_LB(self, **kwargs):
+    <span class="nv">def</span> <span class="nv">init_objective_LB</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        self.add_constraint(
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+            <span class="nv">cvx</span>.<span class="nv">abs</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">w</span>[<span class="nv">self</span>.<span class="nv">current_feature</span>]<span class="ss">)</span> <span class="o">&lt;=</span> <span class="nv">self</span>.<span class="nv">feature_relevance</span>
 
-        )
+        <span class="ss">)</span>
 
-        self._objective = cvx.Minimize(self.feature_relevance)
+        <span class="nv">self</span>.<span class="nv">_objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">feature_relevance</span><span class="ss">)</span>
 
-    def _init_constraints(self, parameters, init_model_constraints):
+    <span class="nv">def</span> <span class="nv">_init_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">parameters</span>, <span class="nv">init_model_constraints</span><span class="ss">)</span>:
 
-        n_bins = len(np.unique(self.y))
+        <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">unique</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span><span class="ss">))</span>
 
-        # Upper constraints from initial model
+        # <span class="nv">Upper</span> <span class="nv">constraints</span> <span class="nv">from</span> <span class="nv">initial</span> <span class="nv">model</span>
 
-        l1_w = init_model_constraints["w_l1"]
+        <span class="nv">l1_w</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>]
 
-        init_loss = init_model_constraints["loss"]
+        <span class="nv">init_loss</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>]
 
-        C = parameters["C"]
+        <span class="nv">C</span> <span class="o">=</span> <span class="nv">parameters</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-        # New Variables
+        # <span class="nv">New</span> <span class="nv">Variables</span>
 
-        self.w = cvx.Variable(shape=(self.d), name="w")
+        <span class="nv">self</span>.<span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # For ordinal regression we use two slack variables, we observe the slack in both directions
+        # <span class="k">For</span> <span class="nv">ordinal</span> <span class="nv">regression</span> <span class="nv">we</span> <span class="nv">use</span> <span class="nv">two</span> <span class="nv">slack</span> <span class="nv">variables</span>, <span class="nv">we</span> <span class="nv">observe</span> <span class="nv">the</span> <span class="nv">slack</span> <span class="nv">in</span> <span class="nv">both</span> <span class="nv">directions</span>
 
-        self.slack_left = cvx.Variable(shape=(self.n), name="slack_left", nonneg=True)
+        <span class="nv">self</span>.<span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span>, <span class="nv">nonneg</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>
 
-        self.slack_right = cvx.Variable(shape=(self.n), name="slack_right", nonneg=True)
+        <span class="nv">self</span>.<span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span>, <span class="nv">nonneg</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>
 
-        # We have an offset for every bin boundary
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">an</span> <span class="nv">offset</span> <span class="k">for</span> <span class="nv">every</span> <span class="nv">bin</span> <span class="nv">boundary</span>
 
-        self.b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        <span class="nv">self</span>.<span class="nv">b_s</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # New Constraints
+        # <span class="nv">New</span> <span class="nv">Constraints</span>
 
-        self.loss = cvx.sum(self.slack_left + self.slack_right)
+        <span class="nv">self</span>.<span class="nv">loss</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">slack_right</span><span class="ss">)</span>
 
-        self.weight_norm = cvx.norm(self.w, 1)
+        <span class="nv">self</span>.<span class="nv">weight_norm</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        for i in range(n_bins - 1):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
-            indices = np.where(self.y == i)
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span> <span class="o">==</span> <span class="nv">i</span><span class="ss">)</span>
 
-            self.add_constraint(
+            <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-                self.X[indices] * self.w - self.slack_left[indices] &lt;= self.b_s[i] - 1
+                <span class="nv">self</span>.<span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">self</span>.<span class="nv">w</span> <span class="o">-</span> <span class="nv">self</span>.<span class="nv">slack_left</span>[<span class="nv">indices</span>] <span class="o">&lt;=</span> <span class="nv">self</span>.<span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">-</span> <span class="mi">1</span>
 
-            )
+            <span class="ss">)</span>
 
-        for i in range(1, n_bins):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">1</span>, <span class="nv">n_bins</span><span class="ss">)</span>:
 
-            indices = np.where(self.y == i)
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span> <span class="o">==</span> <span class="nv">i</span><span class="ss">)</span>
 
-            self.add_constraint(
+            <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-                self.X[indices] * self.w + self.slack_right[indices]
+                <span class="nv">self</span>.<span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">self</span>.<span class="nv">w</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">slack_right</span>[<span class="nv">indices</span>]
 
-                &gt;= self.b_s[i - 1] + 1
+                <span class="o">&gt;=</span> <span class="nv">self</span>.<span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">+</span> <span class="mi">1</span>
 
-            )
+            <span class="ss">)</span>
 
-        for i in range(n_bins - 2):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">2</span><span class="ss">)</span>:
 
-            self.add_constraint(self.b_s[i] &lt;= self.b_s[i + 1])
+            <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">&lt;=</span> <span class="nv">self</span>.<span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
 
-        self.add_constraint(self.weight_norm &lt;= l1_w)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">weight_norm</span> <span class="o">&lt;=</span> <span class="nv">l1_w</span><span class="ss">)</span>
 
-        self.add_constraint(C * self.loss &lt;= C * init_loss)
+        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">C</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">loss</span> <span class="o">&lt;=</span> <span class="nv">C</span> <span class="o">*</span> <span class="nv">init_loss</span><span class="ss">)</span>
 
-        self.feature_relevance = cvx.Variable(nonneg=True, name="Feature Relevance")
-</code></pre>
+        <span class="nv">self</span>.<span class="nv">feature_relevance</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">nonneg</span><span class="o">=</span><span class="nv">True</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">Feature Relevance</span><span class="s2">&quot;</span><span class="ss">)</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_1">Ancestors (in MRO)</h4>
@@ -2420,435 +2463,474 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_1">Static methods</h4>
 <h5 id="aggregate_max_candidates">aggregate_max_candidates</h5>
-<pre><code class="python3">def aggregate_max_candidates(
-    max_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_max_candidates</span><span class="p">(</span>
+    <span class="n">max_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_max_candidates(cls, max_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in max_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
 
-        max_value = max(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
 
-        return max_value
-</code></pre>
+        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">max_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="aggregate_min_candidates">aggregate_min_candidates</h5>
-<pre><code class="python3">def aggregate_min_candidates(
-    min_problems_candidates
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">aggregate_min_candidates</span><span class="p">(</span>
+    <span class="n">min_problems_candidates</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def aggregate_min_candidates(cls, min_problems_candidates):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        vals = [candidate.solved_relevance for candidate in min_problems_candidates]
+    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
 
-        min_value = min(vals)
+        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
 
-        return min_value
-</code></pre>
+        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">min_value</span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_lower_bound_problem">generate_lower_bound_problem</h5>
-<pre><code class="python3">def generate_lower_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_lower_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_lower_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-        cls,
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_lower_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        best_hyperparameters,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        init_constraints,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        best_model_state,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        data,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        di,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        preset_model,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        probeID=-1,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-    ):
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-        problem = cls(
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            di,
+<span class="w">        </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-            data,
+<span class="w">            </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-            best_hyperparameters,
+<span class="w">            </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-            init_constraints,
+<span class="w">            </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-            preset_model=preset_model,
+<span class="w">            </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-            best_model_state=best_model_state,
+<span class="w">            </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-            probeID=probeID,
+<span class="w">            </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        )
+<span class="w">            </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-        problem.init_objective_LB()
+<span class="w">        </span><span class="p">)</span><span class="w"></span>
 
-        problem.isLowerBound = True
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_LB</span><span class="p">()</span><span class="w"></span>
 
-        yield problem
-</code></pre>
+<span class="w">        </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">True</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
+</pre></div>
+
+
 </details>
 <h5 id="generate_upper_bound_problem">generate_upper_bound_problem</h5>
-<pre><code class="python3">def generate_upper_bound_problem(
-    best_hyperparameters,
-    init_constraints,
-    best_model_state,
-    data,
-    di,
-    preset_model,
-    probeID=-1
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">generate_upper_bound_problem</span><span class="p">(</span>
+    <span class="n">best_hyperparameters</span><span class="p">,</span>
+    <span class="n">init_constraints</span><span class="p">,</span>
+    <span class="n">best_model_state</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">di</span><span class="p">,</span>
+    <span class="n">preset_model</span><span class="p">,</span>
+    <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def generate_upper_bound_problem(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        cls,
+    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
 
-        best_hyperparameters,
+        <span class="nv">cls</span>,
 
-        init_constraints,
+        <span class="nv">best_hyperparameters</span>,
 
-        best_model_state,
+        <span class="nv">init_constraints</span>,
 
-        data,
+        <span class="nv">best_model_state</span>,
 
-        di,
+        <span class="nv">data</span>,
 
-        preset_model,
+        <span class="nv">di</span>,
 
-        probeID=-1,
+        <span class="nv">preset_model</span>,
 
-    ):
+        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
 
-        for sign in [-1, 1]:
+    <span class="ss">)</span>:
 
-            problem = cls(
+        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
 
-                di,
+            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
 
-                data,
+                <span class="nv">di</span>,
 
-                best_hyperparameters,
+                <span class="nv">data</span>,
 
-                init_constraints,
+                <span class="nv">best_hyperparameters</span>,
 
-                preset_model=preset_model,
+                <span class="nv">init_constraints</span>,
 
-                best_model_state=best_model_state,
+                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
 
-                probeID=probeID,
+                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
 
-            )
+                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
 
-            problem.init_objective_UB(sign=sign)
+            <span class="ss">)</span>
 
-            problem.isLowerBound = False
+            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
 
-            yield problem
-</code></pre>
+            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+
+            <span class="nv">yield</span> <span class="nv">problem</span>
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_1">Instance variables</h4>
-<pre><code class="python3">accepted_status
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">accepted_status</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">cvx_problem
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">isProbe
-</code></pre>
 
-<pre><code class="python3">is_solved
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">cvx_problem</span>
+</pre></div>
 
-<pre><code class="python3">objective
-</code></pre>
 
-<pre><code class="python3">probeID
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">isProbe</span>
+</pre></div>
 
-<pre><code class="python3">solved_relevance
-</code></pre>
 
-<pre><code class="python3">solver_kwargs
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">is_solved</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">objective</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">probeID</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solved_relevance</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_kwargs</span>
+</pre></div>
+
 
 <h4 id="methods_1">Methods</h4>
 <h5 id="add_constraint">add_constraint</h5>
-<pre><code class="python3">def add_constraint(
-    self,
-    new
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">add_constraint</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">new</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def add_constraint(self, new):
 
-        self._constraints.append(new)
-</code></pre>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">add_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">new</span><span class="p">):</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_constraints</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="k">new</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_lb">init_objective_LB</h5>
-<pre><code class="python3">def init_objective_LB(
-    self,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_LB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_LB(self, **kwargs):
 
-        self.add_constraint(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">init_objective_LB</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-            cvx.abs(self.w[self.current_feature]) &lt;= self.feature_relevance
+        <span class="k">self</span><span class="p">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-        )
+            <span class="n">cvx</span><span class="p">.</span><span class="k">abs</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">w</span><span class="p">[</span><span class="k">self</span><span class="p">.</span><span class="n">current_feature</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="k">self</span><span class="p">.</span><span class="n">feature_relevance</span>
 
-        self._objective = cvx.Minimize(self.feature_relevance)
-</code></pre>
+        <span class="p">)</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Minimize</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">feature_relevance</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="init_objective_ub">init_objective_UB</h5>
-<pre><code class="python3">def init_objective_UB(
-    self,
-    sign=None,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">sign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def init_objective_UB(self, sign=None, **kwargs):
 
-        self.add_constraint(
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">init_objective_UB</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-            self.feature_relevance &lt;= sign * self.w[self.current_feature]
+        <span class="k">self</span><span class="p">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-        )
+            <span class="k">self</span><span class="p">.</span><span class="n">feature_relevance</span> <span class="o">&lt;=</span> <span class="n">sign</span> <span class="o">*</span> <span class="k">self</span><span class="p">.</span><span class="n">w</span><span class="p">[</span><span class="k">self</span><span class="p">.</span><span class="n">current_feature</span><span class="p">]</span>
 
-        self._objective = cvx.Maximize(self.feature_relevance)
-</code></pre>
+        <span class="p">)</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Maximize</span><span class="p">(</span><span class="k">self</span><span class="p">.</span><span class="n">feature_relevance</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="preprocessing_data">preprocessing_data</h5>
-<pre><code class="python3">def preprocessing_data(
-    self,
-    data,
-    best_model_state
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">preprocessing_data</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">,</span>
+    <span class="n">best_model_state</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def preprocessing_data(self, data, best_model_state):
 
-        X, y = data
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">preprocessing_data</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">data</span><span class="p">,</span> <span class="n">best_model_state</span><span class="p">):</span>
 
-        self.n = X.shape[0]
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="k">data</span>
 
-        self.d = X.shape[1]
+        <span class="k">self</span><span class="p">.</span><span class="n">n</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        self.X = X
+        <span class="k">self</span><span class="p">.</span><span class="n">d</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
 
-        self.y = np.array(y)
-</code></pre>
+        <span class="k">self</span><span class="p">.</span><span class="n">X</span> <span class="o">=</span> <span class="n">X</span>
+
+        <span class="k">self</span><span class="p">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nb">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+</pre></div>
+
+
 </details>
 <h5 id="solve">solve</h5>
-<pre><code class="python3">def solve(
-    self
-) -&gt; object
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">solve</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">object</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def solve(self) -&gt; object:
 
-        # We init cvx problem here because pickling LP solver objects is problematic
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
 
-        # by deferring it to here, worker threads do the problem building themselves and we spare the serialization
+        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
 
-        self._cvx_problem = cvx.Problem(
+        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
 
-            objective=self.objective, constraints=self.constraints
+        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
 
-        )
+            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
 
-        try:
+        <span class="ss">)</span>
 
-            # print("Solve", self)
+        <span class="nv">try</span>:
 
-            self._cvx_problem.solve(**self.solver_kwargs)
+            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
 
-        except SolverError:
+            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
 
-            # We ignore Solver Errors, which are common with our framework:
+        <span class="nv">except</span> <span class="nv">SolverError</span>:
 
-            # We solve multiple problems per bound and choose a feasible solution later (see '_create_interval')
+            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
 
-            pass
+            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
 
-        self._solver_status = self._cvx_problem.status
+            <span class="nv">pass</span>
 
-        # self._cvx_problem = None
+        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
 
-        return self
-</code></pre>
+        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h3 id="ordinalregression_svm">OrdinalRegression_SVM</h3>
-<pre><code class="python3">class OrdinalRegression_SVM(
-    **parameters
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">OrdinalRegression_SVM</span><span class="p">(</span>
+    <span class="o">**</span><span class="n">parameters</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><pre><code>class OrdinalRegression_SVM(InitModel):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">OrdinalRegression_SVM</span><span class="ss">(</span><span class="nv">InitModel</span><span class="ss">)</span>:
 
-    @classmethod
+    @<span class="nv">classmethod</span>
 
-    def hyperparameter(cls):
+    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        return ["C"]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-    def fit(self, X, y, **kwargs):
+    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        (n, d) = X.shape
+        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
 
-        C = self.hyperparam["C"]
+        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-        self.classes_ = np.unique(y)
+        <span class="nv">self</span>.<span class="nv">classes_</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">unique</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        original_bins = sorted(self.classes_)
+        <span class="nv">original_bins</span> <span class="o">=</span> <span class="nv">sorted</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">classes_</span><span class="ss">)</span>
 
-        n_bins = len(original_bins)
+        <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">original_bins</span><span class="ss">)</span>
 
-        bins = np.arange(n_bins)
+        <span class="nv">bins</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">arange</span><span class="ss">(</span><span class="nv">n_bins</span><span class="ss">)</span>
 
-        get_old_bin = dict(zip(bins, original_bins))
+        <span class="nv">get_old_bin</span> <span class="o">=</span> <span class="nv">dict</span><span class="ss">(</span><span class="nv">zip</span><span class="ss">(</span><span class="nv">bins</span>, <span class="nv">original_bins</span><span class="ss">))</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # For ordinal regression we use two slack variables, we observe the slack in both directions
+        # <span class="k">For</span> <span class="nv">ordinal</span> <span class="nv">regression</span> <span class="nv">we</span> <span class="nv">use</span> <span class="nv">two</span> <span class="nv">slack</span> <span class="nv">variables</span>, <span class="nv">we</span> <span class="nv">observe</span> <span class="nv">the</span> <span class="nv">slack</span> <span class="nv">in</span> <span class="nv">both</span> <span class="nv">directions</span>
 
-        slack_left = cvx.Variable(shape=(n), name="slack_left")
+        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        slack_right = cvx.Variable(shape=(n), name="slack_right")
+        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # We have an offset for every bin boundary
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">an</span> <span class="nv">offset</span> <span class="k">for</span> <span class="nv">every</span> <span class="nv">bin</span> <span class="nv">boundary</span>
 
-        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">C</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">))</span>
 
-        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+        <span class="nv">constraints</span> <span class="o">=</span> [<span class="nv">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span>, <span class="nv">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span>]
 
-        # Add constraints for slack into left neighboring bins
+        # <span class="nv">Add</span> <span class="nv">constraints</span> <span class="k">for</span> <span class="nv">slack</span> <span class="nv">into</span> <span class="nv">left</span> <span class="nv">neighboring</span> <span class="nv">bins</span>
 
-        for i in range(n_bins - 1):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
-            indices = np.where(y == get_old_bin[i])
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">y</span> <span class="o">==</span> <span class="nv">get_old_bin</span>[<span class="nv">i</span>]<span class="ss">)</span>
 
-            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">slack_left</span>[<span class="nv">indices</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>
 
-        # Add constraints for slack into right neighboring bins
+        # <span class="nv">Add</span> <span class="nv">constraints</span> <span class="k">for</span> <span class="nv">slack</span> <span class="nv">into</span> <span class="nv">right</span> <span class="nv">neighboring</span> <span class="nv">bins</span>
 
-        for i in range(1, n_bins):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">1</span>, <span class="nv">n_bins</span><span class="ss">)</span>:
 
-            indices = np.where(y == get_old_bin[i])
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">y</span> <span class="o">==</span> <span class="nv">get_old_bin</span>[<span class="nv">i</span>]<span class="ss">)</span>
 
-            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">slack_right</span>[<span class="nv">indices</span>] <span class="o">&gt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">+</span> <span class="mi">1</span><span class="ss">)</span>
 
-        # Add explicit constraint, that all bins are ascending
+        # <span class="nv">Add</span> <span class="nv">explicit</span> <span class="nv">constraint</span>, <span class="nv">that</span> <span class="nv">all</span> <span class="nv">bins</span> <span class="nv">are</span> <span class="nv">ascending</span>
 
-        for i in range(n_bins - 2):
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">2</span><span class="ss">)</span>:
 
-            constraints.append(b_s[i] &lt;= b_s[i + 1])
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
 
-        # Solve problem.
+        # <span class="nv">Solve</span> <span class="nv">problem</span>.
 
-        solver_params = self.solver_params
+        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
 
-        problem.solve(**solver_params)
+        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
 
-        w = w.value
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
 
-        b_s = b_s.value
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">b_s</span>.<span class="nv">value</span>
 
-        slack_left = np.asarray(slack_left.value).flatten()
+        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack_left</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
 
-        slack_right = np.asarray(slack_right.value).flatten()
+        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack_right</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
 
-        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
+        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>, <span class="s2">&quot;</span><span class="s">b_s</span><span class="s2">&quot;</span>: <span class="nv">b_s</span>, <span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span>: <span class="ss">(</span><span class="nv">slack_left</span>, <span class="nv">slack_right</span><span class="ss">)</span>}
 
-        loss = np.sum(slack_left + slack_right)
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">)</span>
 
-        w_l1 = np.linalg.norm(w, ord=1)
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">linalg</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="nv">ord</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1}
+        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>}
 
-        return self
+        <span class="k">return</span> <span class="nv">self</span>
 
-    def predict(self, X):
+    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        w = self.model_state["w"]
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
 
-        b_s = self.model_state["b_s"]
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b_s</span><span class="s2">&quot;</span>]
 
-        scores = np.dot(X, w.T)[np.newaxis]
+        <span class="nv">scores</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span>.<span class="nv">T</span><span class="ss">)</span>[<span class="nv">np</span>.<span class="nv">newaxis</span>]
 
-        bin_thresholds = np.append(b_s, np.inf)
+        <span class="nv">bin_thresholds</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>, <span class="nv">np</span>.<span class="nv">inf</span><span class="ss">)</span>
 
-        # If thresholds are smaller than score the value belongs to the bigger bin
+        # <span class="k">If</span> <span class="nv">thresholds</span> <span class="nv">are</span> <span class="nv">smaller</span> <span class="nv">than</span> <span class="nv">score</span> <span class="nv">the</span> <span class="nv">value</span> <span class="nv">belongs</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">bigger</span> <span class="nv">bin</span>
 
-        # after subtracting we check for positive elements
+        # <span class="nv">after</span> <span class="nv">subtracting</span> <span class="nv">we</span> <span class="nv">check</span> <span class="k">for</span> <span class="nv">positive</span> <span class="nv">elements</span>
 
-        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
+        <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">scores</span>.<span class="nv">T</span> <span class="o">-</span> <span class="nv">bin_thresholds</span> <span class="o">&gt;=</span> <span class="mi">0</span>, <span class="o">-</span><span class="mi">1</span><span class="ss">)</span>
 
-        return self.classes_[indices]
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">classes_</span>[<span class="nv">indices</span>]
 
-    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
+    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>, <span class="nv">return_error</span><span class="o">=</span><span class="nv">False</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        X, y = check_X_y(X, y)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        prediction = self.predict(X)
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
+        <span class="nv">score</span> <span class="o">=</span> <span class="nv">ordinal_scores</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">error_type</span>, <span class="nv">return_error</span><span class="o">=</span><span class="nv">return_error</span><span class="ss">)</span>
 
-        return score
+        <span class="k">return</span> <span class="nv">score</span>
 
-    def make_scorer(self):
+    <span class="nv">def</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        # Use multiple scores for ordinal regression
+        # <span class="nv">Use</span> <span class="nv">multiple</span> <span class="nv">scores</span> <span class="k">for</span> <span class="nv">ordinal</span> <span class="nv">regression</span>
 
-        mze = make_scorer(ordinal_scores, error_type="mze")
+        <span class="nv">mze</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        mae = make_scorer(ordinal_scores, error_type="mae")
+        <span class="nv">mae</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        mmae = make_scorer(ordinal_scores, error_type="mmae")
+        <span class="nv">mmae</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+        <span class="nv">scorer</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span>: <span class="nv">mze</span>, <span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span>: <span class="nv">mae</span>, <span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>: <span class="nv">mmae</span>}
 
-        return scorer, "mmae"
-</code></pre>
+        <span class="k">return</span> <span class="nv">scorer</span>, <span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>
+</pre></div>
+
+
 </details>
 <hr />
 <h4 id="ancestors-in-mro_2">Ancestors (in MRO)</h4>
@@ -2859,128 +2941,139 @@ inheritance.</p>
 </ul>
 <h4 id="static-methods_2">Static methods</h4>
 <h5 id="hyperparameter">hyperparameter</h5>
-<pre><code class="python3">def hyperparameter(
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span>
 
-)
-</code></pre>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    @classmethod
 
-    def hyperparameter(cls):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
 
-        return ["C"]
-</code></pre>
+    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+</pre></div>
+
+
 </details>
 <h4 id="instance-variables_2">Instance variables</h4>
-<pre><code class="python3">L1_factor
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">L1_factor</span>
+</pre></div>
 
-<pre><code class="python3">constraints
-</code></pre>
 
-<pre><code class="python3">model_state
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="n">constraints</span>
+</pre></div>
 
-<pre><code class="python3">solver_params
-</code></pre>
+
+<div class="codehilite"><pre><span></span><span class="n">model_state</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">solver_params</span>
+</pre></div>
+
 
 <h4 id="methods_2">Methods</h4>
 <h5 id="fit">fit</h5>
-<pre><code class="python3">def fit(
-    self,
-    X,
-    y,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">fit</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def fit(self, X, y, **kwargs):
 
-        (n, d) = X.shape
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        C = self.hyperparam["C"]
+        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
 
-        self.classes_ = np.unique(y)
+        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
 
-        original_bins = sorted(self.classes_)
+        <span class="nv">self</span>.<span class="nv">classes_</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">unique</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
-        n_bins = len(original_bins)
+        <span class="nv">original_bins</span> <span class="o">=</span> <span class="nv">sorted</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">classes_</span><span class="ss">)</span>
 
-        bins = np.arange(n_bins)
+        <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">original_bins</span><span class="ss">)</span>
 
-        get_old_bin = dict(zip(bins, original_bins))
+        <span class="nv">bins</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">arange</span><span class="ss">(</span><span class="nv">n_bins</span><span class="ss">)</span>
 
-        w = cvx.Variable(shape=(d), name="w")
+        <span class="nv">get_old_bin</span> <span class="o">=</span> <span class="nv">dict</span><span class="ss">(</span><span class="nv">zip</span><span class="ss">(</span><span class="nv">bins</span>, <span class="nv">original_bins</span><span class="ss">))</span>
 
-        # For ordinal regression we use two slack variables, we observe the slack in both directions
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        slack_left = cvx.Variable(shape=(n), name="slack_left")
+        # <span class="k">For</span> <span class="nv">ordinal</span> <span class="nv">regression</span> <span class="nv">we</span> <span class="nv">use</span> <span class="nv">two</span> <span class="nv">slack</span> <span class="nv">variables</span>, <span class="nv">we</span> <span class="nv">observe</span> <span class="nv">the</span> <span class="nv">slack</span> <span class="nv">in</span> <span class="nv">both</span> <span class="nv">directions</span>
 
-        slack_right = cvx.Variable(shape=(n), name="slack_right")
+        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        # We have an offset for every bin boundary
+        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        b_s = cvx.Variable(shape=(n_bins - 1), name="bias")
+        # <span class="nv">We</span> <span class="nv">have</span> <span class="nv">an</span> <span class="nv">offset</span> <span class="k">for</span> <span class="nv">every</span> <span class="nv">bin</span> <span class="nv">boundary</span>
 
-        objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack_left + slack_right))
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        constraints = [slack_left &gt;= 0, slack_right &gt;= 0]
+        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">C</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">))</span>
 
-        # Add constraints for slack into left neighboring bins
+        <span class="nv">constraints</span> <span class="o">=</span> [<span class="nv">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span>, <span class="nv">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span>]
 
-        for i in range(n_bins - 1):
+        # <span class="nv">Add</span> <span class="nv">constraints</span> <span class="k">for</span> <span class="nv">slack</span> <span class="nv">into</span> <span class="nv">left</span> <span class="nv">neighboring</span> <span class="nv">bins</span>
 
-            indices = np.where(y == get_old_bin[i])
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
-            constraints.append(X[indices] * w - slack_left[indices] &lt;= b_s[i] - 1)
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">y</span> <span class="o">==</span> <span class="nv">get_old_bin</span>[<span class="nv">i</span>]<span class="ss">)</span>
 
-        # Add constraints for slack into right neighboring bins
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">slack_left</span>[<span class="nv">indices</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>
 
-        for i in range(1, n_bins):
+        # <span class="nv">Add</span> <span class="nv">constraints</span> <span class="k">for</span> <span class="nv">slack</span> <span class="nv">into</span> <span class="nv">right</span> <span class="nv">neighboring</span> <span class="nv">bins</span>
 
-            indices = np.where(y == get_old_bin[i])
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">1</span>, <span class="nv">n_bins</span><span class="ss">)</span>:
 
-            constraints.append(X[indices] * w + slack_right[indices] &gt;= b_s[i - 1] + 1)
+            <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">y</span> <span class="o">==</span> <span class="nv">get_old_bin</span>[<span class="nv">i</span>]<span class="ss">)</span>
 
-        # Add explicit constraint, that all bins are ascending
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">slack_right</span>[<span class="nv">indices</span>] <span class="o">&gt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">+</span> <span class="mi">1</span><span class="ss">)</span>
 
-        for i in range(n_bins - 2):
+        # <span class="nv">Add</span> <span class="nv">explicit</span> <span class="nv">constraint</span>, <span class="nv">that</span> <span class="nv">all</span> <span class="nv">bins</span> <span class="nv">are</span> <span class="nv">ascending</span>
 
-            constraints.append(b_s[i] &lt;= b_s[i + 1])
+        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">2</span><span class="ss">)</span>:
 
-        # Solve problem.
+            <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>[<span class="nv">i</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
 
-        solver_params = self.solver_params
+        # <span class="nv">Solve</span> <span class="nv">problem</span>.
 
-        problem = cvx.Problem(objective, constraints)
+        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
 
-        problem.solve(**solver_params)
+        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
 
-        w = w.value
+        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
 
-        b_s = b_s.value
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
 
-        slack_left = np.asarray(slack_left.value).flatten()
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">b_s</span>.<span class="nv">value</span>
 
-        slack_right = np.asarray(slack_right.value).flatten()
+        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack_left</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
 
-        self.model_state = {"w": w, "b_s": b_s, "slack": (slack_left, slack_right)}
+        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack_right</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
 
-        loss = np.sum(slack_left + slack_right)
+        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>, <span class="s2">&quot;</span><span class="s">b_s</span><span class="s2">&quot;</span>: <span class="nv">b_s</span>, <span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span>: <span class="ss">(</span><span class="nv">slack_left</span>, <span class="nv">slack_right</span><span class="ss">)</span>}
 
-        w_l1 = np.linalg.norm(w, ord=1)
+        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">)</span>
 
-        self.constraints = {"loss": loss, "w_l1": w_l1}
+        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">linalg</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="nv">ord</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>
 
-        return self
-</code></pre>
+        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>}
+
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
 <h5 id="get_params">get_params</h5>
-<pre><code class="python3">def get_params(
-    self,
-    deep=True
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">deep</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Get parameters for this estimator.</p>
 <h2 id="parameters_2">Parameters</h2>
@@ -2990,86 +3083,98 @@ inheritance.</p>
 <h2 id="returns_1">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<details class="example"><summary>View Source</summary><pre><code>    def get_params(self, deep=True):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>:
 
-        return self.hyperparam
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>
+</pre></div>
+
+
 </details>
 <h5 id="make_scorer">make_scorer</h5>
-<pre><code class="python3">def make_scorer(
-    self
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_scorer</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def make_scorer(self):
 
-        # Use multiple scores for ordinal regression
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
 
-        mze = make_scorer(ordinal_scores, error_type="mze")
+        # <span class="nv">Use</span> <span class="nv">multiple</span> <span class="nv">scores</span> <span class="k">for</span> <span class="nv">ordinal</span> <span class="nv">regression</span>
 
-        mae = make_scorer(ordinal_scores, error_type="mae")
+        <span class="nv">mze</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        mmae = make_scorer(ordinal_scores, error_type="mmae")
+        <span class="nv">mae</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        scorer = {"mze": mze, "mae": mae, "mmae": mmae}
+        <span class="nv">mmae</span> <span class="o">=</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">ordinal_scores</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-        return scorer, "mmae"
-</code></pre>
+        <span class="nv">scorer</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">mze</span><span class="s2">&quot;</span>: <span class="nv">mze</span>, <span class="s2">&quot;</span><span class="s">mae</span><span class="s2">&quot;</span>: <span class="nv">mae</span>, <span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>: <span class="nv">mmae</span>}
+
+        <span class="k">return</span> <span class="nv">scorer</span>, <span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>
+</pre></div>
+
+
 </details>
 <h5 id="predict">predict</h5>
-<pre><code class="python3">def predict(
-    self,
-    X
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">predict</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def predict(self, X):
 
-        w = self.model_state["w"]
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
 
-        b_s = self.model_state["b_s"]
+        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
 
-        scores = np.dot(X, w.T)[np.newaxis]
+        <span class="nv">b_s</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b_s</span><span class="s2">&quot;</span>]
 
-        bin_thresholds = np.append(b_s, np.inf)
+        <span class="nv">scores</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span>.<span class="nv">T</span><span class="ss">)</span>[<span class="nv">np</span>.<span class="nv">newaxis</span>]
 
-        # If thresholds are smaller than score the value belongs to the bigger bin
+        <span class="nv">bin_thresholds</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>, <span class="nv">np</span>.<span class="nv">inf</span><span class="ss">)</span>
 
-        # after subtracting we check for positive elements
+        # <span class="k">If</span> <span class="nv">thresholds</span> <span class="nv">are</span> <span class="nv">smaller</span> <span class="nv">than</span> <span class="nv">score</span> <span class="nv">the</span> <span class="nv">value</span> <span class="nv">belongs</span> <span class="nv">to</span> <span class="nv">the</span> <span class="nv">bigger</span> <span class="nv">bin</span>
 
-        indices = np.sum(scores.T - bin_thresholds &gt;= 0, -1)
+        # <span class="nv">after</span> <span class="nv">subtracting</span> <span class="nv">we</span> <span class="nv">check</span> <span class="k">for</span> <span class="nv">positive</span> <span class="nv">elements</span>
 
-        return self.classes_[indices]
-</code></pre>
+        <span class="nv">indices</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">scores</span>.<span class="nv">T</span> <span class="o">-</span> <span class="nv">bin_thresholds</span> <span class="o">&gt;=</span> <span class="mi">0</span>, <span class="o">-</span><span class="mi">1</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">classes_</span>[<span class="nv">indices</span>]
+</pre></div>
+
+
 </details>
 <h5 id="score">score</h5>
-<pre><code class="python3">def score(
-    self,
-    X,
-    y,
-    error_type='mmae',
-    return_error=False,
-    **kwargs
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">score</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">X</span><span class="p">,</span>
+    <span class="n">y</span><span class="p">,</span>
+    <span class="n">error_type</span><span class="o">=</span><span class="s1">&#39;mmae&#39;</span><span class="p">,</span>
+    <span class="n">return_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</pre></div>
 
-<details class="example"><summary>View Source</summary><pre><code>    def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
 
-        X, y = check_X_y(X, y)
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">error_type</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">mmae</span><span class="s2">&quot;</span>, <span class="nv">return_error</span><span class="o">=</span><span class="nv">False</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
 
-        prediction = self.predict(X)
+        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
 
-        score = ordinal_scores(y, prediction, error_type, return_error=return_error)
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
 
-        return score
-</code></pre>
+        <span class="nv">score</span> <span class="o">=</span> <span class="nv">ordinal_scores</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">error_type</span>, <span class="nv">return_error</span><span class="o">=</span><span class="nv">return_error</span><span class="ss">)</span>
+
+        <span class="k">return</span> <span class="nv">score</span>
+</pre></div>
+
+
 </details>
 <h5 id="set_params">set_params</h5>
-<pre><code class="python3">def set_params(
-    self,
-    **params
-)
-</code></pre>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">params</span>
+<span class="p">)</span>
+</pre></div>
+
 
 <p>Set the parameters of this estimator.</p>
 <p>The method works on simple estimators as well as on nested objects
@@ -3078,14 +3183,16 @@ inheritance.</p>
 component of a nested object.</p>
 <h2 id="returns_2">Returns</h2>
 <p>self</p>
-<details class="example"><summary>View Source</summary><pre><code>    def set_params(self, **params):
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nb">params</span><span class="ss">)</span>:
 
-        for p, value in params.items():
+        <span class="k">for</span> <span class="nv">p</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nb">params</span>.<span class="nv">items</span><span class="ss">()</span>:
 
-            self.hyperparam[p] = value
+            <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="nv">p</span>] <span class="o">=</span> <span class="nv">value</span>
 
-        return self
-</code></pre>
+        <span class="k">return</span> <span class="nv">self</span>
+</pre></div>
+
+
 </details>
                 
                   
