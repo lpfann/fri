@@ -1068,14 +1068,14 @@ def quick_generate(problem: object, **kwargs) -&gt; [np.ndarray, np.ndarray]:
 <h2 id="functions">Functions</h2>
 <h3 id="genclassificationdata">genClassificationData</h3>
 <pre><code class="python3">def genClassificationData(
-    n_samples: int = 100,
-    n_features: int = 2,
-    n_redundant: int = 0,
-    n_strel: int = 1,
-    n_repeated: int = 0,
-    noise: float = 0.1,
-    flip_y: float = 0,
-    random_state: object = None,
+    n_samples:int=100,
+    n_features:int=2,
+    n_redundant:int=0,
+    n_strel:int=1,
+    n_repeated:int=0,
+    noise:float=0.1,
+    flip_y:float=0,
+    random_state:object=None,
     partition=None
 )
 </code></pre>
@@ -1286,14 +1286,14 @@ y.shape
 </details>
 <h3 id="genlupidata">genLupiData</h3>
 <pre><code class="python3">def genLupiData(
-    problemName: fri.ProblemName,
-    n_samples: int = 100,
-    random_state: object = None,
-    n_ordinal_bins: int = 3,
-    n_strel: int = 1,
-    n_weakrel: int = 0,
-    n_repeated: int = 0,
-    n_irrel: int = 0,
+    problemName:fri.ProblemName,
+    n_samples:int=100,
+    random_state:object=None,
+    n_ordinal_bins:int=3,
+    n_strel:int=1,
+    n_weakrel:int=0,
+    n_repeated:int=0,
+    n_irrel:int=0,
     label_noise=0.0
 )
 </code></pre>
@@ -1534,15 +1534,15 @@ y : array of shape [n_samples]
 </details>
 <h3 id="genordinalregressiondata">genOrdinalRegressionData</h3>
 <pre><code class="python3">def genOrdinalRegressionData(
-    n_samples: int = 100,
-    n_features: int = 2,
-    n_redundant: int = 0,
-    n_strel: int = 1,
-    n_repeated: int = 0,
-    noise: float = 0.0,
-    random_state: object = None,
+    n_samples:int=100,
+    n_features:int=2,
+    n_redundant:int=0,
+    n_strel:int=1,
+    n_repeated:int=0,
+    noise:float=0.0,
+    random_state:object=None,
     partition=None,
-    n_target_bins: int = 3
+    n_target_bins:int=3
 )
 </code></pre>
 
@@ -1721,13 +1721,13 @@ Wrong parameters for specified amonut of features/samples.</p>
 </details>
 <h3 id="genregressiondata">genRegressionData</h3>
 <pre><code class="python3">def genRegressionData(
-    n_samples: int = 100,
-    n_features: int = 2,
-    n_redundant: int = 0,
-    n_strel: int = 1,
-    n_repeated: int = 0,
-    noise: float = 0.0,
-    random_state: object = None,
+    n_samples:int=100,
+    n_features:int=2,
+    n_redundant:int=0,
+    n_strel:int=1,
+    n_repeated:int=0,
+    noise:float=0.0,
+    random_state:object=None,
     partition=None
 ) -&gt; object
 </code></pre>
