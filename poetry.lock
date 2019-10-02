@@ -342,7 +342,7 @@ description = "Lightweight pipelining: using Python functions as pipeline jobs."
 name = "joblib"
 optional = false
 python-versions = "*"
-version = "0.13.2"
+version = "0.14.0"
 
 [[package]]
 category = "dev"
@@ -955,7 +955,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "15ef9c65be4c1072c4a95af74b58902f3fda18fdd2a7f138f63908d314fe45d4"
+content-hash = "e9b3a084800d9a7e79cd86b3e5456c26131277bccd203b1c41b8048c22659ce1"
 python-versions = "^3.6"
 
 [metadata.hashes]
@@ -994,7 +994,7 @@ importlib-metadata = ["aa18d7378b00b40847790e7c27e11673d7fed219354109d0e7b9e5b25
 importlib-resources = ["6e2783b2538bd5a14678284a3962b0660c715e5a0f10243fd5e00a4b5974f50b", "d3279fd0f6f847cced9f7acc19bd3e5df54d34f93a2e7bb5f238f81545787078"]
 ipython-genutils = ["72dd37233799e619666c9f639a9da83c34013a73e8bbc79a7a6348d93c61fab8", "eb2e116e75ecef9d4d228fdc66af54269afa26ab4463042e33785b887c628ba8"]
 jinja2 = ["065c4f02ebe7f7cf559e49ee5a95fb800a9e4528727aec6f24402a5374c65013", "14dd6caf1527abb21f08f86c784eac40853ba93edb79552aa1e4b8aef1b61c7b"]
-joblib = ["21e0c34a69ad7fde4f2b1f3402290e9ec46f545f15f1541c582edfe05d87b63a", "315d6b19643ec4afd4c41c671f9f2d65ea9d787da093487a81ead7b0bac94524"]
+joblib = ["006108c7576b3eb6c5b27761ddbf188eb6e6347696325ab2027ea1ee9a4b922d", "6fcc57aacb4e89451fd449e9412687c51817c3f48662c3d8f38ba3f8a0a193ff"]
 jsmin = ["b6df99b2cd1c75d9d342e4335b535789b8da9107ec748212706ef7bbe5c2553b"]
 jsonschema = ["5f9c0a719ca2ce14c5de2fd350a64fd2d13e8539db29836a86adc990bb1a068f", "8d4a2b7b6c2237e0199c8ea1a6d3e05bf118e289ae2b9d7ba444182a2959560d"]
 jupyter-core = ["2c6e7c1e9f2ac45b5c2ceea5730bc9008d92fe59d0725eac57b04c0edfba24f7", "f4fa22d6cf25f34807c995f22d2923693575c70f02557bcbfbe59bd5ec8d8b84"]
