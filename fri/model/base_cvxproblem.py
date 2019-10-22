@@ -146,7 +146,7 @@ class Relevance_CVXProblem(ABC):
 
     @property
     def solver_kwargs(self):
-        return {"verbose": False, "solver": "ECOS"}
+        return {"verbose": False, "solver": "ECOS", "max_iters": 300}
 
     def _add_preset_constraints(self, preset_model: dict, best_model_constraints):
 
