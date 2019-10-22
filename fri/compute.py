@@ -1,3 +1,6 @@
+"""This module includes all important computation functions which are used internally.
+They (normally) should not be used by users.
+"""
 import logging
 from collections import defaultdict
 
