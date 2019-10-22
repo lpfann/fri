@@ -6,7 +6,7 @@ from cvxpy import SolverError
 
 
 class Relevance_CVXProblem(ABC):
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         if self.isLowerBound:
             lower = "Lower"
         else:
