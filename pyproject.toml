@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "fri"
-version = "7.0.3"
+version = "7.1.0"
 description = "Implementation of Feature Relevance Bounds method to perform Feature Selection and further analysis."
 authors = ["Lukas Pfannschmidt <lukas@lpfann.me>"]
 license = "MIT"
@@ -26,6 +26,7 @@ joblib = "^0.13.2"
 cvxpy = "1.0.25"
 ecos = "^2.0.7"
 matplotlib = "^3.1"
+attrs = "^19.3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5"
