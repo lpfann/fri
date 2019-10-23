@@ -443,22 +443,21 @@ def create_probe_statistic(probe_values, fpr, verbose=0):
         #    # If all probes were infeasible we expect an empty list
         #    # If they are infeasible it also means that only strongly relevant features were in the data
         #    # As such we just set the prediction without considering the statistics
-        mean = 0
+
+        low_t = 0
+        up_t = 0
+    elif n == 1:
+        val = probe_values[0]
+        low_t = val
+        up_t = val
     else:
         probe_values = np.asarray(probe_values)
         mean = probe_values.mean()
-
-    if mean == 0:
-        lower_threshold, upper_threshold = mean, mean
-        s = 0
-    else:
         s = probe_values.std()
-        lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-        upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+        low_t = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+        up_t = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
 
     if verbose > 0:
-        print(
-            f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
-        )
+        print(f"FS threshold: {low_t}-{up_t}, n_probes {n}")
 
-    return lower_threshold, upper_threshold
+    return low_t, up_t
