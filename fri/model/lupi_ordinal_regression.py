@@ -29,7 +29,7 @@ class LUPI_OrdinalRegression(ProblemType):
 
     @classmethod
     def parameters(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     @property
     def get_initmodel_template(cls):
@@ -69,7 +69,7 @@ class LUPI_OrdinalRegression(ProblemType):
 class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
     @classmethod
     def hyperparameter(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+        return ["C", "scaling_lupi_w"]
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -91,7 +91,6 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         # Get parameters from CV model without any feature contstraints
         C = self.hyperparam["C"]
         scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
 
         get_original_bin_name, n_bins = get_bin_mapping(y)
         n_boundaries = n_bins - 1
@@ -99,12 +98,8 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
         b_s = cvx.Variable(shape=(n_boundaries), name="bias")
-
         w_priv = cvx.Variable(shape=(self.lupi_features, 2), name="w_priv")
         d_priv = cvx.Variable(shape=(2), name="bias_priv")
-
-        slack_left = cvx.Variable(shape=(n), name="slack_left")
-        slack_right = cvx.Variable(shape=(n), name="slack_right")
 
         def priv_function(bin, sign):
             indices = np.where(y == get_original_bin_name[bin])
@@ -123,8 +118,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for left_bin in range(0, n_bins - 1):
             indices = np.where(y == get_original_bin_name[left_bin])
             constraints.append(
-                X[indices] * w - b_s[left_bin] - slack_left[indices]
-                <= -1 + priv_function(left_bin, 0)
+                X[indices] * w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
             )
             constraints.append(priv_function(left_bin, 0) >= 0)
             loss += cvx.sum(priv_function(left_bin, 0))
@@ -133,18 +127,13 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for right_bin in range(1, n_bins):
             indices = np.where(y == get_original_bin_name[right_bin])
             constraints.append(
-                X[indices] * w - b_s[right_bin - 1] - slack_right[indices]
-                >= +1 - priv_function(right_bin, 1)
+                X[indices] * w - b_s[right_bin - 1] >= +1 - priv_function(right_bin, 1)
             )
             constraints.append(priv_function(right_bin, 1) >= 0)
             loss += cvx.sum(priv_function(right_bin, 1))
 
         for i_boundary in range(0, n_boundaries - 1):
             constraints.append(b_s[i_boundary] <= b_s[i_boundary + 1])
-
-        constraints.append(slack_left >= 0)
-        constraints.append(slack_right >= 0)
-        loss = scaling_lupi_loss * loss + cvx.sum(slack_left + slack_right)
 
         objective = cvx.Minimize(C * loss + weight_regularization)
 
@@ -168,8 +157,6 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
             "loss": loss.value,
             "w_l1": w_l1.value,
             "w_priv_l1": w_priv_l1.value,
-            "priv_l1_1": priv_l1_1.value,
-            "priv_l1_2": priv_l1_2.value,
         }
         return self
 
@@ -335,9 +322,8 @@ class LUPI_OrdinalRegression_Relevance_Bound(
         # Upper constraints from initial model
         init_w_l1 = init_model_constraints["w_l1"]
         init_w_priv_l1 = init_model_constraints["w_priv_l1"]
-        init_priv_l1_1 = init_model_constraints["priv_l1_1"]
-        init_priv_l1_2 = init_model_constraints["priv_l1_2"]
         init_loss = init_model_constraints["loss"]
+        scaling_lupi_w = parameters["scaling_lupi_w"]
 
         get_original_bin_name, n_bins = get_bin_mapping(self.y)
         n_boundaries = n_bins - 1
@@ -359,15 +345,11 @@ class LUPI_OrdinalRegression_Relevance_Bound(
         w_priv_l1 = priv_l1_1 + priv_l1_2
         w_l1 = cvx.norm(w, 1)
 
-        slack_left = cvx.Variable(shape=(self.n), name="slack_left")
-        slack_right = cvx.Variable(shape=(self.n), name="slack_right")
-
         loss = 0
         for left_bin in range(0, n_bins - 1):
             indices = np.where(self.y == get_original_bin_name[left_bin])
             self.add_constraint(
-                self.X[indices] * w - b_s[left_bin]
-                <= -1 + priv_function(left_bin, 0) + slack_left[indices]
+                self.X[indices] * w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
             )
             self.add_constraint(priv_function(left_bin, 0) >= 0)
             loss += cvx.sum(priv_function(left_bin, 0))
@@ -377,24 +359,18 @@ class LUPI_OrdinalRegression_Relevance_Bound(
             indices = np.where(self.y == get_original_bin_name[right_bin])
             self.add_constraint(
                 self.X[indices] * w - b_s[right_bin - 1]
-                >= +1 - priv_function(right_bin, 1) - slack_right[indices]
+                >= +1 - priv_function(right_bin, 1)
             )
             self.add_constraint(priv_function(right_bin, 1) >= 0)
             loss += cvx.sum(priv_function(right_bin, 1))
-
-        loss = loss + cvx.sum(slack_left + slack_right)
 
         for i_boundary in range(0, n_boundaries - 1):
             self.add_constraint(b_s[i_boundary] <= b_s[i_boundary + 1])
 
         self.add_constraint(
-            w_l1 + w_priv_l1 <= init_w_l1 + 0.5 * (init_w_priv_l1 + init_priv_l1_2)
+            w_l1 + scaling_lupi_w * w_priv_l1
+            <= init_w_l1 + scaling_lupi_w * init_w_priv_l1
         )
-        # self.add_constraint(priv_l1_1 <= init_priv_l1_1)
-        # self.add_constraint(priv_l1_2 <= init_priv_l1_2)
-
-        self.add_constraint(slack_left >= 0)
-        self.add_constraint(slack_right >= 0)
         self.add_constraint(loss <= init_loss)
 
         self.w = w

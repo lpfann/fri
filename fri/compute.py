@@ -1,8 +1,12 @@
+"""This module includes all important computation functions which are used internally.
+They (normally) should not be used by users.
+"""
 import logging
 from collections import defaultdict
 
 import joblib
 import numpy as np
+import attr
 from scipy import stats
 
 from fri.model.base_cvxproblem import Relevance_CVXProblem
@@ -90,13 +94,17 @@ class RelevanceBoundsIntervals(object):
         #
         #
         # Classify features
-        fc = feature_classification(
-            probe_lower, probe_upper, rb_norm, verbose=self.verbose
+        self.f_classifier = FeatureClassifier(
+            probe_lower, probe_upper, verbose=self.verbose
         )
-        fc_l = feature_classification(
-            probe_priv_lower, probe_priv_upper, rb_l_norm, verbose=self.verbose
+        feature_classes = self.f_classifier.classify(rb_norm)
+
+        self.f_classifier_lupi = FeatureClassifier(
+            probe_priv_lower, probe_priv_upper, verbose=self.verbose
         )
-        fc_both = np.concatenate([fc, fc_l])
+        feature_classes_lupi = self.f_classifier_lupi.classify(rb_l_norm)
+
+        fc_both = np.concatenate([feature_classes, feature_classes_lupi])
 
         return interval_, fc_both
 
@@ -129,13 +137,11 @@ class RelevanceBoundsIntervals(object):
         norm_probe_values_lower = self._postprocessing(
             self.best_init_model.L1_factor, probe_values_lower
         )
-        feature_classes = feature_classification(
-            norm_probe_values_lower,
-            norm_probe_values_upper,
-            norm_bounds,
-            verbose=self.verbose,
+        self.f_classifier = FeatureClassifier(
+            norm_probe_values_lower, norm_probe_values_upper, verbose=self.verbose
         )
 
+        feature_classes = self.f_classifier.classify(norm_bounds)
         return norm_bounds, feature_classes
 
     def compute_relevance_bounds(
@@ -409,23 +415,45 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     return dims
 
 
-def feature_classification(
-    probes_low, probes_up, relevance_bounds, fpr=1e-4, verbose=0
-):
-    logging.debug("**** Feature Selection ****")
-    logging.debug("Generating Lower Probe Statistic")
-    lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
-    logging.debug("Generating Upper Probe Statistic")
-    upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
+class FeatureClassifier:
+    def __init__(self, probes_low, probes_up, fpr=1e-4, verbose=0):
 
-    weakly = relevance_bounds[:, 1] > upper_stat[1]
-    strongly = relevance_bounds[:, 0] > lower_stat[1]
-    both = np.logical_and(weakly, strongly)
-    prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
-    prediction[weakly] = 1
-    prediction[both] = 2
+        logging.info("**** Feature Selection ****")
+        logging.info("Generating Lower Probe Statistic")
+        self.lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
+        logging.info(self.lower_stat)
+        logging.info("Generating Upper Probe Statistic")
+        self.upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
+        logging.info(self.upper_stat)
 
-    return prediction
+    def classify(self, relevance_bounds):
+        """
+
+        Parameters
+        ----------
+        relevance_bounds : numpy.ndarray
+            two dimensional array with relevance bounds
+            first column coresponds to minrel and second to maxrel
+        """
+        weakly = relevance_bounds[:, 1] > self.upper_stat.upper_threshold
+        strongly = relevance_bounds[:, 0] > self.lower_stat.upper_threshold
+        both = np.logical_and(weakly, strongly)
+        prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
+        prediction[weakly] = 1
+        prediction[both] = 2
+        return prediction
+
+
+@attr.s
+class ProbeStatistic:
+    """
+        Collects the threshold values about the statistics
+        from one kind of relevance bounds (minrel or maxrel).
+    """
+
+    lower_threshold = attr.ib(type=float)
+    upper_threshold = attr.ib(type=float)
+    n_probes = attr.ib(type=int)
 
 
 def create_probe_statistic(probe_values, fpr, verbose=0):
@@ -440,22 +468,17 @@ def create_probe_statistic(probe_values, fpr, verbose=0):
         #    # If all probes were infeasible we expect an empty list
         #    # If they are infeasible it also means that only strongly relevant features were in the data
         #    # As such we just set the prediction without considering the statistics
-        mean = 0
+
+        low_t = 0
+        up_t = 0
+    elif n == 1:
+        val = probe_values[0]
+        low_t = val
+        up_t = val
     else:
         probe_values = np.asarray(probe_values)
         mean = probe_values.mean()
-
-    if mean == 0:
-        lower_threshold, upper_threshold = mean, mean
-        s = 0
-    else:
         s = probe_values.std()
-        lower_threshold = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-        upper_threshold = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
-
-    if verbose > 0:
-        print(
-            f"FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}"
-        )
-
-    return lower_threshold, upper_threshold
+        low_t = mean + stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+        up_t = mean - stats.t(df=n - 1).ppf(fpr) * s * np.sqrt(1 + (1 / n))
+    return ProbeStatistic(low_t, up_t, n)
