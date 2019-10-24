@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
     
     
       
@@ -352,13 +352,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#feature_classification" class="md-nav__link">
-    feature_classification
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -373,6 +366,72 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#featureclassifier" class="md-nav__link">
+    FeatureClassifier
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classify" class="md-nav__link">
+    classify
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#probestatistic" class="md-nav__link">
+    ProbeStatistic
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#relevanceboundsintervals" class="md-nav__link">
     RelevanceBoundsIntervals
   </a>
@@ -381,7 +440,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
+  <a href="#methods_1" class="md-nav__link">
     Methods
   </a>
   
@@ -411,7 +470,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
+  <a href="#parameters_1" class="md-nav__link">
     Parameters
   </a>
   
@@ -797,13 +856,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#feature_classification" class="md-nav__link">
-    feature_classification
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -818,6 +870,72 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#featureclassifier" class="md-nav__link">
+    FeatureClassifier
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    Methods
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#classify" class="md-nav__link">
+    classify
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    Parameters
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#probestatistic" class="md-nav__link">
+    ProbeStatistic
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#relevanceboundsintervals" class="md-nav__link">
     RelevanceBoundsIntervals
   </a>
@@ -826,7 +944,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
+  <a href="#methods_1" class="md-nav__link">
     Methods
   </a>
   
@@ -856,7 +974,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
+  <a href="#parameters_1" class="md-nav__link">
     Parameters
   </a>
   
@@ -919,17 +1037,27 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/lpfann/fri/edit/master/docs/reference/fri/compute.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/lpfann/fri/edit/master/reference/fri/compute.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="module-fricompute">Module fri.compute</h1>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<p>This module includes all important computation functions which are used internally.
+They (normally) should not be used by users.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="sd">&quot;&quot;&quot;This module includes all important computation functions which are used internally.</span>
+
+<span class="sd">They (normally) should not be used by users.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
 
 <span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
 
 <span class="kn">import</span> <span class="nn">joblib</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">attr</span>
 
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
 
@@ -1075,19 +1203,23 @@
 
         <span class="c1"># Classify features</span>
 
-        <span class="n">fc</span> <span class="o">=</span> <span class="n">feature_classification</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier</span> <span class="o">=</span> <span class="n">FeatureClassifier</span><span class="p">(</span>
 
-            <span class="n">probe_lower</span><span class="p">,</span> <span class="n">probe_upper</span><span class="p">,</span> <span class="n">rb_norm</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
-
-        <span class="p">)</span>
-
-        <span class="n">fc_l</span> <span class="o">=</span> <span class="n">feature_classification</span><span class="p">(</span>
-
-            <span class="n">probe_priv_lower</span><span class="p">,</span> <span class="n">probe_priv_upper</span><span class="p">,</span> <span class="n">rb_l_norm</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
+            <span class="n">probe_lower</span><span class="p">,</span> <span class="n">probe_upper</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
 
         <span class="p">)</span>
 
-        <span class="n">fc_both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">concatenate</span><span class="p">([</span><span class="n">fc</span><span class="p">,</span> <span class="n">fc_l</span><span class="p">])</span>
+        <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">rb_norm</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier_lupi</span> <span class="o">=</span> <span class="n">FeatureClassifier</span><span class="p">(</span>
+
+            <span class="n">probe_priv_lower</span><span class="p">,</span> <span class="n">probe_priv_upper</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
+
+        <span class="p">)</span>
+
+        <span class="n">feature_classes_lupi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier_lupi</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">rb_l_norm</span><span class="p">)</span>
+
+        <span class="n">fc_both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">concatenate</span><span class="p">([</span><span class="n">feature_classes</span><span class="p">,</span> <span class="n">feature_classes_lupi</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">interval_</span><span class="p">,</span> <span class="n">fc_both</span>
 
@@ -1145,17 +1277,13 @@
 
         <span class="p">)</span>
 
-        <span class="n">feature_classes</span> <span class="o">=</span> <span class="n">feature_classification</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier</span> <span class="o">=</span> <span class="n">FeatureClassifier</span><span class="p">(</span>
 
-            <span class="n">norm_probe_values_lower</span><span class="p">,</span>
-
-            <span class="n">norm_probe_values_upper</span><span class="p">,</span>
-
-            <span class="n">norm_bounds</span><span class="p">,</span>
-
-            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">norm_probe_values_lower</span><span class="p">,</span> <span class="n">norm_probe_values_upper</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
 
         <span class="p">)</span>
+
+        <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">f_classifier</span><span class="o">.</span><span class="n">classify</span><span class="p">(</span><span class="n">norm_bounds</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">norm_bounds</span><span class="p">,</span> <span class="n">feature_classes</span>
 
@@ -1615,35 +1743,71 @@
 
     <span class="k">return</span> <span class="n">dims</span>
 
-<span class="k">def</span> <span class="nf">feature_classification</span><span class="p">(</span>
+<span class="k">class</span> <span class="nc">FeatureClassifier</span><span class="p">:</span>
 
-    <span class="n">probes_low</span><span class="p">,</span> <span class="n">probes_up</span><span class="p">,</span> <span class="n">relevance_bounds</span><span class="p">,</span> <span class="n">fpr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probes_low</span><span class="p">,</span> <span class="n">probes_up</span><span class="p">,</span> <span class="n">fpr</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 
-<span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="kp">info</span><span class="p">(</span><span class="s2">&quot;**** Feature Selection ****&quot;</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;**** Feature Selection ****&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="kp">info</span><span class="p">(</span><span class="s2">&quot;Generating Lower Probe Statistic&quot;</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating Lower Probe Statistic&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lower_stat</span> <span class="o">=</span> <span class="n">create_probe_statistic</span><span class="p">(</span><span class="n">probes_low</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
-    <span class="n">lower_stat</span> <span class="o">=</span> <span class="n">create_probe_statistic</span><span class="p">(</span><span class="n">probes_low</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="kp">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lower_stat</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating Upper Probe Statistic&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="kp">info</span><span class="p">(</span><span class="s2">&quot;Generating Upper Probe Statistic&quot;</span><span class="p">)</span>
 
-    <span class="n">upper_stat</span> <span class="o">=</span> <span class="n">create_probe_statistic</span><span class="p">(</span><span class="n">probes_up</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">upper_stat</span> <span class="o">=</span> <span class="n">create_probe_statistic</span><span class="p">(</span><span class="n">probes_up</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
 
-    <span class="n">weakly</span> <span class="o">=</span> <span class="n">relevance_bounds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">upper_stat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">logging</span><span class="o">.</span><span class="kp">info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">upper_stat</span><span class="p">)</span>
 
-    <span class="n">strongly</span> <span class="o">=</span> <span class="n">relevance_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lower_stat</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">def</span> <span class="nf">classify</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">relevance_bounds</span><span class="p">):</span>
 
-    <span class="n">both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">logical_and</span><span class="p">(</span><span class="n">weakly</span><span class="p">,</span> <span class="n">strongly</span><span class="p">)</span>
+        <span class="sd">&quot;&quot;&quot;</span>
 
-    <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span><span class="n">relevance_bounds</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+<span class="sd">        Parameters</span>
 
-    <span class="n">prediction</span><span class="p">[</span><span class="n">weakly</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="sd">        ----------</span>
 
-    <span class="n">prediction</span><span class="p">[</span><span class="n">both</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="sd">        relevance_bounds : numpy.ndarray</span>
 
-    <span class="k">return</span> <span class="n">prediction</span>
+<span class="sd">            two dimensional array with relevance bounds</span>
+
+<span class="sd">            first column coresponds to minrel and second to maxrel</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">weakly</span> <span class="o">=</span> <span class="n">relevance_bounds</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">upper_stat</span><span class="o">.</span><span class="n">upper_threshold</span>
+
+        <span class="n">strongly</span> <span class="o">=</span> <span class="n">relevance_bounds</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">lower_stat</span><span class="o">.</span><span class="n">upper_threshold</span>
+
+        <span class="n">both</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">logical_and</span><span class="p">(</span><span class="n">weakly</span><span class="p">,</span> <span class="n">strongly</span><span class="p">)</span>
+
+        <span class="n">prediction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span><span class="n">relevance_bounds</span><span class="o">.</span><span class="kp">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="kp">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+
+        <span class="n">prediction</span><span class="p">[</span><span class="n">weakly</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">prediction</span><span class="p">[</span><span class="n">both</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="n">prediction</span>
+
+<span class="nd">@attr.s</span>
+
+<span class="k">class</span> <span class="nc">ProbeStatistic</span><span class="p">:</span>
+
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Collects the threshold values about the statistics</span>
+
+<span class="sd">        from one kind of relevance bounds (minrel or maxrel).</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">lower_threshold</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">upper_threshold</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="n">n_probes</span> <span class="o">=</span> <span class="n">attr</span><span class="o">.</span><span class="n">ib</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
 
 <span class="k">def</span> <span class="nf">create_probe_statistic</span><span class="p">(</span><span class="n">probe_values</span><span class="p">,</span> <span class="n">fpr</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 
@@ -1667,7 +1831,17 @@
 
         <span class="c1">#    # As such we just set the prediction without considering the statistics</span>
 
-        <span class="kp">mean</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">low_t</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">up_t</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">elif</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+
+        <span class="n">val</span> <span class="o">=</span> <span class="n">probe_values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">low_t</span> <span class="o">=</span> <span class="n">val</span>
+
+        <span class="n">up_t</span> <span class="o">=</span> <span class="n">val</span>
 
     <span class="k">else</span><span class="p">:</span>
 
@@ -1675,29 +1849,13 @@
 
         <span class="kp">mean</span> <span class="o">=</span> <span class="n">probe_values</span><span class="o">.</span><span class="kp">mean</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="kp">mean</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-
-        <span class="n">lower_threshold</span><span class="p">,</span> <span class="n">upper_threshold</span> <span class="o">=</span> <span class="kp">mean</span><span class="p">,</span> <span class="kp">mean</span>
-
-        <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">else</span><span class="p">:</span>
-
         <span class="n">s</span> <span class="o">=</span> <span class="n">probe_values</span><span class="o">.</span><span class="kp">std</span><span class="p">()</span>
 
-        <span class="n">lower_threshold</span> <span class="o">=</span> <span class="kp">mean</span> <span class="o">+</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">low_t</span> <span class="o">=</span> <span class="kp">mean</span> <span class="o">+</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
 
-        <span class="n">upper_threshold</span> <span class="o">=</span> <span class="kp">mean</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">up_t</span> <span class="o">=</span> <span class="kp">mean</span> <span class="o">-</span> <span class="n">stats</span><span class="o">.</span><span class="n">t</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">ppf</span><span class="p">(</span><span class="n">fpr</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="kp">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">n</span><span class="p">))</span>
 
-    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-
-        <span class="k">print</span><span class="p">(</span>
-
-            <span class="n">f</span><span class="s2">&quot;FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}&quot;</span>
-
-        <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">lower_threshold</span><span class="p">,</span> <span class="n">upper_threshold</span>
+    <span class="k">return</span> <span class="n">ProbeStatistic</span><span class="p">(</span><span class="n">low_t</span><span class="p">,</span> <span class="n">up_t</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
 </pre></div>
 
 
@@ -1739,7 +1897,17 @@
 
         #    # <span class="nv">As</span> <span class="nv">such</span> <span class="nv">we</span> <span class="nv">just</span> <span class="nv">set</span> <span class="nv">the</span> <span class="nv">prediction</span> <span class="nv">without</span> <span class="nv">considering</span> <span class="nv">the</span> <span class="nv">statistics</span>
 
-        <span class="nv">mean</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nv">low_t</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="nv">up_t</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="nv">elif</span> <span class="nv">n</span> <span class="o">==</span> <span class="mi">1</span>:
+
+        <span class="nv">val</span> <span class="o">=</span> <span class="nv">probe_values</span>[<span class="mi">0</span>]
+
+        <span class="nv">low_t</span> <span class="o">=</span> <span class="nv">val</span>
+
+        <span class="nv">up_t</span> <span class="o">=</span> <span class="nv">val</span>
 
     <span class="k">else</span>:
 
@@ -1747,83 +1915,175 @@
 
         <span class="nv">mean</span> <span class="o">=</span> <span class="nv">probe_values</span>.<span class="nv">mean</span><span class="ss">()</span>
 
-    <span class="k">if</span> <span class="nv">mean</span> <span class="o">==</span> <span class="mi">0</span>:
-
-        <span class="nv">lower_threshold</span>, <span class="nv">upper_threshold</span> <span class="o">=</span> <span class="nv">mean</span>, <span class="nv">mean</span>
-
-        <span class="nv">s</span> <span class="o">=</span> <span class="mi">0</span>
-
-    <span class="k">else</span>:
-
         <span class="nv">s</span> <span class="o">=</span> <span class="nv">probe_values</span>.<span class="nv">std</span><span class="ss">()</span>
 
-        <span class="nv">lower_threshold</span> <span class="o">=</span> <span class="nv">mean</span> <span class="o">+</span> <span class="nv">stats</span>.<span class="nv">t</span><span class="ss">(</span><span class="nv">df</span><span class="o">=</span><span class="nv">n</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>.<span class="nv">ppf</span><span class="ss">(</span><span class="nv">fpr</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">s</span> <span class="o">*</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nv">n</span><span class="ss">))</span>
+        <span class="nv">low_t</span> <span class="o">=</span> <span class="nv">mean</span> <span class="o">+</span> <span class="nv">stats</span>.<span class="nv">t</span><span class="ss">(</span><span class="nv">df</span><span class="o">=</span><span class="nv">n</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>.<span class="nv">ppf</span><span class="ss">(</span><span class="nv">fpr</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">s</span> <span class="o">*</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nv">n</span><span class="ss">))</span>
 
-        <span class="nv">upper_threshold</span> <span class="o">=</span> <span class="nv">mean</span> <span class="o">-</span> <span class="nv">stats</span>.<span class="nv">t</span><span class="ss">(</span><span class="nv">df</span><span class="o">=</span><span class="nv">n</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>.<span class="nv">ppf</span><span class="ss">(</span><span class="nv">fpr</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">s</span> <span class="o">*</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nv">n</span><span class="ss">))</span>
+        <span class="nv">up_t</span> <span class="o">=</span> <span class="nv">mean</span> <span class="o">-</span> <span class="nv">stats</span>.<span class="nv">t</span><span class="ss">(</span><span class="nv">df</span><span class="o">=</span><span class="nv">n</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>.<span class="nv">ppf</span><span class="ss">(</span><span class="nv">fpr</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">s</span> <span class="o">*</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">/</span> <span class="nv">n</span><span class="ss">))</span>
 
-    <span class="k">if</span> <span class="nv">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span>:
-
-        <span class="nv">print</span><span class="ss">(</span>
-
-            <span class="nv">f</span><span class="s2">&quot;</span><span class="s">FS threshold: {lower_threshold}-{upper_threshold}, Mean:{mean}, Std:{s}, n_probes {n}</span><span class="s2">&quot;</span>
-
-        <span class="ss">)</span>
-
-    <span class="k">return</span> <span class="nv">lower_threshold</span>, <span class="nv">upper_threshold</span>
+    <span class="k">return</span> <span class="nv">ProbeStatistic</span><span class="ss">(</span><span class="nv">low_t</span>, <span class="nv">up_t</span>, <span class="nv">n</span><span class="ss">)</span>
 </pre></div>
 
 
 </details>
-<h3 id="feature_classification">feature_classification</h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">feature_classification</span><span class="p">(</span>
+<h2 id="classes">Classes</h2>
+<h3 id="featureclassifier">FeatureClassifier</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">FeatureClassifier</span><span class="p">(</span>
     <span class="n">probes_low</span><span class="p">,</span>
     <span class="n">probes_up</span><span class="p">,</span>
-    <span class="n">relevance_bounds</span><span class="p">,</span>
     <span class="n">fpr</span><span class="o">=</span><span class="mf">0.0001</span><span class="p">,</span>
     <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span>
 <span class="p">)</span>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">feature_classification</span><span class="ss">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">FeatureClassifier</span>:
 
-    <span class="nv">probes_low</span>, <span class="nv">probes_up</span>, <span class="nv">relevance_bounds</span>, <span class="nv">fpr</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">4</span>, <span class="nv">verbose</span><span class="o">=</span><span class="mi">0</span>
+    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">probes_low</span>, <span class="nv">probes_up</span>, <span class="nv">fpr</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">4</span>, <span class="nv">verbose</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
 
-<span class="ss">)</span>:
+        <span class="nv">logging</span>.<span class="nv">info</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">**** Feature Selection ****</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    <span class="nv">logging</span>.<span class="nv">debug</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">**** Feature Selection ****</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="nv">logging</span>.<span class="nv">info</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Generating Lower Probe Statistic</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    <span class="nv">logging</span>.<span class="nv">debug</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Generating Lower Probe Statistic</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="nv">self</span>.<span class="nv">lower_stat</span> <span class="o">=</span> <span class="nv">create_probe_statistic</span><span class="ss">(</span><span class="nv">probes_low</span>, <span class="nv">fpr</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">verbose</span><span class="ss">)</span>
 
-    <span class="nv">lower_stat</span> <span class="o">=</span> <span class="nv">create_probe_statistic</span><span class="ss">(</span><span class="nv">probes_low</span>, <span class="nv">fpr</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">verbose</span><span class="ss">)</span>
+        <span class="nv">logging</span>.<span class="nv">info</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">lower_stat</span><span class="ss">)</span>
 
-    <span class="nv">logging</span>.<span class="nv">debug</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Generating Upper Probe Statistic</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="nv">logging</span>.<span class="nv">info</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Generating Upper Probe Statistic</span><span class="s2">&quot;</span><span class="ss">)</span>
 
-    <span class="nv">upper_stat</span> <span class="o">=</span> <span class="nv">create_probe_statistic</span><span class="ss">(</span><span class="nv">probes_up</span>, <span class="nv">fpr</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">verbose</span><span class="ss">)</span>
+        <span class="nv">self</span>.<span class="nv">upper_stat</span> <span class="o">=</span> <span class="nv">create_probe_statistic</span><span class="ss">(</span><span class="nv">probes_up</span>, <span class="nv">fpr</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">verbose</span><span class="ss">)</span>
 
-    <span class="nv">weakly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">1</span>] <span class="o">&gt;</span> <span class="nv">upper_stat</span>[<span class="mi">1</span>]
+        <span class="nv">logging</span>.<span class="nv">info</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">upper_stat</span><span class="ss">)</span>
 
-    <span class="nv">strongly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">0</span>] <span class="o">&gt;</span> <span class="nv">lower_stat</span>[<span class="mi">1</span>]
+    <span class="nv">def</span> <span class="nv">classify</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">relevance_bounds</span><span class="ss">)</span>:
 
-    <span class="nv">both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">logical_and</span><span class="ss">(</span><span class="nv">weakly</span>, <span class="nv">strongly</span><span class="ss">)</span>
+        <span class="s2">&quot;&quot;&quot;</span>
 
-    <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">(</span><span class="nv">relevance_bounds</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">dtype</span><span class="o">=</span><span class="nv">np</span>.<span class="nv">int</span><span class="ss">)</span>
+        <span class="nv">Parameters</span>
 
-    <span class="nv">prediction</span>[<span class="nv">weakly</span>] <span class="o">=</span> <span class="mi">1</span>
+        <span class="o">----------</span>
 
-    <span class="nv">prediction</span>[<span class="nv">both</span>] <span class="o">=</span> <span class="mi">2</span>
+        <span class="nv">relevance_bounds</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
 
-    <span class="k">return</span> <span class="nv">prediction</span>
+            <span class="nv">two</span> <span class="nv">dimensional</span> <span class="nv">array</span> <span class="nv">with</span> <span class="nv">relevance</span> <span class="nv">bounds</span>
+
+            <span class="nv">first</span> <span class="nv">column</span> <span class="nv">coresponds</span> <span class="nv">to</span> <span class="nv">minrel</span> <span class="nv">and</span> <span class="nv">second</span> <span class="nv">to</span> <span class="nv">maxrel</span>
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">weakly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">1</span>] <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">upper_stat</span>.<span class="nv">upper_threshold</span>
+
+        <span class="nv">strongly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">0</span>] <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">lower_stat</span>.<span class="nv">upper_threshold</span>
+
+        <span class="nv">both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">logical_and</span><span class="ss">(</span><span class="nv">weakly</span>, <span class="nv">strongly</span><span class="ss">)</span>
+
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">(</span><span class="nv">relevance_bounds</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">dtype</span><span class="o">=</span><span class="nv">np</span>.<span class="nv">int</span><span class="ss">)</span>
+
+        <span class="nv">prediction</span>[<span class="nv">weakly</span>] <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="nv">prediction</span>[<span class="nv">both</span>] <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="nv">prediction</span>
 </pre></div>
 
 
 </details>
-<h2 id="classes">Classes</h2>
+<hr />
+<h4 id="methods">Methods</h4>
+<h5 id="classify">classify</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">classify</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">relevance_bounds</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<h2 id="parameters">Parameters</h2>
+<p>relevance_bounds : numpy.ndarray
+    two dimensional array with relevance bounds
+    first column coresponds to minrel and second to maxrel</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">classify</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">relevance_bounds</span><span class="ss">)</span>:
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">Parameters</span>
+
+        <span class="o">----------</span>
+
+        <span class="nv">relevance_bounds</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+
+            <span class="nv">two</span> <span class="nv">dimensional</span> <span class="nv">array</span> <span class="nv">with</span> <span class="nv">relevance</span> <span class="nv">bounds</span>
+
+            <span class="nv">first</span> <span class="nv">column</span> <span class="nv">coresponds</span> <span class="nv">to</span> <span class="nv">minrel</span> <span class="nv">and</span> <span class="nv">second</span> <span class="nv">to</span> <span class="nv">maxrel</span>
+
+        <span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="nv">weakly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">1</span>] <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">upper_stat</span>.<span class="nv">upper_threshold</span>
+
+        <span class="nv">strongly</span> <span class="o">=</span> <span class="nv">relevance_bounds</span>[:, <span class="mi">0</span>] <span class="o">&gt;</span> <span class="nv">self</span>.<span class="nv">lower_stat</span>.<span class="nv">upper_threshold</span>
+
+        <span class="nv">both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">logical_and</span><span class="ss">(</span><span class="nv">weakly</span>, <span class="nv">strongly</span><span class="ss">)</span>
+
+        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">(</span><span class="nv">relevance_bounds</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">dtype</span><span class="o">=</span><span class="nv">np</span>.<span class="nv">int</span><span class="ss">)</span>
+
+        <span class="nv">prediction</span>[<span class="nv">weakly</span>] <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="nv">prediction</span>[<span class="nv">both</span>] <span class="o">=</span> <span class="mi">2</span>
+
+        <span class="k">return</span> <span class="nv">prediction</span>
+</pre></div>
+
+
+</details>
+<h3 id="probestatistic">ProbeStatistic</h3>
+<div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ProbeStatistic</span><span class="p">(</span>
+    <span class="n">lower_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">upper_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">n_probes</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<p>Collects the threshold values about the statistics
+from one kind of relevance bounds (minrel or maxrel).</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">ProbeStatistic:</span>
+
+    <span class="s">&quot;&quot;&quot;</span>
+
+<span class="s">        Collects the threshold values about the statistics</span>
+
+<span class="s">        from one kind of relevance bounds (minrel or maxrel).</span>
+
+<span class="s">    &quot;&quot;&quot;</span>
+
+    <span class="n">lower_threshold</span> = <span class="nb">attr</span>.<span class="n">ib</span>(<span class="n">type</span>=<span class="n">float</span>)
+
+    <span class="n">upper_threshold</span> = <span class="nb">attr</span>.<span class="n">ib</span>(<span class="n">type</span>=<span class="n">float</span>)
+
+    <span class="n">n_probes</span> = <span class="nb">attr</span>.<span class="n">ib</span>(<span class="n">type</span>=<span class="nb">int</span>)
+</pre></div>
+
+
+</details>
+<hr />
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">lower_threshold</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">n_probes</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="n">upper_threshold</span>
+</pre></div>
+
+
 <h3 id="relevanceboundsintervals">RelevanceBoundsIntervals</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">RelevanceBoundsIntervals</span><span class="p">(</span>
     <span class="n">data</span><span class="p">,</span>
-    <span class="n">problem_type</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_type</span><span class="o">.</span><span class="n">ProblemType</span><span class="p">,</span>
-    <span class="n">best_init_model</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_initmodel</span><span class="o">.</span><span class="n">InitModel</span><span class="p">,</span>
+    <span class="n">problem_type</span><span class="p">:</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_type</span><span class="o">.</span><span class="n">ProblemType</span><span class="p">,</span>
+    <span class="n">best_init_model</span><span class="p">:</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_initmodel</span><span class="o">.</span><span class="n">InitModel</span><span class="p">,</span>
     <span class="n">random_state</span><span class="p">,</span>
     <span class="n">n_resampling</span><span class="p">,</span>
     <span class="n">n_jobs</span><span class="p">,</span>
@@ -1955,19 +2215,23 @@
 
         # <span class="nv">Classify</span> <span class="nv">features</span>
 
-        <span class="nv">fc</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
+        <span class="nv">self</span>.<span class="nv">f_classifier</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
 
-            <span class="nv">probe_lower</span>, <span class="nv">probe_upper</span>, <span class="nv">rb_norm</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
-
-        <span class="ss">)</span>
-
-        <span class="nv">fc_l</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
-
-            <span class="nv">probe_priv_lower</span>, <span class="nv">probe_priv_upper</span>, <span class="nv">rb_l_norm</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
+            <span class="nv">probe_lower</span>, <span class="nv">probe_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
 
         <span class="ss">)</span>
 
-        <span class="nv">fc_both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[<span class="nv">fc</span>, <span class="nv">fc_l</span>]<span class="ss">)</span>
+        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">rb_norm</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">f_classifier_lupi</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
+
+            <span class="nv">probe_priv_lower</span>, <span class="nv">probe_priv_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
+
+        <span class="ss">)</span>
+
+        <span class="nv">feature_classes_lupi</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier_lupi</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">rb_l_norm</span><span class="ss">)</span>
+
+        <span class="nv">fc_both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[<span class="nv">feature_classes</span>, <span class="nv">feature_classes_lupi</span>]<span class="ss">)</span>
 
         <span class="k">return</span> <span class="nv">interval_</span>, <span class="nv">fc_both</span>
 
@@ -2025,17 +2289,13 @@
 
         <span class="ss">)</span>
 
-        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
+        <span class="nv">self</span>.<span class="nv">f_classifier</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
 
-            <span class="nv">norm_probe_values_lower</span>,
-
-            <span class="nv">norm_probe_values_upper</span>,
-
-            <span class="nv">norm_bounds</span>,
-
-            <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>,
+            <span class="nv">norm_probe_values_lower</span>, <span class="nv">norm_probe_values_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
 
         <span class="ss">)</span>
+
+        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">norm_bounds</span><span class="ss">)</span>
 
         <span class="k">return</span> <span class="nv">norm_bounds</span>, <span class="nv">feature_classes</span>
 
@@ -2485,7 +2745,7 @@
 
 </details>
 <hr />
-<h4 id="methods">Methods</h4>
+<h4 id="methods_1">Methods</h4>
 <h5 id="compute_multi_preset_relevance_bounds">compute_multi_preset_relevance_bounds</h5>
 <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">compute_multi_preset_relevance_bounds</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
@@ -2496,7 +2756,7 @@
 
 
 <p>Method to run method with preset values</p>
-<h2 id="parameters">Parameters</h2>
+<h2 id="parameters_1">Parameters</h2>
 <p>lupi_features</p>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">compute_multi_preset_relevance_bounds</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">preset</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>:
 
@@ -2706,8 +2966,8 @@
 <h5 id="compute_single_preset_relevance_bounds">compute_single_preset_relevance_bounds</h5>
 <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">compute_single_preset_relevance_bounds</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">i</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
-    <span class="n">signed_preset_i</span><span class="p">:[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">float</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="nb">float</span><span class="s1">&#39;&gt;]</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">signed_preset_i</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">float</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="nb">float</span><span class="s1">&#39;&gt;]</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -2814,17 +3074,13 @@ signed_preset_i:
 
         <span class="ss">)</span>
 
-        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
+        <span class="nv">self</span>.<span class="nv">f_classifier</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
 
-            <span class="nv">norm_probe_values_lower</span>,
-
-            <span class="nv">norm_probe_values_upper</span>,
-
-            <span class="nv">norm_bounds</span>,
-
-            <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>,
+            <span class="nv">norm_probe_values_lower</span>, <span class="nv">norm_probe_values_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
 
         <span class="ss">)</span>
+
+        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">norm_bounds</span><span class="ss">)</span>
 
         <span class="k">return</span> <span class="nv">norm_bounds</span>, <span class="nv">feature_classes</span>
 </pre></div>
@@ -2910,19 +3166,23 @@ signed_preset_i:
 
         # <span class="nv">Classify</span> <span class="nv">features</span>
 
-        <span class="nv">fc</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
+        <span class="nv">self</span>.<span class="nv">f_classifier</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
 
-            <span class="nv">probe_lower</span>, <span class="nv">probe_upper</span>, <span class="nv">rb_norm</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
-
-        <span class="ss">)</span>
-
-        <span class="nv">fc_l</span> <span class="o">=</span> <span class="nv">feature_classification</span><span class="ss">(</span>
-
-            <span class="nv">probe_priv_lower</span>, <span class="nv">probe_priv_upper</span>, <span class="nv">rb_l_norm</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
+            <span class="nv">probe_lower</span>, <span class="nv">probe_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
 
         <span class="ss">)</span>
 
-        <span class="nv">fc_both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[<span class="nv">fc</span>, <span class="nv">fc_l</span>]<span class="ss">)</span>
+        <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">rb_norm</span><span class="ss">)</span>
+
+        <span class="nv">self</span>.<span class="nv">f_classifier_lupi</span> <span class="o">=</span> <span class="nv">FeatureClassifier</span><span class="ss">(</span>
+
+            <span class="nv">probe_priv_lower</span>, <span class="nv">probe_priv_upper</span>, <span class="nv">verbose</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">verbose</span>
+
+        <span class="ss">)</span>
+
+        <span class="nv">feature_classes_lupi</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">f_classifier_lupi</span>.<span class="nv">classify</span><span class="ss">(</span><span class="nv">rb_l_norm</span><span class="ss">)</span>
+
+        <span class="nv">fc_both</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[<span class="nv">feature_classes</span>, <span class="nv">feature_classes_lupi</span>]<span class="ss">)</span>
 
         <span class="k">return</span> <span class="nv">interval_</span>, <span class="nv">fc_both</span>
 </pre></div>
@@ -2999,7 +3259,7 @@ signed_preset_i:
       
     </div>
     
-      <script src="../../../assets/javascripts/application.c648116f.js"></script>
+      <script src="../../../assets/javascripts/application.ac79c3b0.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       

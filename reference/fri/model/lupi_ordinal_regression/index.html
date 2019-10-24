@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
     
     
       
@@ -1493,7 +1493,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/lpfann/fri/edit/master/docs/reference/fri/model/lupi_ordinal_regression.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/lpfann/fri/edit/master/reference/fri/model/lupi_ordinal_regression.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="module-frimodellupi_ordinal_regression">Module fri.model.lupi_ordinal_regression</h1>
@@ -1547,7 +1547,7 @@
 
     <span class="k">def</span> <span class="nf">parameters</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">]</span>
 
     <span class="nd">@property</span>
 
@@ -1607,7 +1607,7 @@
 
     <span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">,</span> <span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_combined</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
 
@@ -1643,8 +1643,6 @@
 
         <span class="n">scaling_lupi_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">]</span>
 
-        <span class="n">scaling_lupi_loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;scaling_lupi_loss&quot;</span><span class="p">]</span>
-
         <span class="n">get_original_bin_name</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">=</span> <span class="n">get_bin_mapping</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
         <span class="n">n_boundaries</span> <span class="o">=</span> <span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span>
@@ -1658,10 +1656,6 @@
         <span class="n">w_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lupi_features</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w_priv&quot;</span><span class="p">)</span>
 
         <span class="n">d_priv</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias_priv&quot;</span><span class="p">)</span>
-
-        <span class="n">slack_left</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_left&quot;</span><span class="p">)</span>
-
-        <span class="n">slack_right</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_right&quot;</span><span class="p">)</span>
 
         <span class="k">def</span> <span class="nf">priv_function</span><span class="p">(</span><span class="nb">bin</span><span class="p">,</span> <span class="kp">sign</span><span class="p">):</span>
 
@@ -1691,9 +1685,7 @@
 
             <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span>
 
-                <span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">left_bin</span><span class="p">]</span> <span class="o">-</span> <span class="n">slack_left</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
-
-                <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">left_bin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">left_bin</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">left_bin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
             <span class="p">)</span>
 
@@ -1709,9 +1701,7 @@
 
             <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span>
 
-                <span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">right_bin</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">slack_right</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
-
-                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">right_bin</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">right_bin</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">right_bin</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="p">)</span>
 
@@ -1722,12 +1712,6 @@
         <span class="k">for</span> <span class="n">i_boundary</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_boundaries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
 
             <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">b_s</span><span class="p">[</span><span class="n">i_boundary</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">b_s</span><span class="p">[</span><span class="n">i_boundary</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
-
-        <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">constraints</span><span class="o">.</span><span class="kp">append</span><span class="p">(</span><span class="n">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="n">loss</span> <span class="o">=</span> <span class="n">scaling_lupi_loss</span> <span class="o">*</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">+</span> <span class="n">slack_right</span><span class="p">)</span>
 
         <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">weight_regularization</span><span class="p">)</span>
 
@@ -1766,10 +1750,6 @@
             <span class="s2">&quot;w_l1&quot;</span><span class="p">:</span> <span class="n">w_l1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
 
             <span class="s2">&quot;w_priv_l1&quot;</span><span class="p">:</span> <span class="n">w_priv_l1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-
-            <span class="s2">&quot;priv_l1_1&quot;</span><span class="p">:</span> <span class="n">priv_l1_1</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
-
-            <span class="s2">&quot;priv_l1_2&quot;</span><span class="p">:</span> <span class="n">priv_l1_2</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
 
         <span class="p">}</span>
 
@@ -2045,11 +2025,9 @@
 
         <span class="n">init_w_priv_l1</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;w_priv_l1&quot;</span><span class="p">]</span>
 
-        <span class="n">init_priv_l1_1</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;priv_l1_1&quot;</span><span class="p">]</span>
-
-        <span class="n">init_priv_l1_2</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;priv_l1_2&quot;</span><span class="p">]</span>
-
         <span class="n">init_loss</span> <span class="o">=</span> <span class="n">init_model_constraints</span><span class="p">[</span><span class="s2">&quot;loss&quot;</span><span class="p">]</span>
+
+        <span class="n">scaling_lupi_w</span> <span class="o">=</span> <span class="n">parameters</span><span class="p">[</span><span class="s2">&quot;scaling_lupi_w&quot;</span><span class="p">]</span>
 
         <span class="n">get_original_bin_name</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">=</span> <span class="n">get_bin_mapping</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
 
@@ -2081,10 +2059,6 @@
 
         <span class="n">w_l1</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">slack_left</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_left&quot;</span><span class="p">)</span>
-
-        <span class="n">slack_right</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack_right&quot;</span><span class="p">)</span>
-
         <span class="n">loss</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">left_bin</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
@@ -2093,9 +2067,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">left_bin</span><span class="p">]</span>
-
-                <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">left_bin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">slack_left</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">left_bin</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">left_bin</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
             <span class="p">)</span>
 
@@ -2113,7 +2085,7 @@
 
                 <span class="bp">self</span><span class="o">.</span><span class="n">X</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b_s</span><span class="p">[</span><span class="n">right_bin</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 
-                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">right_bin</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">slack_right</span><span class="p">[</span><span class="kp">indices</span><span class="p">]</span>
+                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="n">priv_function</span><span class="p">(</span><span class="n">right_bin</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="p">)</span>
 
@@ -2121,25 +2093,17 @@
 
             <span class="n">loss</span> <span class="o">+=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">priv_function</span><span class="p">(</span><span class="n">right_bin</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
-        <span class="n">loss</span> <span class="o">=</span> <span class="n">loss</span> <span class="o">+</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">+</span> <span class="n">slack_right</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">i_boundary</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_boundaries</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">b_s</span><span class="p">[</span><span class="n">i_boundary</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">b_s</span><span class="p">[</span><span class="n">i_boundary</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            <span class="n">w_l1</span> <span class="o">+</span> <span class="n">w_priv_l1</span> <span class="o">&lt;=</span> <span class="n">init_w_l1</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">init_w_priv_l1</span> <span class="o">+</span> <span class="n">init_priv_l1_2</span><span class="p">)</span>
+            <span class="n">w_l1</span> <span class="o">+</span> <span class="n">scaling_lupi_w</span> <span class="o">*</span> <span class="n">w_priv_l1</span>
+
+            <span class="o">&lt;=</span> <span class="n">init_w_l1</span> <span class="o">+</span> <span class="n">scaling_lupi_w</span> <span class="o">*</span> <span class="n">init_w_priv_l1</span>
 
         <span class="p">)</span>
-
-        <span class="c1"># self.add_constraint(priv_l1_1 &lt;= init_priv_l1_1)</span>
-
-        <span class="c1"># self.add_constraint(priv_l1_2 &lt;= init_priv_l1_2)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">loss</span> <span class="o">&lt;=</span> <span class="n">init_loss</span><span class="p">)</span>
 
@@ -2227,7 +2191,7 @@ inheritance.</p>
 
     <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
     @<span class="nv">property</span>
 
@@ -2302,7 +2266,7 @@ inheritance.</p>
 
     <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 </pre></div>
 
 
@@ -2545,8 +2509,8 @@ inheritance.</p>
 </details>
 <h3 id="lupi_ordinalregression_relevance_bound">LUPI_OrdinalRegression_Relevance_Bound</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">LUPI_OrdinalRegression_Relevance_Bound</span><span class="p">(</span>
-    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
-    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">current_feature</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
     <span class="n">hyperparameters</span><span class="p">,</span>
     <span class="n">best_model_constraints</span><span class="p">,</span>
     <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -2754,11 +2718,9 @@ inheritance.</p>
 
         <span class="nv">init_w_priv_l1</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>]
 
-        <span class="nv">init_priv_l1_1</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">priv_l1_1</span><span class="s2">&quot;</span>]
-
-        <span class="nv">init_priv_l1_2</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">priv_l1_2</span><span class="s2">&quot;</span>]
-
         <span class="nv">init_loss</span> <span class="o">=</span> <span class="nv">init_model_constraints</span>[<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>]
+
+        <span class="nv">scaling_lupi_w</span> <span class="o">=</span> <span class="nv">parameters</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
         <span class="nv">get_original_bin_name</span>, <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">get_bin_mapping</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">y</span><span class="ss">)</span>
 
@@ -2790,10 +2752,6 @@ inheritance.</p>
 
         <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span>
 
-        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span><span class="ss">)</span>
-
         <span class="nv">loss</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="nv">left_bin</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">0</span>, <span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
@@ -2802,9 +2760,7 @@ inheritance.</p>
 
             <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-                <span class="nv">self</span>.<span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>]
-
-                <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">slack_left</span>[<span class="nv">indices</span>]
+                <span class="nv">self</span>.<span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>] <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -2822,7 +2778,7 @@ inheritance.</p>
 
                 <span class="nv">self</span>.<span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">right_bin</span> <span class="o">-</span> <span class="mi">1</span>]
 
-                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span> <span class="o">-</span> <span class="nv">slack_right</span>[<span class="nv">indices</span>]
+                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -2830,25 +2786,17 @@ inheritance.</p>
 
             <span class="nv">loss</span> <span class="o">+=</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">))</span>
 
-        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">)</span>
-
         <span class="k">for</span> <span class="nv">i_boundary</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">0</span>, <span class="nv">n_boundaries</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
             <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">b_s</span>[<span class="nv">i_boundary</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i_boundary</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
 
         <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span>
 
-            <span class="nv">w_l1</span> <span class="o">+</span> <span class="nv">w_priv_l1</span> <span class="o">&lt;=</span> <span class="nv">init_w_l1</span> <span class="o">+</span> <span class="mi">0</span>.<span class="mi">5</span> <span class="o">*</span> <span class="ss">(</span><span class="nv">init_w_priv_l1</span> <span class="o">+</span> <span class="nv">init_priv_l1_2</span><span class="ss">)</span>
+            <span class="nv">w_l1</span> <span class="o">+</span> <span class="nv">scaling_lupi_w</span> <span class="o">*</span> <span class="nv">w_priv_l1</span>
+
+            <span class="o">&lt;=</span> <span class="nv">init_w_l1</span> <span class="o">+</span> <span class="nv">scaling_lupi_w</span> <span class="o">*</span> <span class="nv">init_w_priv_l1</span>
 
         <span class="ss">)</span>
-
-        # <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">priv_l1_1</span> <span class="o">&lt;=</span> <span class="nv">init_priv_l1_1</span><span class="ss">)</span>
-
-        # <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">priv_l1_2</span> <span class="o">&lt;=</span> <span class="nv">init_priv_l1_2</span><span class="ss">)</span>
-
-        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
-
-        <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
 
         <span class="nv">self</span>.<span class="nv">add_constraint</span><span class="ss">(</span><span class="nv">loss</span> <span class="o">&lt;=</span> <span class="nv">init_loss</span><span class="ss">)</span>
 
@@ -3294,7 +3242,7 @@ inheritance.</p>
 
     <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
     <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X_combined</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
 
@@ -3330,8 +3278,6 @@ inheritance.</p>
 
         <span class="nv">scaling_lupi_w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
-        <span class="nv">scaling_lupi_loss</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
-
         <span class="nv">get_original_bin_name</span>, <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">get_bin_mapping</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
         <span class="nv">n_boundaries</span> <span class="o">=</span> <span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span>
@@ -3345,10 +3291,6 @@ inheritance.</p>
         <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">lupi_features</span>, <span class="mi">2</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
         <span class="nv">d_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="mi">2</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span><span class="ss">)</span>
 
         <span class="nv">def</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">bin</span>, <span class="nv">sign</span><span class="ss">)</span>:
 
@@ -3378,9 +3320,7 @@ inheritance.</p>
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span>
 
-                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>] <span class="o">-</span> <span class="nv">slack_left</span>[<span class="nv">indices</span>]
-
-                <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span>
+                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>] <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -3396,9 +3336,7 @@ inheritance.</p>
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span>
 
-                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">right_bin</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">-</span> <span class="nv">slack_right</span>[<span class="nv">indices</span>]
-
-                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span>
+                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">right_bin</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -3409,12 +3347,6 @@ inheritance.</p>
         <span class="k">for</span> <span class="nv">i_boundary</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">0</span>, <span class="nv">n_boundaries</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>[<span class="nv">i_boundary</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i_boundary</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
-
-        <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
-
-        <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
-
-        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">scaling_lupi_loss</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">)</span>
 
         <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">C</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">weight_regularization</span><span class="ss">)</span>
 
@@ -3453,10 +3385,6 @@ inheritance.</p>
             <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>.<span class="nv">value</span>,
 
             <span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>: <span class="nv">w_priv_l1</span>.<span class="nv">value</span>,
-
-            <span class="s2">&quot;</span><span class="s">priv_l1_1</span><span class="s2">&quot;</span>: <span class="nv">priv_l1_1</span>.<span class="nv">value</span>,
-
-            <span class="s2">&quot;</span><span class="s">priv_l1_2</span><span class="s2">&quot;</span>: <span class="nv">priv_l1_2</span>.<span class="nv">value</span>,
 
         }
 
@@ -3529,7 +3457,7 @@ inheritance.</p>
 
     <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
+        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 </pre></div>
 
 
@@ -3604,8 +3532,6 @@ inheritance.</p>
 
         <span class="nv">scaling_lupi_w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>]
 
-        <span class="nv">scaling_lupi_loss</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>]
-
         <span class="nv">get_original_bin_name</span>, <span class="nv">n_bins</span> <span class="o">=</span> <span class="nv">get_bin_mapping</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
 
         <span class="nv">n_boundaries</span> <span class="o">=</span> <span class="nv">n_bins</span> <span class="o">-</span> <span class="mi">1</span>
@@ -3619,10 +3545,6 @@ inheritance.</p>
         <span class="nv">w_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">lupi_features</span>, <span class="mi">2</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
 
         <span class="nv">d_priv</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="mi">2</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias_priv</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="nv">slack_left</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_left</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="nv">slack_right</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack_right</span><span class="s2">&quot;</span><span class="ss">)</span>
 
         <span class="nv">def</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">bin</span>, <span class="nv">sign</span><span class="ss">)</span>:
 
@@ -3652,9 +3574,7 @@ inheritance.</p>
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span>
 
-                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>] <span class="o">-</span> <span class="nv">slack_left</span>[<span class="nv">indices</span>]
-
-                <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span>
+                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">left_bin</span>] <span class="o">&lt;=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">left_bin</span>, <span class="mi">0</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -3670,9 +3590,7 @@ inheritance.</p>
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span>
 
-                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">right_bin</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">-</span> <span class="nv">slack_right</span>[<span class="nv">indices</span>]
-
-                <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span>
+                <span class="nv">X</span>[<span class="nv">indices</span>] <span class="o">*</span> <span class="nv">w</span> <span class="o">-</span> <span class="nv">b_s</span>[<span class="nv">right_bin</span> <span class="o">-</span> <span class="mi">1</span>] <span class="o">&gt;=</span> <span class="o">+</span><span class="mi">1</span> <span class="o">-</span> <span class="nv">priv_function</span><span class="ss">(</span><span class="nv">right_bin</span>, <span class="mi">1</span><span class="ss">)</span>
 
             <span class="ss">)</span>
 
@@ -3683,12 +3601,6 @@ inheritance.</p>
         <span class="k">for</span> <span class="nv">i_boundary</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="mi">0</span>, <span class="nv">n_boundaries</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>:
 
             <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">b_s</span>[<span class="nv">i_boundary</span>] <span class="o">&lt;=</span> <span class="nv">b_s</span>[<span class="nv">i_boundary</span> <span class="o">+</span> <span class="mi">1</span>]<span class="ss">)</span>
-
-        <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
-
-        <span class="nv">constraints</span>.<span class="nv">append</span><span class="ss">(</span><span class="nv">slack_right</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="ss">)</span>
-
-        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">scaling_lupi_loss</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack_left</span> <span class="o">+</span> <span class="nv">slack_right</span><span class="ss">)</span>
 
         <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">C</span> <span class="o">*</span> <span class="nv">loss</span> <span class="o">+</span> <span class="nv">weight_regularization</span><span class="ss">)</span>
 
@@ -3727,10 +3639,6 @@ inheritance.</p>
             <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>.<span class="nv">value</span>,
 
             <span class="s2">&quot;</span><span class="s">w_priv_l1</span><span class="s2">&quot;</span>: <span class="nv">w_priv_l1</span>.<span class="nv">value</span>,
-
-            <span class="s2">&quot;</span><span class="s">priv_l1_1</span><span class="s2">&quot;</span>: <span class="nv">priv_l1_1</span>.<span class="nv">value</span>,
-
-            <span class="s2">&quot;</span><span class="s">priv_l1_2</span><span class="s2">&quot;</span>: <span class="nv">priv_l1_2</span>.<span class="nv">value</span>,
 
         }
 
@@ -3938,7 +3846,7 @@ component of a nested object.</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.c648116f.js"></script>
+      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

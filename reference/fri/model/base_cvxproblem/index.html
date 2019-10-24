@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.2">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
     
     
       
@@ -937,7 +937,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/lpfann/fri/edit/master/docs/reference/fri/model/base_cvxproblem.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                  <a href="https://github.com/lpfann/fri/edit/master/reference/fri/model/base_cvxproblem.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
                 
                 
                 <h1 id="module-frimodelbase_cvxproblem">Module fri.model.base_cvxproblem</h1>
@@ -951,7 +951,7 @@
 
 <span class="k">class</span> <span class="nc">Relevance_CVXProblem</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isLowerBound</span><span class="p">:</span>
 
@@ -1183,7 +1183,7 @@
 
     <span class="k">def</span> <span class="nf">solver_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">,</span> <span class="s2">&quot;max_iters&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_add_preset_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset_model</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">):</span>
 
@@ -1343,8 +1343,8 @@
 <h2 id="classes">Classes</h2>
 <h3 id="relevance_cvxproblem">Relevance_CVXProblem</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Relevance_CVXProblem</span><span class="p">(</span>
-    <span class="n">current_feature</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
-    <span class="n">data</span><span class="p">:</span><span class="nb">tuple</span><span class="p">,</span>
+    <span class="n">current_feature</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">data</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
     <span class="n">hyperparameters</span><span class="p">,</span>
     <span class="n">best_model_constraints</span><span class="p">,</span>
     <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1359,7 +1359,7 @@
 inheritance.</p>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="s s-Atom">class</span> <span class="nv">Relevance_CVXProblem</span><span class="p">(</span><span class="nv">ABC</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">str__</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
+    <span class="s s-Atom">def</span> <span class="k">__</span><span class="nf">repr__</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span> <span class="s s-Atom">-&gt;</span> <span class="nn">str</span><span class="p">:</span>
 
         <span class="s s-Atom">if</span> <span class="s s-Atom">self</span><span class="p">.</span><span class="s s-Atom">isLowerBound:</span>
 
@@ -1591,7 +1591,7 @@ inheritance.</p>
 
     <span class="s s-Atom">def</span> <span class="nf">solver_kwargs</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">)</span><span class="s s-Atom">:</span>
 
-        <span class="s s-Atom">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="s s-Atom">:</span> <span class="nv">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="s s-Atom">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">}</span>
+        <span class="s s-Atom">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="s s-Atom">:</span> <span class="nv">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="s s-Atom">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">,</span> <span class="s2">&quot;max_iters&quot;</span><span class="s s-Atom">:</span> <span class="mi">300</span><span class="p">}</span>
 
     <span class="s s-Atom">def</span> <span class="k">_</span><span class="nf">add_preset_constraints</span><span class="p">(</span><span class="s s-Atom">self</span><span class="p">,</span> <span class="s s-Atom">preset_model:</span> <span class="s s-Atom">dict</span><span class="p">,</span> <span class="s s-Atom">best_model_constraints</span><span class="p">)</span><span class="s s-Atom">:</span>
 
@@ -2150,7 +2150,7 @@ inheritance.</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.c648116f.js"></script>
+      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       
