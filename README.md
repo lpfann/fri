@@ -20,7 +20,7 @@ time, privileged information is available.
 
 
 ## Documentation
-Check out our online documentation at [fri.lpfann.me](https://fri.lpfann.me).
+Check out our online documentation [here](https://lpfann.github.io/fri/).
 There you can find a quick start guide and more background information.
 
 You can also run the guide directly without setup online [here](https://colab.research.google.com/github/lpfann/fri/blob/master/doc/source/notebooks/Guide.ipynb).
@@ -35,7 +35,7 @@ $ pip install fri
 ```
 
 ## Usage
-Please refer to the [documentation](https://fri.lpfann.me) for advice.
+Please refer to the [documentation](https://lpfann.github.io/fri/) for advice.
 For a quick start we provide a simple guide which leads through the main functions.
 
 ## References  
