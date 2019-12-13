@@ -39,9 +39,7 @@ jobs:
     - name: Lint with black
       run: poetry run black . --check
     - name: Test with pytest
-      run: | # source again because steps run in separate shells
-        source $HOME/.poetry/env
-        poetry run pytest --cov=fri -n 2
+      run: poetry run pytest --cov . -n 2
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
