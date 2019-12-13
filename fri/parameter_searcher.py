@@ -56,7 +56,10 @@ def find_best_model(
     kwargs : dict
         Placeholder, dict to pass into fit functions.
     """
-    model = model_template()
+    if lupi_features > 0:
+        model = model_template(lupi_features=lupi_features)
+    else:
+        model = model_template()
 
     scorer, metric = model.make_scorer()
     if scorer is None:
@@ -81,7 +84,7 @@ def find_best_model(
     # Ignore warnings for extremely bad model_state (when precision=0)
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        searcher.fit(X, y, lupi_features=lupi_features)
+        searcher.fit(X, y)
 
     best_model: InitModel = searcher.best_estimator_
     best_score = best_model.score(X, y)

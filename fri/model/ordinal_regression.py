@@ -37,14 +37,16 @@ class OrdinalRegression(ProblemType):
 
 
 class OrdinalRegression_SVM(InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C"]
+    HYPERPARAMETER = ["C"]
+
+    def __init__(self, C=1):
+        super().__init__()
+        self.C = C
 
     def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
-        C = self.hyperparam["C"]
+        C = self.get_params()["C"]
 
         self.classes_ = np.unique(y)
         original_bins = sorted(self.classes_)
@@ -77,9 +79,9 @@ class OrdinalRegression_SVM(InitModel):
             constraints.append(b_s[i] <= b_s[i + 1])
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         w = w.value
         b_s = b_s.value

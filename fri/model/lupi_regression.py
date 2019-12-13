@@ -62,9 +62,22 @@ class LUPI_Regression(ProblemType):
 
 
 class LUPI_Regression_SVM(LUPI_InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+    HYPERPARAMETER = ["C", "epsilon", "scaling_lupi_w", "scaling_lupi_loss"]
+
+    def __init__(
+        self,
+        C=1,
+        epsilon=0.1,
+        scaling_lupi_w=1,
+        scaling_lupi_loss=1,
+        lupi_features=None,
+    ):
+        super().__init__()
+        self.epsilon = epsilon
+        self.scaling_lupi_loss = scaling_lupi_loss
+        self.scaling_lupi_w = scaling_lupi_w
+        self.C = C
+        self.lupi_features = lupi_features
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -77,16 +90,19 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
         """
         if lupi_features is None:
-            raise ValueError("No lupi_features argument given.")
-        self.lupi_features = lupi_features
-        X, X_priv = split_dataset(X_combined, lupi_features)
+            try:
+                lupi_features = self.lupi_features
+                self.lupi_features = lupi_features
+            except:
+                raise ValueError("No amount of lupi features given.")
+        X, X_priv = split_dataset(X_combined, self.lupi_features)
         (n, d) = X.shape
 
         # Get parameters from CV model without any feature contstraints
-        C = self.hyperparam["C"]
-        epsilon = self.hyperparam["epsilon"]
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        C = self.get_params()["C"]
+        epsilon = self.get_params()["epsilon"]
+        scaling_lupi_w = self.get_params()["scaling_lupi_w"]
+        scaling_lupi_loss = self.get_params()["scaling_lupi_loss"]
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
@@ -129,9 +145,9 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         objective = cvx.Minimize(C * loss + weight_regularization)
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         self.model_state = {
             "signs_pos": priv_function_pos.value > 0,
@@ -162,7 +178,7 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         return self
 
     @property
-    def solver_params(cls):
+    def SOLVER_PARAMS(cls):
         return {"solver": "ECOS", "verbose": False}
 
     def predict(self, X):
