@@ -22,7 +22,7 @@ jobs:
       id: cache
       with:
         path: ~/.virtualenvs
-        key: poetry-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
+        key: poetry-3.7-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
           poetry-3.7-${{ hashFiles('**/poetry.lock') }}
     - name: Set Poetry config
