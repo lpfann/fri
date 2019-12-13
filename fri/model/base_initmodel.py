@@ -1,3 +1,8 @@
+"""
+    Base class for our initial baseline models which are used in Gridsearch.
+    They store the constant parameters needed in the model
+        and the dynamic instance attributes when fitted.
+"""
 from abc import ABC, abstractmethod
 
 from sklearn.base import BaseEstimator
