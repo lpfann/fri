@@ -42,3 +42,13 @@ jobs:
       run: | # source again because steps run in separate shells
         source $HOME/.poetry/env
         poetry run pytest --cov=fri -n 2
+    - name: Coveralls Parallel
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel: true
+    - name: Coveralls Finished
+      uses: coverallsapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        parallel-finished: true
