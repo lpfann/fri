@@ -23,6 +23,11 @@ jobs:
         python get-poetry.py -y
         source $HOME/.poetry/env
         poetry install -v
+    - name: Lint with black
+      run: |
+        pip install pre-commit
+        pre-commit install-hooks
+        pre-commit run --all-files
     - name: Test with pytest
       run: | # source again because steps run in separate shells
         source $HOME/.poetry/env
