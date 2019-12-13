@@ -2037,9 +2037,9 @@ They (normally) should not be used by users.</p>
 </details>
 <h3 id="probestatistic">ProbeStatistic</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">ProbeStatistic</span><span class="p">(</span>
-    <span class="n">lower_threshold</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span>
-    <span class="n">upper_threshold</span><span class="p">:</span><span class="nb">float</span><span class="p">,</span>
-    <span class="n">n_probes</span><span class="p">:</span><span class="nb">int</span>
+    <span class="n">lower_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">upper_threshold</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">n_probes</span><span class="p">:</span> <span class="nb">int</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -2082,8 +2082,8 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 <h3 id="relevanceboundsintervals">RelevanceBoundsIntervals</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">RelevanceBoundsIntervals</span><span class="p">(</span>
     <span class="n">data</span><span class="p">,</span>
-    <span class="n">problem_type</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_type</span><span class="o">.</span><span class="n">ProblemType</span><span class="p">,</span>
-    <span class="n">best_init_model</span><span class="p">:</span><span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_initmodel</span><span class="o">.</span><span class="n">InitModel</span><span class="p">,</span>
+    <span class="n">problem_type</span><span class="p">:</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_type</span><span class="o">.</span><span class="n">ProblemType</span><span class="p">,</span>
+    <span class="n">best_init_model</span><span class="p">:</span> <span class="n">fri</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">base_initmodel</span><span class="o">.</span><span class="n">InitModel</span><span class="p">,</span>
     <span class="n">random_state</span><span class="p">,</span>
     <span class="n">n_resampling</span><span class="p">,</span>
     <span class="n">n_jobs</span><span class="p">,</span>
@@ -2966,8 +2966,8 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 <h5 id="compute_single_preset_relevance_bounds">compute_single_preset_relevance_bounds</h5>
 <div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">compute_single_preset_relevance_bounds</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
-    <span class="n">i</span><span class="p">:</span><span class="nb">int</span><span class="p">,</span>
-    <span class="n">signed_preset_i</span><span class="p">:[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">float</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="nb">float</span><span class="s1">&#39;&gt;]</span>
+    <span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">signed_preset_i</span><span class="p">:</span> <span class="p">[</span><span class="o">&lt;</span><span class="k">class</span> <span class="err">&#39;</span><span class="nc">float</span><span class="s1">&#39;&gt;, &lt;class &#39;</span><span class="nb">float</span><span class="s1">&#39;&gt;]</span>
 <span class="p">)</span>
 </pre></div>
 
