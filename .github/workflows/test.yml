@@ -3,8 +3,7 @@ name: pytest with poetry
 on: [push]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4

@@ -6,7 +6,7 @@ on:
     - master
 
 jobs:
-  build-deploy:
+  build-docs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
@@ -23,9 +23,9 @@ jobs:
       id: cache
       with:
         path: ~/.virtualenvs
-        key: poetry-${{ hashFiles('**/poetry.lock') }}
+        key: poetry-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          poetry-${{ hashFiles('**/poetry.lock') }}
+          poetry-3.7-${{ hashFiles('**/poetry.lock') }}
     - name: Set Poetry config
       run: |
         poetry config virtualenvs.in-project false
