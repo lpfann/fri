@@ -46,14 +46,14 @@ class Classification(ProblemType):
 
 
 class Classification_SVM(InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C"]
+    def __init__(self, C=1):
+        super().__init__()
+        self.C = C
 
     def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
-        C = self.hyperparam["C"]
+        C = self.get_params()["C"]
 
         w = cvx.Variable(shape=(d), name="w")
         slack = cvx.Variable(shape=(n), name="slack")
@@ -63,9 +63,9 @@ class Classification_SVM(InitModel):
         constraints = [cvx.multiply(y.T, X * w + b) >= 1 - slack, slack >= 0]
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         w = w.value
         b = b.value

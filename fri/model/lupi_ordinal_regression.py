@@ -67,9 +67,13 @@ class LUPI_OrdinalRegression(ProblemType):
 
 
 class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C", "scaling_lupi_w"]
+    HYPERPARAMETER = ["C", "scaling_lupi_w"]
+
+    def __init__(self, C=1, scaling_lupi_w=1, lupi_features=None):
+        super().__init__()
+        self.scaling_lupi_w = scaling_lupi_w
+        self.C = C
+        self.lupi_features = lupi_features
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -82,15 +86,18 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
         """
         if lupi_features is None:
-            raise ValueError("No lupi_features argument given.")
-        self.lupi_features = lupi_features
-        X, X_priv = split_dataset(X_combined, lupi_features)
+            try:
+                lupi_features = self.lupi_features
+                self.lupi_features = lupi_features
+            except:
+                raise ValueError("No amount of lupi features given.")
+        X, X_priv = split_dataset(X_combined, self.lupi_features)
         (n, d) = X.shape
         self.classes_ = np.unique(y)
 
         # Get parameters from CV model without any feature contstraints
-        C = self.hyperparam["C"]
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
+        C = self.get_params()["C"]
+        scaling_lupi_w = self.get_params()["scaling_lupi_w"]
 
         get_original_bin_name, n_bins = get_bin_mapping(y)
         n_boundaries = n_bins - 1
@@ -138,9 +145,9 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         objective = cvx.Minimize(C * loss + weight_regularization)
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         w = w.value
         b_s = b_s.value

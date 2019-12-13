@@ -68,9 +68,14 @@ class LUPI_Classification(ProblemType):
 
 
 class LUPI_Classification_SVM(InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+    HYPERPARAMETER = ["C", "scaling_lupi_w", "scaling_lupi_loss"]
+
+    def __init__(self, C=1, scaling_lupi_w=1, scaling_lupi_loss=1, lupi_features=None):
+        super().__init__()
+        self.lupi_features = lupi_features
+        self.scaling_lupi_loss = scaling_lupi_loss
+        self.scaling_lupi_w = scaling_lupi_w
+        self.C = C
 
     def fit(self, X_combined, y, lupi_features=None):
         """
@@ -83,15 +88,18 @@ class LUPI_Classification_SVM(InitModel):
 
         """
         if lupi_features is None:
-            raise ValueError("No lupi_features argument given.")
-        self.lupi_features = lupi_features
-        X, X_priv = split_dataset(X_combined, lupi_features)
+            try:
+                lupi_features = self.lupi_features
+                self.lupi_features = lupi_features
+            except:
+                raise ValueError("No amount of lupi features given.")
+        X, X_priv = split_dataset(X_combined, self.lupi_features)
         (n, d) = X.shape
 
         # Get parameters from CV model without any feature contstraints
-        C = self.hyperparam["C"]
-        scaling_lupi_w = self.hyperparam["scaling_lupi_w"]
-        scaling_lupi_loss = self.hyperparam["scaling_lupi_loss"]
+        C = self.get_params()["C"]
+        scaling_lupi_w = self.get_params()["scaling_lupi_w"]
+        scaling_lupi_loss = self.get_params()["scaling_lupi_loss"]
 
         # Initalize Variables in cvxpy
         w = cvx.Variable(shape=(d), name="w")
@@ -120,9 +128,9 @@ class LUPI_Classification_SVM(InitModel):
         objective = cvx.Minimize(C * loss + weight_regularization)
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         w = w.value
         w_priv = w_priv.value
