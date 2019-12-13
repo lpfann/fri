@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.6, 3.7]
+        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v1
@@ -20,7 +20,7 @@ jobs:
     - name: Install dependencies
       run: |
         wget https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py
-        python get-poetry.py --preview -y
+        python get-poetry.py -y
         source $HOME/.poetry/env
         poetry install -v
     - name: Test with pytest

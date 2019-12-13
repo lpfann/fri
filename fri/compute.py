@@ -4,9 +4,9 @@ They (normally) should not be used by users.
 import logging
 from collections import defaultdict
 
+import attr
 import joblib
 import numpy as np
-import attr
 from scipy import stats
 
 from fri.model.base_cvxproblem import Relevance_CVXProblem
@@ -43,7 +43,7 @@ class RelevanceBoundsIntervals(object):
         self.n_resampling = n_resampling
         self.random_state = random_state
         self.best_init_model = best_init_model
-        self.best_hyperparameters = best_init_model.hyperparam
+        self.best_hyperparameters = best_init_model.get_params()
         self.normalize = normalize
 
         # Relax constraints to improve stability

@@ -115,11 +115,15 @@ class FRIBase(BaseEstimator, SelectorMixin):
             normalize=self.normalize,
         )
         if lupi_features == 0:
-            self.interval_, feature_classes = (
-                self._relevance_bounds_computer.get_normalized_intervals()
-            )
+            (
+                self.interval_,
+                feature_classes,
+            ) = self._relevance_bounds_computer.get_normalized_intervals()
         else:
-            self.interval_, feature_classes = self._relevance_bounds_computer.get_normalized_lupi_intervals(
+            (
+                self.interval_,
+                feature_classes,
+            ) = self._relevance_bounds_computer.get_normalized_lupi_intervals(
                 lupi_features=lupi_features
             )
         self._get_relevance_mask(feature_classes)

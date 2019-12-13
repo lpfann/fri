@@ -33,15 +33,18 @@ class Regression(ProblemType):
 
 
 class Regression_SVR(InitModel):
-    @classmethod
-    def hyperparameter(cls):
-        return ["C", "epsilon"]
+    HYPERPARAMETER = ["C", "epsilon"]
+
+    def __init__(self, C=1, epsilon=0.1):
+        super().__init__()
+        self.epsilon = epsilon
+        self.C = C
 
     def fit(self, X, y, **kwargs):
         (n, d) = X.shape
 
-        C = self.hyperparam["C"]
-        epsilon = self.hyperparam["epsilon"]
+        C = self.get_params()["C"]
+        epsilon = self.get_params()["epsilon"]
 
         w = cvx.Variable(shape=(d), name="w")
         slack = cvx.Variable(shape=(n), name="slack")
@@ -51,9 +54,9 @@ class Regression_SVR(InitModel):
         constraints = [cvx.abs(y - (X * w + b)) <= epsilon + slack, slack >= 0]
 
         # Solve problem.
-        solver_params = self.solver_params
+
         problem = cvx.Problem(objective, constraints)
-        problem.solve(**solver_params)
+        problem.solve(**self.SOLVER_PARAMS)
 
         w = w.value
         b = b.value
