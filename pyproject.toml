@@ -62,6 +62,6 @@ logo = "docs/logo.png"
 name = "material"
 
 [build-system]
-requires = ["poetry>=1.0.0b1"]
+requires = ["poetry>=1.0"]
 build-backend = "poetry.masonry.api"
 
