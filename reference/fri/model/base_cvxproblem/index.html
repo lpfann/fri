@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -943,9 +943,9 @@
                 <h1 id="module-frimodelbase_cvxproblem">Module fri.model.base_cvxproblem</h1>
 <details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 
-<span class="kn">import</span> <span class="nn">cvxpy</span> <span class="kn">as</span> <span class="nn">cvx</span>
+<span class="kn">import</span> <span class="nn">cvxpy</span> <span class="k">as</span> <span class="nn">cvx</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">cvxpy</span> <span class="kn">import</span> <span class="n">SolverError</span>
 
@@ -961,23 +961,23 @@
 
             <span class="n">lower</span> <span class="o">=</span> <span class="s2">&quot;Upper&quot;</span>
 
-        <span class="n">name</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;{lower}_{self.current_feature}_{self.__class__.__name__}&quot;</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{lower}</span><span class="s2">_</span><span class="si">{self.current_feature}</span><span class="s2">_</span><span class="si">{self.__class__.__name__}</span><span class="s2">&quot;</span>
 
         <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_hyperparameters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            <span class="n">state</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
+            <span class="n">state</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{s[0]}</span><span class="s2">:</span><span class="si">{s[1]}</span><span class="s2">, &quot;</span>
 
         <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_model_constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            <span class="n">state</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot;{s[0]}:{s[1]}, &quot;</span>
+            <span class="n">state</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{s[0]}</span><span class="s2">:</span><span class="si">{s[1]}</span><span class="s2">, &quot;</span>
 
         <span class="n">state</span> <span class="o">=</span> <span class="s2">&quot;(&quot;</span> <span class="o">+</span> <span class="n">state</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isProbe</span><span class="p">:</span>
 
-            <span class="n">prefix</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;Probe_{self.probeID}&quot;</span>
+            <span class="n">prefix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Probe_</span><span class="si">{self.probeID}</span><span class="s2">&quot;</span>
 
         <span class="k">else</span><span class="p">:</span>
 
@@ -997,21 +997,21 @@
 
         <span class="n">best_model_constraints</span><span class="p">,</span>
 
-        <span class="n">preset_model</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">preset_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 
-        <span class="n">best_model_state</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+        <span class="n">best_model_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 
         <span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
 
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_probeID</span> <span class="o">=</span> <span class="n">probeID</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_relevance</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_feature_relevance</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># General data</span>
 
@@ -1027,13 +1027,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_constraints</span> <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_objective</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_constraints</span><span class="p">(</span><span class="n">hyperparameters</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_preset_constraints</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preset_model</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">)</span>
 
@@ -1129,13 +1129,13 @@
 
             <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
 
-                <span class="k">return</span> <span class="bp">False</span>
+                <span class="k">return</span> <span class="kc">False</span>
 
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
 
@@ -1183,7 +1183,7 @@
 
     <span class="k">def</span> <span class="nf">solver_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="bp">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">,</span> <span class="s2">&quot;max_iters&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;solver&quot;</span><span class="p">:</span> <span class="s2">&quot;ECOS&quot;</span><span class="p">,</span> <span class="s2">&quot;max_iters&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">_add_preset_constraints</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preset_model</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">best_model_constraints</span><span class="p">):</span>
 
@@ -1265,7 +1265,7 @@
 
         <span class="n">problem</span><span class="o">.</span><span class="n">init_objective_LB</span><span class="p">()</span>
 
-        <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">yield</span> <span class="n">problem</span>
 
@@ -1313,7 +1313,7 @@
 
             <span class="n">problem</span><span class="o">.</span><span class="n">init_objective_UB</span><span class="p">(</span><span class="kp">sign</span><span class="o">=</span><span class="kp">sign</span><span class="p">)</span>
 
-            <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="bp">False</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">isLowerBound</span> <span class="o">=</span> <span class="kc">False</span>
 
             <span class="k">yield</span> <span class="n">problem</span>
 
@@ -1768,15 +1768,15 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">aggregate_max_candidates</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">max_problems_candidates</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
+<span class="w">        </span><span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">candidate.solved_relevance for candidate in max_problems_candidates</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">max_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">max_value</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">max_value</span><span class="w"></span>
 </pre></div>
 
 
@@ -1788,15 +1788,15 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">aggregate_min_candidates</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">min_problems_candidates</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
+<span class="w">        </span><span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">candidate.solved_relevance for candidate in min_problems_candidates</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">min_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">min_value</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">min_value</span><span class="w"></span>
 </pre></div>
 
 
@@ -1876,53 +1876,53 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_upper_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        <span class="nv">cls</span>,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">best_hyperparameters</span>,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">init_constraints</span>,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">best_model_state</span>,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">data</span>,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">di</span>,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">preset_model</span>,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-    <span class="ss">)</span>:
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nf">sign</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">[</span><span class="n">-1, 1</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
+<span class="w">            </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-                <span class="nv">di</span>,
+<span class="w">                </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">data</span>,
+<span class="w">                </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">best_hyperparameters</span>,
+<span class="w">                </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">init_constraints</span>,
+<span class="w">                </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
+<span class="w">                </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
+<span class="w">                </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
+<span class="w">                </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-            <span class="ss">)</span>
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_UB</span><span class="p">(</span><span class="nf">sign</span><span class="o">=</span><span class="nf">sign</span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+<span class="w">            </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
 
-            <span class="nv">yield</span> <span class="nv">problem</span>
+<span class="w">            </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
 </pre></div>
 
 
@@ -2045,43 +2045,44 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">solve</span><span class="p">(</span><span class="k">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">object</span><span class="p">:</span>
 
-        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
+        <span class="o">#</span> <span class="n">We</span> <span class="n">init</span> <span class="n">cvx</span> <span class="n">problem</span> <span class="n">here</span> <span class="n">because</span> <span class="n">pickling</span> <span class="n">LP</span> <span class="n">solver</span> <span class="n">objects</span> <span class="k">is</span> <span class="n">problematic</span>
 
-        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
+        <span class="o">#</span> <span class="k">by</span> <span class="n">deferring</span> <span class="n">it</span> <span class="k">to</span> <span class="n">here</span><span class="p">,</span> <span class="n">worker</span> <span class="n">threads</span> <span class="k">do</span> <span class="n">the</span> <span class="n">problem</span> <span class="n">building</span> <span class="n">themselves</span> <span class="k">and</span> <span class="n">we</span> <span class="n">spare</span> <span class="n">the</span> <span class="n">serialization</span>
 
-        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Problem</span><span class="p">(</span>
 
-            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
+            <span class="n">objective</span><span class="o">=</span><span class="k">self</span><span class="p">.</span><span class="n">objective</span><span class="p">,</span> <span class="k">constraints</span><span class="o">=</span><span class="k">self</span><span class="p">.</span><span class="k">constraints</span>
 
-        <span class="ss">)</span>
+        <span class="p">)</span>
 
-        <span class="nv">try</span>:
+        <span class="n">try</span><span class="p">:</span>
 
-            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
+            <span class="o">#</span> <span class="n">print</span><span class="p">(</span><span class="ss">&quot;Solve&quot;</span><span class="p">,</span> <span class="k">self</span><span class="p">)</span>
 
-            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span><span class="p">.</span><span class="n">solve</span><span class="p">(</span><span class="o">**</span><span class="k">self</span><span class="p">.</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
-        <span class="nv">except</span> <span class="nv">SolverError</span>:
+        <span class="k">except</span> <span class="n">SolverError</span><span class="p">:</span>
 
-            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
+            <span class="o">#</span> <span class="n">We</span> <span class="k">ignore</span> <span class="n">Solver</span> <span class="n">Errors</span><span class="p">,</span> <span class="n">which</span> <span class="k">are</span> <span class="n">common</span> <span class="k">with</span> <span class="n">our</span> <span class="n">framework</span><span class="p">:</span>
 
-            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
+            <span class="o">#</span> <span class="n">We</span> <span class="n">solve</span> <span class="n">multiple</span> <span class="n">problems</span> <span class="n">per</span> <span class="n">bound</span> <span class="k">and</span> <span class="n">choose</span> <span class="n">a</span> <span class="n">feasible</span> <span class="n">solution</span> <span class="n">later</span> <span class="p">(</span><span class="n">see</span> <span class="s1">&#39;_create_interval&#39;</span><span class="p">)</span>
 
-            <span class="nv">pass</span>
+            <span class="n">pass</span>
 
-        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_solver_status</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span><span class="p">.</span><span class="n">status</span>
 
-        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+        <span class="o">#</span> <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span> <span class="o">=</span> <span class="k">None</span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+        <span class="k">return</span> <span class="k">self</span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -2150,7 +2151,7 @@ inheritance.</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

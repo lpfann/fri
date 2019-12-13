@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -1118,151 +1118,151 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">ProblemType</span><span class="ss">(</span><span class="nv">ABC</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="n">ProblemType</span><span class="p">(</span><span class="n">ABC</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">chosen_parameters_</span> <span class="o">=</span> {}
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">chosen_parameters_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="k">parameters</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">kwargs</span>[<span class="nv">p</span>] <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">kwargs</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>] <span class="o">=</span> <span class="nv">kwargs</span>[<span class="nv">p</span>]
+<span class="w">                    </span><span class="n">self</span><span class="p">.</span><span class="n">chosen_parameters_</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kwargs</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">self</span>.<span class="nv">relax_factors_</span> <span class="o">=</span> {}
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="err">{}</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">kwargs</span><span class="p">:</span><span class="w"></span>
 
-                <span class="k">if</span> <span class="nv">kwargs</span>[<span class="nv">p</span>] <span class="nv">is</span> <span class="nv">not</span> <span class="nv">None</span>:
+<span class="w">                </span><span class="k">if</span><span class="w"> </span><span class="n">kwargs</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-                    <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>] <span class="o">=</span> <span class="nv">kwargs</span>[<span class="nv">p</span>]
+<span class="w">                    </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">kwargs</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"></span>
 
-    @<span class="nv">classmethod</span>
+<span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">parameters</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">raise</span> <span class="nv">NotImplementedError</span>
+<span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">return</span> [
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
 
-                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
+<span class="n">                self.chosen_parameters_[p</span><span class="o">]</span><span class="w"></span>
 
-            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">We</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="k">search</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-        <span class="nv">except</span>:
+<span class="w">        </span><span class="ow">except</span><span class="err">:</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">rewrite</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="n">logic</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">move</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">subclass</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_w&quot;</span><span class="err">:</span><span class="w"></span>
 
-                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
+<span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0.1, 1, 10, 100, 1000</span><span class="o">]</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 
-            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_loss&quot;</span><span class="err">:</span><span class="w"></span>
 
-            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="mi">0</span><span class="o">&gt;</span><span class="n">p</span><span class="o">&lt;</span><span class="mi">1</span><span class="w"> </span><span class="n">causes</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">svm</span><span class="w"> </span><span class="n">solution</span><span class="w"></span>
 
-            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="n">p</span><span class="o">&gt;</span><span class="mi">1</span><span class="w"> </span><span class="n">encourages</span><span class="w"> </span><span class="k">usage</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">lupi</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e15</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;C&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;epsilon&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0, 0.001, 0.01, 0.1, 1, 10, 100</span><span class="o">]</span><span class="w"></span>
 
-            <span class="k">else</span>:
+<span class="w">            </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_all_parameters</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="nl">p</span><span class="p">:</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="k">parameters</span><span class="p">()</span><span class="err">}</span><span class="w"></span>
 
-    @<span class="nv">classmethod</span>
+<span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">relax_factors</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">raise</span> <span class="nv">NotImplementedError</span>
+<span class="w">        </span><span class="n">raise</span><span class="w"> </span><span class="n">NotImplementedError</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
+<span class="w">            </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">        </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">try</span>:
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p + &quot;_slack&quot;</span><span class="o">]</span><span class="w"></span>
 
-            <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">factor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;Slack Factor multiplier is positive!&quot;</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">factor</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">factor</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_all_relax_factors</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="nl">p</span><span class="p">:</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors</span><span class="p">()</span><span class="err">}</span><span class="w"></span>
 
-    @<span class="nv">property</span>
+<span class="w">    </span><span class="nv">@property</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_initmodel_template</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">pass</span>
+<span class="w">        </span><span class="n">pass</span><span class="w"></span>
 
-    @<span class="nv">property</span>
+<span class="w">    </span><span class="nv">@property</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_cvxproblem_template</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">pass</span>
+<span class="w">        </span><span class="n">pass</span><span class="w"></span>
 
-    @<span class="nv">abstractmethod</span>
+<span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">preprocessing</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="n">lupi_features</span><span class="o">=</span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">data</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">data</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">postprocessing</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">bounds</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">bounds</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">bounds</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_relaxed_constraints</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">constraints</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="err">{</span><span class="nl">c</span><span class="p">:</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_constraint</span><span class="p">(</span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">c</span><span class="p">,</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">constraints</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">}</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">relax_constraint</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="k">key</span><span class="p">))</span><span class="w"></span>
 </pre></div>
 
 
@@ -1335,9 +1335,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_all_parameters</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="n">p</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="k">parameters</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1349,9 +1349,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_all_relax_factors</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="n">p</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">relax_factors</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1364,47 +1364,47 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">return</span> [
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
 
-                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
+<span class="n">                self.chosen_parameters_[p</span><span class="o">]</span><span class="w"></span>
 
-            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">We</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="k">search</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-        <span class="nv">except</span>:
+<span class="w">        </span><span class="ow">except</span><span class="err">:</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">rewrite</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="n">logic</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">move</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">subclass</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_w&quot;</span><span class="err">:</span><span class="w"></span>
 
-                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
+<span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0.1, 1, 10, 100, 1000</span><span class="o">]</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 
-            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_loss&quot;</span><span class="err">:</span><span class="w"></span>
 
-            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="mi">0</span><span class="o">&gt;</span><span class="n">p</span><span class="o">&lt;</span><span class="mi">1</span><span class="w"> </span><span class="n">causes</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">svm</span><span class="w"> </span><span class="n">solution</span><span class="w"></span>
 
-            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="n">p</span><span class="o">&gt;</span><span class="mi">1</span><span class="w"> </span><span class="n">encourages</span><span class="w"> </span><span class="k">usage</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">lupi</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e15</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;C&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;epsilon&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0, 0.001, 0.01, 0.1, 1, 10, 100</span><span class="o">]</span><span class="w"></span>
 
-            <span class="k">else</span>:
+<span class="w">            </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -1417,27 +1417,27 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
+<span class="w">            </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">        </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">try</span>:
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p + &quot;_slack&quot;</span><span class="o">]</span><span class="w"></span>
 
-            <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">factor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;Slack Factor multiplier is positive!&quot;</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">factor</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">factor</span><span class="w"></span>
 </pre></div>
 
 
@@ -1450,9 +1450,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_relaxed_constraints</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">constraints</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="k">c</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">relax_constraint</span><span class="p">(</span><span class="k">c</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="k">c</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="k">constraints</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1465,9 +1465,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">postprocessing</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="nv">bounds</span>
+        <span class="k">return</span> <span class="n">bounds</span>
 </pre></div>
 
 
@@ -1481,11 +1481,11 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">abstractmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@abstractmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">preprocessing</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="n">lupi_features</span><span class="o">=</span><span class="k">None</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">data</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">data</span><span class="w"></span>
 </pre></div>
 
 
@@ -1499,15 +1499,16 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">relax_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="k">key</span><span class="p">))</span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -1576,7 +1577,7 @@ inheritance.</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

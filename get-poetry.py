@@ -1,5 +1,5 @@
 """
-This script will install poetry and its dependencies
+This script will install Poetry and its dependencies
 in isolation from the rest of the system.
 
 It does, in order:
@@ -33,7 +33,9 @@ from contextlib import closing
 from contextlib import contextmanager
 from functools import cmp_to_key
 from gzip import GzipFile
-from io import UnsupportedOperation, open
+from io import UnsupportedOperation
+from io import open
+
 
 try:
     from urllib.error import HTTPError
@@ -63,6 +65,7 @@ try:
 except NameError:
     u = str
 
+SHELL = os.getenv("SHELL", "")
 WINDOWS = sys.platform.startswith("win") or (sys.platform == "cli" and os.name == "nt")
 
 
@@ -187,7 +190,7 @@ def expanduser(path):
 
 
 HOME = expanduser("~")
-POETRY_HOME = os.path.join(HOME, ".poetry")
+POETRY_HOME = os.environ.get("POETRY_HOME") or os.path.join(HOME, ".poetry")
 POETRY_BIN = os.path.join(POETRY_HOME, "bin")
 POETRY_ENV = os.path.join(POETRY_HOME, "env")
 POETRY_LIB = os.path.join(POETRY_HOME, "lib")
@@ -224,7 +227,7 @@ It will add the `poetry` command to {poetry}'s bin directory, located at:
 
 {platform_msg}
 
-You can uninstall at any time with `poetry self:uninstall`,
+You can uninstall at any time with `poetry self uninstall`,
 or by executing this script with the --uninstall option,
 and these changes will be reverted.
 """
@@ -247,6 +250,9 @@ modifying the profile file{plural} located at:
 {rcfiles}"""
 
 
+PRE_MESSAGE_FISH = """This path will then be added to your `PATH` environment variable by
+modifying the `fish_user_paths` universal variable."""
+
 PRE_MESSAGE_WINDOWS = """This path will then be added to your `PATH` environment variable by
 modifying the `HKEY_CURRENT_USER/Environment/PATH` registry key."""
 
@@ -262,6 +268,12 @@ automatically.
 To configure your current shell run `source {poetry_home_env}`
 """
 
+POST_MESSAGE_FISH = """{poetry} ({version}) is installed now. Great!
+
+{poetry}'s bin directory ({poetry_home_bin}) has been added to your `PATH`
+environment variable by modifying the `fish_user_paths` universal variable.
+"""
+
 POST_MESSAGE_WINDOWS = """{poetry} ({version}) is installed now. Great!
 
 To get started you need Poetry's bin directory ({poetry_home_bin}) in your `PATH`
@@ -275,6 +287,15 @@ To get started you need {poetry}'s bin directory ({poetry_home_bin}) in your `PA
 environment variable.
 
 To configure your current shell run `source {poetry_home_env}`
+"""
+
+POST_MESSAGE_FISH_NO_MODIFY_PATH = """{poetry} ({version}) is installed now. Great!
+
+To get started you need {poetry}'s bin directory ({poetry_home_bin})
+in your `PATH` environment variable, which you can add by running
+the following command:
+
+    set -U fish_user_paths {poetry_home_bin} $fish_user_paths
 """
 
 POST_MESSAGE_WINDOWS_NO_MODIFY_PATH = """{poetry} ({version}) is installed now. Great!
@@ -299,7 +320,9 @@ class Installer:
         r"(?:\+[^\s]+)?"
     )
 
-    BASE_URL = "https://github.com/sdispater/poetry/releases/download/"
+    REPOSITORY_URL = "https://github.com/python-poetry/poetry"
+    BASE_URL = REPOSITORY_URL + "/releases/download/"
+    FALLBACK_BASE_URL = "https://github.com/sdispater/poetry/releases/download/"
 
     def __init__(
         self,
@@ -601,6 +624,9 @@ class Installer:
         if not self._modify_path:
             return
 
+        if "fish" in SHELL:
+            return self.add_to_fish_path()
+
         if WINDOWS:
             return self.add_to_windows_path()
 
@@ -620,6 +646,40 @@ class Installer:
             if addition not in content:
                 with open(profile, "a") as f:
                     f.write(u(addition))
+
+    def add_to_fish_path(self):
+        """
+        Ensure POETRY_BIN directory is on Fish shell $PATH
+        """
+        current_path = os.environ.get("PATH", None)
+        if current_path is None:
+            print(
+                colorize(
+                    "warning",
+                    "\nUnable to get the PATH value. It will not be updated automatically.",
+                )
+            )
+            self._modify_path = False
+
+            return
+
+        if POETRY_BIN not in current_path:
+            fish_user_paths = subprocess.check_output(
+                ["fish", "-c", "echo $fish_user_paths"]
+            ).decode("utf-8")
+            if POETRY_BIN not in fish_user_paths:
+                cmd = "set -U fish_user_paths {} $fish_user_paths".format(POETRY_BIN)
+                set_fish_user_path = ["fish", "-c", "{}".format(cmd)]
+                subprocess.check_output(set_fish_user_path)
+        else:
+            print(
+                colorize(
+                    "warning",
+                    "\nPATH already contains {} and thus was not modified.".format(
+                        POETRY_BIN
+                    ),
+                )
+            )
 
     def add_to_windows_path(self):
         try:
@@ -681,10 +741,24 @@ class Installer:
         )
 
     def remove_from_path(self):
-        if WINDOWS:
+        if "fish" in SHELL:
+            return self.remove_from_fish_path()
+
+        elif WINDOWS:
             return self.remove_from_windows_path()
 
         return self.remove_from_unix_path()
+
+    def remove_from_fish_path(self):
+        fish_user_paths = subprocess.check_output(
+            ["fish", "-c", "echo $fish_user_paths"]
+        ).decode("utf-8")
+        if POETRY_BIN in fish_user_paths:
+            cmd = "set -U fish_user_paths (string match -v {} $fish_user_paths)".format(
+                POETRY_BIN
+            )
+            set_fish_user_path = ["fish", "-c", "{}".format(cmd)]
+            subprocess.check_output(set_fish_user_path)
 
     def remove_from_windows_path(self):
         path = self.get_windows_path_var()
@@ -737,8 +811,7 @@ class Installer:
     def get_unix_profiles(self):
         profiles = [os.path.join(HOME, ".profile")]
 
-        shell = os.getenv("SHELL", "")
-        if "zsh" in shell:
+        if "zsh" in SHELL:
             zdotdir = os.getenv("ZDOTDIR", HOME)
             profiles.append(os.path.join(zdotdir, ".zprofile"))
 
@@ -762,7 +835,9 @@ class Installer:
         if not self._modify_path:
             kwargs["platform_msg"] = PRE_MESSAGE_NO_MODIFY_PATH
         else:
-            if WINDOWS:
+            if "fish" in SHELL:
+                kwargs["platform_msg"] = PRE_MESSAGE_FISH
+            elif WINDOWS:
                 kwargs["platform_msg"] = PRE_MESSAGE_WINDOWS
             else:
                 profiles = [
@@ -805,6 +880,12 @@ class Installer:
             poetry_home_bin = POETRY_BIN.replace(
                 os.getenv("USERPROFILE", ""), "%USERPROFILE%"
             )
+        elif "fish" in SHELL:
+            message = POST_MESSAGE_FISH
+            if not self._modify_path:
+                message = POST_MESSAGE_FISH_NO_MODIFY_PATH
+
+            poetry_home_bin = POETRY_BIN.replace(os.getenv("HOME", ""), "$HOME")
         else:
             message = POST_MESSAGE_UNIX
             if not self._modify_path:
@@ -849,6 +930,15 @@ def main():
 
     args = parser.parse_args()
 
+    base_url = Installer.BASE_URL
+    try:
+        urlopen(Installer.REPOSITORY_URL)
+    except HTTPError as e:
+        if e.code == 404:
+            base_url = Installer.FALLBACK_BASE_URL
+        else:
+            raise
+
     installer = Installer(
         version=args.version or os.getenv("POETRY_VERSION"),
         preview=args.preview or string_to_bool(os.getenv("POETRY_PREVIEW", "0")),
@@ -856,6 +946,7 @@ def main():
         accept_all=args.accept_all
         or string_to_bool(os.getenv("POETRY_ACCEPT", "0"))
         or not is_interactive(),
+        base_url=base_url,
     )
 
     if args.uninstall or string_to_bool(os.getenv("POETRY_UNINSTALL", "0")):

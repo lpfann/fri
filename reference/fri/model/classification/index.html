@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -741,29 +741,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#static-methods_2" class="md-nav__link">
-    Static methods
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
   </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hyperparameter" class="md-nav__link">
-    hyperparameter
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#make_scorer" class="md-nav__link">
-    make_scorer
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -827,6 +807,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#make_scorer" class="md-nav__link">
+    make_scorer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#predict" class="md-nav__link">
     predict
   </a>
@@ -849,6 +836,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
   
 </li>
       
@@ -1307,29 +1301,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#static-methods_2" class="md-nav__link">
-    Static methods
+  <a href="#class-variables" class="md-nav__link">
+    Class variables
   </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#hyperparameter" class="md-nav__link">
-    hyperparameter
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#make_scorer" class="md-nav__link">
-    make_scorer
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -1393,6 +1367,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#make_scorer" class="md-nav__link">
+    make_scorer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#predict" class="md-nav__link">
     predict
   </a>
@@ -1415,6 +1396,13 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
   
 </li>
       
@@ -1445,9 +1433,9 @@
                 
                 
                 <h1 id="module-frimodelclassification">Module fri.model.classification</h1>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">cvxpy</span> <span class="kn">as</span> <span class="nn">cvx</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">cvxpy</span> <span class="k">as</span> <span class="nn">cvx</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">preprocessing</span>
 
@@ -1515,17 +1503,17 @@
 
 <span class="k">class</span> <span class="nc">Classification_SVM</span><span class="p">(</span><span class="n">InitModel</span><span class="p">):</span>
 
-    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">C</span> <span class="o">=</span> <span class="n">C</span>
 
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="kp">shape</span>
 
-        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hyperparam</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
+        <span class="n">C</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_params</span><span class="p">()[</span><span class="s2">&quot;C&quot;</span><span class="p">]</span>
 
         <span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span>
 
@@ -1539,11 +1527,9 @@
 
         <span class="c1"># Solve problem.</span>
 
-        <span class="n">solver_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span>
-
         <span class="n">problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="n">constraints</span><span class="p">)</span>
 
-        <span class="n">problem</span><span class="o">.</span><span class="kp">solve</span><span class="p">(</span><span class="o">**</span><span class="n">solver_params</span><span class="p">)</span>
+        <span class="n">problem</span><span class="o">.</span><span class="kp">solve</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">SOLVER_PARAMS</span><span class="p">)</span>
 
         <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">value</span>
 
@@ -1597,7 +1583,7 @@
 
 <span class="k">class</span> <span class="nc">Classification_Relevance_Bound</span><span class="p">(</span><span class="n">Relevance_CVXProblem</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kp">sign</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">init_objective_UB</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="kp">sign</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
@@ -1633,7 +1619,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;b&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">),</span> <span class="n">nonneg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;slack&quot;</span><span class="p">)</span>
 
         <span class="c1"># New Constraints</span>
 
@@ -1649,7 +1635,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="n">C</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">&lt;=</span> <span class="n">C</span> <span class="o">*</span> <span class="n">init_loss</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">nonneg</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Feature Relevance&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_relevance</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="n">nonneg</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Feature Relevance&quot;</span><span class="p">)</span>
 </pre></div>
 
 
@@ -1664,53 +1650,53 @@
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Classification</span><span class="ss">(</span><span class="nv">ProblemType</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="n">Classification</span><span class="p">(</span><span class="n">ProblemType</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-    @<span class="nv">classmethod</span>
+<span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">parameters</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">&quot;C&quot;</span><span class="o">]</span><span class="w"></span>
 
-    @<span class="nv">property</span>
+<span class="w">    </span><span class="nv">@property</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_initmodel_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_initmodel_template</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">Classification_SVM</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Classification_SVM</span><span class="w"></span>
 
-    @<span class="nv">property</span>
+<span class="w">    </span><span class="nv">@property</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">get_cvxproblem_template</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_cvxproblem_template</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">Classification_Relevance_Bound</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">Classification_Relevance_Bound</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">relax_factors</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">&quot;loss_slack&quot;, &quot;w_l1_slack&quot;</span><span class="o">]</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">preprocessing</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">data</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
+<span class="w">        </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">data</span><span class="w"></span>
 
-        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">Check</span><span class="w"> </span><span class="n">that</span><span class="w"> </span><span class="n">X</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">correct</span><span class="w"> </span><span class="n">shape</span><span class="w"></span>
 
-        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">)</span><span class="w"></span>
 
-        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Store</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">classes</span><span class="w"> </span><span class="n">seen</span><span class="w"> </span><span class="n">during</span><span class="w"> </span><span class="n">fit</span><span class="w"></span>
 
-        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">classes_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unique_labels</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="n">classes_</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">2</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;Only binary class data supported&quot;</span><span class="p">)</span><span class="w"></span>
 
-        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Negative</span><span class="w"> </span><span class="k">class</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">set</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">decision</span><span class="w"> </span><span class="n">surface</span><span class="w"></span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">y</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">preprocessing</span><span class="p">.</span><span class="n">LabelEncoder</span><span class="p">().</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="w"></span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+<span class="w">        </span><span class="n">y</span><span class="o">[</span><span class="n">y == 0</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="w"></span>
 </pre></div>
 
 
@@ -1729,11 +1715,11 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">parameters</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="k">parameters</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">&quot;C&quot;</span><span class="o">]</span><span class="w"></span>
 </pre></div>
 
 
@@ -1755,9 +1741,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_parameters</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_all_parameters</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">parameters</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="n">p</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="k">parameters</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1769,9 +1755,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_all_relax_factors</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_all_relax_factors</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">p</span>: <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">p</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">relax_factors</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="n">p</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="k">self</span><span class="p">.</span><span class="n">relax_factors</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1784,47 +1770,47 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_parameter</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_parameter</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">return</span> [
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
 
-                <span class="nv">self</span>.<span class="nv">chosen_parameters_</span>[<span class="nv">p</span>]
+<span class="n">                self.chosen_parameters_[p</span><span class="o">]</span><span class="w"></span>
 
-            ]  # <span class="nv">We</span> <span class="k">return</span> <span class="nv">list</span> <span class="k">for</span> <span class="nv">param</span> <span class="nv">search</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">We</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="n">list</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">param</span><span class="w"> </span><span class="k">search</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-        <span class="nv">except</span>:
+<span class="w">        </span><span class="ow">except</span><span class="err">:</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">rewrite</span> <span class="nv">the</span> <span class="nv">parameter</span> <span class="nv">logic</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">rewrite</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">parameter</span><span class="w"> </span><span class="n">logic</span><span class="w"></span>
 
-            # # <span class="nv">TODO</span>: <span class="nv">move</span> <span class="nv">this</span> <span class="nv">to</span> <span class="nv">subclass</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="err">#</span><span class="w"> </span><span class="nl">TODO</span><span class="p">:</span><span class="w"> </span><span class="n">move</span><span class="w"> </span><span class="n">this</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">subclass</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_w</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_w&quot;</span><span class="err">:</span><span class="w"></span>
 
-                # <span class="k">return</span> [<span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>, <span class="mi">1000</span>]
+<span class="w">                </span><span class="err">#</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0.1, 1, 10, 100, 1000</span><span class="o">]</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 
-            # <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">scaling_lupi_loss</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;scaling_lupi_loss&quot;</span><span class="err">:</span><span class="w"></span>
 
-            #    # <span class="nv">value</span> <span class="mi">0</span><span class="o">&gt;</span><span class="nv">p</span><span class="o">&lt;</span><span class="mi">1</span> <span class="nv">causes</span> <span class="nv">standard</span> <span class="nv">svm</span> <span class="nv">solution</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="mi">0</span><span class="o">&gt;</span><span class="n">p</span><span class="o">&lt;</span><span class="mi">1</span><span class="w"> </span><span class="n">causes</span><span class="w"> </span><span class="n">standard</span><span class="w"> </span><span class="n">svm</span><span class="w"> </span><span class="n">solution</span><span class="w"></span>
 
-            #    # <span class="nv">p</span><span class="o">&gt;</span><span class="mi">1</span> <span class="nv">encourages</span> <span class="nv">usage</span> <span class="nv">of</span> <span class="nv">lupi</span> <span class="nv">function</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="n">p</span><span class="o">&gt;</span><span class="mi">1</span><span class="w"> </span><span class="n">encourages</span><span class="w"> </span><span class="k">usage</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">lupi</span><span class="w"> </span><span class="k">function</span><span class="w"></span>
 
-            #    <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">15</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e15</span><span class="ss">)</span>
+<span class="w">            </span><span class="err">#</span><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-15</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e15</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;C&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">5</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e5</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e5</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">p</span> <span class="o">==</span> <span class="s2">&quot;</span><span class="s">epsilon</span><span class="s2">&quot;</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">p</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="ss">&quot;epsilon&quot;</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> [<span class="mi">0</span>, <span class="mi">0</span>.<span class="mi">001</span>, <span class="mi">0</span>.<span class="mi">01</span>, <span class="mi">0</span>.<span class="mi">1</span>, <span class="mi">1</span>, <span class="mi">10</span>, <span class="mi">100</span>]
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="o">[</span><span class="n">0, 0.001, 0.01, 0.1, 1, 10, 100</span><span class="o">]</span><span class="w"></span>
 
-            <span class="k">else</span>:
+<span class="w">            </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
 
-                <span class="k">return</span> <span class="nv">scipy</span>.<span class="nv">stats</span>.<span class="nv">reciprocal</span><span class="ss">(</span><span class="nv">a</span><span class="o">=</span><span class="mi">1</span><span class="nv">e</span><span class="o">-</span><span class="mi">10</span>, <span class="nv">b</span><span class="o">=</span><span class="mi">1</span><span class="nv">e10</span><span class="ss">)</span>
+<span class="w">                </span><span class="k">return</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">stats</span><span class="p">.</span><span class="n">reciprocal</span><span class="p">(</span><span class="n">a</span><span class="o">=</span><span class="mf">1e-10</span><span class="p">,</span><span class="w"> </span><span class="n">b</span><span class="o">=</span><span class="mf">1e10</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -1837,27 +1823,27 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">p</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">try</span>:
+<span class="w">        </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span>]
+<span class="w">            </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">        </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">try</span>:
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relax_factors_</span>[<span class="nv">p</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="s">_slack</span><span class="s2">&quot;</span>]
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">relax_factors_</span><span class="o">[</span><span class="n">p + &quot;_slack&quot;</span><span class="o">]</span><span class="w"></span>
 
-            <span class="nv">except</span> <span class="nv">KeyError</span>:
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">KeyError</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">factor</span> <span class="o">=</span> <span class="mi">0</span>.<span class="mi">1</span>
+<span class="w">                </span><span class="n">factor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.1</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">factor</span> <span class="o">&lt;</span> <span class="mi">0</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">factor</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">0</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Slack Factor multiplier is positive!</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;Slack Factor multiplier is positive!&quot;</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">factor</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">factor</span><span class="w"></span>
 </pre></div>
 
 
@@ -1870,9 +1856,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_relaxed_constraints</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">constraints</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">get_relaxed_constraints</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">constraints</span><span class="p">):</span>
 
-        <span class="k">return</span> {<span class="nv">c</span>: <span class="nv">self</span>.<span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">c</span>, <span class="nv">v</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">c</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>}
+        <span class="k">return</span> <span class="err">{</span><span class="k">c</span><span class="p">:</span> <span class="k">self</span><span class="p">.</span><span class="n">relax_constraint</span><span class="p">(</span><span class="k">c</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="k">c</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="k">constraints</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">}</span>
 </pre></div>
 
 
@@ -1885,9 +1871,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">postprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">bounds</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">postprocessing</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="nv">bounds</span>
+        <span class="k">return</span> <span class="n">bounds</span>
 </pre></div>
 
 
@@ -1901,29 +1887,29 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">preprocessing</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">data</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">preprocessing</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="k">data</span>
 
-        # <span class="nv">Check</span> <span class="nv">that</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">have</span> <span class="nv">correct</span> <span class="nv">shape</span>
+        <span class="o">#</span> <span class="k">Check</span> <span class="n">that</span> <span class="n">X</span> <span class="k">and</span> <span class="n">y</span> <span class="n">have</span> <span class="n">correct</span> <span class="n">shape</span>
 
-        <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">check_X_y</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">check_X_y</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        # <span class="nv">Store</span> <span class="nv">the</span> <span class="nv">classes</span> <span class="nv">seen</span> <span class="nv">during</span> <span class="nv">fit</span>
+        <span class="o">#</span> <span class="n">Store</span> <span class="n">the</span> <span class="n">classes</span> <span class="n">seen</span> <span class="n">during</span> <span class="n">fit</span>
 
-        <span class="nv">classes_</span> <span class="o">=</span> <span class="nv">unique_labels</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+        <span class="n">classes_</span> <span class="o">=</span> <span class="n">unique_labels</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">classes_</span><span class="ss">)</span> <span class="o">&gt;</span> <span class="mi">2</span>:
+        <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">classes_</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Only binary class data supported</span><span class="s2">&quot;</span><span class="ss">)</span>
+            <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;Only binary class data supported&quot;</span><span class="p">)</span>
 
-        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
+        <span class="o">#</span> <span class="n">Negative</span> <span class="k">class</span> <span class="k">is</span> <span class="k">set</span> <span class="k">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">decision</span> <span class="n">surface</span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">preprocessing</span>.<span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">preprocessing</span><span class="p">.</span><span class="n">LabelEncoder</span><span class="p">().</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        <span class="k">return</span> <span class="nv">X</span>, <span class="nv">y</span>
+        <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
 </pre></div>
 
 
@@ -1937,9 +1923,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_constraint</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">relax_constraint</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="k">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
 
-        <span class="k">return</span> <span class="nv">value</span> <span class="o">*</span> <span class="ss">(</span><span class="mi">1</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">get_chosen_relax_factors</span><span class="ss">(</span><span class="nv">key</span><span class="ss">))</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="k">self</span><span class="p">.</span><span class="n">get_chosen_relax_factors</span><span class="p">(</span><span class="k">key</span><span class="p">))</span>
 </pre></div>
 
 
@@ -1951,9 +1937,9 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">relax_factors</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">relax_factors</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">loss_slack</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">w_l1_slack</span><span class="s2">&quot;</span>]
+        <span class="k">return</span> <span class="p">[</span><span class="ss">&quot;loss_slack&quot;</span><span class="p">,</span> <span class="ss">&quot;w_l1_slack&quot;</span><span class="p">]</span>
 </pre></div>
 
 
@@ -2051,15 +2037,15 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">aggregate_max_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">max_problems_candidates</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">aggregate_max_candidates</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">max_problems_candidates</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">max_problems_candidates</span>]
+<span class="w">        </span><span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">candidate.solved_relevance for candidate in max_problems_candidates</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">max_value</span> <span class="o">=</span> <span class="nv">max</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">max_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">max</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">max_value</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">max_value</span><span class="w"></span>
 </pre></div>
 
 
@@ -2071,15 +2057,15 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">aggregate_min_candidates</span><span class="ss">(</span><span class="nv">cls</span>, <span class="nv">min_problems_candidates</span><span class="ss">)</span>:
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">aggregate_min_candidates</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span><span class="w"> </span><span class="n">min_problems_candidates</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="nv">vals</span> <span class="o">=</span> [<span class="nv">candidate</span>.<span class="nv">solved_relevance</span> <span class="k">for</span> <span class="nv">candidate</span> <span class="nv">in</span> <span class="nv">min_problems_candidates</span>]
+<span class="w">        </span><span class="n">vals</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n">candidate.solved_relevance for candidate in min_problems_candidates</span><span class="o">]</span><span class="w"></span>
 
-        <span class="nv">min_value</span> <span class="o">=</span> <span class="nv">min</span><span class="ss">(</span><span class="nv">vals</span><span class="ss">)</span>
+<span class="w">        </span><span class="n">min_value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">min</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">min_value</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">min_value</span><span class="w"></span>
 </pre></div>
 
 
@@ -2159,53 +2145,53 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="nv">@classmethod</span><span class="w"></span>
 
-    <span class="nv">def</span> <span class="nv">generate_upper_bound_problem</span><span class="ss">(</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">generate_upper_bound_problem</span><span class="p">(</span><span class="w"></span>
 
-        <span class="nv">cls</span>,
+<span class="w">        </span><span class="n">cls</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">best_hyperparameters</span>,
+<span class="w">        </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">init_constraints</span>,
+<span class="w">        </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">best_model_state</span>,
+<span class="w">        </span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">data</span>,
+<span class="w">        </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">di</span>,
+<span class="w">        </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">preset_model</span>,
+<span class="w">        </span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-        <span class="nv">probeID</span><span class="o">=-</span><span class="mi">1</span>,
+<span class="w">        </span><span class="n">probeID</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="w"></span>
 
-    <span class="ss">)</span>:
+<span class="w">    </span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">sign</span> <span class="nv">in</span> [<span class="o">-</span><span class="mi">1</span>, <span class="mi">1</span>]:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="nf">sign</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="o">[</span><span class="n">-1, 1</span><span class="o">]</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cls</span><span class="ss">(</span>
+<span class="w">            </span><span class="n">problem</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cls</span><span class="p">(</span><span class="w"></span>
 
-                <span class="nv">di</span>,
+<span class="w">                </span><span class="n">di</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">data</span>,
+<span class="w">                </span><span class="k">data</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">best_hyperparameters</span>,
+<span class="w">                </span><span class="n">best_hyperparameters</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">init_constraints</span>,
+<span class="w">                </span><span class="n">init_constraints</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">preset_model</span><span class="o">=</span><span class="nv">preset_model</span>,
+<span class="w">                </span><span class="n">preset_model</span><span class="o">=</span><span class="n">preset_model</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">best_model_state</span><span class="o">=</span><span class="nv">best_model_state</span>,
+<span class="w">                </span><span class="n">best_model_state</span><span class="o">=</span><span class="n">best_model_state</span><span class="p">,</span><span class="w"></span>
 
-                <span class="nv">probeID</span><span class="o">=</span><span class="nv">probeID</span>,
+<span class="w">                </span><span class="n">probeID</span><span class="o">=</span><span class="n">probeID</span><span class="p">,</span><span class="w"></span>
 
-            <span class="ss">)</span>
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">problem</span>.<span class="nv">init_objective_UB</span><span class="ss">(</span><span class="nv">sign</span><span class="o">=</span><span class="nv">sign</span><span class="ss">)</span>
+<span class="w">            </span><span class="n">problem</span><span class="p">.</span><span class="n">init_objective_UB</span><span class="p">(</span><span class="nf">sign</span><span class="o">=</span><span class="nf">sign</span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">problem</span>.<span class="nv">isLowerBound</span> <span class="o">=</span> <span class="nv">False</span>
+<span class="w">            </span><span class="n">problem</span><span class="p">.</span><span class="n">isLowerBound</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">False</span><span class="w"></span>
 
-            <span class="nv">yield</span> <span class="nv">problem</span>
+<span class="w">            </span><span class="n">yield</span><span class="w"> </span><span class="n">problem</span><span class="w"></span>
 </pre></div>
 
 
@@ -2337,131 +2323,129 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">solve</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">object</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">solve</span><span class="p">(</span><span class="k">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">object</span><span class="p">:</span>
 
-        # <span class="nv">We</span> <span class="nv">init</span> <span class="nv">cvx</span> <span class="nv">problem</span> <span class="nv">here</span> <span class="nv">because</span> <span class="nv">pickling</span> <span class="nv">LP</span> <span class="nv">solver</span> <span class="nv">objects</span> <span class="nv">is</span> <span class="nv">problematic</span>
+        <span class="o">#</span> <span class="n">We</span> <span class="n">init</span> <span class="n">cvx</span> <span class="n">problem</span> <span class="n">here</span> <span class="n">because</span> <span class="n">pickling</span> <span class="n">LP</span> <span class="n">solver</span> <span class="n">objects</span> <span class="k">is</span> <span class="n">problematic</span>
 
-        # <span class="nv">by</span> <span class="nv">deferring</span> <span class="nv">it</span> <span class="nv">to</span> <span class="nv">here</span>, <span class="nv">worker</span> <span class="nv">threads</span> <span class="k">do</span> <span class="nv">the</span> <span class="nv">problem</span> <span class="nv">building</span> <span class="nv">themselves</span> <span class="nv">and</span> <span class="nv">we</span> <span class="nv">spare</span> <span class="nv">the</span> <span class="nv">serialization</span>
+        <span class="o">#</span> <span class="k">by</span> <span class="n">deferring</span> <span class="n">it</span> <span class="k">to</span> <span class="n">here</span><span class="p">,</span> <span class="n">worker</span> <span class="n">threads</span> <span class="k">do</span> <span class="n">the</span> <span class="n">problem</span> <span class="n">building</span> <span class="n">themselves</span> <span class="k">and</span> <span class="n">we</span> <span class="n">spare</span> <span class="n">the</span> <span class="n">serialization</span>
 
-        <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Problem</span><span class="p">(</span>
 
-            <span class="nv">objective</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">objective</span>, <span class="nv">constraints</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">constraints</span>
+            <span class="n">objective</span><span class="o">=</span><span class="k">self</span><span class="p">.</span><span class="n">objective</span><span class="p">,</span> <span class="k">constraints</span><span class="o">=</span><span class="k">self</span><span class="p">.</span><span class="k">constraints</span>
 
-        <span class="ss">)</span>
+        <span class="p">)</span>
 
-        <span class="nv">try</span>:
+        <span class="n">try</span><span class="p">:</span>
 
-            # <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">Solve</span><span class="s2">&quot;</span>, <span class="nv">self</span><span class="ss">)</span>
+            <span class="o">#</span> <span class="n">print</span><span class="p">(</span><span class="ss">&quot;Solve&quot;</span><span class="p">,</span> <span class="k">self</span><span class="p">)</span>
 
-            <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">self</span>.<span class="nv">solver_kwargs</span><span class="ss">)</span>
+            <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span><span class="p">.</span><span class="n">solve</span><span class="p">(</span><span class="o">**</span><span class="k">self</span><span class="p">.</span><span class="n">solver_kwargs</span><span class="p">)</span>
 
-        <span class="nv">except</span> <span class="nv">SolverError</span>:
+        <span class="k">except</span> <span class="n">SolverError</span><span class="p">:</span>
 
-            # <span class="nv">We</span> <span class="nv">ignore</span> <span class="nv">Solver</span> <span class="nv">Errors</span>, <span class="nv">which</span> <span class="nv">are</span> <span class="nv">common</span> <span class="nv">with</span> <span class="nv">our</span> <span class="nv">framework</span>:
+            <span class="o">#</span> <span class="n">We</span> <span class="k">ignore</span> <span class="n">Solver</span> <span class="n">Errors</span><span class="p">,</span> <span class="n">which</span> <span class="k">are</span> <span class="n">common</span> <span class="k">with</span> <span class="n">our</span> <span class="n">framework</span><span class="p">:</span>
 
-            # <span class="nv">We</span> <span class="nv">solve</span> <span class="nv">multiple</span> <span class="nv">problems</span> <span class="nv">per</span> <span class="nv">bound</span> <span class="nv">and</span> <span class="nv">choose</span> <span class="nv">a</span> <span class="nv">feasible</span> <span class="nv">solution</span> <span class="nv">later</span> <span class="ss">(</span><span class="nv">see</span> <span class="s1">&#39;</span><span class="s">_create_interval</span><span class="s1">&#39;</span><span class="ss">)</span>
+            <span class="o">#</span> <span class="n">We</span> <span class="n">solve</span> <span class="n">multiple</span> <span class="n">problems</span> <span class="n">per</span> <span class="n">bound</span> <span class="k">and</span> <span class="n">choose</span> <span class="n">a</span> <span class="n">feasible</span> <span class="n">solution</span> <span class="n">later</span> <span class="p">(</span><span class="n">see</span> <span class="s1">&#39;_create_interval&#39;</span><span class="p">)</span>
 
-            <span class="nv">pass</span>
+            <span class="n">pass</span>
 
-        <span class="nv">self</span>.<span class="nv">_solver_status</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_cvx_problem</span>.<span class="nv">status</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">_solver_status</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span><span class="p">.</span><span class="n">status</span>
 
-        # <span class="nv">self</span>.<span class="nv">_cvx_problem</span> <span class="o">=</span> <span class="nv">None</span>
+        <span class="o">#</span> <span class="k">self</span><span class="p">.</span><span class="n">_cvx_problem</span> <span class="o">=</span> <span class="k">None</span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+        <span class="k">return</span> <span class="k">self</span>
 </pre></div>
 
 
 </details>
 <h3 id="classification_svm">Classification_SVM</h3>
 <div class="codehilite"><pre><span></span><span class="k">class</span> <span class="nc">Classification_SVM</span><span class="p">(</span>
-    <span class="o">**</span><span class="n">parameters</span>
+    <span class="n">C</span><span class="o">=</span><span class="mi">1</span>
 <span class="p">)</span>
 </pre></div>
 
 
 <p>Helper class that provides a standard way to create an ABC using
 inheritance.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">Classification_SVM</span><span class="ss">(</span><span class="nv">InitModel</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="k">class</span> <span class="n">Classification_SVM</span>(<span class="n">InitModel</span>):
 
-    @<span class="nv">classmethod</span>
+    <span class="n">def</span> <span class="n">__init__</span>(<span class="k">self</span>, <span class="n">C</span>=<span class="mi">1</span>):
 
-    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
+        <span class="n">super</span>().<span class="n">__init__</span>()
 
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+        <span class="k">self</span>.<span class="n">C</span> = <span class="n">C</span>
 
-    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+    <span class="n">def</span> <span class="n">fit</span>(<span class="k">self</span>, <span class="o">X</span>, <span class="n">y</span>, **<span class="n">kwargs</span>):
 
-        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
+        (<span class="n">n</span>, <span class="n">d</span>) = <span class="o">X</span>.<span class="nb">shape</span>
 
-        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+        <span class="n">C</span> = <span class="k">self</span>.<span class="n">get_params</span>()[<span class="s">&quot;C&quot;</span>]
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">w</span> = <span class="n">cvx</span>.<span class="n">Variable</span>(<span class="nb">shape</span>=(<span class="n">d</span>), <span class="nb">name</span>=<span class="s">&quot;w&quot;</span>)
 
-        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">slack</span> = <span class="n">cvx</span>.<span class="n">Variable</span>(<span class="nb">shape</span>=(<span class="n">n</span>), <span class="nb">name</span>=<span class="s">&quot;slack&quot;</span>)
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">b</span> = <span class="n">cvx</span>.<span class="n">Variable</span>(<span class="nb">name</span>=<span class="s">&quot;bias&quot;</span>)
 
-        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">C</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">))</span>
+        <span class="n">objective</span> = <span class="n">cvx</span>.<span class="n">Minimize</span>(<span class="n">cvx</span>.<span class="n">norm</span>(<span class="n">w</span>, <span class="mi">1</span>) + <span class="n">C</span> * <span class="n">cvx</span>.<span class="nb">sum</span>(<span class="n">slack</span>))
 
-        <span class="nv">constraints</span> <span class="o">=</span> [<span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">X</span> <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">b</span><span class="ss">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">slack</span>, <span class="nv">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span>]
+        <span class="n">constraints</span> = [<span class="n">cvx</span>.<span class="n">multiply</span>(<span class="n">y</span>.<span class="n">T</span>, <span class="o">X</span> * <span class="n">w</span> + <span class="n">b</span>) &gt;= <span class="mi">1</span> - <span class="n">slack</span>, <span class="n">slack</span> &gt;= <span class="mi">0</span>]
 
-        # <span class="nv">Solve</span> <span class="nv">problem</span>.
+        <span class="c1"># Solve problem.</span>
 
-        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
+        <span class="n">problem</span> = <span class="n">cvx</span>.<span class="n">Problem</span>(<span class="n">objective</span>, <span class="n">constraints</span>)
 
-        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
+        <span class="n">problem</span>.<span class="n">solve</span>(**<span class="k">self</span>.<span class="n">SOLVER_PARAMS</span>)
 
-        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
+        <span class="n">w</span> = <span class="n">w</span>.<span class="nb">value</span>
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
+        <span class="n">b</span> = <span class="n">b</span>.<span class="nb">value</span>
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">b</span>.<span class="nv">value</span>
+        <span class="n">slack</span> = <span class="n">np</span>.<span class="n">asarray</span>(<span class="n">slack</span>.<span class="nb">value</span>).<span class="n">flatten</span>()
 
-        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
+        <span class="k">self</span>.<span class="n">model_state</span> = {<span class="s">&quot;w&quot;</span>: <span class="n">w</span>, <span class="s">&quot;b&quot;</span>: <span class="n">b</span>, <span class="s">&quot;slack&quot;</span>: <span class="n">slack</span>}
 
-        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>, <span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>: <span class="nv">b</span>, <span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span>: <span class="nv">slack</span>}
+        <span class="n">loss</span> = <span class="n">np</span>.<span class="nb">sum</span>(<span class="n">slack</span>)
 
-        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">)</span>
+        <span class="n">w_l1</span> = <span class="n">np</span>.<span class="n">linalg</span>.<span class="n">norm</span>(<span class="n">w</span>, <span class="nb">ord</span>=<span class="mi">1</span>)
 
-        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">linalg</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="nv">ord</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>
+        <span class="k">self</span>.<span class="n">constraints</span> = {<span class="s">&quot;loss&quot;</span>: <span class="n">loss</span>, <span class="s">&quot;w_l1&quot;</span>: <span class="n">w_l1</span>}
 
-        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>}
+        <span class="k">return</span> <span class="k">self</span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+    <span class="n">def</span> <span class="n">predict</span>(<span class="k">self</span>, <span class="o">X</span>):
 
-    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
+        <span class="n">w</span> = <span class="k">self</span>.<span class="n">model_state</span>[<span class="s">&quot;w&quot;</span>]
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
+        <span class="n">b</span> = <span class="k">self</span>.<span class="n">model_state</span>[<span class="s">&quot;b&quot;</span>]
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>]
+        <span class="n">y</span> = <span class="n">np</span>.<span class="n">dot</span>(<span class="o">X</span>, <span class="n">w</span>) + <span class="n">b</span> &gt;= <span class="mi">0</span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">b</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">y</span> = <span class="n">y</span>.<span class="n">astype</span>(<span class="nb">int</span>)
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
+        <span class="n">y</span>[<span class="n">y</span> == <span class="mi">0</span>] = -<span class="mi">1</span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">return</span> <span class="n">y</span>
 
-        <span class="k">return</span> <span class="nv">y</span>
+    <span class="n">def</span> <span class="n">score</span>(<span class="k">self</span>, <span class="o">X</span>, <span class="n">y</span>, **<span class="n">kwargs</span>):
 
-    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+        <span class="n">prediction</span> = <span class="k">self</span>.<span class="n">predict</span>(<span class="o">X</span>)
 
-        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+        <span class="c1"># Negative class is set to -1 for decision surface</span>
 
-        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
+        <span class="n">y</span> = <span class="n">LabelEncoder</span>().<span class="n">fit_transform</span>(<span class="n">y</span>)
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+        <span class="n">y</span>[<span class="n">y</span> == <span class="mi">0</span>] = -<span class="mi">1</span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="c1"># Using weighted f1 score to have a stable score for imbalanced datasets</span>
 
-        # <span class="nv">Using</span> <span class="nv">weighted</span> <span class="nv">f1</span> <span class="nv">score</span> <span class="nv">to</span> <span class="nv">have</span> <span class="nv">a</span> <span class="nv">stable</span> <span class="nv">score</span> <span class="k">for</span> <span class="nv">imbalanced</span> <span class="nv">datasets</span>
+        <span class="n">score</span> = <span class="n">fbeta_score</span>(<span class="n">y</span>, <span class="n">prediction</span>, <span class="n">beta</span>=<span class="mi">1</span>, <span class="n">average</span>=<span class="s">&quot;weighted&quot;</span>)
 
-        <span class="nv">score</span> <span class="o">=</span> <span class="nv">fbeta_score</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">beta</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">average</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">weighted</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="k">if</span> <span class="s">&quot;verbose&quot;</span> <span class="n">in</span> <span class="n">kwargs:</span>
 
-        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">verbose</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+            <span class="k">return</span> <span class="n">classification_report</span>(<span class="n">y</span>, <span class="n">prediction</span>)
 
-            <span class="k">return</span> <span class="nv">classification_report</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span><span class="ss">)</span>
-
-        <span class="k">return</span> <span class="nv">score</span>
+        <span class="k">return</span> <span class="n">score</span>
 </pre></div>
 
 
@@ -2473,53 +2457,17 @@ inheritance.</p>
 <li>abc.ABC</li>
 <li>sklearn.base.BaseEstimator</li>
 </ul>
-<h4 id="static-methods_2">Static methods</h4>
-<h5 id="hyperparameter">hyperparameter</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">hyperparameter</span><span class="p">(</span>
-
-<span class="p">)</span>
+<h4 id="class-variables">Class variables</h4>
+<div class="codehilite"><pre><span></span><span class="n">HYPERPARAMETER</span>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
-
-    <span class="nv">def</span> <span class="nv">hyperparameter</span><span class="ss">(</span><span class="nv">cls</span><span class="ss">)</span>:
-
-        <span class="k">return</span> [<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+<div class="codehilite"><pre><span></span><span class="n">SOLVER_PARAMS</span>
 </pre></div>
 
 
-</details>
-<h5 id="make_scorer">make_scorer</h5>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_scorer</span><span class="p">(</span>
-
-<span class="p">)</span>
-</pre></div>
-
-
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    @<span class="nv">classmethod</span>
-
-    <span class="nv">def</span> <span class="nv">make_scorer</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
-
-        <span class="k">return</span> <span class="nv">None</span>, <span class="nv">None</span>
-</pre></div>
-
-
-</details>
 <h4 id="instance-variables_2">Instance variables</h4>
 <div class="codehilite"><pre><span></span><span class="n">L1_factor</span>
-</pre></div>
-
-
-<div class="codehilite"><pre><span></span><span class="n">constraints</span>
-</pre></div>
-
-
-<div class="codehilite"><pre><span></span><span class="n">model_state</span>
-</pre></div>
-
-
-<div class="codehilite"><pre><span></span><span class="n">solver_params</span>
 </pre></div>
 
 
@@ -2534,45 +2482,43 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">fit</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="ss">(</span><span class="nv">n</span>, <span class="nv">d</span><span class="ss">)</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>
+        <span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">d</span><span class="p">)</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span>
 
-        <span class="nv">C</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="s2">&quot;</span><span class="s">C</span><span class="s2">&quot;</span>]
+        <span class="k">C</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">get_params</span><span class="p">()[</span><span class="ss">&quot;C&quot;</span><span class="p">]</span>
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">d</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="k">Variable</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="ss">&quot;w&quot;</span><span class="p">)</span>
 
-        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">n</span><span class="ss">)</span>, <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="k">Variable</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="ss">&quot;slack&quot;</span><span class="p">)</span>
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Variable</span><span class="ss">(</span><span class="nv">name</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">bias</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="k">Variable</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="ss">&quot;bias&quot;</span><span class="p">)</span>
 
-        <span class="nv">objective</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Minimize</span><span class="ss">(</span><span class="nv">cvx</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="mi">1</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">C</span> <span class="o">*</span> <span class="nv">cvx</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">))</span>
+        <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cvx</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="k">C</span> <span class="o">*</span> <span class="n">cvx</span><span class="p">.</span><span class="k">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">))</span>
 
-        <span class="nv">constraints</span> <span class="o">=</span> [<span class="nv">cvx</span>.<span class="nv">multiply</span><span class="ss">(</span><span class="nv">y</span>.<span class="nv">T</span>, <span class="nv">X</span> <span class="o">*</span> <span class="nv">w</span> <span class="o">+</span> <span class="nv">b</span><span class="ss">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="nv">slack</span>, <span class="nv">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span>]
+        <span class="k">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">cvx</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">y</span><span class="p">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span> <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
 
-        # <span class="nv">Solve</span> <span class="nv">problem</span>.
+        <span class="o">#</span> <span class="n">Solve</span> <span class="n">problem</span><span class="p">.</span>
 
-        <span class="nv">solver_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">solver_params</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Problem</span><span class="p">(</span><span class="n">objective</span><span class="p">,</span> <span class="k">constraints</span><span class="p">)</span>
 
-        <span class="nv">problem</span> <span class="o">=</span> <span class="nv">cvx</span>.<span class="nv">Problem</span><span class="ss">(</span><span class="nv">objective</span>, <span class="nv">constraints</span><span class="ss">)</span>
+        <span class="n">problem</span><span class="p">.</span><span class="n">solve</span><span class="p">(</span><span class="o">**</span><span class="k">self</span><span class="p">.</span><span class="n">SOLVER_PARAMS</span><span class="p">)</span>
 
-        <span class="nv">problem</span>.<span class="nv">solve</span><span class="ss">(</span><span class="o">**</span><span class="nv">solver_params</span><span class="ss">)</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="p">.</span><span class="n">value</span>
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">w</span>.<span class="nv">value</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">b</span><span class="p">.</span><span class="n">value</span>
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">b</span>.<span class="nv">value</span>
+        <span class="n">slack</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">slack</span><span class="p">.</span><span class="n">value</span><span class="p">).</span><span class="n">flatten</span><span class="p">()</span>
 
-        <span class="nv">slack</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">slack</span>.<span class="nv">value</span><span class="ss">)</span>.<span class="nv">flatten</span><span class="ss">()</span>
+        <span class="k">self</span><span class="p">.</span><span class="n">model_state</span> <span class="o">=</span> <span class="err">{</span><span class="ss">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">,</span> <span class="ss">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span><span class="p">,</span> <span class="ss">&quot;slack&quot;</span><span class="p">:</span> <span class="n">slack</span><span class="err">}</span>
 
-        <span class="nv">self</span>.<span class="nv">model_state</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>: <span class="nv">w</span>, <span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>: <span class="nv">b</span>, <span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span>: <span class="nv">slack</span>}
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="k">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span>
 
-        <span class="nv">loss</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">slack</span><span class="ss">)</span>
+        <span class="n">w_l1</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">linalg</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">ord</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="nv">w_l1</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">linalg</span>.<span class="nv">norm</span><span class="ss">(</span><span class="nv">w</span>, <span class="nv">ord</span><span class="o">=</span><span class="mi">1</span><span class="ss">)</span>
+        <span class="k">self</span><span class="p">.</span><span class="k">constraints</span> <span class="o">=</span> <span class="err">{</span><span class="ss">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">,</span> <span class="ss">&quot;w_l1&quot;</span><span class="p">:</span> <span class="n">w_l1</span><span class="err">}</span>
 
-        <span class="nv">self</span>.<span class="nv">constraints</span> <span class="o">=</span> {<span class="s2">&quot;</span><span class="s">loss</span><span class="s2">&quot;</span>: <span class="nv">loss</span>, <span class="s2">&quot;</span><span class="s">w_l1</span><span class="s2">&quot;</span>: <span class="nv">w_l1</span>}
-
-        <span class="k">return</span> <span class="nv">self</span>
+        <span class="k">return</span> <span class="k">self</span>
 </pre></div>
 
 
@@ -2587,15 +2533,83 @@ inheritance.</p>
 
 <p>Get parameters for this estimator.</p>
 <h2 id="parameters_1">Parameters</h2>
-<p>deep : boolean, optional
+<p>deep : bool, default=True
     If True, will return the parameters for this estimator and
     contained subobjects that are estimators.</p>
 <h2 id="returns">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_params</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">deep</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">hyperparam</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
+
+<span class="ss">        Get parameters for this estimator.</span>
+
+<span class="ss">        Parameters</span>
+
+<span class="ss">        ----------</span>
+
+<span class="ss">        deep : bool, default=True</span>
+
+<span class="ss">            If True, will return the parameters for this estimator and</span>
+
+<span class="ss">            contained subobjects that are estimators.</span>
+
+<span class="ss">        Returns</span>
+
+<span class="ss">        -------</span>
+
+<span class="ss">        params : mapping of string to any</span>
+
+<span class="ss">            Parameter names mapped to their values.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dict</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_param_names</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getattr</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">key</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">AttributeError</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">warnings</span><span class="p">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;From version 0.24, get_params will raise an &#39;</span><span class="w"></span>
+
+<span class="w">                              </span><span class="s1">&#39;AttributeError if a parameter cannot be &#39;</span><span class="w"></span>
+
+<span class="w">                              </span><span class="s1">&#39;retrieved as an instance attribute. Previously &#39;</span><span class="w"></span>
+
+<span class="w">                              </span><span class="s1">&#39;it would return None.&#39;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                              </span><span class="n">FutureWarning</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">deep</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">hasattr</span><span class="p">(</span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;get_params&#39;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">deep_items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">.</span><span class="n">get_params</span><span class="p">().</span><span class="n">items</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">out</span><span class="p">.</span><span class="k">update</span><span class="p">((</span><span class="k">key</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;__&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">deep_items</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">out</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">out</span><span class="w"></span>
+</pre></div>
+
+
+</details>
+<h5 id="make_scorer">make_scorer</h5>
+<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">make_scorer</span><span class="p">(</span>
+    <span class="bp">self</span>
+<span class="p">)</span>
+</pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">make_scorer</span><span class="p">(</span><span class="k">self</span><span class="p">):</span>
+
+        <span class="k">return</span> <span class="k">None</span><span class="p">,</span> <span class="k">None</span>
 </pre></div>
 
 
@@ -2608,19 +2622,19 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">predict</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">predict</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
-        <span class="nv">w</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">w</span><span class="s2">&quot;</span>]
+        <span class="n">w</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">model_state</span><span class="p">[</span><span class="ss">&quot;w&quot;</span><span class="p">]</span>
 
-        <span class="nv">b</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">model_state</span>[<span class="s2">&quot;</span><span class="s">b</span><span class="s2">&quot;</span>]
+        <span class="n">b</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">model_state</span><span class="p">[</span><span class="ss">&quot;b&quot;</span><span class="p">]</span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">dot</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">w</span><span class="ss">)</span> <span class="o">+</span> <span class="nv">b</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">dot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span> <span class="o">+</span> <span class="n">b</span> <span class="o">&gt;=</span> <span class="mi">0</span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">y</span>.<span class="nv">astype</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        <span class="k">return</span> <span class="nv">y</span>
+        <span class="k">return</span> <span class="n">y</span>
 </pre></div>
 
 
@@ -2635,25 +2649,25 @@ inheritance.</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">score</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="nv">prediction</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">predict</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+        <span class="n">prediction</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-        # <span class="nv">Negative</span> <span class="nv">class</span> <span class="nv">is</span> <span class="nv">set</span> <span class="nv">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="nv">decision</span> <span class="nv">surface</span>
+        <span class="o">#</span> <span class="n">Negative</span> <span class="k">class</span> <span class="k">is</span> <span class="k">set</span> <span class="k">to</span> <span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">decision</span> <span class="n">surface</span>
 
-        <span class="nv">y</span> <span class="o">=</span> <span class="nv">LabelEncoder</span><span class="ss">()</span>.<span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">y</span><span class="ss">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">LabelEncoder</span><span class="p">().</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
 
-        <span class="nv">y</span>[<span class="nv">y</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="n">y</span><span class="p">[</span><span class="n">y</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        # <span class="nv">Using</span> <span class="nv">weighted</span> <span class="nv">f1</span> <span class="nv">score</span> <span class="nv">to</span> <span class="nv">have</span> <span class="nv">a</span> <span class="nv">stable</span> <span class="nv">score</span> <span class="k">for</span> <span class="nv">imbalanced</span> <span class="nv">datasets</span>
+        <span class="o">#</span> <span class="k">Using</span> <span class="n">weighted</span> <span class="n">f1</span> <span class="n">score</span> <span class="k">to</span> <span class="n">have</span> <span class="n">a</span> <span class="k">stable</span> <span class="n">score</span> <span class="k">for</span> <span class="n">imbalanced</span> <span class="n">datasets</span>
 
-        <span class="nv">score</span> <span class="o">=</span> <span class="nv">fbeta_score</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span>, <span class="nv">beta</span><span class="o">=</span><span class="mi">1</span>, <span class="nv">average</span><span class="o">=</span><span class="s2">&quot;</span><span class="s">weighted</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">score</span> <span class="o">=</span> <span class="n">fbeta_score</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">average</span><span class="o">=</span><span class="ss">&quot;weighted&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;</span><span class="s">verbose</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">kwargs</span>:
+        <span class="k">if</span> <span class="ss">&quot;verbose&quot;</span> <span class="k">in</span> <span class="n">kwargs</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="nv">classification_report</span><span class="ss">(</span><span class="nv">y</span>, <span class="nv">prediction</span><span class="ss">)</span>
+            <span class="k">return</span> <span class="n">classification_report</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">prediction</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nv">score</span>
+        <span class="k">return</span> <span class="n">score</span>
 </pre></div>
 
 
@@ -2671,21 +2685,90 @@ inheritance.</p>
 (such as pipelines). The latter have parameters of the form
 <code>&lt;component&gt;__&lt;parameter&gt;</code> so that it's possible to update each
 component of a nested object.</p>
+<h2 id="parameters_2">Parameters</h2>
+<p>**params : dict
+    Estimator parameters.</p>
 <h2 id="returns_1">Returns</h2>
-<p>self</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nb">params</span><span class="ss">)</span>:
+<p>self : object
+    Estimator instance.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">set_params</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">p</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nb">params</span>.<span class="nv">items</span><span class="ss">()</span>:
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-            <span class="nv">self</span>.<span class="nv">hyperparam</span>[<span class="nv">p</span>] <span class="o">=</span> <span class="nv">value</span>
+<span class="ss">        Set the parameters of this estimator.</span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+<span class="ss">        The method works on simple estimators as well as on nested objects</span>
+
+<span class="ss">        (such as pipelines). The latter have parameters of the form</span>
+
+<span class="ss">        ``&lt;component&gt;__&lt;parameter&gt;`` so that it&#39;s possible to update each</span>
+
+<span class="ss">        component of a nested object.</span>
+
+<span class="ss">        Parameters</span>
+
+<span class="ss">        ----------</span>
+
+<span class="ss">        **params : dict</span>
+
+<span class="ss">            Estimator parameters.</span>
+
+<span class="ss">        Returns</span>
+
+<span class="ss">        -------</span>
+
+<span class="ss">        self : object</span>
+
+<span class="ss">            Estimator instance.</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">params</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">Simple</span><span class="w"> </span><span class="n">optimization</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">gain</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="p">(</span><span class="n">inspect</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">slow</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">valid_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">nested_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultdict</span><span class="p">(</span><span class="n">dict</span><span class="p">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">grouped</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">prefix</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">delim</span><span class="p">,</span><span class="w"> </span><span class="n">sub_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">key</span><span class="p">.</span><span class="k">partition</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">valid_params</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter %s for estimator %s. &#39;</span><span class="w"></span>
+
+<span class="w">                                 </span><span class="s1">&#39;Check the list of available parameters &#39;</span><span class="w"></span>
+
+<span class="w">                                 </span><span class="s1">&#39;with `estimator.get_params().keys()`.&#39;</span><span class="w"> </span><span class="o">%</span><span class="w"></span>
+
+<span class="w">                                 </span><span class="p">(</span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nl">delim</span><span class="p">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">nested_params</span><span class="o">[</span><span class="n">key</span><span class="o">][</span><span class="n">sub_key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">setattr</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">valid_params</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">sub_params</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">nested_params</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">valid_params</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="p">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -2754,7 +2837,7 @@ component of a nested object.</p>
       
     </div>
     
-      <script src="../../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../../.."}})</script>
       

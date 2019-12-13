@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -750,7 +750,7 @@ To increase robustness we use cross validation.</p>
 
 <span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">RandomizedSearchCV</span>
 
@@ -772,9 +772,9 @@ To increase robustness we use cross validation.</p>
 
     <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 
-    <span class="n">lupi_features</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+    <span class="n">lupi_features</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 
-    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span>
+    <span class="n">kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">InitModel</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 
@@ -826,13 +826,19 @@ To increase robustness we use cross validation.</p>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">model</span> <span class="o">=</span> <span class="n">model_template</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_template</span><span class="p">(</span><span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+
+        <span class="n">model</span> <span class="o">=</span> <span class="n">model_template</span><span class="p">()</span>
 
     <span class="n">scorer</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">make_scorer</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">scorer</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">scorer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
-        <span class="n">refit</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">refit</span> <span class="o">=</span> <span class="kc">True</span>
 
     <span class="k">else</span><span class="p">:</span>
 
@@ -870,7 +876,7 @@ To increase robustness we use cross validation.</p>
 
         <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
 
-        <span class="n">searcher</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+        <span class="n">searcher</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
     <span class="n">best_model</span><span class="p">:</span> <span class="n">InitModel</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">best_estimator_</span>
 
@@ -878,21 +884,21 @@ To increase robustness we use cross validation.</p>
 
     <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;Best found baseline model&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;Best found baseline model&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
 
         <span class="n">pprint</span><span class="p">(</span><span class="n">best_model</span><span class="p">)</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;score: &quot;</span><span class="p">,</span> <span class="n">best_score</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;score: &quot;</span><span class="p">,</span> <span class="n">best_score</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">best_model</span><span class="o">.</span><span class="n">constraints</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
-            <span class="n">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: {v}&quot;</span><span class="p">))</span>
+            <span class="n">pprint</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{k}</span><span class="s2">: </span><span class="si">{v}</span><span class="s2">&quot;</span><span class="p">))</span>
 
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">best_model</span><span class="o">.</span><span class="n">model_state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
             <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">):</span>
 
-                <span class="n">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: shape {v.shape}&quot;</span><span class="p">))</span>
+                <span class="n">pprint</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{k}</span><span class="s2">: shape </span><span class="si">{v.shape}</span><span class="s2">&quot;</span><span class="p">))</span>
 
             <span class="k">else</span><span class="p">:</span>
 
@@ -900,9 +906,9 @@ To increase robustness we use cross validation.</p>
 
                     <span class="k">continue</span>
 
-                <span class="n">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: {v}&quot;</span><span class="p">))</span>
+                <span class="n">pprint</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{k}</span><span class="s2">: </span><span class="si">{v}</span><span class="s2">&quot;</span><span class="p">))</span>
 
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">best_model</span><span class="p">,</span> <span class="n">best_score</span>
 </pre></div>
@@ -946,161 +952,168 @@ lupi_features : int
     Amount of lupi_features
 kwargs : dict
     Placeholder, dict to pass into fit functions.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">find_best_model</span><span class="ss">(</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="nf">find_best_model</span><span class="p">(</span>
 
-    <span class="nv">model_template</span>: <span class="nv">InitModel</span>,
+    <span class="n">model_template</span><span class="p">:</span> <span class="n">InitModel</span><span class="p">,</span>
 
-    <span class="nv">hyperparameters</span>: <span class="nv">dict</span>,
+    <span class="n">hyperparameters</span><span class="p">:</span> <span class="n">dict</span><span class="p">,</span>
 
-    <span class="nv">data</span>: <span class="nv">Tuple</span>[<span class="nv">np</span>.<span class="nv">ndarray</span>, <span class="nv">np</span>.<span class="nv">ndarray</span>],
+    <span class="n">data</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="p">.</span><span class="n">ndarray</span><span class="p">],</span>
 
-    <span class="nv">random_state</span>: <span class="nv">np</span>.<span class="k">random</span>.<span class="nv">RandomState</span>,
+    <span class="n">random_state</span><span class="p">:</span> <span class="n">np</span><span class="p">.</span><span class="n">random</span><span class="p">.</span><span class="n">RandomState</span><span class="p">,</span>
 
-    <span class="nv">n_iter</span>: <span class="nv">int</span>,
+    <span class="n">n_iter</span><span class="p">:</span> <span class="kt">int</span><span class="p">,</span>
 
-    <span class="nv">n_jobs</span>: <span class="nv">int</span>,
+    <span class="n">n_jobs</span><span class="p">:</span> <span class="kt">int</span><span class="p">,</span>
 
-    <span class="nv">verbose</span>: <span class="nv">int</span> <span class="o">=</span> <span class="mi">0</span>,
+    <span class="n">verbose</span><span class="p">:</span> <span class="kt">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 
-    <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">None</span>,
+    <span class="n">lupi_features</span><span class="o">=</span><span class="n">None</span><span class="p">,</span>
 
-    <span class="nv">kwargs</span>: <span class="nv">dict</span> <span class="o">=</span> <span class="nv">None</span>,
+    <span class="n">kwargs</span><span class="p">:</span> <span class="n">dict</span> <span class="o">=</span> <span class="n">None</span><span class="p">,</span>
 
-<span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">Tuple</span>[<span class="nv">InitModel</span>, <span class="nv">float</span>]:
-
-    <span class="s2">&quot;&quot;&quot;</span>
-
-    <span class="nv">Search</span> <span class="nv">function</span> <span class="nv">which</span> <span class="nv">wraps</span> `<span class="nv">sklearns</span>`  `<span class="nv">RandomizedSearchCV</span>` <span class="nv">function</span>.
-
-    <span class="nv">We</span> <span class="nv">use</span> <span class="nv">distributions</span> <span class="nv">and</span> <span class="nv">parameters</span> <span class="nv">defined</span> <span class="nv">in</span> <span class="nv">the</span> `<span class="nv">model_template</span>`.
-
-    <span class="nv">Parameters</span>
-
-    <span class="o">----------</span>
-
-    <span class="nv">model_template</span> : <span class="nv">InitModel</span>
-
-        <span class="nv">A</span> <span class="nv">model</span> <span class="nv">template</span> <span class="nv">which</span> <span class="nv">is</span> <span class="nv">used</span> <span class="nv">to</span> <span class="nv">fit</span> <span class="nv">data</span>.
-
-    <span class="nv">hyperparameters</span> : <span class="nv">dict</span>
-
-        <span class="nv">Dictionary</span> <span class="nv">of</span> <span class="nv">hyperparameters</span>.
-
-    <span class="nv">data</span> : <span class="nv">tuple</span>
-
-        <span class="nv">Tuple</span> <span class="nv">of</span> <span class="nv">data</span> <span class="ss">(</span><span class="nv">X</span>,<span class="nv">y</span><span class="ss">)</span>
-
-    <span class="nv">random_state</span> : <span class="nv">RandomState</span>
-
-        <span class="nv">numpy</span> <span class="nv">RandomState</span> <span class="nv">object</span>
-
-    <span class="nv">n_iter</span> : <span class="nv">int</span>
-
-        <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">search</span> <span class="nv">samples</span>.
-
-    <span class="nv">n_jobs</span> : <span class="nv">int</span>
-
-        <span class="nv">Allows</span> <span class="nv">multiprocessing</span> <span class="nv">with</span> `<span class="nv">n_jobs</span>` <span class="nv">threads</span>.
-
-    <span class="nv">verbose</span> : <span class="nv">int</span>
-
-        <span class="nv">Allows</span> <span class="nv">verbose</span> <span class="nv">output</span> <span class="nv">when</span> `<span class="nv">verbose</span><span class="o">&gt;</span><span class="mi">0</span>`.
-
-    <span class="nv">lupi_features</span> : <span class="nv">int</span>
-
-        <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">lupi_features</span>
-
-    <span class="nv">kwargs</span> : <span class="nv">dict</span>
-
-        <span class="nv">Placeholder</span>, <span class="nv">dict</span> <span class="nv">to</span> <span class="nv">pass</span> <span class="nv">into</span> <span class="nv">fit</span> <span class="nv">functions</span>.
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">InitModel</span><span class="p">,</span> <span class="kt">float</span><span class="p">]:</span>
 
     <span class="s2">&quot;&quot;&quot;</span>
 
-    <span class="nv">model</span> <span class="o">=</span> <span class="nv">model_template</span><span class="ss">()</span>
+<span class="s2">    Search function which wraps `sklearns`  `RandomizedSearchCV` function.</span>
 
-    <span class="nv">scorer</span>, <span class="nv">metric</span> <span class="o">=</span> <span class="nv">model</span>.<span class="nv">make_scorer</span><span class="ss">()</span>
+<span class="s2">    We use distributions and parameters defined in the `model_template`.</span>
 
-    <span class="k">if</span> <span class="nv">scorer</span> <span class="nv">is</span> <span class="nv">None</span>:
+<span class="s2">    Parameters</span>
 
-        <span class="nv">refit</span> <span class="o">=</span> <span class="nv">True</span>
+<span class="s2">    ----------</span>
 
-    <span class="k">else</span>:
+<span class="s2">    model_template : InitModel</span>
 
-        <span class="nv">refit</span> <span class="o">=</span> <span class="nv">metric</span>
+<span class="s2">        A model template which is used to fit data.</span>
 
-    <span class="nv">searcher</span> <span class="o">=</span> <span class="nv">RandomizedSearchCV</span><span class="ss">(</span>
+<span class="s2">    hyperparameters : dict</span>
 
-        <span class="nv">model</span>,
+<span class="s2">        Dictionary of hyperparameters.</span>
 
-        <span class="nv">hyperparameters</span>,
+<span class="s2">    data : tuple</span>
 
-        <span class="nv">scoring</span><span class="o">=</span><span class="nv">scorer</span>,
+<span class="s2">        Tuple of data (X,y)</span>
 
-        <span class="nv">random_state</span><span class="o">=</span><span class="nv">random_state</span>,
+<span class="s2">    random_state : RandomState</span>
 
-        <span class="nv">refit</span><span class="o">=</span><span class="nv">refit</span>,
+<span class="s2">        numpy RandomState object</span>
 
-        <span class="nv">cv</span><span class="o">=</span><span class="mi">3</span>,
+<span class="s2">    n_iter : int</span>
 
-        <span class="nv">n_iter</span><span class="o">=</span><span class="nv">n_iter</span>,
+<span class="s2">        Amount of search samples.</span>
 
-        <span class="nv">n_jobs</span><span class="o">=</span><span class="nv">n_jobs</span>,
+<span class="s2">    n_jobs : int</span>
 
-        <span class="nv">error_score</span><span class="o">=</span><span class="nv">np</span>.<span class="nv">nan</span>,
+<span class="s2">        Allows multiprocessing with `n_jobs` threads.</span>
 
-        <span class="nv">verbose</span><span class="o">=</span><span class="nv">verbose</span>,
+<span class="s2">    verbose : int</span>
 
-    <span class="ss">)</span>
+<span class="s2">        Allows verbose output when `verbose&gt;0`.</span>
 
-    <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
+<span class="s2">    lupi_features : int</span>
 
-    # <span class="nv">Ignore</span> <span class="nv">warnings</span> <span class="k">for</span> <span class="nv">extremely</span> <span class="nv">bad</span> <span class="nv">model_state</span> <span class="ss">(</span><span class="nv">when</span> <span class="nv">precision</span><span class="o">=</span><span class="mi">0</span><span class="ss">)</span>
+<span class="s2">        Amount of lupi_features</span>
 
-    <span class="nv">with</span> <span class="nv">warnings</span>.<span class="nv">catch_warnings</span><span class="ss">()</span>:
+<span class="s2">    kwargs : dict</span>
 
-        <span class="nv">warnings</span>.<span class="nv">simplefilter</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">ignore</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="s2">        Placeholder, dict to pass into fit functions.</span>
 
-        <span class="nv">searcher</span>.<span class="nv">fit</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
+<span class="s2">    &quot;&quot;&quot;</span>
 
-    <span class="nv">best_model</span>: <span class="nv">InitModel</span> <span class="o">=</span> <span class="nv">searcher</span>.<span class="nv">best_estimator_</span>
+    <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-    <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">best_model</span>.<span class="nv">score</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="nf">model_template</span><span class="p">(</span><span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nv">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span>:
+    <span class="k">else</span><span class="p">:</span>
 
-        <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">*</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">20</span>, <span class="s2">&quot;</span><span class="s">Best found baseline model</span><span class="s2">&quot;</span>, <span class="s2">&quot;</span><span class="s">*</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="ss">)</span>
+        <span class="n">model</span> <span class="o">=</span> <span class="nf">model_template</span><span class="p">()</span>
 
-        <span class="nv">pprint</span><span class="ss">(</span><span class="nv">best_model</span><span class="ss">)</span>
+    <span class="n">scorer</span><span class="p">,</span> <span class="n">metric</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="nf">make_scorer</span><span class="p">()</span>
 
-        <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">score: </span><span class="s2">&quot;</span>, <span class="nv">best_score</span><span class="ss">)</span>
+    <span class="k">if</span> <span class="n">scorer</span> <span class="k">is</span> <span class="n">None</span><span class="p">:</span>
 
-        <span class="k">for</span> <span class="nv">k</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">best_model</span>.<span class="nv">constraints</span>.<span class="nv">items</span><span class="ss">()</span>:
+        <span class="n">refit</span> <span class="o">=</span> <span class="no">True</span>
 
-            <span class="nv">pprint</span><span class="ss">((</span><span class="nv">f</span><span class="s2">&quot;</span><span class="s">{k}: {v}</span><span class="s2">&quot;</span><span class="ss">))</span>
+    <span class="k">else</span><span class="p">:</span>
 
-        <span class="k">for</span> <span class="nv">k</span>, <span class="nv">v</span> <span class="nv">in</span> <span class="nv">best_model</span>.<span class="nv">model_state</span>.<span class="nv">items</span><span class="ss">()</span>:
+        <span class="n">refit</span> <span class="o">=</span> <span class="n">metric</span>
 
-            <span class="k">if</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">v</span>, <span class="s2">&quot;</span><span class="s">shape</span><span class="s2">&quot;</span><span class="ss">)</span>:
+    <span class="n">searcher</span> <span class="o">=</span> <span class="nf">RandomizedSearchCV</span><span class="p">(</span>
 
-                <span class="nv">pprint</span><span class="ss">((</span><span class="nv">f</span><span class="s2">&quot;</span><span class="s">{k}: shape {v.shape}</span><span class="s2">&quot;</span><span class="ss">))</span>
+        <span class="n">model</span><span class="p">,</span>
 
-            <span class="k">else</span>:
+        <span class="n">hyperparameters</span><span class="p">,</span>
 
-                <span class="k">if</span> <span class="s2">&quot;</span><span class="s">slack</span><span class="s2">&quot;</span> <span class="nv">in</span> <span class="nv">k</span>:
+        <span class="n">scoring</span><span class="o">=</span><span class="n">scorer</span><span class="p">,</span>
+
+        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+
+        <span class="n">refit</span><span class="o">=</span><span class="n">refit</span><span class="p">,</span>
+
+        <span class="n">cv</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+
+        <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
+
+        <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+
+        <span class="n">error_score</span><span class="o">=</span><span class="n">np</span><span class="p">.</span><span class="n">nan</span><span class="p">,</span>
+
+        <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+
+    <span class="p">)</span>
+
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="c1"># Ignore warnings for extremely bad model_state (when precision=0)</span>
+
+    <span class="k">with</span> <span class="n">warnings</span><span class="p">.</span><span class="nf">catch_warnings</span><span class="p">():</span>
+
+        <span class="n">warnings</span><span class="p">.</span><span class="nf">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+
+        <span class="n">searcher</span><span class="p">.</span><span class="nf">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">best_model</span><span class="p">:</span> <span class="n">InitModel</span> <span class="o">=</span> <span class="n">searcher</span><span class="p">.</span><span class="n">best_estimator_</span>
+
+    <span class="n">best_score</span> <span class="o">=</span> <span class="n">best_model</span><span class="p">.</span><span class="nf">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+
+        <span class="nf">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;Best found baseline model&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">20</span><span class="p">)</span>
+
+        <span class="nf">pprint</span><span class="p">(</span><span class="n">best_model</span><span class="p">)</span>
+
+        <span class="nf">print</span><span class="p">(</span><span class="s2">&quot;score: &quot;</span><span class="p">,</span> <span class="n">best_score</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="n">best_model</span><span class="p">.</span><span class="n">constraints</span><span class="p">.</span><span class="nf">items</span><span class="p">():</span>
+
+            <span class="nf">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: {v}&quot;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="k">in</span> <span class="n">best_model</span><span class="p">.</span><span class="n">model_state</span><span class="p">.</span><span class="nf">items</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="nf">hasattr</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;shape&quot;</span><span class="p">):</span>
+
+                <span class="nf">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: shape {v.shape}&quot;</span><span class="p">))</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="k">if</span> <span class="s2">&quot;slack&quot;</span> <span class="k">in</span> <span class="n">k</span><span class="p">:</span>
 
                     <span class="k">continue</span>
 
-                <span class="nv">pprint</span><span class="ss">((</span><span class="nv">f</span><span class="s2">&quot;</span><span class="s">{k}: {v}</span><span class="s2">&quot;</span><span class="ss">))</span>
+                <span class="nf">pprint</span><span class="p">((</span><span class="n">f</span><span class="s2">&quot;{k}: {v}&quot;</span><span class="p">))</span>
 
-        <span class="nv">print</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">*</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="ss">)</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="nv">best_model</span>, <span class="nv">best_score</span>
+    <span class="k">return</span> <span class="n">best_model</span><span class="p">,</span> <span class="n">best_score</span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -1169,7 +1182,7 @@ kwargs : dict
       
     </div>
     
-      <script src="../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       

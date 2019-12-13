@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -625,6 +625,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns_7" class="md-nav__link">
     Returns
   </a>
@@ -645,7 +652,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters_7" class="md-nav__link">
+  <a href="#parameters_8" class="md-nav__link">
     Parameters
   </a>
   
@@ -1275,6 +1282,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#parameters_7" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#returns_7" class="md-nav__link">
     Returns
   </a>
@@ -1295,7 +1309,7 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters_7" class="md-nav__link">
+  <a href="#parameters_8" class="md-nav__link">
     Parameters
   </a>
   
@@ -1573,15 +1587,23 @@
 
         <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_intervals</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span>
 
-            <span class="p">)</span>
+                <span class="n">feature_classes</span><span class="p">,</span>
+
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_intervals</span><span class="p">()</span>
 
         <span class="k">else</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="n">feature_classes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_lupi_intervals</span><span class="p">(</span>
+            <span class="p">(</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span>
+
+                <span class="n">feature_classes</span><span class="p">,</span>
+
+            <span class="p">)</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">get_normalized_lupi_intervals</span><span class="p">(</span>
 
                 <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span>
 
@@ -1837,409 +1859,417 @@
 <p>All estimators should specify all the parameters that can be set
 at the class level in their <code>__init__</code> as explicit keyword
 arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">class</span> <span class="nv">FRIBase</span><span class="ss">(</span><span class="nv">BaseEstimator</span>, <span class="nv">SelectorMixin</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">class</span> <span class="nf">FRIBase</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">SelectorMixin</span><span class="p">):</span>
 
-    <span class="nv">def</span> <span class="nv">__init__</span><span class="ss">(</span>
+    <span class="n">def</span> <span class="nf">__init__</span><span class="p">(</span>
 
-        <span class="nv">self</span>,
+        <span class="n">self</span><span class="p">,</span>
 
-        <span class="nv">problem_type</span>: <span class="nv">ProblemType</span>,
+        <span class="n">problem_type</span><span class="p">:</span> <span class="n">ProblemType</span><span class="p">,</span>
 
-        <span class="nv">random_state</span><span class="o">=</span><span class="nv">None</span>,
+        <span class="n">random_state</span><span class="o">=</span><span class="n">None</span><span class="p">,</span>
 
-        <span class="nv">n_jobs</span><span class="o">=</span><span class="mi">1</span>,
+        <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
 
-        <span class="nv">verbose</span><span class="o">=</span><span class="mi">0</span>,
+        <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
 
-        <span class="nv">n_param_search</span><span class="o">=</span><span class="mi">30</span>,
+        <span class="n">n_param_search</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
 
-        <span class="nv">n_probe_features</span><span class="o">=</span><span class="mi">40</span>,
+        <span class="n">n_probe_features</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
 
-        <span class="nv">normalize</span><span class="o">=</span><span class="nv">True</span>,
+        <span class="n">normalize</span><span class="o">=</span><span class="no">True</span><span class="p">,</span>
 
-        <span class="o">**</span><span class="nv">kwargs</span>,
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 
-    <span class="ss">)</span>:
-
-        <span class="s2">&quot;&quot;&quot;</span>
-
-        <span class="nv">Parameters</span>
-
-        <span class="o">----------</span>
-
-        <span class="nv">problem_type</span> : <span class="nv">abc</span>.<span class="nv">ABCMeta</span>
-
-        <span class="nv">random_state</span> : <span class="nv">Union</span>[<span class="nv">mtrand</span>.<span class="nv">RandomState</span>, <span class="nv">int</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>, <span class="nv">None</span>]
-
-        <span class="nv">n_jobs</span> : <span class="nv">int</span>
-
-        <span class="nv">verbose</span> : <span class="nv">int</span>
-
-        <span class="nv">n_param_search</span> : <span class="nv">int</span>
-
-        <span class="nv">n_probe_features</span> : <span class="nv">int</span>
-
-        <span class="nv">normalize</span> : <span class="nv">bool</span>
-
-        <span class="nv">kwargs</span> :
-
-        <span class="nv">Attributes</span>
-
-        <span class="o">----------</span>
-
-        <span class="nv">interval_</span> : <span class="nv">array</span><span class="o">-</span><span class="nv">like</span>
-
-         <span class="nv">Feature</span> <span class="nv">relevance</span> <span class="nv">Intervals</span>
-
-        <span class="nv">optim_model_</span> : `<span class="nv">InitModel</span>`
-
-        <span class="nv">Baseline</span> <span class="nv">model</span> <span class="nv">fitted</span> <span class="nv">on</span> <span class="nv">data</span>
-
-        <span class="nv">relevance_classes_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
-
-        <span class="nv">Classes</span> <span class="nv">of</span> <span class="nv">relevance</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">int</span>: <span class="mi">0</span> <span class="nv">irrelevant</span>, <span class="mi">1</span> <span class="nv">weakly</span> <span class="nv">relevant</span>, <span class="mi">2</span> <span class="nv">strongly</span> <span class="nv">relevant</span>
-
-        <span class="nv">relevance_classes_string_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">str</span><span class="ss">)</span>
-
-        <span class="nv">Classes</span> <span class="nv">of</span> <span class="nv">relevance</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">string</span>
-
-        <span class="nv">allrel_prediction_</span> : <span class="nv">list</span><span class="ss">(</span><span class="nv">int</span><span class="ss">)</span>
-
-        <span class="nv">Relevance</span> <span class="nv">prediction</span> <span class="nv">encoded</span> <span class="nv">as</span> <span class="nv">boolean</span>: <span class="mi">0</span> <span class="nv">irrelevant</span>, <span class="mi">1</span> <span class="nv">relevant</span>
+    <span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">n_probe_features</span> <span class="o">=</span> <span class="nv">n_probe_features</span>
+<span class="s2">        Parameters</span>
 
-        <span class="nv">self</span>.<span class="nv">n_param_search</span> <span class="o">=</span> <span class="nv">n_param_search</span>
+<span class="s2">        ----------</span>
 
-        # <span class="nv">assert</span> <span class="nv">issubclass</span><span class="ss">(</span><span class="nv">problem_type</span>, <span class="nv">ProblemType</span><span class="ss">)</span>
+<span class="s2">        problem_type : abc.ABCMeta</span>
 
-        <span class="nv">self</span>.<span class="nv">problem_type_</span> <span class="o">=</span> <span class="nv">problem_type</span><span class="ss">(</span><span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>
+<span class="s2">        random_state : Union[mtrand.RandomState, int, None, None, None, None, None, None, None]</span>
 
-        <span class="nv">self</span>.<span class="nv">random_state</span> <span class="o">=</span> <span class="nv">check_random_state</span><span class="ss">(</span><span class="nv">random_state</span><span class="ss">)</span>
+<span class="s2">        n_jobs : int</span>
 
-        <span class="nv">self</span>.<span class="nv">n_jobs</span> <span class="o">=</span> <span class="nv">n_jobs</span>
+<span class="s2">        verbose : int</span>
 
-        <span class="nv">self</span>.<span class="nv">verbose</span> <span class="o">=</span> <span class="nv">verbose</span>
+<span class="s2">        n_param_search : int</span>
 
-        <span class="nv">self</span>.<span class="nv">normalize</span> <span class="o">=</span> <span class="nv">normalize</span>
+<span class="s2">        n_probe_features : int</span>
 
-        <span class="nv">self</span>.<span class="nv">interval_</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="s2">        normalize : bool</span>
 
-        <span class="nv">self</span>.<span class="nv">optim_model_</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="s2">        kwargs :</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="s2">        Attributes</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_string_</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">self</span>.<span class="nv">allrel_prediction_</span> <span class="o">=</span> <span class="nv">None</span>
+<span class="s2">        interval_ : array-like</span>
 
-    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<span class="s2">         Feature relevance Intervals</span>
+
+<span class="s2">        optim_model_ : `InitModel`</span>
+
+<span class="s2">        Baseline model fitted on data</span>
+
+<span class="s2">        relevance_classes_ : list(int)</span>
+
+<span class="s2">        Classes of relevance encoded as int: 0 irrelevant, 1 weakly relevant, 2 strongly relevant</span>
+
+<span class="s2">        relevance_classes_string_ : list(str)</span>
+
+<span class="s2">        Classes of relevance encoded as string</span>
+
+<span class="s2">        allrel_prediction_ : list(int)</span>
+
+<span class="s2">        Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">n_probe_features</span> <span class="o">=</span> <span class="n">n_probe_features</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">n_param_search</span> <span class="o">=</span> <span class="n">n_param_search</span>
+
+        <span class="c1"># assert issubclass(problem_type, ProblemType)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span> <span class="o">=</span> <span class="nf">problem_type</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="nf">check_random_state</span><span class="p">(</span><span class="n">random_state</span><span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">normalize</span> <span class="o">=</span> <span class="n">normalize</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">interval_</span> <span class="o">=</span> <span class="n">None</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span> <span class="o">=</span> <span class="n">None</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="n">None</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="n">None</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="n">None</span>
+
+    <span class="n">def</span> <span class="nf">fit</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">Method</span> <span class="nv">to</span> <span class="nv">fit</span> <span class="nv">model</span> <span class="nv">on</span> <span class="nv">data</span>.
+<span class="s2">        Method to fit model on data.</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        X : numpy.ndarray</span>
 
-        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        y : numpy.ndarray</span>
 
-        <span class="nv">lupi_features</span> : <span class="nv">int</span>
+<span class="s2">        lupi_features : int</span>
 
-            <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="nv">in</span> `<span class="nv">X</span>`.
+<span class="s2">            Amount of features which are considered privileged information in `X`.</span>
 
-            <span class="nv">The</span> <span class="nv">data</span> <span class="nv">is</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">structured</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">way</span> <span class="nv">that</span> <span class="nv">all</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">at</span> <span class="nv">the</span> <span class="k">end</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">set</span>.
+<span class="s2">            The data is expected to be structured in a way that all lupi features are at the end of the set.</span>
 
-            <span class="k">For</span> <span class="nv">example</span> `<span class="nv">lupi_features</span><span class="o">=</span><span class="mi">1</span>` <span class="nv">would</span> <span class="nv">denote</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">column</span> <span class="nv">of</span> `<span class="nv">X</span>` <span class="nv">to</span> <span class="nv">be</span> <span class="nv">privileged</span>.
+<span class="s2">            For example `lupi_features=1` would denote the last column of `X` to be privileged.</span>
 
-        <span class="nv">kwargs</span> : <span class="nv">dict</span>
+<span class="s2">        kwargs : dict</span>
 
-            <span class="nv">Dictionary</span> <span class="nv">of</span> <span class="nv">additional</span> <span class="nv">keyword</span> <span class="nv">arguments</span> <span class="nv">depending</span> <span class="nv">on</span> <span class="nv">the</span> `<span class="nv">model</span>`.
+<span class="s2">            Dictionary of additional keyword arguments depending on the `model`.</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="s2">        -------</span>
 
-        `<span class="nv">FRIBase</span>`
+<span class="s2">        `FRIBase`</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">lupi_features_</span> <span class="o">=</span> <span class="n">lupi_features</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">n_samples_</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">n_features_</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lupi_features</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">_fit_baseline</span><span class="p">(</span>
+
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+
+        <span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">.</span><span class="nf">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nf">RelevanceBoundsIntervals</span><span class="p">(</span>
+
+            <span class="n">data</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">random_state</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">n_probe_features</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">n_jobs</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">verbose</span><span class="p">,</span>
+
+            <span class="n">normalize</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">normalize</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+
+            <span class="p">(</span>
+
+                <span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span>
+
+                <span class="n">feature_classes</span><span class="p">,</span>
+
+            <span class="p">)</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">get_normalized_intervals</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="p">(</span>
+
+                <span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span>
+
+                <span class="n">feature_classes</span><span class="p">,</span>
+
+            <span class="p">)</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">get_normalized_lupi_intervals</span><span class="p">(</span>
+
+                <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span>
+
+            <span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="n">feature_classes</span><span class="p">)</span>
+
+        <span class="c1"># Return the classifier</span>
+
+        <span class="k">return</span> <span class="n">self</span>
+
+    <span class="n">def</span> <span class="nf">_fit_baseline</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="c1"># Preprocessing</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">.</span><span class="nf">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
+
+        <span class="c1"># Get predefined template for our init. model</span>
+
+        <span class="n">init_model_template</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">.</span><span class="n">get_initmodel_template</span>
+
+        <span class="c1"># Get hyperparameters which are predefined to our model template and can be seleted by user choice</span>
+
+        <span class="n">hyperparameters</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">.</span><span class="nf">get_all_parameters</span><span class="p">()</span>
+
+        <span class="c1"># search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this</span>
+
+        <span class="n">search_samples</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">n_param_search</span>
+
+        <span class="c1"># Find an optimal, fitted model using hyperparemeter search</span>
+
+        <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="nf">find_best_model</span><span class="p">(</span>
+
+            <span class="n">init_model_template</span><span class="p">,</span>
+
+            <span class="n">hyperparameters</span><span class="p">,</span>
+
+            <span class="n">data</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">random_state</span><span class="p">,</span>
+
+            <span class="n">search_samples</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">n_jobs</span><span class="p">,</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">verbose</span><span class="p">,</span>
+
+            <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">,</span>
+
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span>
+
+    <span class="n">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
+
+        <span class="s2">&quot;&quot;&quot;Determines relevancy using feature relevance interval values</span>
+
+<span class="s2">        Parameters</span>
+
+<span class="s2">        ----------</span>
+
+<span class="s2">        fpr : float, optional</span>
+
+<span class="s2">            false positive rate allowed under H_0</span>
+
+<span class="s2">        Returns</span>
+
+<span class="s2">        -------</span>
+
+<span class="s2">        boolean array</span>
+
+<span class="s2">            Relevancy prediction for each feature</span>
+
+<span class="s2">        &quot;&quot;&quot;</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_</span> <span class="o">=</span> <span class="n">prediction</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_string_</span> <span class="o">=</span> <span class="p">[</span><span class="n">RELEVANCE_MAPPING</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="k">in</span> <span class="n">prediction</span><span class="p">]</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span> <span class="o">=</span> <span class="n">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_nonpriv_</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span><span class="p">[:</span> <span class="n">self</span><span class="p">.</span><span class="n">n_features_</span><span class="p">]</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_priv_</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">n_features_</span> <span class="p">:]</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_nonpriv_</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_</span><span class="p">[:</span> <span class="n">self</span><span class="p">.</span><span class="n">n_features_</span><span class="p">]</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_priv_</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">relevance_classes_</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">n_features_</span> <span class="p">:]</span>
+
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span>
+
+    <span class="n">def</span> <span class="nf">_n_selected_features</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">lupi_features_</span> <span class="o">=</span> <span class="nv">lupi_features</span>
+<span class="s2">        Returns the number of selected features.</span>
 
-        <span class="nv">self</span>.<span class="nv">n_samples_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>]
+<span class="s2">        -------</span>
 
-        <span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>] <span class="o">-</span> <span class="nv">lupi_features</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">optim_model_</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_fit_baseline</span><span class="ss">(</span>
+        <span class="nf">check_is_fitted</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
 
-            <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span>, <span class="o">**</span><span class="nv">kwargs</span>
+        <span class="k">return</span> <span class="nf">sum</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span><span class="p">)</span>
 
-        <span class="ss">)</span>
+    <span class="n">def</span> <span class="nf">_get_support_mask</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
 
-        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
+        <span class="s2">&quot;&quot;&quot;Method for SelectorMixin</span>
 
-        <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nv">RelevanceBoundsIntervals</span><span class="ss">(</span>
+<span class="s2">        Returns</span>
 
-            <span class="nv">data</span>,
+<span class="s2">        -------</span>
 
-            <span class="nv">self</span>.<span class="nv">problem_type_</span>,
+<span class="s2">        boolean array</span>
 
-            <span class="nv">self</span>.<span class="nv">optim_model_</span>,
+<span class="s2">        &quot;&quot;&quot;</span>
 
-            <span class="nv">self</span>.<span class="nv">random_state</span>,
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">allrel_prediction_</span>
 
-            <span class="nv">self</span>.<span class="nv">n_probe_features</span>,
-
-            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
-
-            <span class="nv">self</span>.<span class="nv">verbose</span>,
-
-            <span class="nv">normalize</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">normalize</span>,
-
-        <span class="ss">)</span>
-
-        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="mi">0</span>:
-
-            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="ss">(</span>
-
-                <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_intervals</span><span class="ss">()</span>
-
-            <span class="ss">)</span>
-
-        <span class="k">else</span>:
-
-            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_lupi_intervals</span><span class="ss">(</span>
-
-                <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>
-
-            <span class="ss">)</span>
-
-        <span class="nv">self</span>.<span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">feature_classes</span><span class="ss">)</span>
-
-        # <span class="k">Return</span> <span class="nv">the</span> <span class="nv">classifier</span>
-
-        <span class="k">return</span> <span class="nv">self</span>
-
-    <span class="nv">def</span> <span class="nv">_fit_baseline</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
-
-        # <span class="nv">Preprocessing</span>
-
-        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
-
-        # <span class="nv">Get</span> <span class="nv">predefined</span> <span class="nv">template</span> <span class="k">for</span> <span class="nv">our</span> <span class="nv">init</span>. <span class="nv">model</span>
-
-        <span class="nv">init_model_template</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">get_initmodel_template</span>
-
-        # <span class="nv">Get</span> <span class="nv">hyperparameters</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">predefined</span> <span class="nv">to</span> <span class="nv">our</span> <span class="nv">model</span> <span class="nv">template</span> <span class="nv">and</span> <span class="nv">can</span> <span class="nv">be</span> <span class="nv">seleted</span> <span class="nv">by</span> <span class="nv">user</span> <span class="nv">choice</span>
-
-        <span class="nv">hyperparameters</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">get_all_parameters</span><span class="ss">()</span>
-
-        # <span class="nv">search_samples</span> <span class="o">=</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">hyperparameters</span><span class="ss">)</span> <span class="o">*</span> <span class="nv">self</span>.<span class="nv">n_param_search</span> # <span class="nv">TODO</span>: <span class="nv">remove</span> <span class="nv">this</span>
-
-        <span class="nv">search_samples</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">n_param_search</span>
-
-        # <span class="nv">Find</span> <span class="nv">an</span> <span class="nv">optimal</span>, <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">using</span> <span class="nv">hyperparemeter</span> <span class="nv">search</span>
-
-        <span class="nv">optimal_model</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">find_best_model</span><span class="ss">(</span>
-
-            <span class="nv">init_model_template</span>,
-
-            <span class="nv">hyperparameters</span>,
-
-            <span class="nv">data</span>,
-
-            <span class="nv">self</span>.<span class="nv">random_state</span>,
-
-            <span class="nv">search_samples</span>,
-
-            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
-
-            <span class="nv">self</span>.<span class="nv">verbose</span>,
-
-            <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>,
-
-            <span class="o">**</span><span class="nv">kwargs</span>,
-
-        <span class="ss">)</span>
-
-        <span class="k">return</span> <span class="nv">optimal_model</span>, <span class="nv">best_score</span>
-
-    <span class="nv">def</span> <span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">prediction</span><span class="ss">)</span>:
-
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Determines relevancy using feature relevance interval values</span>
-
-        <span class="nv">Parameters</span>
-
-        <span class="o">----------</span>
-
-        <span class="nv">fpr</span> : <span class="nv">float</span>, <span class="nv">optional</span>
-
-            <span class="nv">false</span> <span class="nv">positive</span> <span class="nv">rate</span> <span class="nv">allowed</span> <span class="nv">under</span> <span class="nv">H_0</span>
-
-        <span class="nv">Returns</span>
-
-        <span class="o">-------</span>
-
-        <span class="nv">boolean</span> <span class="nv">array</span>
-
-            <span class="nv">Relevancy</span> <span class="nv">prediction</span> <span class="k">for</span> <span class="nv">each</span> <span class="nv">feature</span>
+    <span class="n">def</span> <span class="nf">score</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_</span> <span class="o">=</span> <span class="nv">prediction</span>
+<span class="s2">        Using fitted model predict points for `X` and compare to truth `y`.</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_string_</span> <span class="o">=</span> [<span class="nv">RELEVANCE_MAPPING</span>[<span class="nv">p</span>] <span class="k">for</span> <span class="nv">p</span> <span class="nv">in</span> <span class="nv">prediction</span>]
+<span class="s2">        Parameters</span>
 
-        <span class="nv">self</span>.<span class="nv">allrel_prediction_</span> <span class="o">=</span> <span class="nv">prediction</span> <span class="o">&gt;</span> <span class="mi">0</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">self</span>.<span class="nv">allrel_prediction_nonpriv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>[: <span class="nv">self</span>.<span class="nv">n_features_</span>]
+<span class="s2">        X : numpy.ndarray</span>
 
-        <span class="nv">self</span>.<span class="nv">allrel_prediction_priv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>[<span class="nv">self</span>.<span class="nv">n_features_</span> :]
+<span class="s2">        y : numpy.ndarray</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_nonpriv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relevance_classes_</span>[: <span class="nv">self</span>.<span class="nv">n_features_</span>]
+<span class="s2">        Returns</span>
 
-        <span class="nv">self</span>.<span class="nv">relevance_classes_priv_</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">relevance_classes_</span>[<span class="nv">self</span>.<span class="nv">n_features_</span> :]
+<span class="s2">        -------</span>
 
-        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>
+<span class="s2">        Model specific score (0 is worst, 1 is best)</span>
 
-    <span class="nv">def</span> <span class="nv">_n_selected_features</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">:</span>
 
-        <span class="nv">Returns</span> <span class="nv">the</span> <span class="nv">number</span> <span class="nv">of</span> <span class="nv">selected</span> <span class="nv">features</span>.
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">.</span><span class="nf">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        <span class="o">-------</span>
+        <span class="k">else</span><span class="p">:</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+            <span class="n">raise</span> <span class="nf">NotFittedError</span><span class="p">()</span>
 
-        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">allrel_prediction_</span><span class="s2">&quot;</span><span class="ss">)</span>
-
-        <span class="k">return</span> <span class="nv">sum</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">allrel_prediction_</span><span class="ss">)</span>
-
-    <span class="nv">def</span> <span class="nv">_get_support_mask</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
-
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Method for SelectorMixin</span>
-
-        <span class="nv">Returns</span>
-
-        <span class="o">-------</span>
-
-        <span class="nv">boolean</span> <span class="nv">array</span>
+    <span class="n">def</span> <span class="nf">constrained_intervals</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">preset</span><span class="p">:</span> <span class="n">dict</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">allrel_prediction_</span>
+<span class="s2">        Method to return relevance intervals which are constrained using preset ranges or values.</span>
 
-    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>:
+<span class="s2">        Parameters</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">Using</span> <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">predict</span> <span class="nv">points</span> <span class="k">for</span> `<span class="nv">X</span>` <span class="nv">and</span> <span class="nv">compare</span> <span class="nv">to</span> <span class="nv">truth</span> `<span class="nv">y</span>`.
+<span class="s2">        preset : dict like, {i:float} or {i:[float,float]}</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).</span>
 
-        <span class="o">----------</span>
+<span class="s2">            Example: To set  feature 0 to a fixed value use</span>
 
-        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">            &gt;&gt;&gt; preset = {0: 0.1}</span>
 
-        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">            or to use the minimum relevance bound</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]</span>
 
-        <span class="o">-------</span>
+<span class="s2">        Returns</span>
 
-        <span class="nv">Model</span> <span class="nv">specific</span> <span class="nv">score</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">is</span> <span class="nv">worst</span>, <span class="mi">1</span> <span class="nv">is</span> <span class="nv">best</span><span class="ss">)</span>
+<span class="s2">        -------</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        array like</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>:
+<span class="s2">            Relevance bounds with user constraints</span>
 
-            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>.<span class="nv">score</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">else</span>:
+        <span class="c1"># Do we have intervals?</span>
 
-            <span class="nv">raise</span> <span class="nv">NotFittedError</span><span class="ss">()</span>
+        <span class="nf">check_is_fitted</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s2">&quot;interval_&quot;</span><span class="p">)</span>
 
-    <span class="nv">def</span> <span class="nv">constrained_intervals</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">preset</span>: <span class="nv">dict</span><span class="ss">)</span>:
+        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">compute_multi_preset_relevance_bounds</span><span class="p">(</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+            <span class="n">preset</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">lupi_features_</span>
 
-        <span class="nv">Method</span> <span class="nv">to</span> <span class="k">return</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">constrained</span> <span class="nv">using</span> <span class="nv">preset</span> <span class="nv">ranges</span> <span class="nv">or</span> <span class="nv">values</span>.
+        <span class="p">)</span>
 
-        <span class="nv">Parameters</span>
-
-        <span class="o">----------</span>
-
-        <span class="nv">preset</span> : <span class="nv">dict</span> <span class="nv">like</span>, {<span class="nv">i</span>:<span class="nv">float</span>} <span class="nv">or</span> {<span class="nv">i</span>:[<span class="nv">float</span>,<span class="nv">float</span>]}
-
-            <span class="nv">Keys</span> <span class="nv">denote</span> <span class="nv">feature</span> <span class="nv">index</span>, <span class="nv">values</span> <span class="nv">represent</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">single</span> <span class="nv">value</span> <span class="ss">(</span><span class="nv">float</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">a</span> <span class="nv">range</span> <span class="nv">of</span> <span class="nv">allowed</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">lower</span> <span class="nv">and</span> <span class="nv">upper</span> <span class="nv">bound</span><span class="ss">)</span>.
-
-            <span class="nv">Example</span>: <span class="nv">To</span> <span class="nv">set</span>  <span class="nv">feature</span> <span class="mi">0</span> <span class="nv">to</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">value</span> <span class="nv">use</span>
-
-            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span> <span class="o">=</span> {<span class="mi">0</span>: <span class="mi">0</span>.<span class="mi">1</span>}
-
-            <span class="nv">or</span> <span class="nv">to</span> <span class="nv">use</span> <span class="nv">the</span> <span class="nv">minimum</span> <span class="nv">relevance</span> <span class="nv">bound</span>
-
-            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span>[<span class="mi">1</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">interval_</span>[<span class="mi">1</span>, <span class="mi">0</span>]
-
-        <span class="nv">Returns</span>
-
-        <span class="o">-------</span>
-
-        <span class="nv">array</span> <span class="nv">like</span>
-
-            <span class="nv">Relevance</span> <span class="nv">bounds</span> <span class="nv">with</span> <span class="nv">user</span> <span class="nv">constraints</span>
+    <span class="n">def</span> <span class="nf">print_interval_with_class</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        # <span class="k">Do</span> <span class="nv">we</span> <span class="nv">have</span> <span class="nv">intervals</span>?
+<span class="s2">        Pretty print the relevance intervals and determined feature relevance class</span>
 
-        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">interval_</span><span class="s2">&quot;</span><span class="ss">)</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">compute_multi_preset_relevance_bounds</span><span class="ss">(</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
-            <span class="nv">preset</span><span class="o">=</span><span class="nv">preset</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">lupi_features_</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">interval_</span> <span class="k">is</span> <span class="n">None</span><span class="p">:</span>
 
-        <span class="ss">)</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;Model is not fitted.&quot;</span>
 
-    <span class="nv">def</span> <span class="nv">print_interval_with_class</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;############## Relevance bounds ##############\n&quot;</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;feature: [LB -- UB], relevance class\n&quot;</span>
 
-        <span class="nv">Pretty</span> <span class="nv">print</span> <span class="nv">the</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">and</span> <span class="nv">determined</span> <span class="nv">feature</span> <span class="nv">relevance</span> <span class="nv">class</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="nf">range</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">n_features_</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="n">lupi_features_</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="n">self</span><span class="p">.</span><span class="n">n_features_</span><span class="p">:</span>
 
-        <span class="nv">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">output</span> <span class="o">+=</span> <span class="s2">&quot;########## LUPI Relevance bounds\n&quot;</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">None</span>:
+            <span class="n">output</span> <span class="o">+=</span> <span class="p">(</span>
 
-            <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">Model is not fitted.</span><span class="s2">&quot;</span>
+                <span class="n">f</span><span class="s2">&quot;{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],&quot;</span>
 
-        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
 
-        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">output</span> <span class="o">+=</span> <span class="n">f</span><span class="s2">&quot; {self.relevance_classes_string_[i]}\n&quot;</span>
 
-        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">lupi_features_</span><span class="ss">)</span>:
-
-            <span class="k">if</span> <span class="nv">i</span> <span class="o">==</span> <span class="nv">self</span>.<span class="nv">n_features_</span>:
-
-                <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-            <span class="nv">output</span> <span class="o">+=</span> <span class="ss">(</span>
-
-                <span class="nv">f</span><span class="s2">&quot;</span><span class="s">{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],</span><span class="s2">&quot;</span>
-
-            <span class="ss">)</span>
-
-            <span class="nv">output</span> <span class="o">+=</span> <span class="nv">f</span><span class="s2">&quot;</span><span class="s"> {self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
-
-        <span class="k">return</span> <span class="nv">output</span>
+        <span class="k">return</span> <span class="n">output</span>
 </pre></div>
 
 
@@ -2248,7 +2278,7 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
 <h4 id="ancestors-in-mro">Ancestors (in MRO)</h4>
 <ul>
 <li>sklearn.base.BaseEstimator</li>
-<li>sklearn.feature_selection.base.SelectorMixin</li>
+<li>sklearn.feature_selection._base.SelectorMixin</li>
 <li>sklearn.base.TransformerMixin</li>
 </ul>
 <h4 id="descendants">Descendants</h4>
@@ -2281,47 +2311,47 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
 <h2 id="returns">Returns</h2>
 <p>array like
     Relevance bounds with user constraints</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">constrained_intervals</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">preset</span>: <span class="nv">dict</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="n">constrained_intervals</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">preset</span><span class="p">:</span> <span class="n">dict</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+        <span class="ss">&quot;&quot;&quot;</span>
 
-        <span class="nv">Method</span> <span class="nv">to</span> <span class="k">return</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">constrained</span> <span class="nv">using</span> <span class="nv">preset</span> <span class="nv">ranges</span> <span class="nv">or</span> <span class="nv">values</span>.
+<span class="ss">        Method to return relevance intervals which are constrained using preset ranges or values.</span>
 
-        <span class="nv">Parameters</span>
+<span class="ss">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="ss">        ----------</span>
 
-        <span class="nv">preset</span> : <span class="nv">dict</span> <span class="nv">like</span>, {<span class="nv">i</span>:<span class="nv">float</span>} <span class="nv">or</span> {<span class="nv">i</span>:[<span class="nv">float</span>,<span class="nv">float</span>]}
+<span class="ss">        preset : dict like, {i:float} or {i:[float,float]}</span>
 
-            <span class="nv">Keys</span> <span class="nv">denote</span> <span class="nv">feature</span> <span class="nv">index</span>, <span class="nv">values</span> <span class="nv">represent</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">single</span> <span class="nv">value</span> <span class="ss">(</span><span class="nv">float</span><span class="ss">)</span> <span class="nv">or</span> <span class="nv">a</span> <span class="nv">range</span> <span class="nv">of</span> <span class="nv">allowed</span> <span class="nv">values</span> <span class="ss">(</span><span class="nv">lower</span> <span class="nv">and</span> <span class="nv">upper</span> <span class="nv">bound</span><span class="ss">)</span>.
+<span class="ss">            Keys denote feature index, values represent a fixed single value (float) or a range of allowed values (lower and upper bound).</span>
 
-            <span class="nv">Example</span>: <span class="nv">To</span> <span class="nv">set</span>  <span class="nv">feature</span> <span class="mi">0</span> <span class="nv">to</span> <span class="nv">a</span> <span class="nv">fixed</span> <span class="nv">value</span> <span class="nv">use</span>
+<span class="ss">            Example: To set  feature 0 to a fixed value use</span>
 
-            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span> <span class="o">=</span> {<span class="mi">0</span>: <span class="mi">0</span>.<span class="mi">1</span>}
+<span class="ss">            &gt;&gt;&gt; preset = {0: 0.1}</span>
 
-            <span class="nv">or</span> <span class="nv">to</span> <span class="nv">use</span> <span class="nv">the</span> <span class="nv">minimum</span> <span class="nv">relevance</span> <span class="nv">bound</span>
+<span class="ss">            or to use the minimum relevance bound</span>
 
-            <span class="o">&gt;&gt;&gt;</span> <span class="nv">preset</span>[<span class="mi">1</span>] <span class="o">=</span> <span class="nv">self</span>.<span class="nv">interval_</span>[<span class="mi">1</span>, <span class="mi">0</span>]
+<span class="ss">            &gt;&gt;&gt; preset[1] = self.interval_[1, 0]</span>
 
-        <span class="nv">Returns</span>
+<span class="ss">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="ss">        -------</span>
 
-        <span class="nv">array</span> <span class="nv">like</span>
+<span class="ss">        array like</span>
 
-            <span class="nv">Relevance</span> <span class="nv">bounds</span> <span class="nv">with</span> <span class="nv">user</span> <span class="nv">constraints</span>
+<span class="ss">            Relevance bounds with user constraints</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span>
 
-        # <span class="k">Do</span> <span class="nv">we</span> <span class="nv">have</span> <span class="nv">intervals</span>?
+        <span class="o">#</span> <span class="k">Do</span> <span class="n">we</span> <span class="n">have</span> <span class="n">intervals</span><span class="o">?</span>
 
-        <span class="nv">check_is_fitted</span><span class="ss">(</span><span class="nv">self</span>, <span class="s2">&quot;</span><span class="s">interval_</span><span class="s2">&quot;</span><span class="ss">)</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="ss">&quot;interval_&quot;</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">compute_multi_preset_relevance_bounds</span><span class="ss">(</span>
+        <span class="k">return</span> <span class="k">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="n">compute_multi_preset_relevance_bounds</span><span class="p">(</span>
 
-            <span class="nv">preset</span><span class="o">=</span><span class="nv">preset</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">lupi_features_</span>
+            <span class="n">preset</span><span class="o">=</span><span class="n">preset</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="k">self</span><span class="p">.</span><span class="n">lupi_features_</span>
 
-        <span class="ss">)</span>
+        <span class="p">)</span>
 </pre></div>
 
 
@@ -2349,95 +2379,103 @@ kwargs : dict
     Dictionary of additional keyword arguments depending on the <code>model</code>.</p>
 <h2 id="returns_1">Returns</h2>
 <p><code>FRIBase</code></p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="mi">0</span>, <span class="o">**</span><span class="nv">kwargs</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="nf">fit</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">Method</span> <span class="nv">to</span> <span class="nv">fit</span> <span class="nv">model</span> <span class="nv">on</span> <span class="nv">data</span>.
+<span class="s2">        Method to fit model on data.</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        X : numpy.ndarray</span>
 
-        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        y : numpy.ndarray</span>
 
-        <span class="nv">lupi_features</span> : <span class="nv">int</span>
+<span class="s2">        lupi_features : int</span>
 
-            <span class="nv">Amount</span> <span class="nv">of</span> <span class="nv">features</span> <span class="nv">which</span> <span class="nv">are</span> <span class="nv">considered</span> <span class="nv">privileged</span> <span class="nv">information</span> <span class="nv">in</span> `<span class="nv">X</span>`.
+<span class="s2">            Amount of features which are considered privileged information in `X`.</span>
 
-            <span class="nv">The</span> <span class="nv">data</span> <span class="nv">is</span> <span class="nv">expected</span> <span class="nv">to</span> <span class="nv">be</span> <span class="nv">structured</span> <span class="nv">in</span> <span class="nv">a</span> <span class="nv">way</span> <span class="nv">that</span> <span class="nv">all</span> <span class="nv">lupi</span> <span class="nv">features</span> <span class="nv">are</span> <span class="nv">at</span> <span class="nv">the</span> <span class="k">end</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">set</span>.
+<span class="s2">            The data is expected to be structured in a way that all lupi features are at the end of the set.</span>
 
-            <span class="k">For</span> <span class="nv">example</span> `<span class="nv">lupi_features</span><span class="o">=</span><span class="mi">1</span>` <span class="nv">would</span> <span class="nv">denote</span> <span class="nv">the</span> <span class="nv">last</span> <span class="nv">column</span> <span class="nv">of</span> `<span class="nv">X</span>` <span class="nv">to</span> <span class="nv">be</span> <span class="nv">privileged</span>.
+<span class="s2">            For example `lupi_features=1` would denote the last column of `X` to be privileged.</span>
 
-        <span class="nv">kwargs</span> : <span class="nv">dict</span>
+<span class="s2">        kwargs : dict</span>
 
-            <span class="nv">Dictionary</span> <span class="nv">of</span> <span class="nv">additional</span> <span class="nv">keyword</span> <span class="nv">arguments</span> <span class="nv">depending</span> <span class="nv">on</span> <span class="nv">the</span> `<span class="nv">model</span>`.
+<span class="s2">            Dictionary of additional keyword arguments depending on the `model`.</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="s2">        -------</span>
 
-        `<span class="nv">FRIBase</span>`
+<span class="s2">        `FRIBase`</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="nv">self</span>.<span class="nv">lupi_features_</span> <span class="o">=</span> <span class="nv">lupi_features</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">lupi_features_</span> <span class="o">=</span> <span class="n">lupi_features</span>
 
-        <span class="nv">self</span>.<span class="nv">n_samples_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>]
+        <span class="n">self</span><span class="p">.</span><span class="n">n_samples_</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-        <span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>] <span class="o">-</span> <span class="nv">lupi_features</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">n_features_</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">lupi_features</span>
 
-        <span class="nv">self</span>.<span class="nv">optim_model_</span>, <span class="nv">best_score</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_fit_baseline</span><span class="ss">(</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">,</span> <span class="n">best_score</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">_fit_baseline</span><span class="p">(</span>
 
-            <span class="nv">X</span>, <span class="nv">y</span>, <span class="nv">lupi_features</span>, <span class="o">**</span><span class="nv">kwargs</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">lupi_features</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 
-        <span class="ss">)</span>
+        <span class="p">)</span>
 
-        <span class="nv">data</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">problem_type_</span>.<span class="nv">preprocessing</span><span class="ss">((</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>, <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span><span class="ss">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">.</span><span class="nf">preprocessing</span><span class="p">((</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span><span class="p">)</span>
 
-        <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nv">RelevanceBoundsIntervals</span><span class="ss">(</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span> <span class="o">=</span> <span class="nf">RelevanceBoundsIntervals</span><span class="p">(</span>
 
-            <span class="nv">data</span>,
+            <span class="n">data</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">problem_type_</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">problem_type_</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">optim_model_</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">random_state</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">random_state</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">n_probe_features</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">n_probe_features</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">n_jobs</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">n_jobs</span><span class="p">,</span>
 
-            <span class="nv">self</span>.<span class="nv">verbose</span>,
+            <span class="n">self</span><span class="p">.</span><span class="n">verbose</span><span class="p">,</span>
 
-            <span class="nv">normalize</span><span class="o">=</span><span class="nv">self</span>.<span class="nv">normalize</span>,
+            <span class="n">normalize</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">normalize</span><span class="p">,</span>
 
-        <span class="ss">)</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nv">lupi_features</span> <span class="o">==</span> <span class="mi">0</span>:
+        <span class="k">if</span> <span class="n">lupi_features</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
 
-            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="ss">(</span>
+            <span class="p">(</span>
 
-                <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_intervals</span><span class="ss">()</span>
+                <span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span>
 
-            <span class="ss">)</span>
+                <span class="n">feature_classes</span><span class="p">,</span>
 
-        <span class="k">else</span>:
+            <span class="p">)</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">get_normalized_intervals</span><span class="p">()</span>
 
-            <span class="nv">self</span>.<span class="nv">interval_</span>, <span class="nv">feature_classes</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_relevance_bounds_computer</span>.<span class="nv">get_normalized_lupi_intervals</span><span class="ss">(</span>
+        <span class="k">else</span><span class="p">:</span>
 
-                <span class="nv">lupi_features</span><span class="o">=</span><span class="nv">lupi_features</span>
+            <span class="p">(</span>
 
-            <span class="ss">)</span>
+                <span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span>
 
-        <span class="nv">self</span>.<span class="nv">_get_relevance_mask</span><span class="ss">(</span><span class="nv">feature_classes</span><span class="ss">)</span>
+                <span class="n">feature_classes</span><span class="p">,</span>
 
-        # <span class="k">Return</span> <span class="nv">the</span> <span class="nv">classifier</span>
+            <span class="p">)</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">get_normalized_lupi_intervals</span><span class="p">(</span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+                <span class="n">lupi_features</span><span class="o">=</span><span class="n">lupi_features</span>
+
+            <span class="p">)</span>
+
+        <span class="n">self</span><span class="p">.</span><span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="n">feature_classes</span><span class="p">)</span>
+
+        <span class="c1"># Return the classifier</span>
+
+        <span class="k">return</span> <span class="n">self</span>
 </pre></div>
 
 
@@ -2460,54 +2498,62 @@ and returns a transformed version of X.</p>
     Training set.</p>
 <p>y : numpy array of shape [n_samples]
     Target values.</p>
+<p>**fit_params : dict
+    Additional fit parameters.</p>
 <h2 id="returns_2">Returns</h2>
 <p>X_new : numpy array of shape [n_samples, n_features_new]
     Transformed array.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">fit_transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="o">=</span><span class="nv">None</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">fit_transform</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="k">None</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">fit_params</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Fit to data, then transform it.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-        <span class="nv">Fits</span> <span class="nv">transformer</span> <span class="nv">to</span> <span class="nv">X</span> <span class="nv">and</span> <span class="nv">y</span> <span class="nv">with</span> <span class="nv">optional</span> <span class="nv">parameters</span> <span class="nv">fit_params</span>
+<span class="ss">        Fit to data, then transform it.</span>
 
-        <span class="nv">and</span> <span class="nv">returns</span> <span class="nv">a</span> <span class="nv">transformed</span> <span class="nv">version</span> <span class="nv">of</span> <span class="nv">X</span>.
+<span class="ss">        Fits transformer to X and y with optional parameters fit_params</span>
 
-        <span class="nv">Parameters</span>
+<span class="ss">        and returns a transformed version of X.</span>
 
-        <span class="o">----------</span>
+<span class="ss">        Parameters</span>
 
-        <span class="nv">X</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
+<span class="ss">        ----------</span>
 
-            <span class="nv">Training</span> <span class="nv">set</span>.
+<span class="ss">        X : numpy array of shape [n_samples, n_features]</span>
 
-        <span class="nv">y</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>]
+<span class="ss">            Training set.</span>
 
-            <span class="nv">Target</span> <span class="nv">values</span>.
+<span class="ss">        y : numpy array of shape [n_samples]</span>
 
-        <span class="nv">Returns</span>
+<span class="ss">            Target values.</span>
 
-        <span class="o">-------</span>
+<span class="ss">        **fit_params : dict</span>
 
-        <span class="nv">X_new</span> : <span class="nv">numpy</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features_new</span>]
+<span class="ss">            Additional fit parameters.</span>
 
-            <span class="nv">Transformed</span> <span class="nv">array</span>.
+<span class="ss">        Returns</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        -------</span>
 
-        # <span class="nv">non</span><span class="o">-</span><span class="nv">optimized</span> <span class="nv">default</span> <span class="nv">implementation</span><span class="c1">; override when a better</span>
+<span class="ss">        X_new : numpy array of shape [n_samples, n_features_new]</span>
 
-        # <span class="nv">method</span> <span class="nv">is</span> <span class="nv">possible</span> <span class="k">for</span> <span class="nv">a</span> <span class="nv">given</span> <span class="nv">clustering</span> <span class="nv">algorithm</span>
+<span class="ss">            Transformed array.</span>
 
-        <span class="k">if</span> <span class="nv">y</span> <span class="nv">is</span> <span class="nv">None</span>:
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-            # <span class="nv">fit</span> <span class="nv">method</span> <span class="nv">of</span> <span class="nv">arity</span> <span class="mi">1</span> <span class="ss">(</span><span class="nv">unsupervised</span> <span class="nv">transformation</span><span class="ss">)</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">non</span><span class="o">-</span><span class="n">optimized</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="n">implementation</span><span class="p">;</span><span class="w"> </span><span class="n">override</span><span class="w"> </span><span class="k">when</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">better</span><span class="w"></span>
 
-            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">fit</span><span class="ss">(</span><span class="nv">X</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>.<span class="nv">transform</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">method</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">possible</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">clustering</span><span class="w"> </span><span class="n">algorithm</span><span class="w"></span>
 
-        <span class="k">else</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">y</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-            # <span class="nv">fit</span> <span class="nv">method</span> <span class="nv">of</span> <span class="nv">arity</span> <span class="mi">2</span> <span class="ss">(</span><span class="nv">supervised</span> <span class="nv">transformation</span><span class="ss">)</span>
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">method</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">arity</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">(</span><span class="n">unsupervised</span><span class="w"> </span><span class="n">transformation</span><span class="p">)</span><span class="w"></span>
 
-            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">fit</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span>, <span class="o">**</span><span class="nv">fit_params</span><span class="ss">)</span>.<span class="nv">transform</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">fit_params</span><span class="p">).</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">fit</span><span class="w"> </span><span class="k">method</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">arity</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="p">(</span><span class="n">supervised</span><span class="w"> </span><span class="n">transformation</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">fit_params</span><span class="p">).</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span><span class="w"></span>
 </pre></div>
 
 
@@ -2522,51 +2568,69 @@ and returns a transformed version of X.</p>
 
 <p>Get parameters for this estimator.</p>
 <h2 id="parameters_3">Parameters</h2>
-<p>deep : boolean, optional
+<p>deep : bool, default=True
     If True, will return the parameters for this estimator and
     contained subobjects that are estimators.</p>
 <h2 id="returns_3">Returns</h2>
 <p>params : mapping of string to any
     Parameter names mapped to their values.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">get_params</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="n">deep</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Get parameters for this estimator.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-        <span class="nv">Parameters</span>
+<span class="ss">        Get parameters for this estimator.</span>
 
-        <span class="o">----------</span>
+<span class="ss">        Parameters</span>
 
-        <span class="nv">deep</span> : <span class="nv">boolean</span>, <span class="nv">optional</span>
+<span class="ss">        ----------</span>
 
-            <span class="k">If</span> <span class="nv">True</span>, <span class="nv">will</span> <span class="k">return</span> <span class="nv">the</span> <span class="nv">parameters</span> <span class="k">for</span> <span class="nv">this</span> <span class="nv">estimator</span> <span class="nv">and</span>
+<span class="ss">        deep : bool, default=True</span>
 
-            <span class="nv">contained</span> <span class="nv">subobjects</span> <span class="nv">that</span> <span class="nv">are</span> <span class="nv">estimators</span>.
+<span class="ss">            If True, will return the parameters for this estimator and</span>
 
-        <span class="nv">Returns</span>
+<span class="ss">            contained subobjects that are estimators.</span>
 
-        <span class="o">-------</span>
+<span class="ss">        Returns</span>
 
-        <span class="nb">params</span> : <span class="nv">mapping</span> <span class="nv">of</span> <span class="nv">string</span> <span class="nv">to</span> <span class="nv">any</span>
+<span class="ss">        -------</span>
 
-            <span class="nv">Parameter</span> <span class="nv">names</span> <span class="nv">mapped</span> <span class="nv">to</span> <span class="nv">their</span> <span class="nv">values</span>.
+<span class="ss">        params : mapping of string to any</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">            Parameter names mapped to their values.</span>
 
-        <span class="nv">out</span> <span class="o">=</span> <span class="nv">dict</span><span class="ss">()</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">key</span> <span class="nv">in</span> <span class="nv">self</span>.<span class="nv">_get_param_names</span><span class="ss">()</span>:
+<span class="w">        </span><span class="k">out</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">dict</span><span class="p">()</span><span class="w"></span>
 
-            <span class="nv">value</span> <span class="o">=</span> <span class="nv">getattr</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">None</span><span class="ss">)</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">_get_param_names</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">deep</span> <span class="nv">and</span> <span class="nv">hasattr</span><span class="ss">(</span><span class="nv">value</span>, <span class="s1">&#39;</span><span class="s">get_params</span><span class="s1">&#39;</span><span class="ss">)</span>:
+<span class="w">            </span><span class="k">try</span><span class="err">:</span><span class="w"></span>
 
-                <span class="nv">deep_items</span> <span class="o">=</span> <span class="nv">value</span>.<span class="nv">get_params</span><span class="ss">()</span>.<span class="nv">items</span><span class="ss">()</span>
+<span class="w">                </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">getattr</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">key</span><span class="p">)</span><span class="w"></span>
 
-                <span class="nv">out</span>.<span class="nv">update</span><span class="ss">((</span><span class="nv">key</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="s">__</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="nv">k</span>, <span class="nv">val</span><span class="ss">)</span> <span class="k">for</span> <span class="nv">k</span>, <span class="nv">val</span> <span class="nv">in</span> <span class="nv">deep_items</span><span class="ss">)</span>
+<span class="w">            </span><span class="ow">except</span><span class="w"> </span><span class="nl">AttributeError</span><span class="p">:</span><span class="w"></span>
 
-            <span class="nv">out</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">value</span>
+<span class="w">                </span><span class="n">warnings</span><span class="p">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;From version 0.24, get_params will raise an &#39;</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">out</span>
+<span class="w">                              </span><span class="s1">&#39;AttributeError if a parameter cannot be &#39;</span><span class="w"></span>
+
+<span class="w">                              </span><span class="s1">&#39;retrieved as an instance attribute. Previously &#39;</span><span class="w"></span>
+
+<span class="w">                              </span><span class="s1">&#39;it would return None.&#39;</span><span class="p">,</span><span class="w"></span>
+
+<span class="w">                              </span><span class="n">FutureWarning</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">value</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">None</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">deep</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">hasattr</span><span class="p">(</span><span class="k">value</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;get_params&#39;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">deep_items</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="p">.</span><span class="n">get_params</span><span class="p">().</span><span class="n">items</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">                </span><span class="k">out</span><span class="p">.</span><span class="k">update</span><span class="p">((</span><span class="k">key</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;__&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="p">,</span><span class="w"> </span><span class="n">val</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">deep_items</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">out</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">out</span><span class="w"></span>
 </pre></div>
 
 
@@ -2592,45 +2656,45 @@ and returns a transformed version of X.</p>
     corresponding feature is selected for retention. If <code>indices</code> is
     True, this is an integer array of shape [# output features] whose
     values are indices into the input feature vector.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">get_support</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">indices</span><span class="o">=</span><span class="nv">False</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="nf">get_support</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="no">False</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">Get</span> <span class="nv">a</span> <span class="nv">mask</span>, <span class="nv">or</span> <span class="nv">integer</span> <span class="nv">index</span>, <span class="nv">of</span> <span class="nv">the</span> <span class="nv">features</span> <span class="nv">selected</span>
+<span class="s2">        Get a mask, or integer index, of the features selected</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">indices</span> : <span class="nv">boolean</span> <span class="ss">(</span><span class="nv">default</span> <span class="nv">False</span><span class="ss">)</span>
+<span class="s2">        indices : boolean (default False)</span>
 
-            <span class="k">If</span> <span class="nv">True</span>, <span class="nv">the</span> <span class="k">return</span> <span class="nv">value</span> <span class="nv">will</span> <span class="nv">be</span> <span class="nv">an</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">integers</span>, <span class="nv">rather</span>
+<span class="s2">            If True, the return value will be an array of integers, rather</span>
 
-            <span class="nv">than</span> <span class="nv">a</span> <span class="nv">boolean</span> <span class="nv">mask</span>.
+<span class="s2">            than a boolean mask.</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="s2">        -------</span>
 
-        <span class="nv">support</span> : <span class="nv">array</span>
+<span class="s2">        support : array</span>
 
-            <span class="nv">An</span> <span class="nv">index</span> <span class="nv">that</span> <span class="nv">selects</span> <span class="nv">the</span> <span class="nv">retained</span> <span class="nv">features</span> <span class="nv">from</span> <span class="nv">a</span> <span class="nv">feature</span> <span class="nv">vector</span>.
+<span class="s2">            An index that selects the retained features from a feature vector.</span>
 
-            <span class="k">If</span> `<span class="nv">indices</span>` <span class="nv">is</span> <span class="nv">False</span>, <span class="nv">this</span> <span class="nv">is</span> <span class="nv">a</span> <span class="nv">boolean</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span>
+<span class="s2">            If `indices` is False, this is a boolean array of shape</span>
 
-            [# <span class="nv">input</span> <span class="nv">features</span>], <span class="nv">in</span> <span class="nv">which</span> <span class="nv">an</span> <span class="nv">element</span> <span class="nv">is</span> <span class="nv">True</span> <span class="nv">iff</span> <span class="nv">its</span>
+<span class="s2">            [# input features], in which an element is True iff its</span>
 
-            <span class="nv">corresponding</span> <span class="nv">feature</span> <span class="nv">is</span> <span class="nv">selected</span> <span class="k">for</span> <span class="nv">retention</span>. <span class="k">If</span> `<span class="nv">indices</span>` <span class="nv">is</span>
+<span class="s2">            corresponding feature is selected for retention. If `indices` is</span>
 
-            <span class="nv">True</span>, <span class="nv">this</span> <span class="nv">is</span> <span class="nv">an</span> <span class="nv">integer</span> <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [# <span class="nv">output</span> <span class="nv">features</span>] <span class="nv">whose</span>
+<span class="s2">            True, this is an integer array of shape [# output features] whose</span>
 
-            <span class="nv">values</span> <span class="nv">are</span> <span class="nv">indices</span> <span class="nv">into</span> <span class="nv">the</span> <span class="nv">input</span> <span class="nv">feature</span> <span class="nv">vector</span>.
+<span class="s2">            values are indices into the input feature vector.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="nv">mask</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">_get_support_mask</span><span class="ss">()</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">_get_support_mask</span><span class="p">()</span>
 
-        <span class="k">return</span> <span class="nv">mask</span> <span class="k">if</span> <span class="nv">not</span> <span class="nv">indices</span> <span class="k">else</span> <span class="nv">np</span>.<span class="nv">where</span><span class="ss">(</span><span class="nv">mask</span><span class="ss">)</span>[<span class="mi">0</span>]
+        <span class="k">return</span> <span class="n">mask</span> <span class="k">if</span> <span class="k">not</span> <span class="n">indices</span> <span class="k">else</span> <span class="n">np</span><span class="p">.</span><span class="k">where</span><span class="p">(</span><span class="n">mask</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 
 
@@ -2650,72 +2714,72 @@ and returns a transformed version of X.</p>
 <h2 id="returns_5">Returns</h2>
 <p>X_r : array of shape [n_samples, n_original_features]
     <code>X</code> with columns of zeros inserted where features would have
-    been removed by <code>transform</code>.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">inverse_transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
+    been removed by :meth:<code>transform</code>.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="nf">inverse_transform</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">Reverse</span> <span class="nv">the</span> <span class="nv">transformation</span> <span class="nv">operation</span>
+<span class="s2">        Reverse the transformation operation</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_selected_features</span>]
+<span class="s2">        X : array of shape [n_samples, n_selected_features]</span>
 
-            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span>.
+<span class="s2">            The input samples.</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="s2">        -------</span>
 
-        <span class="nv">X_r</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_original_features</span>]
+<span class="s2">        X_r : array of shape [n_samples, n_original_features]</span>
 
-            `<span class="nv">X</span>` <span class="nv">with</span> <span class="nv">columns</span> <span class="nv">of</span> <span class="nv">zeros</span> <span class="nv">inserted</span> <span class="nv">where</span> <span class="nv">features</span> <span class="nv">would</span> <span class="nv">have</span>
+<span class="s2">            `X` with columns of zeros inserted where features would have</span>
 
-            <span class="nv">been</span> <span class="nv">removed</span> <span class="nv">by</span> `<span class="nv">transform</span>`.
+<span class="s2">            been removed by :meth:`transform`.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nv">issparse</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>:
+        <span class="k">if</span> <span class="nf">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
 
-            <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span>.<span class="nv">tocsc</span><span class="ss">()</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">.</span><span class="nf">tocsc</span><span class="p">()</span>
 
-            # <span class="nv">insert</span> <span class="nv">additional</span> <span class="nv">entries</span> <span class="nv">in</span> <span class="nv">indptr</span>:
+            <span class="c1"># insert additional entries in indptr:</span>
 
-            # <span class="nv">e</span>.<span class="nv">g</span>. <span class="k">if</span> <span class="nv">transform</span> <span class="nv">changed</span> <span class="nv">indptr</span> <span class="nv">from</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">6</span> <span class="mi">7</span>] <span class="nv">to</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">3</span>]
+            <span class="c1"># e.g. if transform changed indptr from [0 2 6 7] to [0 2 3]</span>
 
-            # <span class="nv">col_nonzeros</span> <span class="nv">here</span> <span class="nv">will</span> <span class="nv">be</span> [<span class="mi">2</span> <span class="mi">0</span> <span class="mi">1</span>] <span class="nv">so</span> <span class="nv">indptr</span> <span class="nv">becomes</span> [<span class="mi">0</span> <span class="mi">2</span> <span class="mi">2</span> <span class="mi">3</span>]
+            <span class="c1"># col_nonzeros here will be [2 0 1] so indptr becomes [0 2 2 3]</span>
 
-            <span class="nv">it</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">inverse_transform</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">diff</span><span class="ss">(</span><span class="nv">X</span>.<span class="nv">indptr</span><span class="ss">)</span>.<span class="nv">reshape</span><span class="ss">(</span><span class="mi">1</span>, <span class="o">-</span><span class="mi">1</span><span class="ss">))</span>
+            <span class="n">it</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">inverse_transform</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="nf">diff</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">indptr</span><span class="p">).</span><span class="nf">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
 
-            <span class="nv">col_nonzeros</span> <span class="o">=</span> <span class="nv">it</span>.<span class="nv">ravel</span><span class="ss">()</span>
+            <span class="n">col_nonzeros</span> <span class="o">=</span> <span class="n">it</span><span class="p">.</span><span class="nf">ravel</span><span class="p">()</span>
 
-            <span class="nv">indptr</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">concatenate</span><span class="ss">(</span>[[<span class="mi">0</span>], <span class="nv">np</span>.<span class="nv">cumsum</span><span class="ss">(</span><span class="nv">col_nonzeros</span><span class="ss">)</span>]<span class="ss">)</span>
+            <span class="n">indptr</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">concatenate</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="p">.</span><span class="nf">cumsum</span><span class="p">(</span><span class="n">col_nonzeros</span><span class="p">)])</span>
 
-            <span class="nv">Xt</span> <span class="o">=</span> <span class="nv">csc_matrix</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">data</span>, <span class="nv">X</span>.<span class="nv">indices</span>, <span class="nv">indptr</span><span class="ss">)</span>,
+            <span class="n">Xt</span> <span class="o">=</span> <span class="nf">csc_matrix</span><span class="p">((</span><span class="n">X</span><span class="p">.</span><span class="n">data</span><span class="p">,</span> <span class="n">X</span><span class="p">.</span><span class="n">indices</span><span class="p">,</span> <span class="n">indptr</span><span class="p">),</span>
 
-                            <span class="nv">shape</span><span class="o">=</span><span class="ss">(</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">len</span><span class="ss">(</span><span class="nv">indptr</span><span class="ss">)</span> <span class="o">-</span> <span class="mi">1</span><span class="ss">)</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">X</span>.<span class="nv">dtype</span><span class="ss">)</span>
+                            <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nf">len</span><span class="p">(</span><span class="n">indptr</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="p">.</span><span class="n">dtype</span><span class="p">)</span>
 
-            <span class="k">return</span> <span class="nv">Xt</span>
+            <span class="k">return</span> <span class="n">Xt</span>
 
-        <span class="nv">support</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_support</span><span class="ss">()</span>
+        <span class="n">support</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_support</span><span class="p">()</span>
 
-        <span class="nv">X</span> <span class="o">=</span> <span class="nv">check_array</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">None</span><span class="ss">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="nf">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">None</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nv">support</span>.<span class="nv">sum</span><span class="ss">()</span> <span class="o">!=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]:
+        <span class="k">if</span> <span class="n">support</span><span class="p">.</span><span class="nf">sum</span><span class="p">()</span> <span class="o">!=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X has a different shape than during fitting.</span><span class="s2">&quot;</span><span class="ss">)</span>
+            <span class="n">raise</span> <span class="nf">ValueError</span><span class="p">(</span><span class="s2">&quot;X has a different shape than during fitting.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nv">X</span>.<span class="nv">ndim</span> <span class="o">==</span> <span class="mi">1</span>:
+        <span class="k">if</span> <span class="n">X</span><span class="p">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
 
-            <span class="nv">X</span> <span class="o">=</span> <span class="nv">X</span>[<span class="nv">None</span>, :]
+            <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">None</span><span class="p">,</span> <span class="p">:]</span>
 
-        <span class="nv">Xt</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">zeros</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="nv">support</span>.<span class="nv">size</span><span class="ss">)</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">X</span>.<span class="nv">dtype</span><span class="ss">)</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="nf">zeros</span><span class="p">((</span><span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">support</span><span class="p">.</span><span class="n">size</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">X</span><span class="p">.</span><span class="n">dtype</span><span class="p">)</span>
 
-        <span class="nv">Xt</span>[:, <span class="nv">support</span>] <span class="o">=</span> <span class="nv">X</span>
+        <span class="n">Xt</span><span class="p">[:,</span> <span class="n">support</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span>
 
-        <span class="k">return</span> <span class="nv">Xt</span>
+        <span class="k">return</span> <span class="n">Xt</span>
 </pre></div>
 
 
@@ -2728,39 +2792,39 @@ and returns a transformed version of X.</p>
 
 
 <p>Pretty print the relevance intervals and determined feature relevance class</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">print_interval_with_class</span><span class="ss">(</span><span class="nv">self</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">print_interval_with_class</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-        <span class="nv">Pretty</span> <span class="nv">print</span> <span class="nv">the</span> <span class="nv">relevance</span> <span class="nv">intervals</span> <span class="nv">and</span> <span class="nv">determined</span> <span class="nv">feature</span> <span class="nv">relevance</span> <span class="nv">class</span>
+<span class="ss">        Pretty print the relevance intervals and determined feature relevance class</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-        <span class="nv">output</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="w">        </span><span class="k">output</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ss">&quot;&quot;</span><span class="w"></span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">interval_</span> <span class="nv">is</span> <span class="nv">None</span>:
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
 
-            <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">Model is not fitted.</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="ss">&quot;Model is not fitted.&quot;</span><span class="w"></span>
 
-        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">############## Relevance bounds ##############</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="ss">&quot;############## Relevance bounds ##############\n&quot;</span><span class="w"></span>
 
-        <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">feature: [LB -- UB], relevance class</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="ss">&quot;feature: [LB -- UB], relevance class\n&quot;</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">i</span> <span class="nv">in</span> <span class="nv">range</span><span class="ss">(</span><span class="nv">self</span>.<span class="nv">n_features_</span> <span class="o">+</span> <span class="nv">self</span>.<span class="nv">lupi_features_</span><span class="ss">)</span>:
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">n_features_</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">lupi_features_</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">i</span> <span class="o">==</span> <span class="nv">self</span>.<span class="nv">n_features_</span>:
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="nl">n_features_</span><span class="p">:</span><span class="w"></span>
 
-                <span class="nv">output</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="s">########## LUPI Relevance bounds</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">                </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="ss">&quot;########## LUPI Relevance bounds\n&quot;</span><span class="w"></span>
 
-            <span class="nv">output</span> <span class="o">+=</span> <span class="ss">(</span>
+<span class="w">            </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
 
-                <span class="nv">f</span><span class="s2">&quot;</span><span class="s">{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],</span><span class="s2">&quot;</span>
+<span class="w">                </span><span class="n">f</span><span class="ss">&quot;{i:7}: [{self.interval_[i, 0]:1.1f} -- {self.interval_[i, 1]:1.1f}],&quot;</span><span class="w"></span>
 
-            <span class="ss">)</span>
+<span class="w">            </span><span class="p">)</span><span class="w"></span>
 
-            <span class="nv">output</span> <span class="o">+=</span> <span class="nv">f</span><span class="s2">&quot;</span><span class="s"> {self.relevance_classes_string_[i]}</span><span class="se">\n</span><span class="s2">&quot;</span>
+<span class="w">            </span><span class="k">output</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">f</span><span class="ss">&quot; {self.relevance_classes_string_[i]}\n&quot;</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">output</span>
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="k">output</span><span class="w"></span>
 </pre></div>
 
 
@@ -2780,35 +2844,35 @@ and returns a transformed version of X.</p>
 y : numpy.ndarray</p>
 <h2 id="returns_6">Returns</h2>
 <p>Model specific score (0 is worst, 1 is best)</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">score</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="nf">score</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
 
         <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="nv">Using</span> <span class="nv">fitted</span> <span class="nv">model</span> <span class="nv">predict</span> <span class="nv">points</span> <span class="k">for</span> `<span class="nv">X</span>` <span class="nv">and</span> <span class="nv">compare</span> <span class="nv">to</span> <span class="nv">truth</span> `<span class="nv">y</span>`.
+<span class="s2">        Using fitted model predict points for `X` and compare to truth `y`.</span>
 
-        <span class="nv">Parameters</span>
+<span class="s2">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="s2">        ----------</span>
 
-        <span class="nv">X</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        X : numpy.ndarray</span>
 
-        <span class="nv">y</span> : <span class="nv">numpy</span>.<span class="nv">ndarray</span>
+<span class="s2">        y : numpy.ndarray</span>
 
-        <span class="nv">Returns</span>
+<span class="s2">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="s2">        -------</span>
 
-        <span class="nv">Model</span> <span class="nv">specific</span> <span class="nv">score</span> <span class="ss">(</span><span class="mi">0</span> <span class="nv">is</span> <span class="nv">worst</span>, <span class="mi">1</span> <span class="nv">is</span> <span class="nv">best</span><span class="ss">)</span>
+<span class="s2">        Model specific score (0 is worst, 1 is best)</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>:
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">:</span>
 
-            <span class="k">return</span> <span class="nv">self</span>.<span class="nv">optim_model_</span>.<span class="nv">score</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">y</span><span class="ss">)</span>
+            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">optim_model_</span><span class="p">.</span><span class="nf">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
 
-        <span class="k">else</span>:
+        <span class="k">else</span><span class="p">:</span>
 
-            <span class="nv">raise</span> <span class="nv">NotFittedError</span><span class="ss">()</span>
+            <span class="n">raise</span> <span class="nf">NotFittedError</span><span class="p">()</span>
 </pre></div>
 
 
@@ -2826,67 +2890,83 @@ y : numpy.ndarray</p>
 (such as pipelines). The latter have parameters of the form
 <code>&lt;component&gt;__&lt;parameter&gt;</code> so that it's possible to update each
 component of a nested object.</p>
+<h2 id="parameters_7">Parameters</h2>
+<p>**params : dict
+    Estimator parameters.</p>
 <h2 id="returns_7">Returns</h2>
-<p>self</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">set_params</span><span class="ss">(</span><span class="nv">self</span>, <span class="o">**</span><span class="nb">params</span><span class="ss">)</span>:
+<p>self : object
+    Estimator instance.</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">set_params</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="o">**</span><span class="n">params</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Set the parameters of this estimator.</span>
+<span class="w">        </span><span class="ss">&quot;&quot;&quot;</span>
 
-        <span class="nv">The</span> <span class="nv">method</span> <span class="nv">works</span> <span class="nv">on</span> <span class="nv">simple</span> <span class="nv">estimators</span> <span class="nv">as</span> <span class="nv">well</span> <span class="nv">as</span> <span class="nv">on</span> <span class="nv">nested</span> <span class="nv">objects</span>
+<span class="ss">        Set the parameters of this estimator.</span>
 
-        <span class="ss">(</span><span class="nv">such</span> <span class="nv">as</span> <span class="nv">pipelines</span><span class="ss">)</span>. <span class="nv">The</span> <span class="nv">latter</span> <span class="nv">have</span> <span class="nv">parameters</span> <span class="nv">of</span> <span class="nv">the</span> <span class="nv">form</span>
+<span class="ss">        The method works on simple estimators as well as on nested objects</span>
 
-        ``<span class="o">&lt;</span><span class="nv">component</span><span class="o">&gt;</span><span class="nv">__</span><span class="o">&lt;</span><span class="nv">parameter</span><span class="o">&gt;</span>`` <span class="nv">so</span> <span class="nv">that</span> <span class="nv">it</span><span class="s1">&#39;</span><span class="s">s possible to update each</span>
+<span class="ss">        (such as pipelines). The latter have parameters of the form</span>
 
-        <span class="nv">component</span> <span class="nv">of</span> <span class="nv">a</span> <span class="nv">nested</span> <span class="nv">object</span>.
+<span class="ss">        ``&lt;component&gt;__&lt;parameter&gt;`` so that it&#39;s possible to update each</span>
 
-        <span class="nv">Returns</span>
+<span class="ss">        component of a nested object.</span>
 
-        <span class="o">-------</span>
+<span class="ss">        Parameters</span>
 
-        <span class="nv">self</span>
+<span class="ss">        ----------</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        **params : dict</span>
 
-        <span class="k">if</span> <span class="nv">not</span> <span class="nb">params</span>:
+<span class="ss">            Estimator parameters.</span>
 
-            # <span class="nv">Simple</span> <span class="nv">optimization</span> <span class="nv">to</span> <span class="nv">gain</span> <span class="nv">speed</span> <span class="ss">(</span><span class="nv">inspect</span> <span class="nv">is</span> <span class="nv">slow</span><span class="ss">)</span>
+<span class="ss">        Returns</span>
 
-            <span class="k">return</span> <span class="nv">self</span>
+<span class="ss">        -------</span>
 
-        <span class="nv">valid_params</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_params</span><span class="ss">(</span><span class="nv">deep</span><span class="o">=</span><span class="nv">True</span><span class="ss">)</span>
+<span class="ss">        self : object</span>
 
-        <span class="nv">nested_params</span> <span class="o">=</span> <span class="nv">defaultdict</span><span class="ss">(</span><span class="nv">dict</span><span class="ss">)</span>  # <span class="nv">grouped</span> <span class="nv">by</span> <span class="nv">prefix</span>
+<span class="ss">            Estimator instance.</span>
 
-        <span class="k">for</span> <span class="nv">key</span>, <span class="nv">value</span> <span class="nv">in</span> <span class="nb">params</span>.<span class="nv">items</span><span class="ss">()</span>:
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
 
-            <span class="nv">key</span>, <span class="nv">delim</span>, <span class="nv">sub_key</span> <span class="o">=</span> <span class="nv">key</span>.<span class="nv">partition</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">__</span><span class="s1">&#39;</span><span class="ss">)</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="nl">params</span><span class="p">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">key</span> <span class="nv">not</span> <span class="nv">in</span> <span class="nv">valid_params</span>:
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">Simple</span><span class="w"> </span><span class="n">optimization</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">gain</span><span class="w"> </span><span class="n">speed</span><span class="w"> </span><span class="p">(</span><span class="n">inspect</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="n">slow</span><span class="p">)</span><span class="w"></span>
 
-                <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s1">&#39;</span><span class="s">Invalid parameter %s for estimator %s. </span><span class="s1">&#39;</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 
-                                 <span class="s1">&#39;</span><span class="s">Check the list of available parameters </span><span class="s1">&#39;</span>
+<span class="w">        </span><span class="n">valid_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">get_params</span><span class="p">(</span><span class="n">deep</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
 
-                                 <span class="s1">&#39;</span><span class="s">with `estimator.get_params().keys()`.</span><span class="s1">&#39;</span> <span class="o">%</span>
+<span class="w">        </span><span class="n">nested_params</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">defaultdict</span><span class="p">(</span><span class="n">dict</span><span class="p">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">grouped</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="k">prefix</span><span class="w"></span>
 
-                                 <span class="ss">(</span><span class="nv">key</span>, <span class="nv">self</span><span class="ss">))</span>
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">params</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
-            <span class="k">if</span> <span class="nv">delim</span>:
+<span class="w">            </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">delim</span><span class="p">,</span><span class="w"> </span><span class="n">sub_key</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">key</span><span class="p">.</span><span class="k">partition</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span><span class="w"></span>
 
-                <span class="nv">nested_params</span>[<span class="nv">key</span>][<span class="nv">sub_key</span>] <span class="o">=</span> <span class="nv">value</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="k">key</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="nl">valid_params</span><span class="p">:</span><span class="w"></span>
 
-            <span class="k">else</span>:
+<span class="w">                </span><span class="n">raise</span><span class="w"> </span><span class="n">ValueError</span><span class="p">(</span><span class="s1">&#39;Invalid parameter %s for estimator %s. &#39;</span><span class="w"></span>
 
-                <span class="nv">setattr</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">key</span>, <span class="nv">value</span><span class="ss">)</span>
+<span class="w">                                 </span><span class="s1">&#39;Check the list of available parameters &#39;</span><span class="w"></span>
 
-                <span class="nv">valid_params</span>[<span class="nv">key</span>] <span class="o">=</span> <span class="nv">value</span>
+<span class="w">                                 </span><span class="s1">&#39;with `estimator.get_params().keys()`.&#39;</span><span class="w"> </span><span class="o">%</span><span class="w"></span>
 
-        <span class="k">for</span> <span class="nv">key</span>, <span class="nv">sub_params</span> <span class="nv">in</span> <span class="nv">nested_params</span>.<span class="nv">items</span><span class="ss">()</span>:
+<span class="w">                                 </span><span class="p">(</span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">))</span><span class="w"></span>
 
-            <span class="nv">valid_params</span>[<span class="nv">key</span>].<span class="nv">set_params</span><span class="ss">(</span><span class="o">**</span><span class="nv">sub_params</span><span class="ss">)</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="nl">delim</span><span class="p">:</span><span class="w"></span>
 
-        <span class="k">return</span> <span class="nv">self</span>
+<span class="w">                </span><span class="n">nested_params</span><span class="o">[</span><span class="n">key</span><span class="o">][</span><span class="n">sub_key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">            </span><span class="k">else</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">setattr</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="k">value</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">                </span><span class="n">valid_params</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">value</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="k">key</span><span class="p">,</span><span class="w"> </span><span class="n">sub_params</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">nested_params</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">valid_params</span><span class="o">[</span><span class="n">key</span><span class="o">]</span><span class="p">.</span><span class="n">set_params</span><span class="p">(</span><span class="o">**</span><span class="n">sub_params</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="w"></span>
 </pre></div>
 
 
@@ -2900,53 +2980,57 @@ component of a nested object.</p>
 
 
 <p>Reduce X to the selected features.</p>
-<h2 id="parameters_7">Parameters</h2>
+<h2 id="parameters_8">Parameters</h2>
 <p>X : array of shape [n_samples, n_features]
     The input samples.</p>
 <h2 id="returns_8">Returns</h2>
 <p>X_r : array of shape [n_samples, n_selected_features]
     The input samples with only the selected features.</p>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="nv">def</span> <span class="nv">transform</span><span class="ss">(</span><span class="nv">self</span>, <span class="nv">X</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span>    <span class="n">def</span> <span class="k">transform</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
 
-        <span class="s2">&quot;&quot;&quot;</span><span class="s">Reduce X to the selected features.</span>
+        <span class="ss">&quot;&quot;&quot;Reduce X to the selected features.</span>
 
-        <span class="nv">Parameters</span>
+<span class="ss">        Parameters</span>
 
-        <span class="o">----------</span>
+<span class="ss">        ----------</span>
 
-        <span class="nv">X</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_features</span>]
+<span class="ss">        X : array of shape [n_samples, n_features]</span>
 
-            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span>.
+<span class="ss">            The input samples.</span>
 
-        <span class="nv">Returns</span>
+<span class="ss">        Returns</span>
 
-        <span class="o">-------</span>
+<span class="ss">        -------</span>
 
-        <span class="nv">X_r</span> : <span class="nv">array</span> <span class="nv">of</span> <span class="nv">shape</span> [<span class="nv">n_samples</span>, <span class="nv">n_selected_features</span>]
+<span class="ss">        X_r : array of shape [n_samples, n_selected_features]</span>
 
-            <span class="nv">The</span> <span class="nv">input</span> <span class="nv">samples</span> <span class="nv">with</span> <span class="nv">only</span> <span class="nv">the</span> <span class="nv">selected</span> <span class="nv">features</span>.
+<span class="ss">            The input samples with only the selected features.</span>
 
-        <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">        &quot;&quot;&quot;</span>
 
-        <span class="nv">X</span> <span class="o">=</span> <span class="nv">check_array</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">dtype</span><span class="o">=</span><span class="nv">None</span>, <span class="nv">accept_sparse</span><span class="o">=</span><span class="s1">&#39;</span><span class="s">csr</span><span class="s1">&#39;</span><span class="ss">)</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_get_tags</span><span class="p">()</span>
 
-        <span class="nv">mask</span> <span class="o">=</span> <span class="nv">self</span>.<span class="nv">get_support</span><span class="ss">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="k">None</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">,</span>
 
-        <span class="k">if</span> <span class="nv">not</span> <span class="nv">mask</span>.<span class="nv">any</span><span class="ss">()</span>:
+                        <span class="n">force_all_finite</span><span class="o">=</span><span class="k">not</span> <span class="n">tags</span><span class="p">.</span><span class="k">get</span><span class="p">(</span><span class="s1">&#39;allow_nan&#39;</span><span class="p">,</span> <span class="k">True</span><span class="p">))</span>
 
-            <span class="nv">warn</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">No features were selected: either the data is</span><span class="s2">&quot;</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">get_support</span><span class="p">()</span>
 
-                 <span class="s2">&quot;</span><span class="s"> too noisy or the selection test too strict.</span><span class="s2">&quot;</span>,
+        <span class="k">if</span> <span class="k">not</span> <span class="n">mask</span><span class="p">.</span><span class="k">any</span><span class="p">():</span>
 
-                 <span class="nv">UserWarning</span><span class="ss">)</span>
+            <span class="n">warn</span><span class="p">(</span><span class="ss">&quot;No features were selected: either the data is&quot;</span>
 
-            <span class="k">return</span> <span class="nv">np</span>.<span class="nv">empty</span><span class="ss">(</span><span class="mi">0</span><span class="ss">)</span>.<span class="nv">reshape</span><span class="ss">((</span><span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">0</span>], <span class="mi">0</span><span class="ss">))</span>
+                 <span class="ss">&quot; too noisy or the selection test too strict.&quot;</span><span class="p">,</span>
 
-        <span class="k">if</span> <span class="nv">len</span><span class="ss">(</span><span class="nv">mask</span><span class="ss">)</span> <span class="o">!=</span> <span class="nv">X</span>.<span class="nv">shape</span>[<span class="mi">1</span>]:
+                 <span class="n">UserWarning</span><span class="p">)</span>
 
-            <span class="nv">raise</span> <span class="nv">ValueError</span><span class="ss">(</span><span class="s2">&quot;</span><span class="s">X has a different shape than during fitting.</span><span class="s2">&quot;</span><span class="ss">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">empty</span><span class="p">(</span><span class="mi">0</span><span class="p">).</span><span class="n">reshape</span><span class="p">((</span><span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span>
 
-        <span class="k">return</span> <span class="nv">X</span>[:, <span class="nv">safe_mask</span><span class="ss">(</span><span class="nv">X</span>, <span class="nv">mask</span><span class="ss">)</span>]
+        <span class="k">if</span> <span class="n">len</span><span class="p">(</span><span class="n">mask</span><span class="p">)</span> <span class="o">!=</span> <span class="n">X</span><span class="p">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+
+            <span class="n">raise</span> <span class="n">ValueError</span><span class="p">(</span><span class="ss">&quot;X has a different shape than during fitting.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">X</span><span class="p">[:,</span> <span class="n">safe_mask</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">mask</span><span class="p">)]</span>
 </pre></div>
 
 
@@ -2993,6 +3077,7 @@ component of a nested object.</p>
 set self.<strong>traceback</strong> to tb and return self.</p>
                 
                   
+                
                 
               
               
@@ -3061,7 +3146,7 @@ set self.<strong>traceback</strong> to tb and return self.</p>
       
     </div>
     
-      <script src="../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       

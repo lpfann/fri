@@ -32,7 +32,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../docs/favicon.ico">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.3">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -40,17 +40,17 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/application.30686662.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.1b62728e.css">
       
       
     
     
-      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+      <script src="../../../assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
@@ -761,7 +761,7 @@
                 
                 
                 <h1 id="module-friutils">Module fri.utils</h1>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 
@@ -832,41 +832,41 @@
 <p>u: first feature
 v: second feature</p>
 <h2 id="returns">Returns</h2>
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">distance</span><span class="ss">(</span><span class="nv">u</span>, <span class="nv">v</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="n">distance</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+    <span class="ss">&quot;&quot;&quot;</span>
 
-    <span class="nv">Distance</span> <span class="nv">measure</span> <span class="nv">custom</span> <span class="nv">made</span> <span class="k">for</span> <span class="nv">feature</span> <span class="nv">comparison</span>.
+<span class="ss">    Distance measure custom made for feature comparison.</span>
 
-    <span class="nv">Parameters</span>
+<span class="ss">    Parameters</span>
 
-    <span class="o">----------</span>
+<span class="ss">    ----------</span>
 
-    <span class="nv">u</span>: <span class="nv">first</span> <span class="nv">feature</span>
+<span class="ss">    u: first feature</span>
 
-    <span class="nv">v</span>: <span class="nv">second</span> <span class="nv">feature</span>
+<span class="ss">    v: second feature</span>
 
-    <span class="nv">Returns</span>
+<span class="ss">    Returns</span>
 
-    <span class="o">-------</span>
+<span class="ss">    -------</span>
 
-    <span class="s2">&quot;&quot;&quot;</span>
+<span class="ss">    &quot;&quot;&quot;</span>
 
-    <span class="nv">u</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">u</span><span class="ss">)</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">u</span><span class="p">)</span>
 
-    <span class="nv">v</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">asarray</span><span class="ss">(</span><span class="nv">v</span><span class="ss">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
-    # <span class="nv">Euclidean</span> <span class="nv">differences</span>
+    <span class="o">#</span> <span class="n">Euclidean</span> <span class="n">differences</span>
 
-    <span class="nv">diff</span> <span class="o">=</span> <span class="ss">(</span><span class="nv">u</span> <span class="o">-</span> <span class="nv">v</span><span class="ss">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
 
-    # <span class="nv">Nullify</span> <span class="nv">pairwise</span> <span class="nv">contribution</span>
+    <span class="o">#</span> <span class="n">Nullify</span> <span class="n">pairwise</span> <span class="n">contribution</span>
 
-    <span class="nv">diff</span>[<span class="nv">u</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">diff</span><span class="p">[</span><span class="n">u</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="nv">diff</span>[<span class="nv">v</span> <span class="o">==</span> <span class="mi">0</span>] <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">diff</span><span class="p">[</span><span class="n">v</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">return</span> <span class="nv">np</span>.<span class="nv">sqrt</span><span class="ss">(</span><span class="nv">np</span>.<span class="nv">sum</span><span class="ss">(</span><span class="nv">diff</span><span class="ss">))</span>
+    <span class="k">return</span> <span class="n">np</span><span class="p">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="p">.</span><span class="k">sum</span><span class="p">(</span><span class="n">diff</span><span class="p">))</span>
 </pre></div>
 
 
@@ -880,27 +880,28 @@ v: second feature</p>
 </pre></div>
 
 
-<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="nv">def</span> <span class="nv">permutate_feature_in_data</span><span class="ss">(</span><span class="nv">data</span>, <span class="nv">feature_i</span>, <span class="nv">random_state</span><span class="ss">)</span>:
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><span class="n">def</span> <span class="n">permutate_feature_in_data</span><span class="p">(</span><span class="k">data</span><span class="p">,</span> <span class="n">feature_i</span><span class="p">,</span> <span class="n">random_state</span><span class="p">):</span>
 
-    <span class="nv">X</span>, <span class="nv">y</span> <span class="o">=</span> <span class="nv">data</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="k">data</span>
 
-    <span class="nv">X_copy</span> <span class="o">=</span> <span class="nv">np</span>.<span class="nv">copy</span><span class="ss">(</span><span class="nv">X</span><span class="ss">)</span>
+    <span class="n">X_copy</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="k">copy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
-    # <span class="nv">Permute</span> <span class="nv">selected</span> <span class="nv">feature</span>
+    <span class="o">#</span> <span class="n">Permute</span> <span class="n">selected</span> <span class="n">feature</span>
 
-    <span class="nv">permutated_feature</span> <span class="o">=</span> <span class="nv">random_state</span>.<span class="nv">permutation</span><span class="ss">(</span><span class="nv">X_copy</span>[:, <span class="nv">feature_i</span>]<span class="ss">)</span>
+    <span class="n">permutated_feature</span> <span class="o">=</span> <span class="n">random_state</span><span class="p">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">X_copy</span><span class="p">[:,</span> <span class="n">feature_i</span><span class="p">])</span>
 
-    # <span class="nv">Add</span> <span class="nv">permutation</span> <span class="nv">back</span> <span class="nv">to</span> <span class="nv">dataset</span>
+    <span class="o">#</span> <span class="k">Add</span> <span class="n">permutation</span> <span class="n">back</span> <span class="k">to</span> <span class="n">dataset</span>
 
-    <span class="nv">X_copy</span>[:, <span class="nv">feature_i</span>] <span class="o">=</span> <span class="nv">permutated_feature</span>
+    <span class="n">X_copy</span><span class="p">[:,</span> <span class="n">feature_i</span><span class="p">]</span> <span class="o">=</span> <span class="n">permutated_feature</span>
 
-    <span class="k">return</span> <span class="nv">X_copy</span>, <span class="nv">y</span>
+    <span class="k">return</span> <span class="n">X_copy</span><span class="p">,</span> <span class="n">y</span>
 </pre></div>
 
 
 </details>
                 
                   
+                
                 
               
               
@@ -969,7 +970,7 @@ v: second feature</p>
       
     </div>
     
-      <script src="../../../assets/javascripts/application.ac79c3b0.js"></script>
+      <script src="../../../assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       
