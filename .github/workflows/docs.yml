@@ -33,7 +33,7 @@ jobs:
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: poetry install -v
-    - run: portray as_html
+    - run: poetry run portray as_html
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v2
       env:
