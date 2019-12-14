@@ -2,7 +2,7 @@ name: Deploy to PyPI
 
 on:
   release:
-    types: [published] # Only deploy when publishing github releases
+    types: [published,edited] # Only deploy when publishing github releases
 
 jobs:
   deploy:
