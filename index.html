@@ -222,59 +222,9 @@
       
     
     
-      <label class="md-nav__link md-nav__link--active" for="__toc">
-        Home
-      </label>
-    
     <a href="." title="Home" class="md-nav__link md-nav__link--active">
       Home
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    Documentation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    Installation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
-    References
-  </a>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
-</nav>
     
   </li>
 
@@ -668,43 +618,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#documentation" class="md-nav__link">
-    Documentation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    Installation
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage" class="md-nav__link">
-    Usage
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#references" class="md-nav__link">
-    References
-  </a>
-  
-</li>
-      
-      
-      
-      
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -733,10 +646,9 @@ important features are conserved. At the moment we support multiple
 linear models for solving Classification, Regression and Ordinal
 Regression Problems. We also support LUPI paradigm where at learning
 time, privileged information is available.</p>
-<h2 id="documentation">Documentation</h2>
-<p>Check out our online documentation <a href="https://lpfann.github.io/fri/">here</a>.
-There you can find a quick start guide and more background information.</p>
-<p>You can also run the guide directly without setup online <a href="https://colab.research.google.com/github/lpfann/fri/blob/master/doc/source/notebooks/Guide.ipynb">here</a>.</p>
+<h1 id="usage">Usage</h1>
+<p>Please refer to the <a href="https://lpfann.github.io/fri/">documentation</a> for advice.
+For a quick start we provide a simple guide which leads through the main functions.</p>
 <h2 id="installation">Installation</h2>
 <p><code>FRI</code> requires <strong>Python 3.6+</strong>. </p>
 <p>For a <strong>stable</strong> version from <code>PyPI</code> use</p>
@@ -744,9 +656,31 @@ There you can find a quick start guide and more background information.</p>
 </pre></div>
 
 
-<h2 id="usage">Usage</h2>
-<p>Please refer to the <a href="https://lpfann.github.io/fri/">documentation</a> for advice.
-For a quick start we provide a simple guide which leads through the main functions.</p>
+<h2 id="documentation">Documentation</h2>
+<p>Check out our online documentation <a href="https://lpfann.github.io/fri/">here</a>.
+There you can find a quick start guide and more background information.</p>
+<p>You can also run the guide directly online without setup <a href="https://colab.research.google.com/github/lpfann/fri/blob/master/doc/source/notebooks/Guide.ipynb">here</a>.</p>
+<h1 id="development">Development</h1>
+<p>For dependency management we use the newly released <a href="https://python-poetry.org/">poetry</a> tool.</p>
+<p>If you have <code>poetry</code> installed, use</p>
+<div class="codehilite"><pre><span></span>$ poetry install
+</pre></div>
+
+
+<p>inside the project folder to create a new <code>venv</code> and to install all dependencies.
+To enter the newly created <code>venv</code> use <code>$ poetry env</code> to open a new shell inside.
+Or alternatively run commands inside the <code>venv</code> with <code>poetry run ...</code>.</p>
+<h4 id="docs">Docs</h4>
+<p>The <a href="https://lpfann.github.io/fri/">documentation</a> is compiled using <a href="https://github.com/timothycrosley/portray/">portray</a>.
+If the dependencies are installed with <code>poetry install</code> you should be able to run </p>
+<div class="codehilite"><pre><span></span>poetry run portray in_browser
+</pre></div>
+
+
+<p>to compile the files into html and launch a browser to preview changes.</p>
+<p>(Be sure not to mix up <code>poetry</code> != <code>portray</code>.)</p>
+<p>The documentation files are generated from <code>Python</code> docstrings inside the source files
+ and from Markdown located in the <code>docs</code> folder.</p>
 <h2 id="references">References</h2>
 <p>[1] Göpfert C, Pfannschmidt L, Hammer B. Feature Relevance Bounds for Linear Classification. In: Proceedings of the ESANN. 25th European Symposium on Artificial Neural Networks, Computational Intelligence and Machine Learning;
 <a href="https://pub.uni-bielefeld.de/publication/2908201">https://pub.uni-bielefeld.de/publication/2908201</a></p>
