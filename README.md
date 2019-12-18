@@ -46,14 +46,18 @@ If you have `poetry` installed, use
 $ poetry install
 ```  
 inside the project folder to create a new `venv` and to install all dependencies.
-To enter the newly created `venv` use `$ poetry env` to open a new shell inside.
+To enter the newly created `venv` use 
+```shell 
+$ poetry env
+```
+to open a new shell inside.
 Or alternatively run commands inside the `venv` with `poetry run ...`.
 
 #### Docs
 The [documentation](https://lpfann.github.io/fri/) is compiled using [portray](https://github.com/timothycrosley/portray/).
 If the dependencies are installed with `poetry install` you should be able to run 
 ```shell
-poetry run portray in_browser
+$ poetry run portray in_browser
 ```
 to compile the files into html and launch a browser to preview changes.
 
