@@ -32,7 +32,7 @@ LUPI_MODELS = [
     ProblemName.LUPI_ORDREGRESSION,
 ]
 
-from fri.toydata import (
+from arfs_gen import (
     genRegressionData,
     genClassificationData,
     genOrdinalRegressionData,

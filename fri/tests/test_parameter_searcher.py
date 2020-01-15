@@ -4,8 +4,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 import fri
+from fri import genLupiData
 from fri.parameter_searcher import find_best_model
-from fri.toydata import genLupiData
 
 
 @pytest.fixture(scope="session")
