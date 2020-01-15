@@ -27,6 +27,7 @@ cvxpy = "1.0.25"
 ecos = "^2.0.7"
 matplotlib = "^3.1"
 attrs = "^19.3.0"
+arfs-gen = {git = "https://github.com/lpfann/arfs_gen.git", rev = "1.0.0"}
 
 [tool.poetry.dev-dependencies]
 pytest = "^5"
