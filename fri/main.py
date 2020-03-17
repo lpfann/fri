@@ -59,16 +59,17 @@ class FRIBase(BaseEstimator, SelectorMixin):
         Relevance prediction encoded as boolean: 0 irrelevant, 1 relevant
         """
 
+        self.problem_type = problem_type
         self.n_probe_features = n_probe_features
         self.n_param_search = n_param_search
-
-        # assert issubclass(problem_type, ProblemType)
-        self.problem_type_ = problem_type(**kwargs)
-
         self.random_state = check_random_state(random_state)
         self.n_jobs = n_jobs
         self.verbose = verbose
         self.normalize = normalize
+
+        self.other_args = kwargs
+        for k, v in kwargs.items():
+            setattr(self, k, v)
 
         self.interval_ = None
         self.optim_model_ = None
@@ -95,6 +96,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
         -------
         `FRIBase`
         """
+        self.problem_object_ = self.problem_type(**self.other_args)
         self.lupi_features_ = lupi_features
         self.n_samples_ = X.shape[0]
         self.n_features_ = X.shape[1] - lupi_features
@@ -103,10 +105,10 @@ class FRIBase(BaseEstimator, SelectorMixin):
             X, y, lupi_features, **kwargs
         )
 
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        data = self.problem_object_.preprocessing((X, y), lupi_features=lupi_features)
         self._relevance_bounds_computer = RelevanceBoundsIntervals(
             data,
-            self.problem_type_,
+            self.problem_object_,
             self.optim_model_,
             self.random_state,
             self.n_probe_features,
@@ -134,11 +136,11 @@ class FRIBase(BaseEstimator, SelectorMixin):
     def _fit_baseline(self, X, y, lupi_features=0, **kwargs):
 
         # Preprocessing
-        data = self.problem_type_.preprocessing((X, y), lupi_features=lupi_features)
+        data = self.problem_object_.preprocessing((X, y), lupi_features=lupi_features)
         # Get predefined template for our init. model
-        init_model_template = self.problem_type_.get_initmodel_template
+        init_model_template = self.problem_object_.get_initmodel_template
         # Get hyperparameters which are predefined to our model template and can be seleted by user choice
-        hyperparameters = self.problem_type_.get_all_parameters()
+        hyperparameters = self.problem_object_.get_all_parameters()
         # search_samples = len(hyperparameters) * self.n_param_search # TODO: remove this
         search_samples = self.n_param_search
         # Find an optimal, fitted model using hyperparemeter search

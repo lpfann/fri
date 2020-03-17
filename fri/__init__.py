@@ -65,17 +65,17 @@ class FRI(FRIBase):
         self,
         problemName: object,
         random_state: object = None,
-        n_jobs: object = 1,
-        verbose: object = 0,
-        n_param_search: object = 10,
-        n_probe_features: object = 20,
-        slack_regularization: object = 0.001,
-        slack_loss: object = 0.001,
-        normalize: object = True,
+        n_jobs: int = 1,
+        verbose: int = 0,
+        n_param_search: int = 10,
+        n_probe_features: int = 20,
+        w_l1_slack: float = 0.001,
+        loss_slack: float = 0.001,
+        normalize: bool = True,
         **kwargs,
     ):
         """
-        Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.
+        Main class to use `FRI` in programatic fashion following the scikit-learn paradigm.
 
         Parameters
         ----------
@@ -91,14 +91,16 @@ class FRI(FRIBase):
             Number of parameter samples in random search for hyperparameters.
         n_probe_features: int
             Number of probes to generate to improve feature selection.
-        slack_regularization: float
+        w_l1_slack: float
             Allow deviation from optimal L1 norm.
-        slack_loss: float
+        loss_slack: float
             Allow deviation of loss.
         normalize: boolean
             Normalize relevace bounds to range of [0,1] depending on L1 norm.
 
         """
+        self.problemName = problemName
+
         if isinstance(problemName, ProblemName):
             problemtype = problemName.value
         else:
@@ -125,8 +127,8 @@ class FRI(FRIBase):
                 verbose=verbose,
                 n_param_search=n_param_search,
                 n_probe_features=n_probe_features,
-                w_l1_slack=slack_regularization,
-                loss_slack=slack_loss,
+                w_l1_slack=w_l1_slack,
+                loss_slack=loss_slack,
                 normalize=normalize,
                 **kwargs,
             )
