@@ -7,18 +7,30 @@ logging.basicConfig(level=logging.INFO)
 from enum import Enum
 import fri.model
 
+import arfs_gen
+
 
 class ProblemName(Enum):
     """
     Enum which contains usable models for which feature relevance intervals can be computed in :func:`~FRI`.
+    Values of enums contains class of model and data generation method found in external library `arfs_gen`.
     """
 
-    CLASSIFICATION = fri.model.Classification
-    REGRESSION = fri.model.Regression
-    ORDINALREGRESSION = fri.model.OrdinalRegression
-    LUPI_CLASSIFICATION = fri.model.LUPI_Classification
-    LUPI_REGRESSION = fri.model.LUPI_Regression
-    LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
+    CLASSIFICATION = [fri.model.Classification, arfs_gen.ProblemName.CLASSIFICATION]
+    REGRESSION = [fri.model.Regression, arfs_gen.ProblemName.REGRESSION]
+    ORDINALREGRESSION = [
+        fri.model.OrdinalRegression,
+        arfs_gen.ProblemName.ORDINALREGRESSION,
+    ]
+    LUPI_CLASSIFICATION = [
+        fri.model.LUPI_Classification,
+        arfs_gen.ProblemName.LUPI_CLASSIFICATION,
+    ]
+    LUPI_REGRESSION = [fri.model.LUPI_Regression, arfs_gen.ProblemName.LUPI_REGRESSION]
+    LUPI_ORDREGRESSION = [
+        fri.model.LUPI_OrdinalRegression,
+        arfs_gen.ProblemName.LUPI_ORDREGRESSION,
+    ]
 
 
 NORMAL_MODELS = [
@@ -31,14 +43,19 @@ LUPI_MODELS = [
     ProblemName.LUPI_REGRESSION,
     ProblemName.LUPI_ORDREGRESSION,
 ]
+from arfs_gen import genRegressionData, genClassificationData, genOrdinalRegressionData
 
-from arfs_gen import (
-    genRegressionData,
-    genClassificationData,
-    genOrdinalRegressionData,
-    quick_generate,
-    genLupiData,
-)
+
+def quick_generate(problemtype, **kwargs):
+    "Overwrite arfs_gen method to handle different format of problemtype in fri"
+    return arfs_gen.quick_generate(problemtype.value[1], **kwargs)
+
+
+def genLupiData(problemname, **kwargs):
+    "Overwrite arfs_gen method to handle different format of problemtype in fri"
+    return arfs_gen.genLupiData(problemname.value[1], **kwargs)
+
+
 from fri.main import FRIBase
 from fri.plot import plot_intervals
 
@@ -100,8 +117,9 @@ class FRI(FRIBase):
                 f"Parameter 'problemName' was not recognized or unset. Try one of {names}."
             )
         else:
+            problem_class = problemtype[0]
             super().__init__(
-                problemtype,
+                problem_class,
                 random_state=random_state,
                 n_jobs=n_jobs,
                 verbose=verbose,

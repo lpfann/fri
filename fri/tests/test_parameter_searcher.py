@@ -18,8 +18,8 @@ def randomstate():
 def test_baseline_lupi(problem, n_weak, randomstate):
     n_samples = 300
 
-    template = problem.value().get_initmodel_template
-    params = problem.value().get_all_parameters()
+    template = problem.value[0]().get_initmodel_template
+    params = problem.value[0]().get_all_parameters()
     data = genLupiData(
         problem,
         n_strel=1,
