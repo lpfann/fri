@@ -1,6 +1,7 @@
 import cvxpy as cvx
 import numpy as np
 from sklearn.utils import check_X_y
+from sklearn.metrics import r2_score
 
 from .base_cvxproblem import Relevance_CVXProblem
 from .base_initmodel import InitModel
@@ -76,11 +77,6 @@ class Regression_SVR(InitModel):
 
     def score(self, X, y, **kwargs):
         prediction = self.predict(X)
-
-        from sklearn.metrics import r2_score
-        from sklearn.metrics.regression import _check_reg_targets
-
-        _check_reg_targets(y, prediction, None)
 
         # Using weighted f1 score to have a stable score for imbalanced datasets
         score = r2_score(y, prediction)

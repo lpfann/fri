@@ -3,7 +3,6 @@ from itertools import product
 import cvxpy as cvx
 import numpy as np
 from sklearn.metrics import r2_score
-from sklearn.metrics.regression import _check_reg_targets
 from sklearn.utils import check_X_y
 
 from fri.model.base_lupi import (
@@ -201,7 +200,6 @@ class LUPI_Regression_SVM(LUPI_InitModel):
 
     def score(self, X, y, **kwargs):
         prediction = self.predict(X)
-        _check_reg_targets(y, prediction, None)
 
         score = r2_score(y, prediction)
         return score
