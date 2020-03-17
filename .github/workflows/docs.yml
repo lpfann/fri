@@ -1,9 +1,6 @@
-name: github pages
+name: Documentation
 
-on:
-  push:
-    branches:
-    - master
+on: [push, pull_request]
 
 jobs:
   build-docs:
