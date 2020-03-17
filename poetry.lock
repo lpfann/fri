@@ -408,6 +408,24 @@ format_nongpl = ["idna", "jsonpointer (>1.13)", "webcolors", "rfc3986-validator 
 
 [[package]]
 category = "dev"
+description = "Jupyter protocol implementation and client libraries"
+name = "jupyter-client"
+optional = false
+python-versions = ">=3.5"
+version = "6.0.0"
+
+[package.dependencies]
+jupyter-core = ">=4.6.0"
+python-dateutil = ">=2.1"
+pyzmq = ">=13"
+tornado = ">=4.1"
+traitlets = "*"
+
+[package.extras]
+test = ["ipykernel", "ipython", "mock", "pytest"]
+
+[[package]]
+category = "dev"
 description = "Jupyter core package. A base package on which Jupyter projects rely."
 name = "jupyter-core"
 optional = false
@@ -926,6 +944,14 @@ version = "5.3"
 
 [[package]]
 category = "dev"
+description = "Python bindings for 0MQ"
+name = "pyzmq"
+optional = false
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*"
+version = "19.0.0"
+
+[[package]]
+category = "dev"
 description = "Alternative regular expression module, to replace re."
 name = "regex"
 optional = false
@@ -1133,7 +1159,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "c60c17a4111e8ad695c93cd4c65e73ad050385b144030f68e2382973b43db586"
+content-hash = "eeff335f4f82e54c62d0e519b535eb46841550f99005320a2b0b93c67486a813"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1348,6 +1374,10 @@ joblib = [
 jsonschema = [
     {file = "jsonschema-3.2.0-py2.py3-none-any.whl", hash = "sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163"},
     {file = "jsonschema-3.2.0.tar.gz", hash = "sha256:c8a85b28d377cc7737e46e2d9f2b4f44ee3c0e1deac6bf46ddefc7187d30797a"},
+]
+jupyter-client = [
+    {file = "jupyter_client-6.0.0-py3-none-any.whl", hash = "sha256:ed2490c65f7e0987d1e7b2c4146371d58112489e558b3a835aefb86b7283f930"},
+    {file = "jupyter_client-6.0.0.tar.gz", hash = "sha256:1fac6e3be1e797aea33d5cd1cfa568ff1ee71e01180bc89f64b24ee274f1f126"},
 ]
 jupyter-core = [
     {file = "jupyter_core-4.6.3-py2.py3-none-any.whl", hash = "sha256:a4ee613c060fe5697d913416fc9d553599c05e4492d58fac1192c9a6844abb21"},
@@ -1647,6 +1677,36 @@ pyyaml = [
     {file = "PyYAML-5.3-cp38-cp38-win32.whl", hash = "sha256:70024e02197337533eef7b85b068212420f950319cc8c580261963aefc75f811"},
     {file = "PyYAML-5.3-cp38-cp38-win_amd64.whl", hash = "sha256:cb1f2f5e426dc9f07a7681419fe39cee823bb74f723f36f70399123f439e9b20"},
     {file = "PyYAML-5.3.tar.gz", hash = "sha256:e9f45bd5b92c7974e59bcd2dcc8631a6b6cc380a904725fce7bc08872e691615"},
+]
+pyzmq = [
+    {file = "pyzmq-19.0.0-cp27-cp27m-macosx_10_9_intel.whl", hash = "sha256:3f12ce1e9cc9c31497bd82b207e8e86ccda9eebd8c9f95053aae46d15ccd2196"},
+    {file = "pyzmq-19.0.0-cp27-cp27m-win32.whl", hash = "sha256:e8e4efb52ec2df8d046395ca4c84ae0056cf507b2f713ec803c65a8102d010de"},
+    {file = "pyzmq-19.0.0-cp27-cp27m-win_amd64.whl", hash = "sha256:f5b6d015587a1d6f582ba03b226a9ddb1dfb09878b3be04ef48b01b7d4eb6b2a"},
+    {file = "pyzmq-19.0.0-cp27-cp27mu-manylinux1_i686.whl", hash = "sha256:bb10361293d96aa92be6261fa4d15476bca56203b3a11c62c61bd14df0ef89ba"},
+    {file = "pyzmq-19.0.0-cp27-cp27mu-manylinux1_x86_64.whl", hash = "sha256:4557d5e036e6d85715b4b9fdb482081398da1d43dc580d03db642b91605b409f"},
+    {file = "pyzmq-19.0.0-cp35-cp35m-macosx_10_9_intel.whl", hash = "sha256:84b91153102c4bcf5d0f57d1a66a0f03c31e9e6525a5f656f52fc615a675c748"},
+    {file = "pyzmq-19.0.0-cp35-cp35m-manylinux1_i686.whl", hash = "sha256:6aaaf90b420dc40d9a0e1996b82c6a0ff91d9680bebe2135e67c9e6d197c0a53"},
+    {file = "pyzmq-19.0.0-cp35-cp35m-manylinux1_x86_64.whl", hash = "sha256:ad48865a29efa8a0cecf266432ea7bc34e319954e55cf104be0319c177e6c8f5"},
+    {file = "pyzmq-19.0.0-cp35-cp35m-win32.whl", hash = "sha256:32234c21c5e0a767c754181c8112092b3ddd2e2a36c3f76fc231ced817aeee47"},
+    {file = "pyzmq-19.0.0-cp35-cp35m-win_amd64.whl", hash = "sha256:f37c29da2a5b0c5e31e6f8aab885625ea76c807082f70b2d334d3fd573c3100a"},
+    {file = "pyzmq-19.0.0-cp36-cp36m-macosx_10_9_intel.whl", hash = "sha256:1e076ad5bd3638a18c376544d32e0af986ca10d43d4ce5a5d889a8649f0d0a3d"},
+    {file = "pyzmq-19.0.0-cp36-cp36m-manylinux1_i686.whl", hash = "sha256:f4d558bc5668d2345773a9ff8c39e2462dafcb1f6772a2e582fbced389ce527f"},
+    {file = "pyzmq-19.0.0-cp36-cp36m-manylinux1_x86_64.whl", hash = "sha256:4f562dab21c03c7aa061f63b147a595dbe1006bf4f03213272fc9f7d5baec791"},
+    {file = "pyzmq-19.0.0-cp36-cp36m-win32.whl", hash = "sha256:7f7e7b24b1d392bb5947ba91c981e7d1a43293113642e0d8870706c8e70cdc71"},
+    {file = "pyzmq-19.0.0-cp36-cp36m-win_amd64.whl", hash = "sha256:75238d3c16cab96947705d5709187a49ebb844f54354cdf0814d195dd4c045de"},
+    {file = "pyzmq-19.0.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:cb3b7156ef6b1a119e68fbe3a54e0a0c40ecacc6b7838d57dd708c90b62a06dc"},
+    {file = "pyzmq-19.0.0-cp37-cp37m-manylinux1_i686.whl", hash = "sha256:a99ae601b4f6917985e9bb071549e30b6f93c72f5060853e197bdc4b7d357e5f"},
+    {file = "pyzmq-19.0.0-cp37-cp37m-manylinux1_x86_64.whl", hash = "sha256:242d949eb6b10197cda1d1cec377deab1d5324983d77e0d0bf9dc5eb6d71a6b4"},
+    {file = "pyzmq-19.0.0-cp37-cp37m-win32.whl", hash = "sha256:a49fd42a29c1cc1aa9f461c5f2f5e0303adba7c945138b35ee7f4ab675b9f754"},
+    {file = "pyzmq-19.0.0-cp37-cp37m-win_amd64.whl", hash = "sha256:5f10a31f288bf055be76c57710807a8f0efdb2b82be6c2a2b8f9a61f33a40cea"},
+    {file = "pyzmq-19.0.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:26f4ae420977d2a8792d7c2d7bda43128b037b5eeb21c81951a94054ad8b8843"},
+    {file = "pyzmq-19.0.0-cp38-cp38-manylinux1_i686.whl", hash = "sha256:944f6bb5c63140d76494467444fd92bebd8674236837480a3c75b01fe17df1ab"},
+    {file = "pyzmq-19.0.0-cp38-cp38-manylinux1_x86_64.whl", hash = "sha256:b08e425cf93b4e018ab21dc8fdbc25d7d0502a23cc4fea2380010cf8cf11e462"},
+    {file = "pyzmq-19.0.0-cp38-cp38-win32.whl", hash = "sha256:a1f957c20c9f51d43903881399b078cddcf710d34a2950e88bce4e494dcaa4d1"},
+    {file = "pyzmq-19.0.0-cp38-cp38-win_amd64.whl", hash = "sha256:bd1a769d65257a7a12e2613070ca8155ee348aa9183f2aadf1c8b8552a5510f5"},
+    {file = "pyzmq-19.0.0-pp27-pypy_73-macosx_10_9_x86_64.whl", hash = "sha256:0bbc1728fe4314b4ca46249c33873a390559edac7c217ec7001b5e0c34a8fb7f"},
+    {file = "pyzmq-19.0.0-pp36-pypy36_pp73-macosx_10_15_x86_64.whl", hash = "sha256:5e071b834051e9ecb224915398f474bfad802c2fff883f118ff5363ca4ae3edf"},
+    {file = "pyzmq-19.0.0.tar.gz", hash = "sha256:5e1f65e576ab07aed83f444e201d86deb01cd27dcf3f37c727bc8729246a60a8"},
 ]
 regex = [
     {file = "regex-2020.2.20-cp27-cp27m-win32.whl", hash = "sha256:99272d6b6a68c7ae4391908fc15f6b8c9a6c345a46b632d7fdb7ef6c883a2bbb"},
