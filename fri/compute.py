@@ -418,13 +418,14 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
 class FeatureClassifier:
     def __init__(self, probes_low, probes_up, fpr=1e-4, verbose=0):
 
-        logging.info("**** Feature Selection ****")
-        logging.info("Generating Lower Probe Statistic")
         self.lower_stat = create_probe_statistic(probes_low, fpr, verbose=verbose)
-        logging.info(self.lower_stat)
-        logging.info("Generating Upper Probe Statistic")
         self.upper_stat = create_probe_statistic(probes_up, fpr, verbose=verbose)
-        logging.info(self.upper_stat)
+        if verbose > 0:
+            logging.info("**** Feature Selection ****")
+            logging.info("Lower Probe Statistic")
+            logging.info(self.lower_stat)
+            logging.info("Upper Probe Statistic")
+            logging.info(self.upper_stat)
 
     def classify(self, relevance_bounds):
         """

@@ -4,8 +4,8 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.utils import check_random_state
 
 import fri
+from fri import genLupiData
 from fri.parameter_searcher import find_best_model
-from fri.toydata import genLupiData
 
 
 @pytest.fixture(scope="session")
@@ -18,8 +18,8 @@ def randomstate():
 def test_baseline_lupi(problem, n_weak, randomstate):
     n_samples = 300
 
-    template = problem.value().get_initmodel_template
-    params = problem.value().get_all_parameters()
+    template = problem.value[0]().get_initmodel_template
+    params = problem.value[0]().get_all_parameters()
     data = genLupiData(
         problem,
         n_strel=1,

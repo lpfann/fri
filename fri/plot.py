@@ -1,11 +1,9 @@
-import matplotlib
-
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
+import matplotlib.cm as cm
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.cluster.hierarchy import dendrogram
-import matplotlib.cm as cm
 
 # Get a color for each relevance type
 color_palette_3 = cm.Set1([0, 1, 2], alpha=0.8)

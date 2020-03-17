@@ -49,6 +49,10 @@ In our case we need some classification data.
 
 
 ```python
+import numpy as np
+# fixed Seed for demonstration
+STATE = np.random.RandomState(123)
+
 from fri import genClassificationData
 ```
 
@@ -58,7 +62,7 @@ Because we want to showcase the all-relevant feature selection, we generate mult
 
 
 ```python
-n = 100
+n = 300
 features = 6
 strongly_relevant = 2
 weakly_relevant = 2
@@ -70,7 +74,7 @@ X,y = genClassificationData(n_samples=n,
                             n_features=features,
                             n_strel=strongly_relevant,
                             n_redundant=weakly_relevant,
-                            random_state=123)
+                            random_state=STATE)
 ```
 
 The method also prints out the parameters again.
@@ -83,7 +87,7 @@ X.shape
 
 
 
-    (100, 6)
+    (300, 6)
 
 
 
@@ -124,12 +128,12 @@ list(fri.ProblemName)
 
 
 
-    [<ProblemName.CLASSIFICATION: <class 'fri.model.classification.Classification'>>,
-     <ProblemName.REGRESSION: <class 'fri.model.regression.Regression'>>,
-     <ProblemName.ORDINALREGRESSION: <class 'fri.model.ordinal_regression.OrdinalRegression'>>,
-     <ProblemName.LUPI_CLASSIFICATION: <class 'fri.model.lupi_classification.LUPI_Classification'>>,
-     <ProblemName.LUPI_REGRESSION: <class 'fri.model.lupi_regression.LUPI_Regression'>>,
-     <ProblemName.LUPI_ORDREGRESSION: <class 'fri.model.lupi_ordinal_regression.LUPI_OrdinalRegression'>>]
+    [<ProblemName.CLASSIFICATION: [<class 'fri.model.classification.Classification'>, <ProblemName.CLASSIFICATION: 1>]>,
+     <ProblemName.REGRESSION: [<class 'fri.model.regression.Regression'>, <ProblemName.REGRESSION: 2>]>,
+     <ProblemName.ORDINALREGRESSION: [<class 'fri.model.ordinal_regression.OrdinalRegression'>, <ProblemName.ORDINALREGRESSION: 3>]>,
+     <ProblemName.LUPI_CLASSIFICATION: [<class 'fri.model.lupi_classification.LUPI_Classification'>, <ProblemName.LUPI_CLASSIFICATION: 4>]>,
+     <ProblemName.LUPI_REGRESSION: [<class 'fri.model.lupi_regression.LUPI_Regression'>, <ProblemName.LUPI_REGRESSION: 5>]>,
+     <ProblemName.LUPI_ORDREGRESSION: [<class 'fri.model.lupi_ordinal_regression.LUPI_OrdinalRegression'>, <ProblemName.LUPI_ORDREGRESSION: 6>]>]
 
 
 
@@ -137,7 +141,10 @@ Because we have Classification data we use the `ProblemName.CLASSIFICATION` to i
 
 
 ```python
-fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION,slack_loss=0.2,slack_regularization=0.2)
+fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION,
+                    loss_slack=0.2,
+                    w_l1_slack=0.2,
+                    random_state=STATE)
 ```
 
 
@@ -148,9 +155,11 @@ fri_model
 
 
 
-    FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-        problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-        slack_loss=None, slack_regularization=None, verbose=0)
+    FRI(loss_slack=0.2, n_jobs=1, n_param_search=10, n_probe_features=20,
+        normalize=True,
+        problemName=<ProblemName.CLASSIFICATION: [<class 'fri.model.classification.Classification'>, <ProblemName.CLASSIFICATION: 1>]>,
+        random_state=RandomState(MT19937) at 0x1E0C4ED3E18, verbose=0,
+        w_l1_slack=0.2)
 
 
 
@@ -167,9 +176,11 @@ fri_model.fit(X_scaled,y)
 
 
 
-    FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-        problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-        slack_loss=None, slack_regularization=None, verbose=0)
+    FRI(loss_slack=0.2, n_jobs=1, n_param_search=10, n_probe_features=20,
+        normalize=True,
+        problemName=<ProblemName.CLASSIFICATION: [<class 'fri.model.classification.Classification'>, <ProblemName.CLASSIFICATION: 1>]>,
+        random_state=RandomState(MT19937) at 0x1E0C4ED3E18, verbose=0,
+        w_l1_slack=0.2)
 
 
 
@@ -183,12 +194,12 @@ fri_model.interval_
 
 
 
-    array([[0.28158379, 0.42206863],
-           [0.26824834, 0.41605723],
-           [0.        , 0.48783056],
-           [0.        , 0.44949121],
-           [0.        , 0.04668038],
-           [0.        , 0.0604022 ]])
+    array([[1.99563942e-01, 3.79968717e-01],
+           [2.12189365e-01, 4.19893133e-01],
+           [0.00000000e+00, 4.62347531e-01],
+           [0.00000000e+00, 4.58075157e-01],
+           [0.00000000e+00, 4.08336422e-02],
+           [1.59611431e-10, 3.54807291e-02]])
 
 
 
@@ -201,14 +212,14 @@ print(fri_model.print_interval_with_class())
 
     ############## Relevance bounds ##############
     feature: [LB -- UB], relevance class
-          0: [0.3 -- 0.4], Strong relevant
-          1: [0.3 -- 0.4], Strong relevant
+          0: [0.2 -- 0.4], Strong relevant
+          1: [0.2 -- 0.4], Strong relevant
           2: [0.0 -- 0.5], Weak relevant
-          3: [0.0 -- 0.4], Weak relevant
+          3: [0.0 -- 0.5], Weak relevant
           4: [0.0 -- 0.0], Irrelevant
-          5: [0.0 -- 0.1], Irrelevant
+          5: [0.0 -- 0.0], Irrelevant
     
-
+    
 
 The bounds are grouped in 2d sublists for each feature.
 
@@ -223,7 +234,7 @@ fri_model.interval_[2]
 
 
 
-    array([0.        , 0.48783056])
+    array([0.        , 0.46234753])
 
 
 
@@ -256,14 +267,16 @@ We can also color the bars according to `relevance_classes_`
 from fri.plot import plot_relevance_bars
 import matplotlib.pyplot as plt
 %matplotlib inline
+
 # Create new figure, where we can put an axis on
 fig, ax = plt.subplots(1, 1,figsize=(6,3))
+
 # plot the bars on the axis, colored according to fri
 out = plot_relevance_bars(ax,fri_model.interval_,classes=fri_model.relevance_classes_)
 ```
 
 
-![png](output_32_0.png)
+![png](Guide_files/Guide_32_0.png)
 
 
 ### Setting constraints manually
@@ -305,12 +318,12 @@ const_ints
 
 
 
-    array([[3.33537278e-01, 3.98346587e-01],
-           [3.16282293e-01, 3.99927655e-01],
+    array([[2.15480177e-01, 3.79968718e-01],
+           [2.35275798e-01, 4.19820750e-01],
            [0.00000000e+00, 0.00000000e+00],
-           [3.77824890e-01, 4.49491208e-01],
-           [0.00000000e+00, 2.56795434e-02],
-           [6.28844147e-11, 4.97955367e-02]])
+           [2.55994922e-01, 4.40560181e-01],
+           [0.00000000e+00, 3.24886271e-02],
+           [2.49563132e-11, 3.32969678e-02]])
 
 
 
@@ -325,7 +338,7 @@ out = plot_relevance_bars(ax, const_ints)
 ```
 
 
-![png](output_41_0.png)
+![png](Guide_files/Guide_41_0.png)
 
 
 Feature 3 is reduced to its minimum (no contribution).
@@ -338,7 +351,7 @@ If we want to take at internal parameters, we can use the `verbose` flag in the 
 
 
 ```python
-fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, verbose=True)
+fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, verbose=True, random_state=STATE)
 ```
 
 
@@ -347,43 +360,44 @@ fri_model.fit(X_scaled,y)
 ```
 
     Fitting 3 folds for each of 10 candidates, totalling 30 fits
-
+    
 
     [Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
-    [Parallel(n_jobs=1)]: Done  30 out of  30 | elapsed:    0.3s finished
+    [Parallel(n_jobs=1)]: Done  30 out of  30 | elapsed:    0.1s finished
     [Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
-
+    
 
     ******************** Best found baseline model ********************
-    Classification_SVM(C=6523.18940508926)
-    score:  1.0
-    'loss: -3.2162506599275367e-12'
-    'w_l1: 28.743902865913274'
+    Classification_SVM(C=0.053126576297160326)
+    score:  0.9766669259288066
+    'loss: 59.43457025190969'
+    'w_l1: 3.186624268460236'
     'w: shape (6,)'
     'b: shape ()'
-    'slack: shape (100,)'
+    'slack: shape (300,)'
     ******************************
+    
 
-
-    [Parallel(n_jobs=1)]: Done  18 out of  18 | elapsed:    0.2s finished
+    [Parallel(n_jobs=1)]: Done  18 out of  18 | elapsed:    0.1s finished
     [Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
-    [Parallel(n_jobs=1)]: Done  40 out of  40 | elapsed:    0.4s finished
+    [Parallel(n_jobs=1)]: Done  40 out of  40 | elapsed:    0.3s finished
     [Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+    [Parallel(n_jobs=1)]: Done  20 out of  20 | elapsed:    0.1s finished
+    INFO:root:**** Feature Selection ****
+    INFO:root:Lower Probe Statistic
+    INFO:root:ProbeStatistic(lower_threshold=0.0, upper_threshold=0.0, n_probes=11)
+    INFO:root:Upper Probe Statistic
+    INFO:root:ProbeStatistic(lower_threshold=-0.08953248574047366, upper_threshold=0.11254187120595376, n_probes=10)
+    
 
 
-    FS threshold: -0.3485850797626653-0.37121449904943193, Mean:0.011314709643383315, Std:0.014497743389929868, n_probes 4
-    FS threshold: -0.09430000942634031-0.1585322164066591, Mean:0.0321161034901594, Std:0.014735763155338663, n_probes 7
 
 
-    [Parallel(n_jobs=1)]: Done  20 out of  20 | elapsed:    0.3s finished
-
-
-
-
-
-    FRI(n_jobs=1, n_param_search=10, n_probe_features=20, normalize=True,
-        problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-        slack_loss=None, slack_regularization=None, verbose=True)
+    FRI(loss_slack=0.001, n_jobs=1, n_param_search=10, n_probe_features=20,
+        normalize=True,
+        problemName=<ProblemName.CLASSIFICATION: [<class 'fri.model.classification.Classification'>, <ProblemName.CLASSIFICATION: 1>]>,
+        random_state=RandomState(MT19937) at 0x1E0C4ED3E18, verbose=True,
+        w_l1_slack=0.001)
 
 
 
@@ -400,7 +414,10 @@ It expects an integer parameter which defines the amount of processes used.
 
 
 ```python
-fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, n_jobs=-1, verbose=1)
+fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION,
+                    n_jobs=-1,
+                    verbose=1,
+                    random_state=STATE)
 ```
 
 
@@ -408,50 +425,48 @@ fri_model = fri.FRI(fri.ProblemName.CLASSIFICATION, n_jobs=-1, verbose=1)
 fri_model.fit(X_scaled,y)
 ```
 
+    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 12 concurrent workers.
+    
+
     Fitting 3 folds for each of 10 candidates, totalling 30 fits
+    
 
-
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-    [Parallel(n_jobs=-1)]: Done  15 out of  30 | elapsed:    0.1s remaining:    0.1s
-    [Parallel(n_jobs=-1)]: Done  30 out of  30 | elapsed:    0.2s finished
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-    [Parallel(n_jobs=-1)]: Done   3 out of  18 | elapsed:    0.1s remaining:    0.4s
-    [Parallel(n_jobs=-1)]: Done  18 out of  18 | elapsed:    0.1s finished
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-
+    [Parallel(n_jobs=-1)]: Done  30 out of  30 | elapsed:    1.9s finished
+    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 12 concurrent workers.
+    [Parallel(n_jobs=-1)]: Done  14 out of  18 | elapsed:    0.0s remaining:    0.0s
+    [Parallel(n_jobs=-1)]: Done  18 out of  18 | elapsed:    0.0s finished
+    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 12 concurrent workers.
+    
 
     ******************** Best found baseline model ********************
-    Classification_SVM(C=0.3735574324157715)
-    score:  0.9499248120300752
-    'loss: 11.49412313137918'
-    'w_l1: 4.827039706578124'
+    Classification_SVM(C=31.987051186027454)
+    score:  0.9900001111123456
+    'loss: 8.419355087574399'
+    'w_l1: 47.66916725351819'
     'w: shape (6,)'
     'b: shape ()'
-    'slack: shape (100,)'
+    'slack: shape (300,)'
     ******************************
+    
 
-
-    [Parallel(n_jobs=-1)]: Done  40 out of  40 | elapsed:    0.6s finished
-    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 8 concurrent workers.
-
-
-    FS threshold: -0.003062137274245256-0.0037609499356378584, Mean:0.00034940633069630115, Std:0.00057365780239467, n_probes 11
-    FS threshold: -0.2619964838392958-0.31312919443178205, Mean:0.025566355296243105, Std:0.03838315602969965, n_probes 8
-
-
-    [Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed:    0.5s finished
-
-
-
-
-
-    FRI(n_jobs=-1, n_param_search=10, n_probe_features=20, normalize=True,
-        problemName=None, random_state=RandomState(MT19937) at 0x7F30AE749C00,
-        slack_loss=None, slack_regularization=None, verbose=1)
+    [Parallel(n_jobs=-1)]: Done  40 out of  40 | elapsed:    0.1s finished
+    [Parallel(n_jobs=-1)]: Using backend LokyBackend with 12 concurrent workers.
+    [Parallel(n_jobs=-1)]: Done  18 out of  20 | elapsed:    0.0s remaining:    0.0s
+    [Parallel(n_jobs=-1)]: Done  20 out of  20 | elapsed:    0.0s finished
+    INFO:root:**** Feature Selection ****
+    INFO:root:Lower Probe Statistic
+    INFO:root:ProbeStatistic(lower_threshold=-0.039150504419478684, upper_threshold=0.046026976488379744, n_probes=3)
+    INFO:root:Upper Probe Statistic
+    INFO:root:ProbeStatistic(lower_threshold=-0.08997621770611755, upper_threshold=0.16031569991384712, n_probes=6)
+    
 
 
 
 
-```python
+    FRI(loss_slack=0.001, n_jobs=-1, n_param_search=10, n_probe_features=20,
+        normalize=True,
+        problemName=<ProblemName.CLASSIFICATION: [<class 'fri.model.classification.Classification'>, <ProblemName.CLASSIFICATION: 1>]>,
+        random_state=RandomState(MT19937) at 0x1E0C4ED3E18, verbose=1,
+        w_l1_slack=0.001)
 
-```
+

@@ -7,18 +7,30 @@ logging.basicConfig(level=logging.INFO)
 from enum import Enum
 import fri.model
 
+import arfs_gen
+
 
 class ProblemName(Enum):
     """
     Enum which contains usable models for which feature relevance intervals can be computed in :func:`~FRI`.
+    Values of enums contains class of model and data generation method found in external library `arfs_gen`.
     """
 
-    CLASSIFICATION = fri.model.Classification
-    REGRESSION = fri.model.Regression
-    ORDINALREGRESSION = fri.model.OrdinalRegression
-    LUPI_CLASSIFICATION = fri.model.LUPI_Classification
-    LUPI_REGRESSION = fri.model.LUPI_Regression
-    LUPI_ORDREGRESSION = fri.model.LUPI_OrdinalRegression
+    CLASSIFICATION = [fri.model.Classification, arfs_gen.ProblemName.CLASSIFICATION]
+    REGRESSION = [fri.model.Regression, arfs_gen.ProblemName.REGRESSION]
+    ORDINALREGRESSION = [
+        fri.model.OrdinalRegression,
+        arfs_gen.ProblemName.ORDINALREGRESSION,
+    ]
+    LUPI_CLASSIFICATION = [
+        fri.model.LUPI_Classification,
+        arfs_gen.ProblemName.LUPI_CLASSIFICATION,
+    ]
+    LUPI_REGRESSION = [fri.model.LUPI_Regression, arfs_gen.ProblemName.LUPI_REGRESSION]
+    LUPI_ORDREGRESSION = [
+        fri.model.LUPI_OrdinalRegression,
+        arfs_gen.ProblemName.LUPI_ORDREGRESSION,
+    ]
 
 
 NORMAL_MODELS = [
@@ -31,14 +43,19 @@ LUPI_MODELS = [
     ProblemName.LUPI_REGRESSION,
     ProblemName.LUPI_ORDREGRESSION,
 ]
+from arfs_gen import genRegressionData, genClassificationData, genOrdinalRegressionData
 
-from fri.toydata import (
-    genRegressionData,
-    genClassificationData,
-    genOrdinalRegressionData,
-    quick_generate,
-    genLupiData,
-)
+
+def quick_generate(problemtype, **kwargs):
+    "Overwrite arfs_gen method to handle different format of problemtype in fri"
+    return arfs_gen.quick_generate(problemtype.value[1], **kwargs)
+
+
+def genLupiData(problemname, **kwargs):
+    "Overwrite arfs_gen method to handle different format of problemtype in fri"
+    return arfs_gen.genLupiData(problemname.value[1], **kwargs)
+
+
 from fri.main import FRIBase
 from fri.plot import plot_intervals
 
@@ -48,17 +65,17 @@ class FRI(FRIBase):
         self,
         problemName: object,
         random_state: object = None,
-        n_jobs: object = 1,
-        verbose: object = 0,
-        n_param_search: object = 10,
-        n_probe_features: object = 20,
-        slack_regularization: object = 0.001,
-        slack_loss: object = 0.001,
-        normalize: object = True,
+        n_jobs: int = 1,
+        verbose: int = 0,
+        n_param_search: int = 10,
+        n_probe_features: int = 20,
+        w_l1_slack: float = 0.001,
+        loss_slack: float = 0.001,
+        normalize: bool = True,
         **kwargs,
     ):
         """
-        Main class to use `FRI` in programattic fashion following the scikit-learn paradigm.
+        Main class to use `FRI` in programatic fashion following the scikit-learn paradigm.
 
         Parameters
         ----------
@@ -74,14 +91,16 @@ class FRI(FRIBase):
             Number of parameter samples in random search for hyperparameters.
         n_probe_features: int
             Number of probes to generate to improve feature selection.
-        slack_regularization: float
+        w_l1_slack: float
             Allow deviation from optimal L1 norm.
-        slack_loss: float
+        loss_slack: float
             Allow deviation of loss.
         normalize: boolean
             Normalize relevace bounds to range of [0,1] depending on L1 norm.
 
         """
+        self.problemName = problemName
+
         if isinstance(problemName, ProblemName):
             problemtype = problemName.value
         else:
@@ -100,15 +119,16 @@ class FRI(FRIBase):
                 f"Parameter 'problemName' was not recognized or unset. Try one of {names}."
             )
         else:
+            problem_class = problemtype[0]
             super().__init__(
-                problemtype,
+                problem_class,
                 random_state=random_state,
                 n_jobs=n_jobs,
                 verbose=verbose,
                 n_param_search=n_param_search,
                 n_probe_features=n_probe_features,
-                w_l1_slack=slack_regularization,
-                loss_slack=slack_loss,
+                w_l1_slack=w_l1_slack,
+                loss_slack=loss_slack,
                 normalize=normalize,
                 **kwargs,
             )
