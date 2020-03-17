@@ -33,7 +33,10 @@ jobs:
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: poetry install -v
+    - name: Run and convert notebooks into markdown
+      run: poetry run jupyter nbconvert --to markdown --execute docs/*.ipynb
     - run: poetry run portray as_html
+      name: Portray - Compile as HTML
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v2
       env:
