@@ -32,6 +32,3 @@ def permutate_feature_in_data(data, feature_i, random_state):
     # Add permutation back to dataset
     X_copy[:, feature_i] = permutated_feature
     return X_copy, y
-
-
-mapping = {}
