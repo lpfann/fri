@@ -47,7 +47,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 version = "1.3.0"
 
 [[package]]
-category = "main"
+category = "dev"
 description = "Classes Without Boilerplate"
 name = "attrs"
 optional = false
@@ -86,7 +86,7 @@ description = "An easy safelist-based HTML-sanitizing tool."
 name = "bleach"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "3.1.1"
+version = "3.1.2"
 
 [package.dependencies]
 six = ">=1.9.0"
@@ -150,7 +150,7 @@ description = "A domain-specific language for modeling convex optimization probl
 name = "cvxpy"
 optional = false
 python-versions = "*"
-version = "1.0.25"
+version = "1.0.28"
 
 [package.dependencies]
 ecos = ">=2"
@@ -159,7 +159,6 @@ numpy = ">=1.15"
 osqp = ">=0.4.1"
 scipy = ">=1.1.0"
 scs = ">=1.1.3"
-six = "*"
 
 [[package]]
 category = "main"
@@ -1134,7 +1133,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "5c03d0a9f46dbd7591e7dedb202f738451e93f7f2097718d9b4f974345f7170f"
+content-hash = "c60c17a4111e8ad695c93cd4c65e73ad050385b144030f68e2382973b43db586"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1167,8 +1166,8 @@ black = [
     {file = "black-19.10b0.tar.gz", hash = "sha256:c2edb73a08e9e0e6f65a0e6af18b059b8b1cdd5bef997d7a0b181df93dc81539"},
 ]
 bleach = [
-    {file = "bleach-3.1.1-py2.py3-none-any.whl", hash = "sha256:44f69771e2ac81ff30d929d485b7f9919f3ad6d019b6b20c74f3b8687c3f70df"},
-    {file = "bleach-3.1.1.tar.gz", hash = "sha256:aa8b870d0f46965bac2c073a93444636b0e1ca74e9777e34f03dd494b8a59d48"},
+    {file = "bleach-3.1.2-py2.py3-none-any.whl", hash = "sha256:2ffa40dfa80b141ff58eee538bce0d2a09c7d456018d00f7a2cb0ebf967c524d"},
+    {file = "bleach-3.1.2.tar.gz", hash = "sha256:f0b1ee0315062e60afa6b7cc39b1c3718b591e1d552a8841044dc49a68465659"},
 ]
 certifi = [
     {file = "certifi-2019.11.28-py2.py3-none-any.whl", hash = "sha256:017c25db2a153ce562900032d5bc68e9f191e44e9a0f762f373977de9df1fbb3"},
@@ -1224,10 +1223,14 @@ coverage = [
     {file = "coverage-5.0.4.tar.gz", hash = "sha256:1b60a95fc995649464e0cd48cecc8288bac5f4198f21d04b8229dc4097d76823"},
 ]
 cvxpy = [
-    {file = "cvxpy-1.0.25-cp27-cp27m-macosx_10_7_x86_64.whl", hash = "sha256:957e0c0e65d9f2cf25eb9e7aca0c518158047a27de2aaa69e9177e2ea23dbd68"},
-    {file = "cvxpy-1.0.25-cp36-cp36m-macosx_10_7_x86_64.whl", hash = "sha256:c2400927cceb170f96c1c97ad7faacaf92e941bbddb06b837d4d51fedbd7b192"},
-    {file = "cvxpy-1.0.25-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:49e38e033a51f7df3a48b6b2c2879d56ae11bc628defbf1dc11e02836ceda1c5"},
-    {file = "cvxpy-1.0.25.tar.gz", hash = "sha256:8535529ddb807067b0d59661dce1d9a6ddb2a218398a38ea7772328ad8a6ea13"},
+    {file = "cvxpy-1.0.28-cp27-cp27m-macosx_10_7_x86_64.whl", hash = "sha256:43617b721a9a805f0479dbd50983c43430ea07eeab1149757f30b9c76f03ec0b"},
+    {file = "cvxpy-1.0.28-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:6cff1816ba67b743da01ce6b395049b5f6d34cd785c74ea673763a950d62635a"},
+    {file = "cvxpy-1.0.28-cp36-cp36m-win_amd64.whl", hash = "sha256:412ea6b81dc2fcd3eecfcc4c3af154f39b84730e4a2d527cedf6d7f1e1d6c6ef"},
+    {file = "cvxpy-1.0.28-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:4a0ca16137768448c49880ec170d56795bacb9b76c52613cdcffa348ccd390f5"},
+    {file = "cvxpy-1.0.28-cp37-cp37m-win_amd64.whl", hash = "sha256:347d65df5a226d930577c4dae1a7345cea86773aa1d85343d5f1dbc08083e926"},
+    {file = "cvxpy-1.0.28-py3.6-win-amd64.egg", hash = "sha256:ab1548afb1f56cdd4021950e9c3ff4756fd3a66960ab268471ee09b33da756d9"},
+    {file = "cvxpy-1.0.28-py3.7-win-amd64.egg", hash = "sha256:5c7be20cdcc927af7f722c7ee74c40e861deb26f492aa781ee43fe7209a12abf"},
+    {file = "cvxpy-1.0.28.tar.gz", hash = "sha256:212cd483e9a0fbc91d593aa599eb065615b058189f66c7881521b63e6493307a"},
 ]
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
