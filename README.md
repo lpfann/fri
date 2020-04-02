@@ -29,6 +29,11 @@ For a __stable__ version from `PyPI` use
 ```shell
 $ pip install fri
 ```
+or with new versions of `pip` (>=19?) you can clone the repository and run
+```shell
+$ pip install .
+```
+in the folder on the `master` or `dev` branch.
 ## Documentation
 Check out our online documentation [here](https://lpfann.github.io/fri/).
 There you can find a quick start guide and more background information.
