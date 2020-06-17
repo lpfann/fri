@@ -1,0 +1,38 @@
+name: Deploy to PyPI
+
+on:
+  release:
+    types: [published,edited] # Only deploy when publishing github releases
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install Poetry
+      uses: dschep/install-poetry-action@v1.2
+    - name: Cache poetry venv
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.virtualenvs
+        key: poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+    - name: Set Poetry config
+      run: |
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
+        poetry config pypi-token.pypi ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: poetry install -v
+    - name: Deploy using poetry
+      run: poetry publish --build -u __token__ -p ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
+

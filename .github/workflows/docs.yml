@@ -1,0 +1,43 @@
+name: Documentation
+
+on: [push, pull_request]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        fetch-depth: 1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install Poetry
+      uses: dschep/install-poetry-action@v1.2
+    - name: Cache poetry venv
+      uses: actions/cache@v1
+      id: cache
+      with:
+        path: ~/.virtualenvs
+        key: poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+    - name: Set Poetry config
+      run: |
+        poetry config virtualenvs.in-project false
+        poetry config virtualenvs.path ~/.virtualenvs
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: poetry install -v
+    - name: Run and convert notebooks into markdown
+      run: poetry run jupyter nbconvert --to markdown docs/*.ipynb
+    - run: poetry run portray as_html
+      name: Portray - Compile as HTML
+    - name: Deploy
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_branch: gh-pages
+        publish_dir: ./site
+        cname: fri.lpfann.me
