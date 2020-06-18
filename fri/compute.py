@@ -7,12 +7,16 @@ from collections import defaultdict
 import attr
 import joblib
 import numpy as np
+import scipy
 from scipy import stats
+from scipy.cluster.hierarchy import fcluster, linkage
 
 from fri.model.base_cvxproblem import Relevance_CVXProblem
 from fri.model.base_initmodel import InitModel
 from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
+
+from .utils import distance
 
 MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
 
@@ -404,6 +408,72 @@ class RelevanceBoundsIntervals(object):
             rangevector[rangevector <= 1e-11] = 0
         return rangevector
 
+    def grouping(self,interval, cutoff_threshold=0.55, method="single"):
+        """ Find feature clusters based on observed variance when changing feature contributions
+
+        Parameters
+        ----------
+        cutoff_threshold : float, optional
+            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.
+        method : str, optional
+            Linkage method used in the hierarchical clustering.
+
+        Returns
+        -------
+        self
+        """
+
+        # Do we have intervals?
+        if self.best_init_model is None:
+            raise Exception("Model needs to be fitted already.")
+
+        d = len(interval)
+
+        # Init arrays
+        interval_constrained_to_min = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
+        interval_constrained_to_max = np.zeros(
+            (d, d, 2))  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
+
+        # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
+        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
+        for i in range(d):
+            # min
+            lowb = interval[i, 0]
+            ranges, diff = self.compute_single_preset_relevance_bounds(i,[lowb,lowb] )
+            interval_constrained_to_min[i] = ranges
+            absolute_delta_bounds_summed_min[i] = diff
+            # max
+            highb = interval[i, 1]
+            ranges, diff = self.compute_single_preset_relevance_bounds(i, [highb, highb])
+            interval_constrained_to_max[i] = ranges
+            absolute_delta_bounds_summed_max[i] = diff
+
+        feature_points = np.zeros((d, 2 * d * 2))
+        for i in range(d):
+            feature_points[i, :(2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
+            feature_points[i, (2 * d):] = absolute_delta_bounds_summed_max[i].flatten()
+
+        self.relevance_variance = feature_points
+
+        # Calculate similarity using custom measure
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
+
+        # Single Linkage clustering
+        # link = linkage(dist_mat, method="single")
+
+        link = linkage(dist_mat, method=method, optimal_ordering=True)
+
+        # Set cutoff at which threshold the linkage gets flattened (clustering)
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        feature_clustering = fcluster(link, threshold, criterion="distance")
+
+        self.feature_clusters_, self.linkage_ = feature_clustering, link
+
+        return self.feature_clusters_
 
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
