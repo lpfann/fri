@@ -20,12 +20,12 @@ def test_normal_model(random_state):
     problem = fri.ProblemName.CLASSIFICATION
     model = FRI(problem, random_state=random_state)
 
-    X, y = quick_generate(problem, random_state=random_state)
+    X, y = quick_generate(problem, random_state=random_state,n_features=5)
 
     model.fit(X, y)
 
     assert len(model.allrel_prediction_) == X.shape[1]
 
-    groups = model.get_grouping()
+    groups,links = model.get_grouping()
     print(groups)
     assert len(groups)==X.shape[1]
