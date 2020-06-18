@@ -442,12 +442,17 @@ class RelevanceBoundsIntervals(object):
         for i in range(d):
             # min
             lowb = interval[i, 0]
-            ranges, diff = self.compute_single_preset_relevance_bounds(i,[lowb,lowb] )
+            ranges = self.compute_single_preset_relevance_bounds(i,[lowb,lowb] )
+            diff = interval - ranges
+            diff[i] = 0
             interval_constrained_to_min[i] = ranges
             absolute_delta_bounds_summed_min[i] = diff
+            
             # max
             highb = interval[i, 1]
-            ranges, diff = self.compute_single_preset_relevance_bounds(i, [highb, highb])
+            ranges = self.compute_single_preset_relevance_bounds(i, [highb, highb])
+            diff = interval - ranges
+            diff[i] = 0
             interval_constrained_to_max[i] = ranges
             absolute_delta_bounds_summed_max[i] = diff
 
@@ -473,7 +478,7 @@ class RelevanceBoundsIntervals(object):
 
         self.feature_clusters_, self.linkage_ = feature_clustering, link
 
-        return self.feature_clusters, link
+        return self.feature_clusters_, self.linkage_
 
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
