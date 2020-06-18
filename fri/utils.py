@@ -1,7 +1,6 @@
 import numpy as np
-import numba
 
-@numba.njit()
+
 def distance(u, v):
     """
     Distance measure custom made for feature comparison.
@@ -15,6 +14,8 @@ def distance(u, v):
     -------
 
     """
+    u = np.asarray(u)
+    v = np.asarray(v)
     # Euclidean differences
     diff = (u - v) ** 2
     # Nullify pairwise contribution
