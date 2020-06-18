@@ -28,3 +28,4 @@ def test_normal_model(random_state):
 
     groups = model.get_grouping()
     print(groups)
+    assert len(groups)==X.shape[1]
