@@ -169,8 +169,8 @@ class FRIBase(BaseEstimator, SelectorMixin):
     
     def get_grouping(self,**kwargs):
         check_is_fitted(self, "allrel_prediction_")
-        groups = self._relevance_bounds_computer.grouping(self.interval_, **kwargs)
-        return groups
+        groups, link = self._relevance_bounds_computer.grouping(self.interval_, **kwargs)
+        return groups, link
 
     def _get_relevance_mask(self, prediction):
         """Determines relevancy using feature relevance interval values

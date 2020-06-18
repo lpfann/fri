@@ -473,7 +473,7 @@ class RelevanceBoundsIntervals(object):
 
         self.feature_clusters_, self.linkage_ = feature_clustering, link
 
-        return self.feature_clusters_
+        return self.feature_clusters, link
 
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
