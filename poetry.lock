@@ -139,12 +139,11 @@ category = "main"
 description = "A domain-specific language for modeling convex optimization problems in Python."
 name = "cvxpy"
 optional = false
-python-versions = "*"
-version = "1.0.31"
+python-versions = ">=3.5"
+version = "1.1.1"
 
 [package.dependencies]
 ecos = ">=2"
-multiprocess = "*"
 numpy = ">=1.15"
 osqp = ">=0.4.1"
 scipy = ">=1.1.0"
@@ -176,17 +175,6 @@ name = "defusedxml"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "0.6.0"
-
-[[package]]
-category = "main"
-description = "serialize all of python"
-name = "dill"
-optional = false
-python-versions = ">=2.6, !=3.0.*"
-version = "0.3.2"
-
-[package.extras]
-graph = ["objgraph (>=1.7.2)"]
 
 [[package]]
 category = "dev"
@@ -584,17 +572,6 @@ name = "more-itertools"
 optional = false
 python-versions = ">=3.5"
 version = "8.4.0"
-
-[[package]]
-category = "main"
-description = "better multiprocessing and multithreading in python"
-name = "multiprocess"
-optional = false
-python-versions = "*"
-version = "0.70.10"
-
-[package.dependencies]
-dill = ">=0.3.2"
 
 [[package]]
 category = "dev"
@@ -1187,7 +1164,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "4e19166acf2648cf7d5e546f03fc1800229d4f18e6a6761f11b9e76a56ab686e"
+content-hash = "29a1115a8f1f85a34264b098e807f4fabab9cb45dbb676db076d8dd095a52669"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -1273,10 +1250,16 @@ coverage = [
     {file = "coverage-5.1.tar.gz", hash = "sha256:f90bfc4ad18450c80b024036eaf91e4a246ae287701aaa88eaebebf150868052"},
 ]
 cvxpy = [
-    {file = "cvxpy-1.0.31-cp27-cp27m-macosx_10_7_x86_64.whl", hash = "sha256:e88982b2817252803c45c3c6bd4f8919c0684c4b6595da953249253e612e3729"},
-    {file = "cvxpy-1.0.31-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:513fe05931a0c93e25d4b4ccca84d7145a43b014d7a29a981d54c76a527bc0bf"},
-    {file = "cvxpy-1.0.31-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:4db9ec8593e8ef31cc8a22f5eb09e36460877724dcd9dc807b26e6768522e7a2"},
-    {file = "cvxpy-1.0.31.tar.gz", hash = "sha256:b398754f9e9ceaa46b07806b5ae85f90fd8de748475db22a6b99c5943cebe69d"},
+    {file = "cvxpy-1.1.1-cp35-cp35m-macosx_10_6_x86_64.whl", hash = "sha256:ac05cd7a261db73e16b82e40e6949c8fe67902a967ca5dcb7d3fa5481608bf69"},
+    {file = "cvxpy-1.1.1-cp35-cp35m-win_amd64.whl", hash = "sha256:3eed9f35e68bb3c28edb99eb899a2da1bcd7e066cbbbeadc8586fa56beb318ea"},
+    {file = "cvxpy-1.1.1-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:8631b9da85f8bf4aa98aff470c081e7c87e7c34803828262abc4e076bede472b"},
+    {file = "cvxpy-1.1.1-cp36-cp36m-win_amd64.whl", hash = "sha256:94aa04ca903b06de85861e3eb52c0757ff87e5ef8a6029b376841800a9721c99"},
+    {file = "cvxpy-1.1.1-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:30f32a9c831c2c5b6d9c05912e1824dda122f21d48d76bc2555d5526a0a9c077"},
+    {file = "cvxpy-1.1.1-cp37-cp37m-win_amd64.whl", hash = "sha256:a7794f6c432532fe586b5aaa9a2e33996085bef47f9efdb513bea4a836eba8bb"},
+    {file = "cvxpy-1.1.1-py3.5-win-amd64.egg", hash = "sha256:eeab58aa76f88f3b1e1ed889b97a5e8be1ffc0b40ea2476b410371cf4e79fee8"},
+    {file = "cvxpy-1.1.1-py3.6-win-amd64.egg", hash = "sha256:076aa4888c64f876014bd48c099cad4105be4e010ff5bac6c4638ce06e7c3cb2"},
+    {file = "cvxpy-1.1.1-py3.7-win-amd64.egg", hash = "sha256:6be170db207377126c2b4f1c6ed873f85d2c990642d80d64114783341b65bdbb"},
+    {file = "cvxpy-1.1.1.tar.gz", hash = "sha256:b8e90af9c0046394a73144ef1b93f1f69df1ba00779bb3d607add006179ba9d9"},
 ]
 cycler = [
     {file = "cycler-0.10.0-py2.py3-none-any.whl", hash = "sha256:1d8a5ae1ff6c5cf9b93e8811e581232ad8920aeec647c37316ceac982b08cb2d"},
@@ -1289,9 +1272,6 @@ decorator = [
 defusedxml = [
     {file = "defusedxml-0.6.0-py2.py3-none-any.whl", hash = "sha256:6687150770438374ab581bb7a1b327a847dd9c5749e396102de3fad4e8a3ef93"},
     {file = "defusedxml-0.6.0.tar.gz", hash = "sha256:f684034d135af4c6cbb949b8a4d2ed61634515257a67299e5f940fbaa34377f5"},
-]
-dill = [
-    {file = "dill-0.3.2.zip", hash = "sha256:6e12da0d8e49c220e8d6e97ee8882002e624f1160289ce85ec2cc0a5246b3a2e"},
 ]
 distlib = [
     {file = "distlib-0.3.0.zip", hash = "sha256:2e166e231a26b36d6dfe35a48c4464346620f8645ed0ace01ee31822b288de21"},
@@ -1508,11 +1488,6 @@ mkdocs-material-extensions = [
 more-itertools = [
     {file = "more-itertools-8.4.0.tar.gz", hash = "sha256:68c70cc7167bdf5c7c9d8f6954a7837089c6a36bf565383919bb595efb8a17e5"},
     {file = "more_itertools-8.4.0-py3-none-any.whl", hash = "sha256:b78134b2063dd214000685165d81c154522c3ee0a1c0d4d113c80361c234c5a2"},
-]
-multiprocess = [
-    {file = "multiprocess-0.70.10-cp27-cp27m-win32.whl", hash = "sha256:879ee48882bf7959102010058f30419d72abc90035de70b7259a386dc8b1946a"},
-    {file = "multiprocess-0.70.10-cp27-cp27m-win_amd64.whl", hash = "sha256:9e604ac3ff7d6aa7da8306e7dd3a76a8b6ba83f5a8a2d8590b2edd1468df6479"},
-    {file = "multiprocess-0.70.10.zip", hash = "sha256:81f388527a0c8766e94fe084fd8a408da5045a9fe7b28e199f684a796f3c6bf8"},
 ]
 nbconvert = [
     {file = "nbconvert-5.6.1-py2.py3-none-any.whl", hash = "sha256:f0d6ec03875f96df45aa13e21fd9b8450c42d7e1830418cccc008c0df725fcee"},
