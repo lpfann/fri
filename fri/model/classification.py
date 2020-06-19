@@ -60,7 +60,7 @@ class Classification_SVM(InitModel):
         b = cvx.Variable(name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
-        constraints = [cvx.multiply(y.T, X * w + b) >= 1 - slack, slack >= 0]
+        constraints = [cvx.multiply(y.T, X @ w + b) >= 1 - slack, slack >= 0]
 
         # Solve problem.
 
@@ -125,7 +125,7 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
         self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
         # New Constraints
-        distance_from_plane = cvx.multiply(self.y, self.X * self.w + self.b)
+        distance_from_plane = cvx.multiply(self.y, self.X @ self.w + self.b)
         self.loss = cvx.sum(self.slack)
         self.weight_norm = cvx.norm(self.w, 1)
 

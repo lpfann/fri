@@ -3,13 +3,7 @@ from sklearn.exceptions import NotFittedError
 
 import warnings
 
-try:
-    # TODO: remove catch and try except on sklearn > 0.22 when regression is merged: https://github.com/scikit-learn/scikit-learn/pull/16132
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        from sklearn.feature_selection.base import SelectorMixin
-except ModuleNotFoundError:
-    from sklearn.feature_selection import SelectorMixin
+from sklearn.feature_selection import SelectorMixin
 
 from sklearn.utils import check_random_state
 from sklearn.utils.validation import check_is_fitted
@@ -166,10 +160,12 @@ class FRIBase(BaseEstimator, SelectorMixin):
             **kwargs,
         )
         return optimal_model, best_score
-    
-    def get_grouping(self,**kwargs):
+
+    def get_grouping(self, **kwargs):
         check_is_fitted(self, "allrel_prediction_")
-        groups, link = self._relevance_bounds_computer.grouping(self.interval_, **kwargs)
+        groups, link = self._relevance_bounds_computer.grouping(
+            self.interval_, **kwargs
+        )
         return groups, link
 
     def _get_relevance_mask(self, prediction):

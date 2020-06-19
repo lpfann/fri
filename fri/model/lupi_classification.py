@@ -108,8 +108,8 @@ class LUPI_Classification_SVM(InitModel):
         b_priv = cvx.Variable(name="bias_priv")
 
         # Define functions for better readability
-        function = X * w + b
-        priv_function = X_priv * w_priv + b_priv
+        function = X @ w + b
+        priv_function = X_priv @ w_priv + b_priv
         slack = cvx.Variable(shape=(n))
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
@@ -208,8 +208,8 @@ class LUPI_Classification_Relevance_Bound(
         slack = cvx.Variable(shape=(self.n))
 
         # New Constraints
-        function = cvx.multiply(self.y.T, self.X * w + b)
-        priv_function = self.X_priv * w_priv + b_priv
+        function = cvx.multiply(self.y.T, self.X @ w + b)
+        priv_function = self.X_priv @ w_priv + b_priv
         loss = cvx.sum(priv_function) + cvx.sum(slack)
 
         weight_norm = cvx.norm(w, 1)
