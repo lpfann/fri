@@ -52,7 +52,7 @@ class Regression_SVR(InitModel):
         b = cvx.Variable(name="bias")
 
         objective = cvx.Minimize(cvx.norm(w, 1) + C * cvx.sum(slack))
-        constraints = [cvx.abs(y - (X * w + b)) <= epsilon + slack, slack >= 0]
+        constraints = [cvx.abs(y - (X @ w + b)) <= epsilon + slack, slack >= 0]
 
         # Solve problem.
 
@@ -111,7 +111,7 @@ class Regression_Relevance_Bound(Relevance_CVXProblem):
         self.slack = cvx.Variable(shape=(self.n), nonneg=True, name="slack")
 
         # New Constraints
-        distance_from_plane = cvx.abs(self.y - (self.X * self.w + self.b))
+        distance_from_plane = cvx.abs(self.y - (self.X @ self.w + self.b))
         self.loss = cvx.sum(self.slack)
         self.weight_norm = cvx.norm(self.w, 1)
 

@@ -67,12 +67,12 @@ class OrdinalRegression_SVM(InitModel):
         # Add constraints for slack into left neighboring bins
         for i in range(n_bins - 1):
             indices = np.where(y == get_old_bin[i])
-            constraints.append(X[indices] * w - slack_left[indices] <= b_s[i] - 1)
+            constraints.append(X[indices] @ w - slack_left[indices] <= b_s[i] - 1)
 
         # Add constraints for slack into right neighboring bins
         for i in range(1, n_bins):
             indices = np.where(y == get_old_bin[i])
-            constraints.append(X[indices] * w + slack_right[indices] >= b_s[i - 1] + 1)
+            constraints.append(X[indices] @ w + slack_right[indices] >= b_s[i - 1] + 1)
 
         # Add explicit constraint, that all bins are ascending
         for i in range(n_bins - 2):
@@ -234,13 +234,13 @@ class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
         for i in range(n_bins - 1):
             indices = np.where(self.y == i)
             self.add_constraint(
-                self.X[indices] * self.w - self.slack_left[indices] <= self.b_s[i] - 1
+                self.X[indices] @ self.w - self.slack_left[indices] <= self.b_s[i] - 1
             )
 
         for i in range(1, n_bins):
             indices = np.where(self.y == i)
             self.add_constraint(
-                self.X[indices] * self.w + self.slack_right[indices]
+                self.X[indices] @ self.w + self.slack_right[indices]
                 >= self.b_s[i - 1] + 1
             )
 
