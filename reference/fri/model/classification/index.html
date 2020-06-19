@@ -1476,7 +1476,7 @@
 
         <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cvx</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">C</span> <span class="o">*</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">))</span>
 
-        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span> <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span> <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="c1"># Solve problem.</span>
 
@@ -1576,7 +1576,7 @@
 
         <span class="c1"># New Constraints</span>
 
-        <span class="n">distance_from_plane</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">distance_from_plane</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">@</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">loss</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">slack</span><span class="p">)</span>
 
@@ -1955,7 +1955,7 @@ inheritance.</p>
 
         <span class="c1"># New Constraints</span>
 
-        <span class="n">distance_from_plane</span> = <span class="n">cvx</span>.<span class="n">multiply</span>(<span class="nb">self</span>.<span class="n">y</span>, <span class="nb">self</span>.<span class="o">X</span> * <span class="nb">self</span>.<span class="nb">w</span> + <span class="nb">self</span>.<span class="n">b</span>)
+        <span class="n">distance_from_plane</span> = <span class="n">cvx</span>.<span class="n">multiply</span>(<span class="nb">self</span>.<span class="n">y</span>, <span class="nb">self</span>.<span class="o">X</span> @ <span class="nb">self</span>.<span class="nb">w</span> + <span class="nb">self</span>.<span class="n">b</span>)
 
         <span class="nb">self</span>.<span class="n">loss</span> = <span class="n">cvx</span>.<span class="nb">sum</span>(<span class="nb">self</span>.<span class="n">slack</span>)
 
@@ -2342,7 +2342,7 @@ inheritance.</p>
 
         <span class="n">objective</span> = <span class="n">cvx</span>.<span class="n">Minimize</span>(<span class="n">cvx</span>.<span class="nb">norm</span>(<span class="nb">w</span>, <span class="mi">1</span>) + <span class="n">C</span> * <span class="n">cvx</span>.<span class="nb">sum</span>(<span class="n">slack</span>))
 
-        <span class="nb">constraints</span> = [<span class="n">cvx</span>.<span class="n">multiply</span>(<span class="n">y</span>.<span class="n">T</span>, <span class="o">X</span> * <span class="nb">w</span> + <span class="n">b</span>) &gt;= <span class="mi">1</span> - <span class="n">slack</span>, <span class="n">slack</span> &gt;= <span class="mi">0</span>]
+        <span class="nb">constraints</span> = [<span class="n">cvx</span>.<span class="n">multiply</span>(<span class="n">y</span>.<span class="n">T</span>, <span class="o">X</span> @ <span class="nb">w</span> + <span class="n">b</span>) &gt;= <span class="mi">1</span> - <span class="n">slack</span>, <span class="n">slack</span> &gt;= <span class="mi">0</span>]
 
         <span class="c1"># Solve problem.</span>
 
@@ -2449,7 +2449,7 @@ inheritance.</p>
 
         <span class="n">objective</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="n">Minimize</span><span class="p">(</span><span class="n">cvx</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="k">C</span> <span class="o">*</span> <span class="n">cvx</span><span class="p">.</span><span class="k">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">))</span>
 
-        <span class="k">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">cvx</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">y</span><span class="p">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span> <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">constraints</span> <span class="o">=</span> <span class="p">[</span><span class="n">cvx</span><span class="p">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">y</span><span class="p">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">slack</span><span class="p">,</span> <span class="n">slack</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
 
         <span class="o">#</span> <span class="n">Solve</span> <span class="n">problem</span><span class="p">.</span>
 

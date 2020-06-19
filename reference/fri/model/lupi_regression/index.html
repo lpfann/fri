@@ -1608,9 +1608,9 @@
 
         <span class="c1"># Define functions for better readability</span>
 
-        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
+        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
 
-        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
+        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
 
         <span class="c1"># Combined loss of lupi function and normal slacks, scaled by two constants</span>
 
@@ -1638,9 +1638,9 @@
 
         <span class="n">constraints</span> <span class="o">=</span> <span class="p">[</span>
 
-            <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
+            <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
 
-            <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
+            <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
 
             <span class="n">priv_function_pos</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
 
@@ -1910,9 +1910,9 @@
 
         <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n</span><span class="p">))</span>
 
-        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
+        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
 
-        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
+        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
 
         <span class="n">priv_loss</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">priv_function_neg</span><span class="p">)</span>
 
@@ -1926,13 +1926,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span>
 
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">add_constraint</span><span class="p">(</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span>
 
         <span class="p">)</span>
 
@@ -2460,9 +2460,9 @@ inheritance.</p>
 
 <span class="w">        </span><span class="n">slack</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cvx</span><span class="p">.</span><span class="k">Variable</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">n</span><span class="p">))</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X_priv</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w_priv_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_pos</span><span class="w"></span>
+<span class="w">        </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X_priv</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w_priv_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_pos</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X_priv</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w_priv_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_neg</span><span class="w"></span>
+<span class="w">        </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X_priv</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w_priv_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_neg</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">priv_loss</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cvx</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">priv_function_neg</span><span class="p">)</span><span class="w"></span>
 
@@ -2476,13 +2476,13 @@ inheritance.</p>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">slack</span><span class="w"></span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">slack</span><span class="w"></span>
 
 <span class="w">        </span><span class="p">)</span><span class="w"></span>
 
 <span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">add_constraint</span><span class="p">(</span><span class="w"></span>
 
-<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">slack</span><span class="w"></span>
+<span class="w">            </span><span class="n">self</span><span class="p">.</span><span class="n">X</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">y</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">epsilon</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">slack</span><span class="w"></span>
 
 <span class="w">        </span><span class="p">)</span><span class="w"></span>
 
@@ -3006,9 +3006,9 @@ inheritance.</p>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Define</span><span class="w"> </span><span class="n">functions</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">better</span><span class="w"> </span><span class="n">readability</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_priv</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w_priv_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_pos</span><span class="w"></span>
+<span class="w">        </span><span class="n">priv_function_pos</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_priv</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w_priv_pos</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_pos</span><span class="w"></span>
 
-<span class="w">        </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_priv</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">w_priv_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_neg</span><span class="w"></span>
+<span class="w">        </span><span class="n">priv_function_neg</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">X_priv</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">w_priv_neg</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">b_priv_neg</span><span class="w"></span>
 
 <span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Combined</span><span class="w"> </span><span class="n">loss</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">lupi</span><span class="w"> </span><span class="k">function</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">normal</span><span class="w"> </span><span class="n">slacks</span><span class="p">,</span><span class="w"> </span><span class="n">scaled</span><span class="w"> </span><span class="k">by</span><span class="w"> </span><span class="n">two</span><span class="w"> </span><span class="n">constants</span><span class="w"></span>
 
@@ -3036,9 +3036,9 @@ inheritance.</p>
 
 <span class="w">        </span><span class="k">constraints</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span><span class="n"></span>
 
-<span class="n">            y - X * w - b &lt;= epsilon + priv_function_pos + slack,</span>
+<span class="n">            y - X @ w - b &lt;= epsilon + priv_function_pos + slack,</span>
 
-<span class="n">            X * w + b - y &lt;= epsilon + priv_function_neg + slack,</span>
+<span class="n">            X @ w + b - y &lt;= epsilon + priv_function_neg + slack,</span>
 
 <span class="n">            priv_function_pos &gt;= 0,</span>
 
@@ -3264,9 +3264,9 @@ inheritance.</p>
 
         <span class="o">#</span> <span class="n">Define</span> <span class="n">functions</span> <span class="k">for</span> <span class="n">better</span> <span class="n">readability</span>
 
-        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
+        <span class="n">priv_function_pos</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_pos</span> <span class="o">+</span> <span class="n">b_priv_pos</span>
 
-        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
+        <span class="n">priv_function_neg</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv_neg</span> <span class="o">+</span> <span class="n">b_priv_neg</span>
 
         <span class="o">#</span> <span class="n">Combined</span> <span class="n">loss</span> <span class="k">of</span> <span class="n">lupi</span> <span class="k">function</span> <span class="k">and</span> <span class="n">normal</span> <span class="n">slacks</span><span class="p">,</span> <span class="n">scaled</span> <span class="k">by</span> <span class="n">two</span> <span class="n">constants</span>
 
@@ -3294,9 +3294,9 @@ inheritance.</p>
 
         <span class="k">constraints</span> <span class="o">=</span> <span class="p">[</span>
 
-            <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
+            <span class="n">y</span> <span class="o">-</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">-</span> <span class="n">b</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_pos</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
 
-            <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
+            <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span> <span class="o">-</span> <span class="n">y</span> <span class="o">&lt;=</span> <span class="n">epsilon</span> <span class="o">+</span> <span class="n">priv_function_neg</span> <span class="o">+</span> <span class="n">slack</span><span class="p">,</span>
 
             <span class="n">priv_function_pos</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">,</span>
 

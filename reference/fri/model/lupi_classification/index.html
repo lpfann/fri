@@ -1568,9 +1568,9 @@
 
         <span class="c1"># Define functions for better readability</span>
 
-        <span class="n">function</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
 
-        <span class="n">priv_function</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
+        <span class="n">priv_function</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
 
         <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="n">Variable</span><span class="p">(</span><span class="kp">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 
@@ -1728,9 +1728,9 @@
 
         <span class="c1"># New Constraints</span>
 
-        <span class="n">function</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
+        <span class="n">function</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">multiply</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span><span class="p">)</span>
 
-        <span class="n">priv_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
+        <span class="n">priv_function</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
 
         <span class="n">loss</span> <span class="o">=</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">priv_function</span><span class="p">)</span> <span class="o">+</span> <span class="n">cvx</span><span class="o">.</span><span class="kp">sum</span><span class="p">(</span><span class="n">slack</span><span class="p">)</span>
 
@@ -2188,9 +2188,9 @@ inheritance.</p>
 
         <span class="c1"># New Constraints</span>
 
-        <span class="n">function</span> = <span class="n">cvx</span>.<span class="n">multiply</span>(<span class="nb">self</span>.<span class="n">y</span>.<span class="n">T</span>, <span class="nb">self</span>.<span class="o">X</span> * <span class="nb">w</span> + <span class="n">b</span>)
+        <span class="n">function</span> = <span class="n">cvx</span>.<span class="n">multiply</span>(<span class="nb">self</span>.<span class="n">y</span>.<span class="n">T</span>, <span class="nb">self</span>.<span class="o">X</span> @ <span class="nb">w</span> + <span class="n">b</span>)
 
-        <span class="n">priv_function</span> = <span class="nb">self</span>.<span class="n">X_priv</span> * <span class="n">w_priv</span> + <span class="n">b_priv</span>
+        <span class="n">priv_function</span> = <span class="nb">self</span>.<span class="n">X_priv</span> @ <span class="n">w_priv</span> + <span class="n">b_priv</span>
 
         <span class="n">loss</span> = <span class="n">cvx</span>.<span class="nb">sum</span>(<span class="n">priv_function</span>) + <span class="n">cvx</span>.<span class="nb">sum</span>(<span class="n">slack</span>)
 
@@ -2663,9 +2663,9 @@ inheritance.</p>
 
         <span class="c1"># Define functions for better readability</span>
 
-        <span class="n">function</span> = <span class="o">X</span> * <span class="nb">w</span> + <span class="n">b</span>
+        <span class="n">function</span> = <span class="o">X</span> @ <span class="nb">w</span> + <span class="n">b</span>
 
-        <span class="n">priv_function</span> = <span class="n">X_priv</span> * <span class="n">w_priv</span> + <span class="n">b_priv</span>
+        <span class="n">priv_function</span> = <span class="n">X_priv</span> @ <span class="n">w_priv</span> + <span class="n">b_priv</span>
 
         <span class="n">slack</span> = <span class="n">cvx</span>.<span class="nb">Variable</span>(<span class="nb">shape</span>=(<span class="n">n</span>))
 
@@ -2864,9 +2864,9 @@ inheritance.</p>
 
         <span class="o">#</span> <span class="n">Define</span> <span class="n">functions</span> <span class="k">for</span> <span class="n">better</span> <span class="n">readability</span>
 
-        <span class="k">function</span> <span class="o">=</span> <span class="n">X</span> <span class="o">*</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
+        <span class="k">function</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">w</span> <span class="o">+</span> <span class="n">b</span>
 
-        <span class="n">priv_function</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">*</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
+        <span class="n">priv_function</span> <span class="o">=</span> <span class="n">X_priv</span> <span class="o">@</span> <span class="n">w_priv</span> <span class="o">+</span> <span class="n">b_priv</span>
 
         <span class="n">slack</span> <span class="o">=</span> <span class="n">cvx</span><span class="p">.</span><span class="k">Variable</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
 
