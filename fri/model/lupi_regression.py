@@ -113,8 +113,8 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         slack = cvx.Variable(shape=(n), name="slack")
 
         # Define functions for better readability
-        priv_function_pos = X_priv * w_priv_pos + b_priv_pos
-        priv_function_neg = X_priv * w_priv_neg + b_priv_neg
+        priv_function_pos = X_priv @ w_priv_pos + b_priv_pos
+        priv_function_neg = X_priv @ w_priv_neg + b_priv_neg
 
         # Combined loss of lupi function and normal slacks, scaled by two constants
         priv_loss_pos = cvx.sum(priv_function_pos)
@@ -131,8 +131,8 @@ class LUPI_Regression_SVM(LUPI_InitModel):
         )
 
         constraints = [
-            y - X * w - b <= epsilon + priv_function_pos + slack,
-            X * w + b - y <= epsilon + priv_function_neg + slack,
+            y - X @ w - b <= epsilon + priv_function_pos + slack,
+            X @ w + b - y <= epsilon + priv_function_neg + slack,
             priv_function_pos >= 0,
             priv_function_neg >= 0,
             # priv_loss_pos >= 0,
@@ -287,8 +287,8 @@ class LUPI_Regression_Relevance_Bound(
         b_priv_neg = cvx.Variable(name="bias_priv_neg")
         slack = cvx.Variable(shape=(self.n))
 
-        priv_function_pos = self.X_priv * w_priv_pos + b_priv_pos
-        priv_function_neg = self.X_priv * w_priv_neg + b_priv_neg
+        priv_function_pos = self.X_priv @ w_priv_pos + b_priv_pos
+        priv_function_neg = self.X_priv @ w_priv_neg + b_priv_neg
         priv_loss = cvx.sum(priv_function_pos + priv_function_neg)
         loss = priv_loss + cvx.sum(slack)
         weight_norm = cvx.norm(w, 1)
@@ -296,10 +296,10 @@ class LUPI_Regression_Relevance_Bound(
         self.weight_norm_priv_neg = cvx.norm(w_priv_neg, 1)
 
         self.add_constraint(
-            self.y - self.X * w - b <= epsilon + priv_function_pos + slack
+            self.y - self.X @ w - b <= epsilon + priv_function_pos + slack
         )
         self.add_constraint(
-            self.X * w + b - self.y <= epsilon + priv_function_neg + slack
+            self.X @ w + b - self.y <= epsilon + priv_function_neg + slack
         )
         self.add_constraint(priv_function_pos >= 0)
         self.add_constraint(priv_function_neg >= 0)

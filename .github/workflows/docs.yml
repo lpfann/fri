@@ -6,17 +6,17 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.3.1
       with:
         fetch-depth: 1
     - name: Setup Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v2.0.1
       with:
         python-version: 3.7
     - name: Install Poetry
       uses: dschep/install-poetry-action@v1.2
     - name: Cache poetry venv
-      uses: actions/cache@v1
+      uses: actions/cache@v2
       id: cache
       with:
         path: ~/.virtualenvs
@@ -35,8 +35,9 @@ jobs:
     - run: poetry run portray as_html
       name: Portray - Compile as HTML
     - name: Deploy
-      uses: peaceiris/actions-gh-pages@v2
-      env:
-        ACTIONS_DEPLOY_KEY: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        PUBLISH_BRANCH: gh-pages
-        PUBLISH_DIR: ./site
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_branch: gh-pages
+        publish_dir: ./site
+        cname: fri.lpfann.me
