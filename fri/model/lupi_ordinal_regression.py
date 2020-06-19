@@ -110,7 +110,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
 
         def priv_function(bin, sign):
             indices = np.where(y == get_original_bin_name[bin])
-            return X_priv[indices] * w_priv[:, sign] + d_priv[sign]
+            return X_priv[indices] @ w_priv[:, sign] + d_priv[sign]
 
         # L1 norm regularization of both functions with 1 scaling constant
         priv_l1_1 = cvx.norm(w_priv[:, 0], 1)
@@ -125,7 +125,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for left_bin in range(0, n_bins - 1):
             indices = np.where(y == get_original_bin_name[left_bin])
             constraints.append(
-                X[indices] * w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
+                X[indices] @ w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
             )
             constraints.append(priv_function(left_bin, 0) >= 0)
             loss += cvx.sum(priv_function(left_bin, 0))
@@ -134,7 +134,7 @@ class LUPI_OrdinalRegression_SVM(LUPI_InitModel):
         for right_bin in range(1, n_bins):
             indices = np.where(y == get_original_bin_name[right_bin])
             constraints.append(
-                X[indices] * w - b_s[right_bin - 1] >= +1 - priv_function(right_bin, 1)
+                X[indices] @ w - b_s[right_bin - 1] >= +1 - priv_function(right_bin, 1)
             )
             constraints.append(priv_function(right_bin, 1) >= 0)
             loss += cvx.sum(priv_function(right_bin, 1))
@@ -344,7 +344,7 @@ class LUPI_OrdinalRegression_Relevance_Bound(
 
         def priv_function(bin, sign):
             indices = np.where(self.y == get_original_bin_name[bin])
-            return self.X_priv[indices] * w_priv[:, sign] + d_priv[sign]
+            return self.X_priv[indices] @ w_priv[:, sign] + d_priv[sign]
 
         # L1 norm regularization of both functions with 1 scaling constant
         priv_l1_1 = cvx.norm(w_priv[:, 0], 1)
@@ -356,7 +356,7 @@ class LUPI_OrdinalRegression_Relevance_Bound(
         for left_bin in range(0, n_bins - 1):
             indices = np.where(self.y == get_original_bin_name[left_bin])
             self.add_constraint(
-                self.X[indices] * w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
+                self.X[indices] @ w - b_s[left_bin] <= -1 + priv_function(left_bin, 0)
             )
             self.add_constraint(priv_function(left_bin, 0) >= 0)
             loss += cvx.sum(priv_function(left_bin, 0))
@@ -365,7 +365,7 @@ class LUPI_OrdinalRegression_Relevance_Bound(
         for right_bin in range(1, n_bins):
             indices = np.where(self.y == get_original_bin_name[right_bin])
             self.add_constraint(
-                self.X[indices] * w - b_s[right_bin - 1]
+                self.X[indices] @ w - b_s[right_bin - 1]
                 >= +1 - priv_function(right_bin, 1)
             )
             self.add_constraint(priv_function(right_bin, 1) >= 0)
