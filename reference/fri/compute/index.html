@@ -517,8 +517,29 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#grouping" class="md-nav__link">
+    grouping
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
   
 </li>
       
@@ -968,8 +989,29 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#grouping" class="md-nav__link">
+    grouping
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    Parameters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#returns" class="md-nav__link">
+    Returns
+  </a>
   
 </li>
       
@@ -1012,7 +1054,11 @@ They (normally) should not be used by users.</p>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
+<span class="kn">import</span> <span class="nn">scipy</span>
+
 <span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">stats</span>
+
+<span class="kn">from</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="kn">import</span> <span class="n">fcluster</span><span class="p">,</span> <span class="n">linkage</span>
 
 <span class="kn">from</span> <span class="nn">fri.model.base_cvxproblem</span> <span class="kn">import</span> <span class="n">Relevance_CVXProblem</span>
 
@@ -1021,6 +1067,8 @@ They (normally) should not be used by users.</p>
 <span class="kn">from</span> <span class="nn">fri.model.base_type</span> <span class="kn">import</span> <span class="n">ProblemType</span>
 
 <span class="kn">from</span> <span class="nn">fri.utils</span> <span class="kn">import</span> <span class="n">permutate_feature_in_data</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">distance</span>
 
 <span class="n">MIN_N_PROBE_FEATURES</span> <span class="o">=</span> <span class="mi">20</span>  <span class="c1"># Lower bound of probe features</span>
 
@@ -1634,7 +1682,7 @@ They (normally) should not be used by users.</p>
 
         <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_init_model</span><span class="o">.</span><span class="n">model_state</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span>
 
-        <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">preset_sum</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">preset</span> <span class="ow">in</span> <span class="n">unsigned_presets</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
 
@@ -1648,7 +1696,7 @@ They (normally) should not be used by users.</p>
 
             <span class="c1"># accumulate maximal feature  contribution</span>
 
-            <span class="nb">sum</span> <span class="o">+=</span> <span class="n">unsigned_preset_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Take upper preset</span>
+            <span class="n">preset_sum</span> <span class="o">+=</span> <span class="n">unsigned_preset_i</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Take upper preset</span>
 
             <span class="n">signed_presets</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">unsigned_preset_i</span>
 
@@ -1656,9 +1704,9 @@ They (normally) should not be used by users.</p>
 
         <span class="n">l1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">init_constraints</span><span class="p">[</span><span class="s2">&quot;w_l1&quot;</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="nb">sum</span> <span class="o">&gt;</span> <span class="n">l1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">preset_sum</span> <span class="o">&gt;</span> <span class="n">l1</span><span class="p">:</span>
 
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;maximum L1 norm of presets: &quot;</span><span class="p">,</span> <span class="nb">sum</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;maximum L1 norm of presets: &quot;</span><span class="p">,</span> <span class="n">preset_sum</span><span class="p">)</span>
 
             <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;L1 allowed:&quot;</span><span class="p">,</span> <span class="n">l1</span><span class="p">)</span>
 
@@ -1681,6 +1729,118 @@ They (normally) should not be used by users.</p>
             <span class="n">rangevector</span><span class="p">[</span><span class="n">rangevector</span> <span class="o">&lt;=</span> <span class="mf">1e-11</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 
         <span class="k">return</span> <span class="n">rangevector</span>
+
+    <span class="k">def</span> <span class="nf">grouping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">interval</span><span class="p">,</span> <span class="n">cutoff_threshold</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
+
+        <span class="sd">&quot;&quot;&quot; Find feature clusters based on observed variance when changing feature contributions</span>
+
+<span class="sd">        Parameters</span>
+
+<span class="sd">        ----------</span>
+
+<span class="sd">        cutoff_threshold : float, optional</span>
+
+<span class="sd">            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.</span>
+
+<span class="sd">        method : str, optional</span>
+
+<span class="sd">            Linkage method used in the hierarchical clustering.</span>
+
+<span class="sd">        Returns</span>
+
+<span class="sd">        -------</span>
+
+<span class="sd">        self</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Do we have intervals?</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_init_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Model needs to be fitted already.&quot;</span><span class="p">)</span>
+
+        <span class="n">d</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+
+        <span class="c1"># Init arrays</span>
+
+        <span class="n">interval_constrained_to_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span>
+
+            <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># Save ranges (d,2-dim) for every contrained run (d-times)</span>
+
+        <span class="n">absolute_delta_bounds_summed_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">interval_constrained_to_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">(</span>
+
+            <span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>  <span class="c1"># Save ranges (d,2-dim) for every contrained run (d-times)</span>
+
+        <span class="n">absolute_delta_bounds_summed_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="c1"># Set weight for each dimension to minimum and maximum possible value and run optimization of all others</span>
+
+        <span class="c1"># We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+
+            <span class="c1"># min</span>
+
+            <span class="n">lowb</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">ranges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,[</span><span class="n">lowb</span><span class="p">,</span><span class="n">lowb</span><span class="p">]</span> <span class="p">)</span>
+
+            <span class="kp">diff</span> <span class="o">=</span> <span class="n">interval</span> <span class="o">-</span> <span class="n">ranges</span>
+
+            <span class="kp">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">interval_constrained_to_min</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ranges</span>
+
+            <span class="n">absolute_delta_bounds_summed_min</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kp">diff</span>
+
+            <span class="c1"># max</span>
+
+            <span class="n">highb</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+            <span class="n">ranges</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="p">[</span><span class="n">highb</span><span class="p">,</span> <span class="n">highb</span><span class="p">])</span>
+
+            <span class="kp">diff</span> <span class="o">=</span> <span class="n">interval</span> <span class="o">-</span> <span class="n">ranges</span>
+
+            <span class="kp">diff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">interval_constrained_to_max</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ranges</span>
+
+            <span class="n">absolute_delta_bounds_summed_max</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kp">diff</span>
+
+        <span class="n">feature_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="kp">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">d</span> <span class="o">*</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+
+            <span class="n">feature_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">)]</span> <span class="o">=</span> <span class="n">absolute_delta_bounds_summed_min</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="kp">flatten</span><span class="p">()</span>
+
+            <span class="n">feature_points</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">d</span><span class="p">):]</span> <span class="o">=</span> <span class="n">absolute_delta_bounds_summed_max</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="kp">flatten</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">relevance_variance</span> <span class="o">=</span> <span class="n">feature_points</span>
+
+        <span class="c1"># Calculate similarity using custom measure</span>
+
+        <span class="n">dist_mat</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">spatial</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">feature_points</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span>
+
+        <span class="c1"># Single Linkage clustering</span>
+
+        <span class="c1"># link = linkage(dist_mat, method=&quot;single&quot;)</span>
+
+        <span class="n">link</span> <span class="o">=</span> <span class="n">linkage</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="n">optimal_ordering</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Set cutoff at which threshold the linkage gets flattened (clustering)</span>
+
+        <span class="n">RATIO</span> <span class="o">=</span> <span class="n">cutoff_threshold</span>
+
+        <span class="n">threshold</span> <span class="o">=</span> <span class="n">RATIO</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="kp">max</span><span class="p">(</span><span class="n">link</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">])</span>  <span class="c1"># max of branch lengths (distances)</span>
+
+        <span class="n">feature_clustering</span> <span class="o">=</span> <span class="n">fcluster</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_clusters_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkage_</span> <span class="o">=</span> <span class="n">feature_clustering</span><span class="p">,</span> <span class="n">link</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_clusters_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linkage_</span>
 
 <span class="k">def</span> <span class="nf">_get_necessary_dimensions</span><span class="p">(</span><span class="n">d</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">presetModel</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
 
@@ -2650,7 +2810,7 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 
 <span class="w">        </span><span class="n">w</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">best_init_model</span><span class="p">.</span><span class="n">model_state</span><span class="o">[</span><span class="n">&quot;w&quot;</span><span class="o">]</span><span class="w"></span>
 
-<span class="w">        </span><span class="nf">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+<span class="w">        </span><span class="n">preset_sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">preset</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">unsigned_presets</span><span class="p">.</span><span class="n">items</span><span class="p">()</span><span class="err">:</span><span class="w"></span>
 
@@ -2664,7 +2824,7 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 
 <span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="n">accumulate</span><span class="w"> </span><span class="n">maximal</span><span class="w"> </span><span class="n">feature</span><span class="w">  </span><span class="n">contribution</span><span class="w"></span>
 
-<span class="w">            </span><span class="nf">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">unsigned_preset_i</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">Take</span><span class="w"> </span><span class="nf">upper</span><span class="w"> </span><span class="n">preset</span><span class="w"></span>
+<span class="w">            </span><span class="n">preset_sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">unsigned_preset_i</span><span class="o">[</span><span class="n">1</span><span class="o">]</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">Take</span><span class="w"> </span><span class="nf">upper</span><span class="w"> </span><span class="n">preset</span><span class="w"></span>
 
 <span class="w">            </span><span class="n">signed_presets</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">unsigned_preset_i</span><span class="w"></span>
 
@@ -2672,9 +2832,9 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 
 <span class="w">        </span><span class="n">l1</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">init_constraints</span><span class="o">[</span><span class="n">&quot;w_l1&quot;</span><span class="o">]</span><span class="w"></span>
 
-<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="nf">sum</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nl">l1</span><span class="p">:</span><span class="w"></span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">preset_sum</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="nl">l1</span><span class="p">:</span><span class="w"></span>
 
-<span class="w">            </span><span class="k">print</span><span class="p">(</span><span class="ss">&quot;maximum L1 norm of presets: &quot;</span><span class="p">,</span><span class="w"> </span><span class="nf">sum</span><span class="p">)</span><span class="w"></span>
+<span class="w">            </span><span class="k">print</span><span class="p">(</span><span class="ss">&quot;maximum L1 norm of presets: &quot;</span><span class="p">,</span><span class="w"> </span><span class="n">preset_sum</span><span class="p">)</span><span class="w"></span>
 
 <span class="w">            </span><span class="k">print</span><span class="p">(</span><span class="ss">&quot;L1 allowed:&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">l1</span><span class="p">)</span><span class="w"></span>
 
@@ -2697,6 +2857,118 @@ from one kind of relevance bounds (minrel or maxrel).</p>
 <span class="w">            </span><span class="n">rangevector</span><span class="o">[</span><span class="n">rangevector &lt;= 1e-11</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
 
 <span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">rangevector</span><span class="w"></span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="nf">grouping</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="k">interval</span><span class="p">,</span><span class="w"> </span><span class="n">cutoff_threshold</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="ss">&quot;single&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot; Find feature clusters based on observed variance when changing feature contributions</span>
+
+<span class="ss">        Parameters</span>
+
+<span class="ss">        ----------</span>
+
+<span class="ss">        cutoff_threshold : float, optional</span>
+
+<span class="ss">            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.</span>
+
+<span class="ss">        method : str, optional</span>
+
+<span class="ss">            Linkage method used in the hierarchical clustering.</span>
+
+<span class="ss">        Returns</span>
+
+<span class="ss">        -------</span>
+
+<span class="ss">        self</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Do</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">intervals</span><span class="vm">?</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">best_init_model</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="k">Exception</span><span class="p">(</span><span class="ss">&quot;Model needs to be fitted already.&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="k">interval</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Init</span><span class="w"> </span><span class="n">arrays</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">interval_constrained_to_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">Save</span><span class="w"> </span><span class="n">ranges</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="mi">2</span><span class="o">-</span><span class="n">dim</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">every</span><span class="w"> </span><span class="n">contrained</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">times</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">absolute_delta_bounds_summed_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">interval_constrained_to_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">Save</span><span class="w"> </span><span class="n">ranges</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="mi">2</span><span class="o">-</span><span class="n">dim</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">every</span><span class="w"> </span><span class="n">contrained</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">times</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">absolute_delta_bounds_summed_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">Set</span><span class="w"> </span><span class="n">weight</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">dimension</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">minimum</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">maximum</span><span class="w"> </span><span class="n">possible</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">optimization</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="ow">all</span><span class="w"> </span><span class="n">others</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">We</span><span class="w"> </span><span class="n">retrieve</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">relevance</span><span class="w"> </span><span class="n">bounds</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">absolute</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">them</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">non</span><span class="o">-</span><span class="n">constrained</span><span class="w"> </span><span class="n">bounds</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nf">min</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">lowb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="o">[</span><span class="n">i, 0</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="o">[</span><span class="n">lowb,lowb</span><span class="o">]</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">interval_constrained_to_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">absolute_delta_bounds_summed_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nf">max</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">highb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="o">[</span><span class="n">i, 1</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">highb, highb</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">interval_constrained_to_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">absolute_delta_bounds_summed_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">feature_points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">feature_points</span><span class="o">[</span><span class="n">i, :(2 * d)</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">absolute_delta_bounds_summed_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">.</span><span class="n">flatten</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">feature_points</span><span class="o">[</span><span class="n">i, (2 * d):</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">absolute_delta_bounds_summed_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">.</span><span class="n">flatten</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">relevance_variance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">feature_points</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Calculate</span><span class="w"> </span><span class="n">similarity</span><span class="w"> </span><span class="k">using</span><span class="w"> </span><span class="n">custom</span><span class="w"> </span><span class="n">measure</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">dist_mat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">spatial</span><span class="p">.</span><span class="n">distance</span><span class="p">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">feature_points</span><span class="p">,</span><span class="w"> </span><span class="n">metric</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Single</span><span class="w"> </span><span class="n">Linkage</span><span class="w"> </span><span class="n">clustering</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="ss">&quot;single&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="k">method</span><span class="p">,</span><span class="w"> </span><span class="n">optimal_ordering</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">Set</span><span class="w"> </span><span class="n">cutoff</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">linkage</span><span class="w"> </span><span class="n">gets</span><span class="w"> </span><span class="n">flattened</span><span class="w"> </span><span class="p">(</span><span class="n">clustering</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">RATIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cutoff_threshold</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RATIO</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="n">link</span><span class="o">[</span><span class="n">:, 2</span><span class="o">]</span><span class="p">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nf">max</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="n">lengths</span><span class="w"> </span><span class="p">(</span><span class="n">distances</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">feature_clustering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fcluster</span><span class="p">(</span><span class="n">link</span><span class="p">,</span><span class="w"> </span><span class="n">threshold</span><span class="p">,</span><span class="w"> </span><span class="n">criterion</span><span class="o">=</span><span class="ss">&quot;distance&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">feature_clusters_</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">linkage_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">feature_clustering</span><span class="p">,</span><span class="w"> </span><span class="n">link</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">feature_clusters_</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">linkage_</span><span class="w"></span>
 </code></pre></div>
 
 
@@ -3142,6 +3414,139 @@ signed_preset_i:
         <span class="n">fc_both</span> <span class="o">=</span> <span class="n">np</span><span class="p">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">feature_classes</span><span class="p">,</span> <span class="n">feature_classes_lupi</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">interval_</span><span class="p">,</span> <span class="n">fc_both</span>
+</code></pre></div>
+
+
+</details>
+<h5 id="grouping">grouping</h5>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">grouping</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">interval</span><span class="p">,</span>
+    <span class="n">cutoff_threshold</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s1">&#39;single&#39;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<p>Find feature clusters based on observed variance when changing feature contributions</p>
+<h2 id="parameters_2">Parameters</h2>
+<p>cutoff_threshold : float, optional
+    Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.
+method : str, optional
+    Linkage method used in the hierarchical clustering.</p>
+<h2 id="returns">Returns</h2>
+<p>self</p>
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code><span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="nf">grouping</span><span class="p">(</span><span class="n">self</span><span class="p">,</span><span class="k">interval</span><span class="p">,</span><span class="w"> </span><span class="n">cutoff_threshold</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="ss">&quot;single&quot;</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">        </span><span class="ss">&quot;&quot;&quot; Find feature clusters based on observed variance when changing feature contributions</span>
+
+<span class="ss">        Parameters</span>
+
+<span class="ss">        ----------</span>
+
+<span class="ss">        cutoff_threshold : float, optional</span>
+
+<span class="ss">            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.</span>
+
+<span class="ss">        method : str, optional</span>
+
+<span class="ss">            Linkage method used in the hierarchical clustering.</span>
+
+<span class="ss">        Returns</span>
+
+<span class="ss">        -------</span>
+
+<span class="ss">        self</span>
+
+<span class="ss">        &quot;&quot;&quot;</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Do</span><span class="w"> </span><span class="n">we</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">intervals</span><span class="vm">?</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">best_init_model</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">None</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">raise</span><span class="w"> </span><span class="k">Exception</span><span class="p">(</span><span class="ss">&quot;Model needs to be fitted already.&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">d</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nf">len</span><span class="p">(</span><span class="k">interval</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Init</span><span class="w"> </span><span class="n">arrays</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">interval_constrained_to_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">Save</span><span class="w"> </span><span class="n">ranges</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="mi">2</span><span class="o">-</span><span class="n">dim</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">every</span><span class="w"> </span><span class="n">contrained</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">times</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">absolute_delta_bounds_summed_min</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">interval_constrained_to_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">(</span><span class="w"></span>
+
+<span class="w">            </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="k">Save</span><span class="w"> </span><span class="n">ranges</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="p">,</span><span class="mi">2</span><span class="o">-</span><span class="n">dim</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">every</span><span class="w"> </span><span class="n">contrained</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="p">(</span><span class="n">d</span><span class="o">-</span><span class="n">times</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">absolute_delta_bounds_summed_max</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">Set</span><span class="w"> </span><span class="n">weight</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">each</span><span class="w"> </span><span class="n">dimension</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">minimum</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">maximum</span><span class="w"> </span><span class="n">possible</span><span class="w"> </span><span class="k">value</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="n">optimization</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="ow">all</span><span class="w"> </span><span class="n">others</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">We</span><span class="w"> </span><span class="n">retrieve</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">relevance</span><span class="w"> </span><span class="n">bounds</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">calculate</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">absolute</span><span class="w"> </span><span class="nf">difference</span><span class="w"> </span><span class="ow">between</span><span class="w"> </span><span class="n">them</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">non</span><span class="o">-</span><span class="n">constrained</span><span class="w"> </span><span class="n">bounds</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nf">min</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">lowb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="o">[</span><span class="n">i, 0</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="o">[</span><span class="n">lowb,lowb</span><span class="o">]</span><span class="w"> </span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">interval_constrained_to_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">absolute_delta_bounds_summed_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"></span>
+
+<span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="nf">max</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">highb</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="o">[</span><span class="n">i, 1</span><span class="o">]</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">ranges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">compute_single_preset_relevance_bounds</span><span class="p">(</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="o">[</span><span class="n">highb, highb</span><span class="o">]</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="k">interval</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">diff</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">interval_constrained_to_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ranges</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">absolute_delta_bounds_summed_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">diff</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">feature_points</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">d</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">d</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">2</span><span class="p">))</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="k">range</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="err">:</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">feature_points</span><span class="o">[</span><span class="n">i, :(2 * d)</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">absolute_delta_bounds_summed_min</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">.</span><span class="n">flatten</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">            </span><span class="n">feature_points</span><span class="o">[</span><span class="n">i, (2 * d):</span><span class="o">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">absolute_delta_bounds_summed_max</span><span class="o">[</span><span class="n">i</span><span class="o">]</span><span class="p">.</span><span class="n">flatten</span><span class="p">()</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">relevance_variance</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">feature_points</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Calculate</span><span class="w"> </span><span class="n">similarity</span><span class="w"> </span><span class="k">using</span><span class="w"> </span><span class="n">custom</span><span class="w"> </span><span class="n">measure</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">dist_mat</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">scipy</span><span class="p">.</span><span class="n">spatial</span><span class="p">.</span><span class="n">distance</span><span class="p">.</span><span class="n">pdist</span><span class="p">(</span><span class="n">feature_points</span><span class="p">,</span><span class="w"> </span><span class="n">metric</span><span class="o">=</span><span class="n">distance</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">Single</span><span class="w"> </span><span class="n">Linkage</span><span class="w"> </span><span class="n">clustering</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="ss">&quot;single&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">link</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_mat</span><span class="p">,</span><span class="w"> </span><span class="k">method</span><span class="o">=</span><span class="k">method</span><span class="p">,</span><span class="w"> </span><span class="n">optimal_ordering</span><span class="o">=</span><span class="k">True</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="k">Set</span><span class="w"> </span><span class="n">cutoff</span><span class="w"> </span><span class="k">at</span><span class="w"> </span><span class="n">which</span><span class="w"> </span><span class="n">threshold</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">linkage</span><span class="w"> </span><span class="n">gets</span><span class="w"> </span><span class="n">flattened</span><span class="w"> </span><span class="p">(</span><span class="n">clustering</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">RATIO</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">cutoff_threshold</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">threshold</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">RATIO</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">np</span><span class="p">.</span><span class="nf">max</span><span class="p">(</span><span class="n">link</span><span class="o">[</span><span class="n">:, 2</span><span class="o">]</span><span class="p">)</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nf">max</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">branch</span><span class="w"> </span><span class="n">lengths</span><span class="w"> </span><span class="p">(</span><span class="n">distances</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">feature_clustering</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fcluster</span><span class="p">(</span><span class="n">link</span><span class="p">,</span><span class="w"> </span><span class="n">threshold</span><span class="p">,</span><span class="w"> </span><span class="n">criterion</span><span class="o">=</span><span class="ss">&quot;distance&quot;</span><span class="p">)</span><span class="w"></span>
+
+<span class="w">        </span><span class="n">self</span><span class="p">.</span><span class="n">feature_clusters_</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">linkage_</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">feature_clustering</span><span class="p">,</span><span class="w"> </span><span class="n">link</span><span class="w"></span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">feature_clusters_</span><span class="p">,</span><span class="w"> </span><span class="n">self</span><span class="p">.</span><span class="n">linkage_</span><span class="w"></span>
 </code></pre></div>
 
 

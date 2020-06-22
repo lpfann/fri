@@ -503,6 +503,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#get_grouping" class="md-nav__link">
+    get_grouping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#get_params" class="md-nav__link">
     get_params
   </a>
@@ -1107,6 +1114,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#get_grouping" class="md-nav__link">
+    get_grouping
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#get_params" class="md-nav__link">
     get_params
   </a>
@@ -1620,6 +1634,18 @@
 
         <span class="k">return</span> <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span>
 
+    <span class="k">def</span> <span class="nf">get_grouping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
+
+        <span class="n">groups</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_relevance_bounds_computer</span><span class="o">.</span><span class="n">grouping</span><span class="p">(</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">interval_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groups</span><span class="p">,</span> <span class="n">link</span>
+
     <span class="k">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
 
         <span class="sd">&quot;&quot;&quot;Determines relevancy using feature relevance interval values</span>
@@ -2065,6 +2091,18 @@ arguments (no <code>*args</code> or <code>**kwargs</code>).</p>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">optimal_model</span><span class="p">,</span> <span class="n">best_score</span>
+
+    <span class="n">def</span> <span class="nf">get_grouping</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="nf">check_is_fitted</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s2">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
+
+        <span class="n">groups</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="nf">grouping</span><span class="p">(</span>
+
+            <span class="n">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groups</span><span class="p">,</span> <span class="n">link</span>
 
     <span class="n">def</span> <span class="nf">_get_relevance_mask</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">prediction</span><span class="p">):</span>
 
@@ -2522,6 +2560,29 @@ and returns a transformed version of X.</p>
             <span class="o">#</span> <span class="n">fit</span> <span class="k">method</span> <span class="k">of</span> <span class="n">arity</span> <span class="mi">2</span> <span class="p">(</span><span class="n">supervised</span> <span class="n">transformation</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="k">self</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">).</span><span class="k">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</code></pre></div>
+
+
+</details>
+<h5 id="get_grouping">get_grouping</h5>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span> <span class="nf">get_grouping</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">)</span>
+</code></pre></div>
+
+
+<details class="example"><summary>View Source</summary><div class="codehilite"><pre><span></span><code>    <span class="n">def</span> <span class="n">get_grouping</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="k">self</span><span class="p">,</span> <span class="ss">&quot;allrel_prediction_&quot;</span><span class="p">)</span>
+
+        <span class="n">groups</span><span class="p">,</span> <span class="n">link</span> <span class="o">=</span> <span class="k">self</span><span class="p">.</span><span class="n">_relevance_bounds_computer</span><span class="p">.</span><span class="k">grouping</span><span class="p">(</span>
+
+            <span class="k">self</span><span class="p">.</span><span class="n">interval_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">groups</span><span class="p">,</span> <span class="n">link</span>
 </code></pre></div>
 
 
