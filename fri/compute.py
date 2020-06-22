@@ -379,20 +379,20 @@ class RelevanceBoundsIntervals(object):
         signed_presets = {}
         # Obtain optimal model parameters
         w = self.best_init_model.model_state["w"]
-        sum = 0
+        preset_sum = 0
         for i, preset in unsigned_presets.items():
             preset = np.array(preset)
             if preset.size == 1:
                 preset = np.repeat(preset, 2)
             unsigned_preset_i = np.sign(w[i]) * preset
             # accumulate maximal feature  contribution
-            sum += unsigned_preset_i[1]  # Take upper preset
+            preset_sum += unsigned_preset_i[1]  # Take upper preset
             signed_presets[i] = unsigned_preset_i
 
         # Check if unsigned_presets makes sense
         l1 = self.init_constraints["w_l1"]
-        if sum > l1:
-            print("maximum L1 norm of presets: ", sum)
+        if preset_sum > l1:
+            print("maximum L1 norm of presets: ", preset_sum)
             print("L1 allowed:", l1)
             print("Presets are not feasible. Try lowering values.")
             return
