@@ -1,6 +1,6 @@
 import logging
 
-from importlib.metadata import version
+from importlib_metadata import version
 
 try:
     __version__ = version(__name__)
