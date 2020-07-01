@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2.0.1
       with:
-        python-version: ${{ PYTHONVERSION }}
+        python-version: ${{ env.PYTHONVERSION }}
     - name: Install Poetry
       uses: dschep/install-poetry-action@v1.2
     - name: Cache poetry venv
@@ -24,9 +24,9 @@ jobs:
       id: cache
       with:
         path: ~/.virtualenvs
-        key: poetry-${{ PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
+        key: poetry-${{ env.PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          poetry-${{ PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
+          poetry-${{ env.PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
     - name: Set Poetry config
       run: |
         poetry config virtualenvs.in-project false
