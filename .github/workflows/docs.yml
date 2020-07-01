@@ -8,7 +8,7 @@ on:
   pull_request:
 
 env:
-  PYTHONVERSION: 3.7  
+  PYTHONVERSION: 3.8  
 
 jobs:
   build-docs:
