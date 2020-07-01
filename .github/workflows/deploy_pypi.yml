@@ -3,6 +3,8 @@ name: Deploy PyPi and Docs
 on:
   release:
     types: [published,edited] # Only deploy when publishing github releases
+env:
+  PYTHONVERSION: 3.7
 
 jobs:
   deploy:
@@ -14,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2.0.1
       with:
-        python-version: 3.7
+        python-version: ${{ PYTHONVERSION }}
     - name: Install Poetry
       uses: dschep/install-poetry-action@v1.2
     - name: Cache poetry venv
@@ -22,9 +24,9 @@ jobs:
       id: cache
       with:
         path: ~/.virtualenvs
-        key: poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+        key: poetry-${{ PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
         restore-keys: |
-          poetry-3.7-${{ hashFiles('**/poetry.lock') }}
+          poetry-${{ PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
     - name: Set Poetry config
       run: |
         poetry config virtualenvs.in-project false
