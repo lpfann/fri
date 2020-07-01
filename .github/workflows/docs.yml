@@ -1,4 +1,4 @@
-name: Documentation
+name: Test Documentation
 
 on:
   push:
@@ -38,12 +38,5 @@ jobs:
       run: poetry install -v
     - name: Run and convert notebooks into markdown
       run: poetry run jupyter nbconvert --to markdown docs/*.ipynb
-    - run: poetry run portray as_html
-      name: Portray - Compile as HTML
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-        publish_branch: gh-pages
-        publish_dir: ./site
-        cname: fri.lpfann.me
+    - name: Portray - Compile as HTML
+      run: poetry run portray as_html
