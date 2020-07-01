@@ -1,4 +1,4 @@
-name: Deploy to PyPI
+name: Deploy PyPi and Docs
 
 on:
   release:
@@ -33,6 +33,16 @@ jobs:
     - name: Install dependencies
       if: steps.cache.outputs.cache-hit != 'true'
       run: poetry install -v
-    - name: Deploy using poetry
+    - name: Deploy PyPi
       run: poetry publish --build -u __token__ -p ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
-
+    - name: Run and convert notebooks into markdown
+      run: poetry run jupyter nbconvert --to markdown docs/*.ipynb
+    - name: Portray - Compile as HTML
+      run: poetry run portray as_html
+    - name: Deploy Docs to Github
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_branch: gh-pages
+        publish_dir: ./site
+        cname: fri.lpfann.me
