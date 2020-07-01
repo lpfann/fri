@@ -7,12 +7,16 @@ from collections import defaultdict
 import attr
 import joblib
 import numpy as np
+import scipy
 from scipy import stats
+from scipy.cluster.hierarchy import fcluster, linkage
 
 from fri.model.base_cvxproblem import Relevance_CVXProblem
 from fri.model.base_initmodel import InitModel
 from fri.model.base_type import ProblemType
 from fri.utils import permutate_feature_in_data
+
+from .utils import distance
 
 MIN_N_PROBE_FEATURES = 20  # Lower bound of probe features
 
@@ -47,10 +51,9 @@ class RelevanceBoundsIntervals(object):
         self.normalize = normalize
 
         # Relax constraints to improve stability
-        relaxed_constraints = problem_type.get_relaxed_constraints(
+        self.init_constraints = problem_type.get_relaxed_constraints(
             best_init_model.constraints
         )
-        self.init_constraints = relaxed_constraints
 
     def get_normalized_lupi_intervals(self, lupi_features, presetModel=None):
 
@@ -70,7 +73,7 @@ class RelevanceBoundsIntervals(object):
             rb_l = self.compute_relevance_bounds(d_l, parallel=parallel)
             probe_priv_upper = self.compute_probe_values(d_l, True, parallel=parallel)
             probe_priv_lower = self.compute_probe_values(d_l, False, parallel=parallel)
-        probes = [probe_lower, probe_upper, probe_priv_lower, probe_priv_upper]
+
         #
         # Postprocess
         #
@@ -110,7 +113,7 @@ class RelevanceBoundsIntervals(object):
 
     def get_normalized_intervals(self, presetModel=None):
         # We define a list of all the features we want to compute relevance bounds for
-        X, _ = self.data  # TODO: handle other data formats
+        X, _ = self.data
         d = X.shape[1]
         # Depending on the preset model, we dont need to compute all bounds
         # e.g. in the case of fixed features we skip those
@@ -174,7 +177,7 @@ class RelevanceBoundsIntervals(object):
             interval_i = self._create_interval(abs_index, solved_bounds, presetModel)
             intervals[rel_index] = interval_i
 
-        return intervals  # TODO: add model model_state (omega, bias) to return value
+        return intervals
 
     def compute_probe_values(self, dims, isUpper=True, parallel=None, presetModel=None):
         # Get model parameters
@@ -350,11 +353,11 @@ class RelevanceBoundsIntervals(object):
 
         # Calculate all bounds with feature i set to min_i
         if lupi_features > 0:
-            rangevector, f_classes = self.get_normalized_lupi_intervals(
+            rangevector, _ = self.get_normalized_lupi_intervals(
                 lupi_features, presetModel=preset
             )
         else:
-            rangevector, f_classes = self.get_normalized_intervals(presetModel=preset)
+            rangevector, _ = self.get_normalized_intervals(presetModel=preset)
 
         return rangevector
 
@@ -404,6 +407,77 @@ class RelevanceBoundsIntervals(object):
             rangevector[rangevector <= 1e-11] = 0
         return rangevector
 
+    def grouping(self, interval, cutoff_threshold=0.55, method="single"):
+        """ Find feature clusters based on observed variance when changing feature contributions
+
+        Parameters
+        ----------
+        cutoff_threshold : float, optional
+            Cutoff value for the flat clustering step; decides at which height in the dendrogram the cut is made to determine groups.
+        method : str, optional
+            Linkage method used in the hierarchical clustering.
+
+        Returns
+        -------
+        self
+        """
+
+        # Do we have intervals?
+        if self.best_init_model is None:
+            raise Exception("Model needs to be fitted already.")
+
+        d = len(interval)
+
+        # Init arrays
+        interval_constrained_to_min = np.zeros(
+            (d, d, 2)
+        )  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_min = np.zeros((d, d, 2))
+        interval_constrained_to_max = np.zeros(
+            (d, d, 2)
+        )  # Save ranges (d,2-dim) for every contrained run (d-times)
+        absolute_delta_bounds_summed_max = np.zeros((d, d, 2))
+
+        # Set weight for each dimension to minimum and maximum possible value and run optimization of all others
+        # We retrieve the relevance bounds and calculate the absolute difference between them and non-constrained bounds
+        for i in range(d):
+            # min
+            lowb = interval[i, 0]
+            ranges = self.compute_single_preset_relevance_bounds(i, [lowb, lowb])
+            diff = interval - ranges
+            diff[i] = 0
+            interval_constrained_to_min[i] = ranges
+            absolute_delta_bounds_summed_min[i] = diff
+
+            # max
+            highb = interval[i, 1]
+            ranges = self.compute_single_preset_relevance_bounds(i, [highb, highb])
+            diff = interval - ranges
+            diff[i] = 0
+            interval_constrained_to_max[i] = ranges
+            absolute_delta_bounds_summed_max[i] = diff
+
+        feature_points = np.zeros((d, 2 * d * 2))
+        for i in range(d):
+            feature_points[i, : (2 * d)] = absolute_delta_bounds_summed_min[i].flatten()
+            feature_points[i, (2 * d) :] = absolute_delta_bounds_summed_max[i].flatten()
+
+        self.relevance_variance = feature_points
+
+        # Calculate similarity using custom measure
+        dist_mat = scipy.spatial.distance.pdist(feature_points, metric=distance)
+        # Create linkage tree
+        link = linkage(dist_mat, method=method, optimal_ordering=True)
+
+        # Set cutoff at which threshold the linkage gets flattened (clustering)
+        RATIO = cutoff_threshold
+        threshold = RATIO * np.max(link[:, 2])  # max of branch lengths (distances)
+        feature_clustering = fcluster(link, threshold, criterion="distance")
+
+        self.feature_clusters_, self.linkage_ = feature_clustering, link
+
+        return self.feature_clusters_, self.linkage_
+
 
 def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     dims = np.arange(start, d)
@@ -411,7 +485,6 @@ def _get_necessary_dimensions(d: int, presetModel: dict = None, start=0):
     # if presetModel is not None:
     #    # Exclude fixed (preset) dimensions from being redundantly computed
     #    dims = [di for di in dims if di not in presetModel.keys()]
-    # TODO: check the removal of this block
     return dims
 
 
