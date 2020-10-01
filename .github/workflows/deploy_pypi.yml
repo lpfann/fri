@@ -14,7 +14,7 @@ jobs:
       with:
         fetch-depth: 1
     - name: Set up Python
-      uses: actions/setup-python@v2.0.1
+      uses: actions/setup-python@v2.1.3
       with:
         python-version: ${{ env.PYTHONVERSION }}
     - name: Install Poetry
