@@ -46,7 +46,7 @@ docs_dir = "docs"
 
 [tool.black]
 line-length = 88
-target-version = ['py36', 'py37','py38', 'py39']
+target-version = ['py36', 'py37','py38']
 
 [tool.portray.mkdocs]
 markdown_extensions =[
