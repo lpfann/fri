@@ -305,11 +305,15 @@ class RelevanceBoundsIntervals(object):
                 f"(Some) relevance bounds for feature {feature} were not solved."
             )
             raise Exception("Infeasible bound(s).")
-        lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-            min_problems_candidates
+        lower_bound = (
+            self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
+                min_problems_candidates
+            )
         )
-        upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-            max_problems_candidates
+        upper_bound = (
+            self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+                max_problems_candidates
+            )
         )
         return lower_bound, upper_bound
 
@@ -408,7 +412,7 @@ class RelevanceBoundsIntervals(object):
         return rangevector
 
     def grouping(self, interval, cutoff_threshold=0.55, method="single"):
-        """ Find feature clusters based on observed variance when changing feature contributions
+        """Find feature clusters based on observed variance when changing feature contributions
 
         Parameters
         ----------
@@ -521,8 +525,8 @@ class FeatureClassifier:
 @attr.s
 class ProbeStatistic:
     """
-        Collects the threshold values about the statistics
-        from one kind of relevance bounds (minrel or maxrel).
+    Collects the threshold values about the statistics
+    from one kind of relevance bounds (minrel or maxrel).
     """
 
     lower_threshold = attr.ib(type=float)

@@ -14,30 +14,39 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2.3.1
+    #----------------------------------------------
+    #       check-out repo and set-up python     
+    #----------------------------------------------
+    - uses: actions/checkout@v2
       with:
         fetch-depth: 1
-    - name: Setup Python
-      uses: actions/setup-python@v2.0.1
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
       with:
-        python-version: ${{ env.PYTHONVERSION }}
+        python-version: ${{ matrix.python-version }}
+    #----------------------------------------------
+    #  -----  install & configure poetry  -----      
+    #----------------------------------------------
     - name: Install Poetry
-      uses: dschep/install-poetry-action@v1.2
-    - name: Cache poetry venv
-      uses: actions/cache@v2
-      id: cache
+      uses: snok/install-poetry@v1.1.1
       with:
-        path: ~/.virtualenvs
-        key: poetry-${{ env.PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          poetry-${{ env.PYTHONVERSION }}-${{ hashFiles('**/poetry.lock') }}
-    - name: Set Poetry config
-      run: |
-        poetry config virtualenvs.in-project false
-        poetry config virtualenvs.path ~/.virtualenvs
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+    #----------------------------------------------
+    #       load cached venv if cache exists      
+    #----------------------------------------------
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v2
+      with:
+        path: .venv
+        key: venv-${{ hashFiles('**/poetry.lock') }}
+    #----------------------------------------------
+    # install dependencies if cache does not exist 
+    #----------------------------------------------
     - name: Install dependencies
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: poetry install -v
+      run: poetry install
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
     - name: Run and convert notebooks into markdown
       run: poetry run jupyter nbconvert --to markdown docs/*.ipynb
     - name: Portray - Compile as HTML
