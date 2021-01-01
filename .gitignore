@@ -91,3 +91,4 @@ target/
 /.vscode/
 /doc/.vscode/
 /site/
+fri/grouping.py

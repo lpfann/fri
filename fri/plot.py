@@ -149,7 +149,7 @@ def plot_dendrogram_and_intervals(
 
 def plot_intervals(model, ticklabels=None):
     """Plot the relevance intervals.
-    
+
     Parameters
     ----------
     model : FRI model
@@ -168,15 +168,15 @@ def plot_intervals(model, ticklabels=None):
 def plot_lupi_intervals(model, ticklabels=None, lupi_ticklabels=None):
     """Plot the relevance intervals.
 
-        Parameters
-        ----------
-        model : FRI model
-            Needs to be fitted before.
-        ticklabels : list of str, optional
-            Strs for ticklabels on x-axis (features)
-        lupi_ticklabels : list of str, optional
-            Strs for lupi ticklabels on x-axis (lupi features)
-        """
+    Parameters
+    ----------
+    model : FRI model
+        Needs to be fitted before.
+    ticklabels : list of str, optional
+        Strs for ticklabels on x-axis (features)
+    lupi_ticklabels : list of str, optional
+        Strs for lupi ticklabels on x-axis (lupi features)
+    """
     n_features = model.interval_.shape[0] - model.lupi_features_
     data_interval_ = model.interval_[0:n_features, :]
     lupi_interval_ = model.interval_[n_features:, :]

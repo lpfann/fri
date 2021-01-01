@@ -16,8 +16,7 @@ RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
 
 
 class NotFeasibleForParameters(Exception):
-    """ Problem was infeasible with the current parameter set.
-    """
+    """Problem was infeasible with the current parameter set."""
 
 
 class FRIBase(BaseEstimator, SelectorMixin):
@@ -160,6 +159,13 @@ class FRIBase(BaseEstimator, SelectorMixin):
             **kwargs,
         )
         return optimal_model, best_score
+
+    def get_grouping(self, **kwargs):
+        check_is_fitted(self, "allrel_prediction_")
+        groups, link = self._relevance_bounds_computer.grouping(
+            self.interval_, **kwargs
+        )
+        return groups, link
 
     def _get_relevance_mask(self, prediction):
         """Determines relevancy using feature relevance interval values
