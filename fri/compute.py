@@ -305,11 +305,15 @@ class RelevanceBoundsIntervals(object):
                 f"(Some) relevance bounds for feature {feature} were not solved."
             )
             raise Exception("Infeasible bound(s).")
-        lower_bound = self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
-            min_problems_candidates
+        lower_bound = (
+            self.problem_type.get_cvxproblem_template.aggregate_min_candidates(
+                min_problems_candidates
+            )
         )
-        upper_bound = self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
-            max_problems_candidates
+        upper_bound = (
+            self.problem_type.get_cvxproblem_template.aggregate_max_candidates(
+                max_problems_candidates
+            )
         )
         return lower_bound, upper_bound
 
