@@ -36,11 +36,11 @@ jobs:
     #----------------------------------------------
     #       check-out repo and set-up python     
     #----------------------------------------------
-    - uses: actions/checkout@v2.3.1
+    - uses: actions/checkout@v2
       with:
         fetch-depth: 1
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2.0.1
+      uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     #----------------------------------------------
