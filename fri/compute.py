@@ -408,7 +408,7 @@ class RelevanceBoundsIntervals(object):
         return rangevector
 
     def grouping(self, interval, cutoff_threshold=0.55, method="single"):
-        """ Find feature clusters based on observed variance when changing feature contributions
+        """Find feature clusters based on observed variance when changing feature contributions
 
         Parameters
         ----------
@@ -521,8 +521,8 @@ class FeatureClassifier:
 @attr.s
 class ProbeStatistic:
     """
-        Collects the threshold values about the statistics
-        from one kind of relevance bounds (minrel or maxrel).
+    Collects the threshold values about the statistics
+    from one kind of relevance bounds (minrel or maxrel).
     """
 
     lower_threshold = attr.ib(type=float)

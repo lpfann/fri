@@ -16,8 +16,7 @@ RELEVANCE_MAPPING = {0: "Irrelevant", 1: "Weak relevant", 2: "Strong relevant"}
 
 
 class NotFeasibleForParameters(Exception):
-    """ Problem was infeasible with the current parameter set.
-    """
+    """Problem was infeasible with the current parameter set."""
 
 
 class FRIBase(BaseEstimator, SelectorMixin):
