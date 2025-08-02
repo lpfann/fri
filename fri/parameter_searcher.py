@@ -1,10 +1,11 @@
 """
-    In this class we use hyperparameter search to find parameters needed in our model.
-    Depending on the input model we sample parameters from a random distribution.
-    The sampling rate can be increased.
-    The model with the best internally defined accuracy is picked.
-    To increase robustness we use cross validation.
+In this class we use hyperparameter search to find parameters needed in our model.
+Depending on the input model we sample parameters from a random distribution.
+The sampling rate can be increased.
+The model with the best internally defined accuracy is picked.
+To increase robustness we use cross validation.
 """
+
 import warnings
 
 from sklearn.exceptions import FitFailedWarning
