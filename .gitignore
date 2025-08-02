@@ -87,6 +87,7 @@ target/
 /doc/auto_examples/
 /doc/modules/
 /venv/
+.venv/
 /env_fri/
 /.vscode/
 /doc/.vscode/
