@@ -62,6 +62,15 @@ jobs:
       run: poetry install --no-interaction --no-root
     - name: Install root package
       run: poetry install --no-interaction
+    - name: Update version from release tag
+      run: |
+        # Extract version from GitHub release tag (remove 'v' prefix if present)
+        VERSION=${GITHUB_REF#refs/tags/}
+        VERSION=${VERSION#v}
+        echo "Updating version to: $VERSION"
+        poetry version $VERSION
+        echo "Updated pyproject.toml version:"
+        grep "version =" pyproject.toml
     - name: Deploy PyPi
       run: poetry publish --build -u __token__ -p ${{ secrets.POETRY_PYPI_TOKEN_PYPI }}
     - name: Run and convert notebooks into markdown
