@@ -65,9 +65,6 @@ from fri.plot import plot_intervals
 
 
 class FRI(FRIBase):
-    """
-    Main class to use FRI in programatic fashion following the scikit-learn paradigm.
-    """
     def __init__(
         self,
         problemName: object,

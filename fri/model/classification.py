@@ -12,40 +12,22 @@ from .base_type import ProblemType
 
 
 class Classification(ProblemType):
-    """
-    Classification problem type for FRI.
-    """
     @classmethod
     def parameters(cls):
-        """
-        Get parameters for classification.
-        """
         return ["C"]
 
     @property
     def get_initmodel_template(cls):
-        """
-        Get initial model template.
-        """
         return Classification_SVM
 
     @property
     def get_cvxproblem_template(cls):
-        """
-        Get CVX problem template.
-        """
         return Classification_Relevance_Bound
 
     def relax_factors(cls):
-        """
-        Get relaxation factors.
-        """
         return ["loss_slack", "w_l1_slack"]
 
     def preprocessing(self, data, **kwargs):
-        """
-        Preprocess data for classification.
-        """
         X, y = data
         # Check that X and y have correct shape
         X, y = check_X_y(X, y)
@@ -64,20 +46,11 @@ class Classification(ProblemType):
 
 
 class Classification_SVM(InitModel):
-    """
-    SVM classification model.
-    """
     def __init__(self, C=1):
-        """
-        Initialize SVM classifier.
-        """
         super().__init__()
         self.C = C
 
     def fit(self, X, y, **kwargs):
-        """
-        Fit the SVM model.
-        """
         (n, d) = X.shape
 
         C = self.get_params()["C"]
@@ -105,9 +78,6 @@ class Classification_SVM(InitModel):
         return self
 
     def predict(self, X):
-        """
-        Predict class labels.
-        """
         w = self.model_state["w"]
         b = self.model_state["b"]
         y = np.dot(X, w) + b >= 0
@@ -116,9 +86,6 @@ class Classification_SVM(InitModel):
         return y
 
     def score(self, X, y, **kwargs):
-        """
-        Compute classification score.
-        """
         prediction = self.predict(X)
 
         # Negative class is set to -1 for decision surface
@@ -133,31 +100,19 @@ class Classification_SVM(InitModel):
 
 
 class Classification_Relevance_Bound(Relevance_CVXProblem):
-    """
-    Classification relevance bound problem.
-    """
     def init_objective_UB(self, sign=None, **kwargs):
-        """
-        Initialize upper bound objective.
-        """
         self.add_constraint(
             self.feature_relevance <= sign * self.w[self.current_feature]
         )
         self._objective = cvx.Maximize(self.feature_relevance)
 
     def init_objective_LB(self, **kwargs):
-        """
-        Initialize lower bound objective.
-        """
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )
         self._objective = cvx.Minimize(self.feature_relevance)
 
     def _init_constraints(self, parameters, init_model_constraints):
-        """
-        Initialize constraints.
-        """
         # Upper constraints from initial model
         l1_w = init_model_constraints["w_l1"]
         init_loss = init_model_constraints["loss"]
