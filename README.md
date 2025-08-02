@@ -70,6 +70,12 @@ to compile the files into html and launch a browser to preview changes.
 
 The documentation files are generated from `Python` docstrings inside the source files
  and from Markdown located in the `docs` folder.
+
+#### Releases
+To create a new release:
+1. Create a new GitHub release with a version tag (e.g., `v8.2.0` or `8.2.0`)
+2. The version will be automatically extracted from the tag and updated in `pyproject.toml`
+3. The package will be built and published to PyPI automatically via GitHub Actions
  
 
 ## References  
