@@ -19,13 +19,13 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-numpy = "^1.21, <2.0"  # Keep numpy < 2.0 for scikit-learn compatibility
-scipy = "^1.7"
-scikit-learn = "^1.0, <1.4"  # Update to modern scikit-learn that supports Python 3.8-3.12
+numpy = ">=1.21, <1.27"  # Use range that has good wheel support and is compatible
+scipy = "^1.0"
+scikit-learn = "^0.24"
 joblib = "^1"
 cvxpy = ">=1.0,<1.2"
 ecos = "^2.0.7"
-matplotlib = "^3.3"
+matplotlib = "^3.1"
 arfs-gen = "^1"
 importlib_metadata = {version = "^3.3.0", python = "<3.8"}
 
