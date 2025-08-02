@@ -30,7 +30,7 @@ arfs-gen = "^1"
 importlib_metadata = "^3.3.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6"
+pytest = "^7"
 pytest-cov = "^2.7"
 pytest-xdist = "^2.2"
 black = {version = "^20.8b1", allow-prereleases = true}
