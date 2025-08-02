@@ -35,7 +35,8 @@ pytest-xdist = "^2.2"
 black = "^22.0"
 nbconvert = "^6"
 lxml = {extras = ["html_clean"], version = "^4.9"}
-portray = "^1.3.0"
+portray = "^1.8"
+pdocs = "^1.2.0"
 pre-commit = "^2.15"
 python-coveralls = "^2.9.3"
 jupyter_client = "^6.1.5"
@@ -46,7 +47,7 @@ docs_dir = "docs"
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311', 'py312']
+target-version = ['py39', 'py310', 'py311']
 
 [tool.portray.mkdocs]
 markdown_extensions =[

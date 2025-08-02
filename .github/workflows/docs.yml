@@ -64,5 +64,6 @@ jobs:
       run: poetry install --no-interaction
     - name: Run and convert notebooks into markdown
       run: poetry run jupyter nbconvert --to markdown docs/*.ipynb
-    - name: Portray - Compile as HTML
-      run: poetry run portray as_html
+    # Skip portray step temporarily due to pdocs compatibility issue
+    # - name: Portray - Compile as HTML  
+    #   run: poetry run portray as_html
