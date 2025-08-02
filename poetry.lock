@@ -182,7 +182,7 @@ six = "*"
 
 [[package]]
 name = "dataclasses"
-version = "0.8"
+version = "0.7"
 description = "A backport of the dataclasses module for Python 3.6"
 category = "dev"
 optional = false
@@ -211,6 +211,14 @@ description = "Distribution utilities"
 category = "dev"
 optional = false
 python-versions = "*"
+
+[[package]]
+name = "docstring-parser"
+version = "0.7.3"
+description = ""
+category = "dev"
+optional = false
+python-versions = "~=3.5"
 
 [[package]]
 name = "ecos"
@@ -567,7 +575,7 @@ tornado = ">=5.0"
 
 [[package]]
 name = "mkdocs-material"
-version = "5.5.14"
+version = "7.1.3"
 description = "A Material Design theme for MkDocs"
 category = "dev"
 optional = false
@@ -755,13 +763,15 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
 name = "pdocs"
-version = "1.0.2"
+version = "1.1.1"
 description = "A simple program and library to auto generate API documentation for Python modules."
 category = "dev"
 optional = false
 python-versions = ">=3.6,<4.0"
 
 [package.dependencies]
+dataclasses = {version = ">=0.7,<0.8", markers = "python_version >= \"3.6\" and python_version < \"3.7\""}
+docstring_parser = ">=0.7.2,<0.8.0"
 hug = ">=2.6,<3.0"
 Mako = ">=1.1,<2.0"
 Markdown = ">=3.0.0,<4.0.0"
@@ -790,7 +800,7 @@ dev = ["pre-commit", "tox"]
 
 [[package]]
 name = "portray"
-version = "1.4.0"
+version = "1.6.0"
 description = "Your Project with Great Documentation"
 category = "dev"
 optional = false
@@ -799,9 +809,10 @@ python-versions = ">=3.6,<4.0"
 [package.dependencies]
 GitPython = ">=3.0,<4.0"
 hug = ">=2.6,<3.0"
+livereload = ">=2.6.3,<3.0.0"
 mkdocs = ">=1.0,<2.0"
-mkdocs-material = ">=5.0,<6.0"
-pdocs = ">=1.0.2,<2.0.0"
+mkdocs-material = ">=7.0,<8.0"
+pdocs = ">=1.1.1,<2.0.0"
 pymdown-extensions = ">=7.0,<8.0"
 toml = ">=0.10.0,<0.11.0"
 yaspin = ">=0.15.0,<0.16.0"
@@ -1222,7 +1233,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6"
-content-hash = "e6ca80894a722d6c8710a95f87b0dd2f3780279682aa216c2fd9b9cb4ed75097"
+content-hash = "ca341f39fdbc469e71ff962eaa19825cdd9c3459193bce716fcbfc08be5df94c"
 
 [metadata.files]
 apipkg = [
@@ -1294,6 +1305,7 @@ cffi = [
     {file = "cffi-1.14.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:840793c68105fe031f34d6a086eaea153a0cd5c491cde82a74b420edd0a2b909"},
     {file = "cffi-1.14.4-cp39-cp39-manylinux1_i686.whl", hash = "sha256:b18e0a9ef57d2b41f5c68beefa32317d286c3d6ac0484efd10d6e07491bb95dd"},
     {file = "cffi-1.14.4-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:045d792900a75e8b1e1b0ab6787dd733a8190ffcf80e8c8ceb2fb10a29ff238a"},
+    {file = "cffi-1.14.4-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:7ef7d4ced6b325e92eb4d3502946c78c5367bc416398d387b39591532536734e"},
     {file = "cffi-1.14.4-cp39-cp39-win32.whl", hash = "sha256:ba4e9e0ae13fc41c6b23299545e5ef73055213e466bd107953e4a013a5ddd7e3"},
     {file = "cffi-1.14.4-cp39-cp39-win_amd64.whl", hash = "sha256:f032b34669220030f905152045dfa27741ce1a6db3324a5bc0b96b6c7420c87b"},
     {file = "cffi-1.14.4.tar.gz", hash = "sha256:1a465cbe98a7fd391d47dce4b8f7e5b921e6cd805ef421d04f5f66ba8f06086c"},
@@ -1388,8 +1400,8 @@ cycler = [
     {file = "cycler-0.10.0.tar.gz", hash = "sha256:cd7b2d1018258d7247a71425e9f26463dfb444d411c39569972f4ce586b0c9d8"},
 ]
 dataclasses = [
-    {file = "dataclasses-0.8-py3-none-any.whl", hash = "sha256:0201d89fa866f68c8ebd9d08ee6ff50c0b255f8ec63a71c16fda7af82bb887bf"},
-    {file = "dataclasses-0.8.tar.gz", hash = "sha256:8479067f342acf957dc82ec415d355ab5edb7e7646b90dc6e2fd1d96ad084c97"},
+    {file = "dataclasses-0.7-py3-none-any.whl", hash = "sha256:3459118f7ede7c8bea0fe795bff7c6c2ce287d01dd226202f7c9ebc0610a7836"},
+    {file = "dataclasses-0.7.tar.gz", hash = "sha256:494a6dcae3b8bcf80848eea2ef64c0cc5cd307ffc263e17cdf42f3e5420808e6"},
 ]
 decorator = [
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
@@ -1402,6 +1414,9 @@ defusedxml = [
 distlib = [
     {file = "distlib-0.3.1-py2.py3-none-any.whl", hash = "sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb"},
     {file = "distlib-0.3.1.zip", hash = "sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1"},
+]
+docstring-parser = [
+    {file = "docstring_parser-0.7.3.tar.gz", hash = "sha256:cde5fbf8b846433dfbde1e0f96b7f909336a634d5df34a38cb75050c7346734a"},
 ]
 ecos = [
     {file = "ecos-2.0.7.post1-cp27-cp27m-macosx_10_13_x86_64.whl", hash = "sha256:dd9f01e28fe58894fb394931804884122606fb4e2a59d4514b803e9cd11b7d2b"},
@@ -1657,8 +1672,8 @@ mkdocs = [
     {file = "mkdocs-1.1.2.tar.gz", hash = "sha256:f0b61e5402b99d7789efa032c7a74c90a20220a9c81749da06dbfbcbd52ffb39"},
 ]
 mkdocs-material = [
-    {file = "mkdocs-material-5.5.14.tar.gz", hash = "sha256:9f3237df1a72f91e0330a5e3b3711cb7aaa0d5705f9585e6ce6fbacaa16e777f"},
-    {file = "mkdocs_material-5.5.14-py2.py3-none-any.whl", hash = "sha256:a0b3b3e67606e04d13e777d13f3195402ea09e0c3ce279abc3666cac2c5b3a6d"},
+    {file = "mkdocs-material-7.1.3.tar.gz", hash = "sha256:e34bba93ad1a0e6f9afc371f4ef55bedabbf13b9a786b013b0ce26ac55ec2932"},
+    {file = "mkdocs_material-7.1.3-py2.py3-none-any.whl", hash = "sha256:437638b0de7a9113d7f1c9ddc93c0a29a3b808c71c3606713d8c1fa437697a3e"},
 ]
 mkdocs-material-extensions = [
     {file = "mkdocs-material-extensions-1.0.1.tar.gz", hash = "sha256:6947fb7f5e4291e3c61405bad3539d81e0b3cd62ae0d66ced018128af509c68f"},
@@ -1784,8 +1799,8 @@ pathspec = [
     {file = "pathspec-0.8.1.tar.gz", hash = "sha256:86379d6b86d75816baba717e64b1a3a3469deb93bb76d613c9ce79edc5cb68fd"},
 ]
 pdocs = [
-    {file = "pdocs-1.0.2-py3-none-any.whl", hash = "sha256:4d5ff87babcd0c46f12b76c887d53225bddb389dee7c6b338dbe281c729fc035"},
-    {file = "pdocs-1.0.2.tar.gz", hash = "sha256:2e32432bd2736fd678ac1ce4447cd508deb62b5a12f7ba3bf0e3a374063221e2"},
+    {file = "pdocs-1.1.1-py3-none-any.whl", hash = "sha256:4f5116cf5ce0fa9f13171cd74db224636d4d71370115eefce22d8945526fcfc0"},
+    {file = "pdocs-1.1.1.tar.gz", hash = "sha256:f148034970220c9e05d2e04d8eb3fcec3575cf480af0966123ef9d6621b46e4f"},
 ]
 pillow = [
     {file = "Pillow-8.0.1-cp36-cp36m-macosx_10_10_x86_64.whl", hash = "sha256:b63d4ff734263ae4ce6593798bcfee6dbfb00523c82753a3a03cbc05555a9cc3"},
@@ -1822,8 +1837,8 @@ pluggy = [
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
 portray = [
-    {file = "portray-1.4.0-py3-none-any.whl", hash = "sha256:a6a06042a6b7fcb876b1e6cdcaee5adaeb6751388cb292fc05b2f31b1a4c3fb2"},
-    {file = "portray-1.4.0.tar.gz", hash = "sha256:ea2271c5e3fbe956070a6f8b1aee6dc3d6a66c18c11907e878db8faa6fd2c449"},
+    {file = "portray-1.6.0-py3-none-any.whl", hash = "sha256:592d6f0851dc585b49044d7a61bb6b5b26b3e9693ac06d97e27b86d6e00e9113"},
+    {file = "portray-1.6.0.tar.gz", hash = "sha256:7d4b7b58c4964833c704eb5fbdf801aede6f72ea26603d6c2b58e16448fe93d9"},
 ]
 pre-commit = [
     {file = "pre_commit-2.1.1-py2.py3-none-any.whl", hash = "sha256:09ebe467f43ce24377f8c2f200fe3cd2570d328eb2ce0568c8e96ce19da45fa6"},
