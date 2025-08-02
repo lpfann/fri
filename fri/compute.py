@@ -1,6 +1,7 @@
 """This module includes all important computation functions which are used internally.
 They (normally) should not be used by users.
 """
+
 import logging
 from collections import defaultdict
 
@@ -516,7 +517,7 @@ class FeatureClassifier:
         weakly = relevance_bounds[:, 1] > self.upper_stat.upper_threshold
         strongly = relevance_bounds[:, 0] > self.lower_stat.upper_threshold
         both = np.logical_and(weakly, strongly)
-        prediction = np.zeros(relevance_bounds.shape[0], dtype=np.int)
+        prediction = np.zeros(relevance_bounds.shape[0], dtype=int)
         prediction[weakly] = 1
         prediction[both] = 2
         return prediction
