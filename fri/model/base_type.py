@@ -7,6 +7,7 @@ class ProblemType(ABC):
     """
     Abstract base class for problem types in FRI.
     """
+
     def __init__(self, **kwargs):
         """
         Initialize problem type.

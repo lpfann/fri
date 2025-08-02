@@ -15,6 +15,7 @@ class Classification(ProblemType):
     """
     Classification problem type for FRI.
     """
+
     @classmethod
     def parameters(cls):
         """
@@ -67,6 +68,7 @@ class Classification_SVM(InitModel):
     """
     SVM classification model.
     """
+
     def __init__(self, C=1):
         """
         Initialize SVM classifier.
@@ -136,6 +138,7 @@ class Classification_Relevance_Bound(Relevance_CVXProblem):
     """
     Classification relevance bound problem.
     """
+
     def init_objective_UB(self, sign=None, **kwargs):
         """
         Initialize upper bound objective.

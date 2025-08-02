@@ -12,6 +12,7 @@ class Regression(ProblemType):
     """
     Regression problem type for FRI.
     """
+
     @classmethod
     def parameters(cls):
         """
@@ -55,6 +56,7 @@ class Regression_SVR(InitModel):
     """
     SVR regression model.
     """
+
     HYPERPARAMETER = ["C", "epsilon"]
 
     def __init__(self, C=1, epsilon=0.1):
@@ -121,6 +123,7 @@ class Regression_Relevance_Bound(Relevance_CVXProblem):
     """
     Regression relevance bound problem.
     """
+
     def init_objective_UB(self, sign=None, **kwargs):
         """
         Initialize upper bound objective.

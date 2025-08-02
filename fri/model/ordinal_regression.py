@@ -12,6 +12,7 @@ class OrdinalRegression(ProblemType):
     """
     Ordinal regression problem type for FRI.
     """
+
     @classmethod
     def parameters(cls):
         """
@@ -58,6 +59,7 @@ class OrdinalRegression_SVM(InitModel):
     """
     Ordinal regression SVM model.
     """
+
     HYPERPARAMETER = ["C"]
 
     def __init__(self, C=1):
@@ -239,6 +241,7 @@ class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
     """
     Ordinal regression relevance bound problem.
     """
+
     def init_objective_UB(self, sign=None, **kwargs):
         """
         Initialize upper bound objective.

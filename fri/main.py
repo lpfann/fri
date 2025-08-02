@@ -23,6 +23,7 @@ class FRIBase(BaseEstimator, SelectorMixin):
     """
     Base class for Feature Relevance Intervals (FRI) implementation.
     """
+
     def __init__(
         self,
         problem_type: ProblemType,
