@@ -45,6 +45,9 @@ jupyter_client = "^6.1.5"
 output_dir = "site"
 docs_dir = "docs"
 
+[tool.portray.pdocs]
+template_dir = "docs/pdocs_templates"
+
 [tool.black]
 line-length = 88
 target-version = ['py39', 'py310', 'py311']
