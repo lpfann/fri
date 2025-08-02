@@ -9,22 +9,40 @@ from .base_type import ProblemType
 
 
 class OrdinalRegression(ProblemType):
+    """
+    Ordinal regression problem type for FRI.
+    """
     @classmethod
     def parameters(cls):
+        """
+        Get parameters for ordinal regression.
+        """
         return ["C"]
 
     @property
     def get_initmodel_template(cls):
+        """
+        Get initial model template.
+        """
         return OrdinalRegression_SVM
 
     @property
     def get_cvxproblem_template(cls):
+        """
+        Get CVX problem template.
+        """
         return OrdinalRegression_Relevance_Bound
 
     def relax_factors(cls):
+        """
+        Get relaxation factors.
+        """
         return ["loss_slack", "w_l1_slack"]
 
     def preprocessing(self, data, **kwargs):
+        """
+        Preprocess data for ordinal regression.
+        """
         X, y = data
 
         # Check that X and y have correct shape
@@ -37,13 +55,22 @@ class OrdinalRegression(ProblemType):
 
 
 class OrdinalRegression_SVM(InitModel):
+    """
+    Ordinal regression SVM model.
+    """
     HYPERPARAMETER = ["C"]
 
     def __init__(self, C=1):
+        """
+        Initialize ordinal regression SVM.
+        """
         super().__init__()
         self.C = C
 
     def fit(self, X, y, **kwargs):
+        """
+        Fit the ordinal regression model.
+        """
         (n, d) = X.shape
 
         C = self.get_params()["C"]
@@ -95,6 +122,9 @@ class OrdinalRegression_SVM(InitModel):
         return self
 
     def predict(self, X):
+        """
+        Predict ordinal class labels.
+        """
         w = self.model_state["w"]
         b_s = self.model_state["b_s"]
 
@@ -107,6 +137,9 @@ class OrdinalRegression_SVM(InitModel):
         return self.classes_[indices]
 
     def score(self, X, y, error_type="mmae", return_error=False, **kwargs):
+        """
+        Compute ordinal regression score.
+        """
 
         X, y = check_X_y(X, y)
 
@@ -116,6 +149,9 @@ class OrdinalRegression_SVM(InitModel):
         return score
 
     def make_scorer(self):
+        """
+        Make scorer for ordinal regression.
+        """
         # Use multiple scores for ordinal regression
         mze = make_scorer(ordinal_scores, error_type="mze")
         mae = make_scorer(ordinal_scores, error_type="mae")
@@ -157,9 +193,15 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
         error_type = "mze"
 
     def mze(prediction, y):
+        """
+        Mean zero error.
+        """
         return np.sum(prediction != y)
 
     def mae(prediction, y):
+        """
+        Mean absolute error.
+        """
         return np.sum(np.abs(prediction - y))
 
     # Score based on mean zero-one error
@@ -194,7 +236,13 @@ def ordinal_scores(y, prediction, error_type, return_error=False):
 
 
 class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
+    """
+    Ordinal regression relevance bound problem.
+    """
     def init_objective_UB(self, sign=None, **kwargs):
+        """
+        Initialize upper bound objective.
+        """
 
         self.add_constraint(
             self.feature_relevance <= sign * self.w[self.current_feature]
@@ -202,6 +250,9 @@ class OrdinalRegression_Relevance_Bound(Relevance_CVXProblem):
         self._objective = cvx.Maximize(self.feature_relevance)
 
     def init_objective_LB(self, **kwargs):
+        """
+        Initialize lower bound objective.
+        """
         self.add_constraint(
             cvx.abs(self.w[self.current_feature]) <= self.feature_relevance
         )

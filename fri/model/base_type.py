@@ -4,7 +4,13 @@ import scipy.stats
 
 
 class ProblemType(ABC):
+    """
+    Abstract base class for problem types in FRI.
+    """
     def __init__(self, **kwargs):
+        """
+        Initialize problem type.
+        """
 
         self.chosen_parameters_ = {}
 
@@ -22,9 +28,15 @@ class ProblemType(ABC):
     @classmethod
     @abstractmethod
     def parameters(cls):
+        """
+        Get parameters for this problem type.
+        """
         raise NotImplementedError
 
     def get_chosen_parameter(self, p):
+        """
+        Get chosen parameter value.
+        """
         try:
             return [
                 self.chosen_parameters_[p]
@@ -47,14 +59,23 @@ class ProblemType(ABC):
                 return scipy.stats.reciprocal(a=1e-10, b=1e10)
 
     def get_all_parameters(self):
+        """
+        Get all parameters.
+        """
         return {p: self.get_chosen_parameter(p) for p in self.parameters()}
 
     @classmethod
     @abstractmethod
     def relax_factors(cls):
+        """
+        Get relaxation factors.
+        """
         raise NotImplementedError
 
     def get_chosen_relax_factors(self, p):
+        """
+        Get chosen relaxation factor.
+        """
         try:
             factor = self.relax_factors_[p]
         except KeyError:
@@ -67,27 +88,48 @@ class ProblemType(ABC):
         return factor
 
     def get_all_relax_factors(self):
+        """
+        Get all relaxation factors.
+        """
         return {p: self.get_chosen_relax_factors(p) for p in self.relax_factors()}
 
     @property
     @abstractmethod
     def get_initmodel_template(self):
+        """
+        Get initial model template.
+        """
         pass
 
     @property
     @abstractmethod
     def get_cvxproblem_template(self):
+        """
+        Get CVX problem template.
+        """
         pass
 
     @abstractmethod
     def preprocessing(self, data, lupi_features=None):
+        """
+        Preprocess data.
+        """
         return data
 
     def postprocessing(self, bounds):
+        """
+        Postprocess bounds.
+        """
         return bounds
 
     def get_relaxed_constraints(self, constraints):
+        """
+        Get relaxed constraints.
+        """
         return {c: self.relax_constraint(c, v) for c, v in constraints.items()}
 
     def relax_constraint(self, key, value):
+        """
+        Relax a constraint.
+        """
         return value * (1 + self.get_chosen_relax_factors(key))
