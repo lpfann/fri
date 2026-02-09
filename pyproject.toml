@@ -33,7 +33,7 @@ pytest = "^6"
 pytest-cov = "^2.7"
 pytest-xdist = "^2.2"
 black = ">=22,<25"
-nbconvert = "^6"
+nbconvert = ">=6,<8"
 lxml = {extras = ["html_clean"], version = "^4.9"}
 portray = "^1.8"
 pdocs = "^1.2.0"
